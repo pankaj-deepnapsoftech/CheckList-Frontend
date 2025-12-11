@@ -24,13 +24,25 @@ export default function Login() {
       {/* Login Box */}
       <div
         className="
-          relative z-10 w-full max-w-md 
-          bg-white/20 backdrop-blur-xl 
-          shadow-2xl rounded-2xl 
-          p-10 border border-white/30 
-          min-h-[400px]  
-        "
+      relative z-10 w-full max-w-md 
+      bg-white/20 backdrop-blur-xl 
+      shadow-2xl rounded-2xl 
+      p-10 pt-20 border border-white/30 
+      min-h-[400px]
+    "
       >
+        {/* Circle With SVG */}
+        <div
+          className="absolute -top-12 left-1/2 -translate-x-1/2 
+        w-24 h-24 rounded-full bg-gray-300  shadow-xl flex items-center justify-center"
+        >
+          <img
+            src="https://jpmgroup.co.in/assets/svg/logo-color.svg"
+            alt="logo"
+            className="w-14 h-14"
+          />
+        </div>
+
         <h2 className="text-3xl font-semibold text-center text-white mb-10">
           Login
         </h2>
@@ -42,11 +54,11 @@ export default function Login() {
             type="email"
             placeholder="Enter email"
             className="
-              mt-2 w-full px-4 py-3 
-              bg-white/70 backdrop-blur-sm 
-              border border-gray-300 rounded-lg
-              focus:outline-none focus:ring-2 focus:ring-blue-400
-            "
+          mt-2 w-full px-4 py-3 
+          bg-white/70 backdrop-blur-sm 
+          border border-gray-300 rounded-lg
+          focus:outline-none focus:ring-2 focus:ring-blue-400
+        "
           />
         </label>
 
@@ -58,14 +70,13 @@ export default function Login() {
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               className="
-                w-full px-4 py-3 
-                bg-white/70 backdrop-blur-sm 
-                border border-gray-300 rounded-lg
-                focus:outline-none focus:ring-2 focus:ring-blue-400
-              "
+            w-full px-4 py-3 
+            bg-white/70 backdrop-blur-sm 
+            border border-gray-300 rounded-lg
+            focus:outline-none focus:ring-2 focus:ring-blue-400
+          "
             />
 
-            {/* Eye Toggle */}
             <span
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-700"
@@ -77,7 +88,6 @@ export default function Login() {
 
         {/* Login Button */}
         <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
-          
           Login
         </button>
       </div>

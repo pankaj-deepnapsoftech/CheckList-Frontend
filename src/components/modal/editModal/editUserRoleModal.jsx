@@ -50,7 +50,7 @@ export default function EditUserRoleModal({ open, onClose, data }) {
             </label>
             <input
               type="text"
-              className="w-full border rounded-lg px-3 py-2 mt-1"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1"
               value={formData.role}
               onChange={(e) =>
                 setFormData({ ...formData, role: e.target.value })
@@ -60,12 +60,12 @@ export default function EditUserRoleModal({ open, onClose, data }) {
 
           {/* DESCRIPTION */}
           <div>
-            <label className="text-sm text-gray-700 font-medium">
+            <label className="text-sm  text-gray-700 font-medium">
               Description
             </label>
             <input
               type="text"
-              className="w-full border rounded-lg px-3 py-2 mt-1"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })

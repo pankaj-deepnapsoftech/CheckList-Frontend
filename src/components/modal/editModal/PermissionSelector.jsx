@@ -28,7 +28,7 @@ export default function PermissionSelector({ value, onChange }) {
 
       {/* INPUT BOX */}
       <div
-        className="border rounded-lg px-3 py-2 mt-1 w-full cursor-pointer min-h-[48px]"
+        className="border border-gray-200 rounded-lg px-3 py-2 mt-1 w-full cursor-pointer min-h-[48px]"
         onClick={() => setOpen(!open)}
       >
         <div className="flex flex-wrap gap-2">
@@ -57,7 +57,7 @@ export default function PermissionSelector({ value, onChange }) {
 
       {/* DROPDOWN */}
       {open && (
-        <div className="absolute bg-white border rounded-lg shadow-lg mt-1 w-full z-50 max-h-48 overflow-auto">
+        <div className="absolute bg-white border border-gray-200 rounded-lg shadow-lg mt-1 w-full z-50 max-h-48 overflow-auto">
           {AVAILABLE_PERMS.map((perm, index) => (
             <div
               key={index}
