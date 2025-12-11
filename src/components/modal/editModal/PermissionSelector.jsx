@@ -24,7 +24,7 @@ export default function PermissionSelector({ value, onChange }) {
 
   return (
     <div className="relative">
-      <label className="text-sm font-medium">Permissions</label>
+      <label className="text-sm text-gray-700 font-medium">Permissions</label>
 
       {/* INPUT BOX */}
       <div

@@ -60,7 +60,7 @@ export default function UserRoles() {
             <Plus size={18} /> Add New Role
           </button>
 
-          <button className="border cursor-pointer px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100">
+          <button className="border border-gray-200 cursor-pointer px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
@@ -86,7 +86,7 @@ export default function UserRoles() {
           {/* Show Dropdown */}
           <div className="flex items-center gap-2 text-gray-600">
             <span>Show:</span>
-            <select className="border rounded-lg px-2 py-1 cursor-pointer">
+            <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer">
               <option>5</option>
               <option>10</option>
               <option>15</option>
@@ -109,7 +109,10 @@ export default function UserRoles() {
 
             <tbody>
               {roles.map((item, i) => (
-                <tr key={i} className="border-b hover:bg-gray-50">
+                <tr
+                  key={i}
+                  className="border-b border-gray-200 hover:bg-gray-50"
+                >
                   {/* ROLE BADGE */}
                   <td className="px-4 py-3">
                     <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -154,7 +157,7 @@ export default function UserRoles() {
 
         {/* Pagination */}
         <div className="flex justify-center gap-4 mt-4">
-          <button className="border rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-100">
+          <button className="border border-gray-200 rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-100">
             Previous
           </button>
 
@@ -162,7 +165,7 @@ export default function UserRoles() {
             1
           </button>
 
-          <button className="border rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-100">
+          <button className="border border-gray-200 rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-100">
             Next
           </button>
         </div>

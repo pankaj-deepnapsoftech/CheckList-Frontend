@@ -45,7 +45,9 @@ export default function EditUserRoleModal({ open, onClose, data }) {
         <div className="flex flex-col gap-4">
           {/* ROLE */}
           <div>
-            <label className="text-sm font-medium">Role *</label>
+            <label className="text-sm text-gray-700 font-medium">
+              Role <span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               className="w-full border rounded-lg px-3 py-2 mt-1"
@@ -58,7 +60,9 @@ export default function EditUserRoleModal({ open, onClose, data }) {
 
           {/* DESCRIPTION */}
           <div>
-            <label className="text-sm font-medium">Description</label>
+            <label className="text-sm text-gray-700 font-medium">
+              Description
+            </label>
             <input
               type="text"
               className="w-full border rounded-lg px-3 py-2 mt-1"
