@@ -13,7 +13,6 @@ export default function UserRoles() {
 
   const [editModal, setEditModal] = useState(false);
 
-  // Dummy Data
   const roles = [
     {
       role: "IMPR",
@@ -29,58 +28,47 @@ export default function UserRoles() {
     },
   ];
 
-  // Future API integration
-  /*
-  useEffect(() => {
-      async function fetchRoles() {
-          const res = await fetch("/api/roles");
-          const data = await res.json();
-          setRoles(data);
-      }
-      fetchRoles();
-  }, []);
-  */
-
   return (
-    <div className="p-6">
-      {/* Header Card */}
-      <div className="bg-white shadow-sm rounded-xl p-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-semibold">User Roles</h1>
-          <p className="text-gray-500 text-sm">
-            Manage user roles and permissions
-          </p>
+    <div className="p-4 sm:p-6">
+      {/* HEADER */}
+      <div>
+        <h1 className="text-xl sm:text-2xl font-semibold">User Roles</h1>
+        <p className="text-gray-500 text-sm">Manage user roles and permissions</p>
+      </div>
+
+      {/* Search + Buttons */}
+      <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+        {/* Search Box */}
+        <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
+          <Search size={20} className="text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search roles..."
+            className="w-full outline-none text-gray-700"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Buttons */}
+        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
           <button
             onClick={() => setOpenModal(true)}
-            className="bg-blue-600 cursor-pointer text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition"
+            className="bg-blue-600 w-full sm:w-auto text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-700 transition"
           >
             <Plus size={18} /> Add New Role
           </button>
 
-          <button className="border border-gray-200 cursor-pointer px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100 text-gray-700">
+          <button className="border border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="bg-white shadow-sm rounded-xl w-[300px] p-4 mt-4 flex items-center gap-3">
-        <Search size={20} className="text-gray-500" />
-        <input
-          type="text"
-          placeholder="Search roles..."
-          className="w-full outline-none text-gray-700"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
       {/* Table Card */}
-      <div className="bg-white shadow-sm rounded-xl mt-6 p-4">
-        <div className="flex justify-between items-center mb-3">
+      <div className="bg-white shadow-sm rounded-2xl mt-6 p-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
           <h2 className="font-medium">{roles.length} Roles Found</h2>
 
           {/* Show Dropdown */}
@@ -94,11 +82,11 @@ export default function UserRoles() {
           </div>
         </div>
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+        {/* Responsive Table */}
+        <div className="overflow-x-auto rounded-lg border border-gray-200">
+          <table className="w-full min-w-[600px] border-collapse">
             <thead>
-              <tr className="bg-gray-100 text-left">
+              <tr className="bg-gray-100 text-left text-gray-700">
                 <th className="px-4 py-3">Role</th>
                 <th className="px-4 py-3">Description</th>
                 <th className="px-4 py-3">Created On</th>
@@ -111,9 +99,8 @@ export default function UserRoles() {
               {roles.map((item, i) => (
                 <tr
                   key={i}
-                  className="border-b border-gray-200 hover:bg-gray-50"
+                  className="border-b border-gray-200 hover:bg-gray-50 transition"
                 >
-                  {/* ROLE BADGE */}
                   <td className="px-4 py-3">
                     <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
                       {item.role}
@@ -124,7 +111,7 @@ export default function UserRoles() {
                   <td className="px-4 py-3">{item.createdOn}</td>
                   <td className="px-4 py-3">{item.updatedOn}</td>
 
-                  {/* ACTION ICONS */}
+                  {/* Actions */}
                   <td className="px-4 py-3 flex gap-3">
                     <Eye
                       size={18}
@@ -132,7 +119,7 @@ export default function UserRoles() {
                         setSelectedRole(item);
                         setViewModal(true);
                       }}
-                      className="text-blue-600 cursor-pointer"
+                      className="text-blue-600 cursor-pointer hover:scale-110 transition"
                     />
 
                     <Edit2
@@ -156,7 +143,7 @@ export default function UserRoles() {
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center gap-4 mt-4">
+        <div className="flex justify-center gap-4 mt-4 flex-wrap">
           <button className="border border-gray-200 rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-100">
             Previous
           </button>
@@ -170,12 +157,16 @@ export default function UserRoles() {
           </button>
         </div>
       </div>
+
+      {/* Modals */}
       <UserRoleModal open={openModal} onClose={() => setOpenModal(false)} />
+
       <ViewUserRoleModal
         open={viewModal}
         onClose={() => setViewModal(false)}
         data={selectedRole}
       />
+
       <EditUserRoleModal
         open={editModal}
         onClose={() => setEditModal(false)}
