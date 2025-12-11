@@ -1,13 +1,12 @@
 import './App.css'
-
 function App() {
  
 
   return (
     <>
-     <p>hello</p>
+      <h1 class="text-3xl text-red-400 font-bold underline">Hello world!</h1>
     </>
-  )
+  );
 }
 
 export default App
