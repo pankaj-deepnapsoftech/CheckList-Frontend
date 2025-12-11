@@ -1,0 +1,86 @@
+import React, { useState } from "react";
+import ProductionVideo from "../../assets/ProductionVideo.mp4";
+import { Eye, EyeOff } from "lucide-react";
+
+export default function Login() {
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <div className="relative min-h-screen flex items-center justify-center px-4">
+      {/* Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover brightness-50"
+      >
+        <source src={ProductionVideo} type="video/mp4" />
+      </video>
+
+      {/* Dark Overlay */}
+      <div className="absolute top-0 left-0 w-full h-full bg-black/30"></div>
+
+      {/* Login Box */}
+      <div
+        className="
+          relative z-10 w-full max-w-md 
+          bg-white/20 backdrop-blur-xl 
+          shadow-2xl rounded-2xl 
+          p-10 border border-white/30 
+          min-h-[400px]  
+        "
+      >
+        <h2 className="text-3xl font-semibold text-center text-white mb-10">
+          Login
+        </h2>
+
+        {/* Email */}
+        <label className="block mb-6">
+          <span className="text-white font-medium">Email address</span>
+          <input
+            type="email"
+            placeholder="Enter email"
+            className="
+              mt-2 w-full px-4 py-3 
+              bg-white/70 backdrop-blur-sm 
+              border border-gray-300 rounded-lg
+              focus:outline-none focus:ring-2 focus:ring-blue-400
+            "
+          />
+        </label>
+
+        {/* Password */}
+        <label className="block mb-8">
+          <span className="text-white font-medium">Password</span>
+          <div className="relative mt-2">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              className="
+                w-full px-4 py-3 
+                bg-white/70 backdrop-blur-sm 
+                border border-gray-300 rounded-lg
+                focus:outline-none focus:ring-2 focus:ring-blue-400
+              "
+            />
+
+            {/* Eye Toggle */}
+            <span
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-700"
+            >
+              {showPassword ? <EyeOff /> : <Eye />}
+            </span>
+          </div>
+        </label>
+
+        {/* Login Button */}
+        <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+          
+          Login
+        </button>
+      </div>
+    </div>
+  );
+}
