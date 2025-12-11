@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
-import UserRoleModal from "../components/modal/userRoleModal";
+import UserRoleModal from "../components/modal/addModal/AddUserRoleModal";
 import ViewUserRoleModal from "../components/modal/viewUserRoleModal";
-import EditUserRoleModal from "../components/modal/editUserRoleModal";
+import EditUserRoleModal from "../components/modal/editModal/editUserRoleModal";
 
 export default function UserRoles() {
   const [search, setSearch] = useState("");
@@ -12,10 +12,6 @@ export default function UserRoles() {
   const [selectedRole, setSelectedRole] = useState(null);
 
   const [editModal, setEditModal] = useState(false);
-  
-
-
-
 
   // Dummy Data
   const roles = [

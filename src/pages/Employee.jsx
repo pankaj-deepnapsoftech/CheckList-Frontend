@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Drawer } from "./Drawer/Drawer";
+import AddEmployeeModal from "../components/modal/addModal/AddEmployeeModal"
 
 
 const employees = Array(10).fill({
@@ -112,7 +112,7 @@ const  Employee=()=>{
         </table>
       </div>
 
-      <Drawer open={openDrawer} onClose={() => setOpenDrawer(false)} />
+      <AddEmployeeModal open={openDrawer} onClose={() => setOpenDrawer(false)} />
 
     </div>
   );
