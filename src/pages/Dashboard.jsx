@@ -240,6 +240,7 @@ export default function Dashboard() {
                     let cum = 0;
                     return PIE_DATA.map((s, i) => {
                       const start = (cum / pieTotal) * Math.PI * 2;
+                      // eslint-disable-next-line react-hooks/immutability
                       cum += s.value;
                       const end = (cum / pieTotal) * Math.PI * 2;
                       return (
