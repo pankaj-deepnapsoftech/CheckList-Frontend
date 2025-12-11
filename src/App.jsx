@@ -9,6 +9,7 @@ import Company from './page/Company';
 import AssemblyLineStatus from './page/AssemblyLineStatus';
 import AssemblyLine from './page/AssemblyLine';
 import Dashboard from './page/Dashboard';
+
 function App() {
  
 
@@ -24,6 +25,7 @@ function App() {
           <Route path="/company" element={<Company />} />
           <Route path="/assembly-line-status" element={<AssemblyLineStatus />} />
           <Route path="/assembly-line" element={<AssemblyLine />} />
+  
           {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
         </Routes>
     </>
