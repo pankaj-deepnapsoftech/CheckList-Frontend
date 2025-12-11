@@ -13,13 +13,6 @@ function App() {
  
 
   return (
-<<<<<<< HEAD
-    <>
-
-      <Routes>
-        <Route path="/login" element={<Login/>} />
-      </Routes>
-=======
     <> 
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -33,7 +26,6 @@ function App() {
           <Route path="/assembly-line" element={<AssemblyLine />} />
           {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
         </Routes>
->>>>>>> dff3df18a47bc2820092f91b964a932542e65dfa
     </>
   );
 }
