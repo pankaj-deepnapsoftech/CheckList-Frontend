@@ -43,16 +43,29 @@ export default function UserRoles() {
 
   return (
     <div className="p-6">
-      {/* Header Card */}
-      <div className="bg-white shadow-sm rounded-xl p-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-semibold">User Roles</h1>
-          <p className="text-gray-500 text-sm">
-            Manage user roles and permissions
-          </p>
+      <div>
+        <h1 className="text-2xl font-semibold">User Roles</h1>
+        <p className="text-gray-500 text-sm">
+          Manage user roles and permissions
+        </p>
+      </div>
+
+      {/* Search */}
+      <div className="bg-white shadow-sm rounded-xl p-4 mt-4 flex items-center justify-between gap-4">
+        {/* Search Box */}
+        <div className="flex items-center gap-3 w-full max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
+          <Search size={20} className="text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search roles..."
+            className="w-full outline-none text-gray-700"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Buttons */}
+        <div className="flex items-center gap-3">
           <button
             onClick={() => setOpenModal(true)}
             className="bg-blue-600 cursor-pointer text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition"
@@ -64,18 +77,6 @@ export default function UserRoles() {
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
-      </div>
-
-      {/* Search */}
-      <div className="bg-white shadow-sm rounded-xl w-[300px] p-4 mt-4 flex items-center gap-3">
-        <Search size={20} className="text-gray-500" />
-        <input
-          type="text"
-          placeholder="Search roles..."
-          className="w-full outline-none text-gray-700"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
       </div>
 
       {/* Table Card */}
