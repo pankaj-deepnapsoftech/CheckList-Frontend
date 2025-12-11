@@ -24,7 +24,6 @@ function App() {
           <Route path="/company" element={<Company />} />
           <Route path="/assembly-line-status" element={<AssemblyLineStatus />} />
           <Route path="/assembly-line" element={<AssemblyLine />} />
-          <Route></Route>
           {/* <Route path="*" element={<Navigate to="/login" replace />} /> */}
         </Routes>
     </>
