@@ -13,10 +13,6 @@ const Company = () => {
   const [openModal,setOpenModal] = useState(false)
 
 
-  const [openDrawer, setOpenDrawer] = useState(false);
-  const [drawerMode, setDrawerMode] = useState("add");
-  const [selectedCompany, setSelectedCompany] = useState(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const filteredCompanyies = listQuery?.data?.filter((com) =>
     com.company_name.toLowerCase().includes(search.toLowerCase())
@@ -33,7 +29,7 @@ const Company = () => {
     <div className="p-4 sm:p-6 w-full">
      
       <div>
-        <h1 className="text-xl sm:text-2xl font-semibold">Companies</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold">Companyies</h1>
         <p className="text-gray-500 text-sm">Manage Company</p>
       </div>
 
@@ -58,17 +54,16 @@ const Company = () => {
         </div>
 
         
-        <button
-         onClick={() => {
-        setSelectedCompany(null);
-        setDrawerMode("add");
-        setDrawerOpen(true);
-        }}
-        className="px-5 py-2 bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2">
-          <Plus size={18} /> Add New Company
-        </button>
-       
-      </div>
+        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+          <div className="flex justify-between items-center ">
+
+            <button
+              onClick={() => setOpenModal(true)}
+              className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
+              Add New Company
+            </button>
+
+          </div>
 
           <button className="border border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
@@ -167,150 +162,6 @@ const Company = () => {
       <CompanyDrawer setOpenModal={setOpenModal} openModal={openModal} editTable={editTable} />
 
     </div>
-  </div>
-
-  {/* Mobile View (Card Layout) */}
-<div className="grid gap-4 sm:hidden mt-4">
-  {filteredCompanyies.map((com, i) => (
-    <div
-      key={i}
-      className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
-    >
-     
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-          {com.company_name}
-        </span>
-
-        {/* ACTIONS */}
-        <div className="flex gap-4">
-          <Eye
-            size={20}
-            className="text-blue-500 cursor-pointer"
-            onClick={() => {
-              setSelectedCompany(com);
-              setDrawerMode("view");
-              setDrawerOpen(true);
-            }}
-          />
-          <Edit2
-            size={20}
-            className="text-green-600 cursor-pointer"
-            onClick={() => {
-              setSelectedCompany(com);
-              setDrawerMode("edit");
-              setDrawerOpen(true);
-            }}
-          />
-          <Trash2 size={20} className="text-red-500 cursor-pointer" />
-        </div>
-      </div>
-
-      {/* Details */}
-      <div className="mt-3 text-sm text-gray-600 space-y-1">
-        <p>
-          <strong>Address:</strong> {com.company_address}
-        </p>
-
-        <p>
-          <strong>GST:</strong>{" "}
-          <span className="">
-            {com.gst || "N/A"}
-          </span>
-        </p>
-
-        <p>
-          <strong>Description:</strong> {com.description || "N/A"}
-        </p>
-      </div>
-    </div>
-  ))}
-</div>
-
-
-  {/* Table */}
-  <div className="overflow-x-auto hidden sm:block rounded-xl border border-gray-200">
-  <table className="w-full text-left">
-    {/* Table Header */}
-    <thead>
-      <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
-        <th className="px-5 py-3 font-semibold">Company Name</th>
-        <th className="px-5 py-3 font-semibold">Company Address</th>
-        <th className="px-5 py-3 font-semibold">GST</th>
-        <th className="px-5 py-3 font-semibold">Description</th>
-        <th className="px-5 py-3 font-semibold text-center">Actions</th>
-      </tr>
-    </thead>
-
-    {/* Table Body */}
-    <tbody className="text-gray-700">
-      {filteredCompanyies.map((com, i) => (
-        <tr
-          key={i}
-          className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
-        >
-          <td className="px-5 py-4">{com.company_name}</td>
-          <td className="px-5 py-4">{com.company_address}</td>
-          <td className="px-5 py-4">
-            <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow">
-              {com.gst || "N/A"}
-            </span>
-          </td>
-          <td className="px-5 py-4">{com.description || "N/A"}</td>
-
-          {/* Actions */}
-          <td className="px-5 py-4 flex justify-center gap-5">
-  {/* VIEW */}
-  <Eye
-    size={20}
-    className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
-    onClick={() => {
-    setSelectedCompany(com);
-    setDrawerMode("view");
-    setDrawerOpen(true);
-  }}
-  />
-
-  {/* EDIT */}
-  <Edit2
-    size={20}
-    className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition transform"
-    onClick={() => {
-    setSelectedCompany(com);
-    setDrawerMode("edit");
-    setDrawerOpen(true);
-  }}
-  />
-
-  {/* DELETE */}
-  <Trash2
-    size={20}
-    className="text-red-500 hover:text-red-600 hover:scale-125 cursor-pointer transition transform"
-  />
-</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
-
-  
-
-</div>
-
-<CompanyDrawer
-  open={drawerOpen}
-  onClose={() => setDrawerOpen(false)}
-  data={selectedCompany}
-  mode={drawerMode}
-  onSubmit={(formData) => {
-    console.log(formData); // handle add/edit
-    setDrawerOpen(false);
-  }}
-/>
-
-  </div>
   );
 }
 
