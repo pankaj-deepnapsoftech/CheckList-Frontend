@@ -1,20 +1,28 @@
-import { Outlet } from "react-router-dom";
+import { useState } from "react";
 import Navbar from "../Components/Navbar";
 import Sidebar from "../Components/Sidebar";
 
-const MainLayout = ({children}) => {
+export default function Layout({ children }) {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-    return (
-        <div className="flex h-screen bg-gray-50">
-            <Sidebar />
-            <div className="flex-1 flex flex-col w-24">
-                <Navbar />
-                <main className="flex-1 overflow-y-auto p-4 ">
-                    {children}
-                </main>
-            </div>
-        </div>
-    );
-};
+  return (
+    <div className="flex overflow-hidden">
+      {/* SIDEBAR */}
+      <Sidebar isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
 
-export default MainLayout;
+      {/* RIGHT SIDE CONTENT */}
+      <div className="flex-1">
+        <Navbar 
+          isMobileOpen={isMobileOpen}
+          onMenuClick={() => setIsMobileOpen(!isMobileOpen)}
+        />
+
+        <div className="p-4">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+
+
+

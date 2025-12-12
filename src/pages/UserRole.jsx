@@ -7,10 +7,8 @@ import EditUserRoleModal from "../components/modal/editModal/editUserRoleModal";
 export default function UserRoles() {
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
-
   const [viewModal, setViewModal] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
-
   const [editModal, setEditModal] = useState(false);
 
   const roles = [
@@ -41,7 +39,7 @@ export default function UserRoles() {
       {/* Search + Buttons */}
       <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Search Box */}
-        <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
+        <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
           <Search size={20} className="text-gray-500" />
           <input
             type="text"
@@ -56,19 +54,19 @@ export default function UserRoles() {
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
           <button
             onClick={() => setOpenModal(true)}
-            className="bg-blue-500 w-full sm:w-auto text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600 transition"
+            className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
           >
             <Plus size={18} /> Add New Role
           </button>
 
-          <button className="border border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
+          <button className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
       </div>
 
-      {/* Table Card */}
-      <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
+      {/* TABLE CARD */}
+      <div className="bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="font-semibold text-gray-800 text-lg">
@@ -78,7 +76,7 @@ export default function UserRoles() {
           {/* Show Dropdown */}
           <div className="flex items-center gap-2 text-gray-500">
             <span className="text-sm font-medium">Show:</span>
-            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer transition">
+            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer">
               <option>5</option>
               <option>10</option>
               <option>15</option>
@@ -86,12 +84,60 @@ export default function UserRoles() {
           </div>
         </div>
 
-        {/* Responsive Table */}
-        <div className="overflow-x-auto rounded-xl border border-gray-200">
+        {/* Mobile View Cards */}
+        <div className="grid gap-4 sm:hidden">
+          {roles.map((item, i) => (
+            <div
+              key={i}
+              className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
+            >
+              <div className="flex items-center justify-between">
+                <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                  {item.role}
+                </span>
+
+                {/* ACTIONS */}
+                <div className="flex gap-4">
+                  <Eye
+                    size={20}
+                    className="text-blue-500 cursor-pointer"
+                    onClick={() => {
+                      setSelectedRole(item);
+                      setViewModal(true);
+                    }}
+                  />
+                  <Edit2
+                    size={20}
+                    className="text-green-600 cursor-pointer"
+                    onClick={() => {
+                      setSelectedRole(item);
+                      setEditModal(true);
+                    }}
+                  />
+                  <Trash2 size={20} className="text-red-500 cursor-pointer" />
+                </div>
+              </div>
+
+              <div className="mt-3 text-sm text-gray-600">
+                <p>
+                  <strong>Description:</strong> {item.description}
+                </p>
+                {/* <p>
+                  <strong>Created On:</strong> {item.createdOn}
+                </p>
+                <p>
+                  <strong>Updated On:</strong> {item.updatedOn}
+                </p> */}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table */}
+        <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
-            {/* Table Header */}
             <thead>
-              <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm">
+              <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
                 <th className="px-5 py-3 font-semibold">Role</th>
                 <th className="px-5 py-3 font-semibold">Description</th>
                 <th className="px-5 py-3 font-semibold">Created On</th>
@@ -100,50 +146,41 @@ export default function UserRoles() {
               </tr>
             </thead>
 
-            {/* Table Body */}
             <tbody className="text-gray-700">
               {roles.map((item, i) => (
                 <tr
                   key={i}
-                  className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200"
+                  className="border-b border-gray-200 hover:bg-blue-50 transition"
                 >
-                  {/* Role Badge */}
                   <td className="px-5 py-4">
-                    <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow">
+                    <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
                       {item.role}
                     </span>
                   </td>
+                  <td className="px-5 py-4">{item.description}</td>
+                  <td className="px-5 py-4">{item.createdOn}</td>
+                  <td className="px-5 py-4">{item.updatedOn}</td>
 
-                  <td className="px-5 py-4 text-sm">{item.description}</td>
-                  <td className="px-5 py-4 text-sm">{item.createdOn}</td>
-                  <td className="px-5 py-4 text-sm">{item.updatedOn}</td>
-
-                  {/* Actions */}
                   <td className="px-5 py-4 flex justify-center gap-5">
-                    {/* VIEW */}
                     <Eye
                       size={20}
+                      className="text-blue-500 cursor-pointer hover:scale-125 transition"
                       onClick={() => {
                         setSelectedRole(item);
                         setViewModal(true);
                       }}
-                      className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition"
                     />
-
-                    {/* EDIT */}
                     <Edit2
                       size={20}
+                      className="text-green-600 cursor-pointer hover:scale-125 transition"
                       onClick={() => {
                         setSelectedRole(item);
                         setEditModal(true);
                       }}
-                      className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition"
                     />
-
-                    {/* DELETE */}
                     <Trash2
                       size={20}
-                      className="text-red-500 hover:text-red-500 hover:scale-125 cursor-pointer transition"
+                      className="text-red-500 cursor-pointer hover:scale-125 transition"
                     />
                   </td>
                 </tr>
@@ -154,7 +191,7 @@ export default function UserRoles() {
 
         {/* Pagination */}
         <div className="flex justify-center gap-3 mt-6">
-          <button className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 transition text-sm">
+          <button className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 text-sm">
             Previous
           </button>
 
@@ -162,7 +199,7 @@ export default function UserRoles() {
             1
           </button>
 
-          <button className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-gray-100 transition text-sm">
+          <button className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 text-sm">
             Next
           </button>
         </div>
