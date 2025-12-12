@@ -77,8 +77,8 @@ const  Company=()=>{
         setDrawerMode("add");
         setDrawerOpen(true);
         }}
-        className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2">
-           Add New Company
+        className="px-5 py-2 bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2">
+          <Plus size={18} /> Add New Company
         </button>
        
       </div>
@@ -111,9 +111,68 @@ const  Company=()=>{
     </div>
   </div>
 
+  {/* Mobile View (Card Layout) */}
+<div className="grid gap-4 sm:hidden mt-4">
+  {filteredCompanyies.map((com, i) => (
+    <div
+      key={i}
+      className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
+    >
+     
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+          {com.company_name}
+        </span>
+
+        {/* ACTIONS */}
+        <div className="flex gap-4">
+          <Eye
+            size={20}
+            className="text-blue-500 cursor-pointer"
+            onClick={() => {
+              setSelectedCompany(com);
+              setDrawerMode("view");
+              setDrawerOpen(true);
+            }}
+          />
+          <Edit2
+            size={20}
+            className="text-green-600 cursor-pointer"
+            onClick={() => {
+              setSelectedCompany(com);
+              setDrawerMode("edit");
+              setDrawerOpen(true);
+            }}
+          />
+          <Trash2 size={20} className="text-red-500 cursor-pointer" />
+        </div>
+      </div>
+
+      {/* Details */}
+      <div className="mt-3 text-sm text-gray-600 space-y-1">
+        <p>
+          <strong>Address:</strong> {com.company_address}
+        </p>
+
+        <p>
+          <strong>GST:</strong>{" "}
+          <span className="">
+            {com.gst || "N/A"}
+          </span>
+        </p>
+
+        <p>
+          <strong>Description:</strong> {com.description || "N/A"}
+        </p>
+      </div>
+    </div>
+  ))}
+</div>
+
+
   {/* Table */}
-  <div className="overflow-x-auto rounded-xl border border-gray-200">
-  <table className="w-full min-w-[700px] text-left">
+  <div className="overflow-x-auto hidden sm:block rounded-xl border border-gray-200">
+  <table className="w-full text-left">
     {/* Table Header */}
     <thead>
       <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
