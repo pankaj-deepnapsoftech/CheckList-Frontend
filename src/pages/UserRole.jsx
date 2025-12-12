@@ -33,12 +33,13 @@ export default function UserRoles() {
       {/* HEADER */}
       <div>
         <h1 className="text-xl sm:text-2xl font-semibold">User Roles</h1>
-        <p className="text-gray-500 text-sm">Manage user roles and permissions</p>
+        <p className="text-gray-500 text-sm">
+          Manage user roles and permissions
+        </p>
       </div>
 
       {/* Search + Buttons */}
       <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-
         {/* Search Box */}
         <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
           <Search size={20} className="text-gray-500" />
@@ -67,14 +68,17 @@ export default function UserRoles() {
       </div>
 
       {/* Table Card */}
-      <div className="bg-white shadow-sm rounded-2xl mt-6 p-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
-          <h2 className="font-medium">{roles.length} Roles Found</h2>
+      <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
+          <h2 className="font-semibold text-gray-800 text-lg">
+            {roles.length} Roles Found
+          </h2>
 
           {/* Show Dropdown */}
           <div className="flex items-center gap-2 text-gray-600">
-            <span>Show:</span>
-            <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer">
+            <span className="text-sm font-medium">Show:</span>
+            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer transition">
               <option>5</option>
               <option>10</option>
               <option>15</option>
@@ -83,57 +87,63 @@ export default function UserRoles() {
         </div>
 
         {/* Responsive Table */}
-        <div className="overflow-x-auto rounded-lg border border-gray-200">
-          <table className="w-full min-w-[600px] border-collapse">
+        <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <table className="w-full min-w-[700px] text-left">
+            {/* Table Header */}
             <thead>
-              <tr className="bg-gray-100 text-left text-gray-700">
-                <th className="px-4 py-3">Role</th>
-                <th className="px-4 py-3">Description</th>
-                <th className="px-4 py-3">Created On</th>
-                <th className="px-4 py-3">Last Updated</th>
-                <th className="px-4 py-3">Actions</th>
+              <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm">
+                <th className="px-5 py-3 font-semibold">Role</th>
+                <th className="px-5 py-3 font-semibold">Description</th>
+                <th className="px-5 py-3 font-semibold">Created On</th>
+                <th className="px-5 py-3 font-semibold">Last Updated</th>
+                <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
 
-            <tbody>
+            {/* Table Body */}
+            <tbody className="text-gray-700">
               {roles.map((item, i) => (
                 <tr
                   key={i}
-                  className="border-b border-gray-200 hover:bg-gray-50 transition"
+                  className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200"
                 >
-                  <td className="px-4 py-3">
-                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  {/* Role Badge */}
+                  <td className="px-5 py-4">
+                    <span className="bg-blue-600 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow">
                       {item.role}
                     </span>
                   </td>
 
-                  <td className="px-4 py-3">{item.description}</td>
-                  <td className="px-4 py-3">{item.createdOn}</td>
-                  <td className="px-4 py-3">{item.updatedOn}</td>
+                  <td className="px-5 py-4 text-sm">{item.description}</td>
+                  <td className="px-5 py-4 text-sm">{item.createdOn}</td>
+                  <td className="px-5 py-4 text-sm">{item.updatedOn}</td>
 
                   {/* Actions */}
-                  <td className="px-4 py-3 flex gap-3">
+                  <td className="px-5 py-4 flex justify-center gap-5">
+                    {/* VIEW */}
                     <Eye
-                      size={18}
+                      size={20}
                       onClick={() => {
                         setSelectedRole(item);
                         setViewModal(true);
                       }}
-                      className="text-blue-600 cursor-pointer hover:scale-110 transition"
+                      className="text-blue-600 hover:text-blue-700 hover:scale-125 cursor-pointer transition"
                     />
 
+                    {/* EDIT */}
                     <Edit2
-                      size={18}
-                      className="cursor-pointer text-green-500 hover:scale-110 transition"
+                      size={20}
                       onClick={() => {
                         setSelectedRole(item);
                         setEditModal(true);
                       }}
+                      className="text-green-600 hover:text-green-700 hover:scale-125 cursor-pointer transition"
                     />
 
+                    {/* DELETE */}
                     <Trash2
-                      size={18}
-                      className="cursor-pointer text-red-500 hover:scale-110 transition"
+                      size={20}
+                      className="text-red-500 hover:text-red-600 hover:scale-125 cursor-pointer transition"
                     />
                   </td>
                 </tr>
@@ -143,16 +153,16 @@ export default function UserRoles() {
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center gap-4 mt-4 flex-wrap">
-          <button className="border border-gray-200 rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-100">
+        <div className="flex justify-center gap-3 mt-6">
+          <button className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition text-sm">
             Previous
           </button>
 
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+          <button className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium shadow text-sm">
             1
           </button>
 
-          <button className="border border-gray-200 rounded-lg px-4 py-2 text-gray-600 hover:bg-gray-100">
+          <button className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition text-sm">
             Next
           </button>
         </div>
