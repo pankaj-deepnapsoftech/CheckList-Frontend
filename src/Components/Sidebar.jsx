@@ -38,7 +38,7 @@ const Sidebar = () => {
 
     return (
       <>
-        <aside className="hidden md:flex w-64 bg-white shadow-lg p-5 border-r border-gray-200 flex-col justify-between h-screen">
+        <aside className="hidden md:flex w-64 bg-white shadow-lg p-5 flex-col justify-between h-screen">
           <div>
             <div className="flex justify-center mb-6">
               <img
