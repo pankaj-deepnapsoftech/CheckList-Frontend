@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import UserRoleModal from "../components/modal/addModal/AddUserRoleModal";
-import ViewUserRoleModal from "../components/modal/viewUserRoleModal";
 
 export default function UserRoles() {
   const [search, setSearch] = useState("");
@@ -115,9 +114,11 @@ export default function UserRoles() {
                     className="text-blue-500 cursor-pointer"
                     onClick={() => {
                       setSelectedRole(item);
-                      setViewModal(true);
+                      setModalMode("view");
+                      setModalOpen(true);
                     }}
                   />
+
                   <Edit2
                     size={20}
                     className="text-green-600 cursor-pointer"
@@ -127,6 +128,7 @@ export default function UserRoles() {
                       setModalOpen(true);
                     }}
                   />
+
                   <Trash2 size={20} className="text-red-500 cursor-pointer" />
                 </div>
               </div>
@@ -135,12 +137,6 @@ export default function UserRoles() {
                 <p>
                   <strong>Description:</strong> {item.description}
                 </p>
-                {/* <p>
-                  <strong>Created On:</strong> {item.createdOn}
-                </p>
-                <p>
-                  <strong>Updated On:</strong> {item.updatedOn}
-                </p> */}
               </div>
             </div>
           ))}
@@ -180,7 +176,8 @@ export default function UserRoles() {
                       className="text-blue-500 cursor-pointer hover:scale-125 transition"
                       onClick={() => {
                         setSelectedRole(item);
-                        setViewModal(true);
+                        setModalMode("view");
+                        setModalOpen(true);
                       }}
                     />
                     <Edit2
@@ -188,7 +185,8 @@ export default function UserRoles() {
                       className="text-green-600 cursor-pointer hover:scale-125 transition"
                       onClick={() => {
                         setSelectedRole(item);
-                        setEditModal(true);
+                        setModalMode("edit");
+                        setModalOpen(true);
                       }}
                     />
                     <Trash2
@@ -224,16 +222,14 @@ export default function UserRoles() {
         onClose={() => setModalOpen(false)}
         mode={modalMode}
         initialData={selectedRole}
-        onSubmit={modalMode === "add" ? handleAddRole : handleUpdateRole}
+        onSubmit={
+          modalMode === "add"
+            ? handleAddRole
+            : modalMode === "edit"
+            ? handleUpdateRole
+            : undefined
+        }
       />
-
-      <ViewUserRoleModal
-        open={viewModal}
-        onClose={() => setViewModal(false)}
-        data={selectedRole}
-      />
-
-      
     </div>
   );
 }
