@@ -20,7 +20,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const allMenu = [
     {
       name: "Dashboard",
-      path: "/dashboard",
+      path: "/",
       icon: <LayoutDashboard size={20} />,
     },
     { name: "Company", path: "/company", icon: <Building size={20} /> },
