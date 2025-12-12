@@ -1,75 +1,94 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import PermissionSelector from "./PermissionSelector";
 
-export default function UserRoleModal({ open, onClose }) {
+export default function UserRoleModal({
+  open,
+  onClose,
+  mode = "add",
+  initialData = null,
+  onSubmit,
+}) {
+  const [formData, setFormData] = useState({
+    role: "",
+    description: "",
+    permissions: [],
+  });
+
+  // Fill form when editing
+  useEffect(() => {
+    if (mode === "edit" && initialData) {
+      setFormData({
+        role: initialData.role || "",
+        description: initialData.description || "",
+        permissions: initialData.permissions || [],
+      });
+    } else {
+      setFormData({ role: "", description: "", permissions: [] });
+    }
+  }, [mode, initialData, open]);
+
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex">
-      {/* BACKDROP */}
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-        onClick={onClose}
-      />
+  const handleSubmit = () => {
+    if (!formData.role.trim()) return alert("Role is required");
 
-      {/* SLIDING PANEL */}
-      <div
-        className="
-          ml-auto h-full w-full max-w-md bg-white shadow-xl 
-          p-6 relative animate-slideLeft
-        "
-      >
-        {/* Close Button */}
-        <button
-          className="absolute cursor-pointer right-4 top-4 text-gray-600 hover:text-black"
-          onClick={onClose}
-        >
-          <X size={20} />
+    onSubmit(formData);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-end">
+      <div className="bg-white h-full w-[420px] shadow-lg p-6 animate-slideLeft relative">
+        {/* HEADER */}
+        <button className="absolute right-4 top-4" onClick={onClose}>
+          <X size={22} className="text-gray-500 hover:text-black" />
         </button>
 
-        <h2 className="text-xl font-semibold mb-6">Add New Role</h2>
+        <h2 className="text-xl font-semibold mb-6">
+          {mode === "add" ? "Add New Role" : "Edit Role"}
+        </h2>
 
-        {/* Role */}
-        <label className="block mb-4">
-          <span className="text-gray-700 font-medium">
+        {/* ROLE */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-700 font-medium">
             Role <span className="text-red-500">*</span>
-          </span>
+          </label>
           <input
             type="text"
-            placeholder="Role"
-            className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1"
+            value={formData.role}
+            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
           />
-        </label>
+        </div>
 
-        {/* Description */}
-        <label className="block mb-4">
-          <span className="text-gray-700 font-medium">Description</span>
+        {/* DESCRIPTION */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-700 font-medium">
+            Description
+          </label>
           <input
             type="text"
-            placeholder="Description"
-            className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 mt-1"
+            value={formData.description}
+            onChange={(e) =>
+              setFormData({ ...formData, description: e.target.value })
+            }
           />
-        </label>
+        </div>
 
-        {/* Permissions */}
-        <label className="block mb-6">
-          <span className="text-gray-700 font-medium">Permissions</span>
-          <select
-            className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg 
-                       focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option>Select</option>
-            <option>View</option>
-            <option>Edit</option>
-            <option>Delete</option>
-          </select>
-        </label>
+        {/* PERMISSIONS */}
+        <PermissionSelector
+          value={formData.permissions}
+          onChange={(perms) => setFormData({ ...formData, permissions: perms })}
+        />
 
-        {/* Submit */}
-        <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
-          Submit
+        {/* SUBMIT BUTTON */}
+        <button
+          onClick={handleSubmit}
+          className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 mt-6 w-full"
+        >
+          {mode === "add" ? "Submit" : "Update Role"}
         </button>
       </div>
     </div>
