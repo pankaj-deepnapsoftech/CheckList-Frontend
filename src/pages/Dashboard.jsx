@@ -112,12 +112,12 @@ export default function Dashboard() {
   const pieTotal = PIE_DATA.reduce((s, p) => s + p.value, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8 text-gray-900">
+    <div className="min-h-screen from-gray-50 to-gray-100 text-gray-900">
 
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-3xl font-bold">Assembly Checklist Dashboard</h1>
+          <h1 className="text-3xl font-bold">Checklist Dashboard</h1>
           <p className="text-sm text-gray-500 mt-1">Monitor assembly checks, errors and progress</p>
         </div>
 
