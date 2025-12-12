@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const axiosHandler = axios.create({
+export const axiosHandler = axios.create({
     baseURL: import.meta.env.VITE_BACKEND_URL
 });
 

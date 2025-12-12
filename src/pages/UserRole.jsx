@@ -1,15 +1,22 @@
 import React, { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import UserRoleModal from "../components/modal/addModal/AddUserRoleModal";
-import ViewUserRoleModal from "../components/modal/viewUserRoleModal";
-import EditUserRoleModal from "../components/modal/editModal/editUserRoleModal";
 
 export default function UserRoles() {
   const [search, setSearch] = useState("");
-  const [openModal, setOpenModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
-  const [selectedRole, setSelectedRole] = useState(null);
   const [editModal, setEditModal] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("add"); // add | edit
+  const [selectedRole, setSelectedRole] = useState(null);
+
+  const handleAddRole = (roleData) => {
+    console.log("Add Role API →", roleData);
+  };
+
+  const handleUpdateRole = (roleData) => {
+    console.log("Update Role API →", roleData);
+  };
 
   const roles = [
     {
@@ -53,7 +60,11 @@ export default function UserRoles() {
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
           <button
-            onClick={() => setOpenModal(true)}
+            onClick={() => {
+              setSelectedRole(null);
+              setModalMode("add");
+              setModalOpen(true);
+            }}
             className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
           >
             <Plus size={18} /> Add New Role
@@ -103,17 +114,21 @@ export default function UserRoles() {
                     className="text-blue-500 cursor-pointer"
                     onClick={() => {
                       setSelectedRole(item);
-                      setViewModal(true);
+                      setModalMode("view");
+                      setModalOpen(true);
                     }}
                   />
+
                   <Edit2
                     size={20}
                     className="text-green-600 cursor-pointer"
                     onClick={() => {
                       setSelectedRole(item);
-                      setEditModal(true);
+                      setModalMode("edit");
+                      setModalOpen(true);
                     }}
                   />
+
                   <Trash2 size={20} className="text-red-500 cursor-pointer" />
                 </div>
               </div>
@@ -122,12 +137,6 @@ export default function UserRoles() {
                 <p>
                   <strong>Description:</strong> {item.description}
                 </p>
-                {/* <p>
-                  <strong>Created On:</strong> {item.createdOn}
-                </p>
-                <p>
-                  <strong>Updated On:</strong> {item.updatedOn}
-                </p> */}
               </div>
             </div>
           ))}
@@ -167,7 +176,8 @@ export default function UserRoles() {
                       className="text-blue-500 cursor-pointer hover:scale-125 transition"
                       onClick={() => {
                         setSelectedRole(item);
-                        setViewModal(true);
+                        setModalMode("view");
+                        setModalOpen(true);
                       }}
                     />
                     <Edit2
@@ -175,7 +185,8 @@ export default function UserRoles() {
                       className="text-green-600 cursor-pointer hover:scale-125 transition"
                       onClick={() => {
                         setSelectedRole(item);
-                        setEditModal(true);
+                        setModalMode("edit");
+                        setModalOpen(true);
                       }}
                     />
                     <Trash2
@@ -206,18 +217,18 @@ export default function UserRoles() {
       </div>
 
       {/* Modals */}
-      <UserRoleModal open={openModal} onClose={() => setOpenModal(false)} />
-
-      <ViewUserRoleModal
-        open={viewModal}
-        onClose={() => setViewModal(false)}
-        data={selectedRole}
-      />
-
-      <EditUserRoleModal
-        open={editModal}
-        onClose={() => setEditModal(false)}
-        data={selectedRole}
+      <UserRoleModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        mode={modalMode}
+        initialData={selectedRole}
+        onSubmit={
+          modalMode === "add"
+            ? handleAddRole
+            : modalMode === "edit"
+            ? handleUpdateRole
+            : undefined
+        }
       />
     </div>
   );
