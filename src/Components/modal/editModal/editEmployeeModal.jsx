@@ -1,37 +1,50 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
-export default function AddEmployeeModal({
+export default function EditEmployeeModal({
   open,
   onClose,
+  data,
   roles = [],
   plants = [],
   companies = [],
   assemblyLines = [],
   onSubmit,
-})
-
-{
+}) {
   const [formData, setFormData] = useState({
-  full_name: "",
-  email: "",
-  role: "",
-  designation: "",
-  user_id: "",
-  password: "",
-  Employee_plant: "",
-  employee_company: "",
-  assambly_line: [],
-  showAssemblyDropdown: false,
-});
+    full_name: "",
+    email: "",
+    role: "",
+    designation: "",
+    user_id: "",
+    Employee_plant: "",
+    employee_company: "",
+    assambly_line: [],
+  });
+
+  useEffect(() => {
+    if (data) {
+      setFormData({
+        full_name: data.full_name || "N/A",
+        email: data.email || "N/A",
+        role: data.role?._id || "",
+        designation: data.designation || "N/A",
+        user_id: data.user_id || "N/A",
+        Employee_plant: data.Employee_plant?._id || "N/A",
+        employee_company: data.employee_company?._id || "N/A",
+        assambly_line: data.assambly_line?.map((l) => l._id) || [],
+      });
+    }
+  }, [data]);
 
   if (!open) return null;
 
+  // Toggle checkbox for assembly lines
   const toggleAssemblyLine = (id) => {
     setFormData((prev) => ({
       ...prev,
       assambly_line: prev.assambly_line.includes(id)
-        ? prev.assambly_line.filter((x) => x !== id)
+        ? prev.assambly_line.filter((line) => line !== id)
         : [...prev.assambly_line, id],
     }));
   };
@@ -42,7 +55,7 @@ export default function AddEmployeeModal({
 
         {/* HEADER */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Add Employee</h2>
+          <h2 className="text-xl font-semibold">Edit Employee</h2>
           <button onClick={onClose}>
             <X size={22} className="text-gray-500 hover:text-black" />
           </button>
@@ -54,7 +67,7 @@ export default function AddEmployeeModal({
           {/* Full Name */}
           <Field label="Full Name">
             <input
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1"
+              className="input"
               value={formData.full_name}
               onChange={(e) =>
                 setFormData({ ...formData, full_name: e.target.value })
@@ -74,15 +87,13 @@ export default function AddEmployeeModal({
             />
           </Field>
 
-
-          {/* Password */}
-          <Field label="Password">
+          {/* User ID */}
+          <Field label="User ID">
             <input
-              type="password"
               className="input"
-              value={formData.password}
+              value={formData.user_id}
               onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
+                setFormData({ ...formData, user_id: e.target.value })
               }
             />
           </Field>
@@ -117,7 +128,7 @@ export default function AddEmployeeModal({
           </Field>
 
           {/* Plant */}
-          <Field label="Employee Plant">
+          <Field label="Plant">
             <select
               className="input"
               value={formData.Employee_plant}
@@ -135,7 +146,7 @@ export default function AddEmployeeModal({
           </Field>
 
           {/* Company */}
-          <Field label="Employee Company">
+          <Field label="Company">
             <select
               className="input"
               value={formData.employee_company}
@@ -153,95 +164,43 @@ export default function AddEmployeeModal({
           </Field>
 
           {/* Assembly Lines */}
-          {/* Assembly Line Dropdown */}
-<div className="w-full">
-  <label className="text-sm text-gray-700 font-medium">
-    Assembly Line
-  </label>
-
-  {/* Dropdown Button */}
-  <div className="relative mt-1">
-    <button
-      type="button"
-      className="w-full border rounded-lg px-3 py-2 bg-white flex justify-between items-center"
-      onClick={() =>
-        setFormData((prev) => ({
-          ...prev,
-          showAssemblyDropdown: !prev.showAssemblyDropdown,
-        }))
-      }
-    >
-      <span className="text-gray-700">
-        {formData.assambly_line.length > 0
-          ? `${formData.assambly_line.length} Selected`
-          : "Select Assembly Lines"}
-      </span>
-
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className={`size-5 transition-transform ${
-          formData.showAssemblyDropdown ? "rotate-180" : ""
-        }`}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-      </svg>
-    </button>
-
-    {/* Dropdown Menu */}
-    {formData.showAssemblyDropdown && (
-      <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-md max-h-48 overflow-y-auto z-50 p-2">
-
-        {assemblyLines.length === 0 ? (
-          <p className="text-gray-500 text-sm px-2 py-1">
-            No Assembly Lines Available
-          </p>
-        ) : (
-          assemblyLines.map((line) => (
-            <label
-              key={line._id}
-              className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                checked={formData.assambly_line.includes(line._id)}
-                onChange={() => {
-                  setFormData((prev) => {
-                    const exists = prev.assambly_line.includes(line._id);
-
-                    return {
-                      ...prev,
-                      assambly_line: exists
-                        ? prev.assambly_line.filter((id) => id !== line._id)
-                        : [...prev.assambly_line, line._id],
-                    };
-                  });
-                }}
-              />
-              {line.line_name}
+          <div>
+            <label className="text-sm text-gray-700 font-medium">
+              Assembly Lines
             </label>
-          ))
-        )}
-      </div>
-    )}
-  </div>
-</div>
 
+            <div className="flex flex-col gap-2 border rounded-lg px-3 py-2 bg-gray-50 mt-1 max-h-40 overflow-y-auto">
+              {/* Default Message When Empty */}
+              {assemblyLines.length === 0 ? (
+                <div className="text-gray-500 text-sm">
+                  No Assembly Lines Available
+                </div>
+              ) : (
+                assemblyLines.map((line) => (
+                  <label key={line._id} className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={formData.assambly_line.includes(line._id)}
+                      onChange={() => toggleAssemblyLine(line._id)}
+                    />
+                    {line.line_name}
+                  </label>
+                ))
+              )}
+            </div>
+          </div>
 
-          {/* Submit */}
+          {/* Submit Button */}
           <button
             className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 mt-4"
             onClick={() => onSubmit(formData)}
           >
-            Add Employee
+            Update Employee
           </button>
         </div>
       </div>
 
-      {/* ANIMATION */}
+      {/* Animation */}
       <style>{`
         @keyframes slideLeft {
           from { transform: translateX(100%); }
