@@ -10,12 +10,13 @@ import {
   ShoppingBag,
   Building,
   X,
+  ChartNoAxesCombined,
 } from "lucide-react";
+
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const closeMobile = () => setIsMobileOpen(false);
   const navigate = useNavigate();
-  //const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const allMenu = [
     {
@@ -32,7 +33,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     {
       name: "Assembly Line Status",
       path: "/assembly-line-status",
-      icon: <Key size={20} />,
+      icon: <ChartNoAxesCombined size={20} />,
     },
   ];
 
@@ -92,7 +93,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
 
       {/* ---------- MOBILE SIDEBAR ---------- */}
       {isMobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
+        <div className="md:hidden fixed inset-0 z-50 pt-[50px] flex">
           {/* Background overlay */}
           <div className="fixed inset-0 bg-black/40" onClick={closeMobile} />
 
@@ -105,12 +106,12 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 alt="Logo"
                 className="h-14 object-contain"
               />
-              <button
+              {/* <button
                 className="p-2 rounded-md bg-gray-100"
                 onClick={closeMobile}
               >
-                <X size={20} />
-              </button>
+               
+              </button> */}
             </div>
 
             {/* Menu Items */}
