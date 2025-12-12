@@ -29,7 +29,7 @@ export default function UserRoles() {
   ];
 
   return (
-    <div className="p-4 sm:p-6">
+    <div>
       {/* HEADER */}
       <div>
         <h1 className="text-xl sm:text-2xl font-semibold">User Roles</h1>
