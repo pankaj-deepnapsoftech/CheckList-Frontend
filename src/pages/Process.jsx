@@ -37,7 +37,7 @@ const Process = () => {
             <Search size={20} className="text-gray-500" />
             <input
               type="text"
-              placeholder="Search companyies..."
+              placeholder="Search companies..."
               className="w-full outline-none text-gray-700"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
