@@ -1,14 +1,9 @@
-//@ts-nocheck
 import React, { useState } from "react";
 import {
   Search,
   Plus,
-  Filter,
   RefreshCw,
-  RotateCcw,
-  Download,
   Edit2,
-  Delete,
   Trash2,
 } from "lucide-react";
 import AssemblyLineModal from "../components/modal/addModal/AddNewAssembly";
@@ -37,7 +32,6 @@ export default function AssemblyLine() {
 
   return (
     <div>
-      {/* PAGE HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-semibold">Assembly Line</h1>
@@ -45,18 +39,9 @@ export default function AssemblyLine() {
             Manage all assembly lines efficiently
           </p>
         </div>
-
-        <button
-          onClick={() => setOpenModal(true)}
-          className="bg-blue-500 text-white px-5 py-2.5 rounded-lg shadow hover:bg-blue-600 transition flex items-center gap-2"
-        >
-          <Plus size={18} /> Add New Assembly
-        </button>
       </div>
 
-      {/* SEARCH */}
       <div className="bg-white shadow-sm rounded-2xl p-4 mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Search Box */}
         <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
           <Search size={20} className="text-gray-500" />
           <input
@@ -68,24 +53,27 @@ export default function AssemblyLine() {
           />
         </div>
 
-        {/* Right Side Icons */}
-        <div className="flex items-center gap-3 text-gray-500">
-          <Filter className="cursor-pointer hover:text-gray-700" />
-          <RefreshCw className="cursor-pointer hover:text-gray-700" />
-          <RotateCcw className="cursor-pointer hover:text-gray-700" />
-          <Download className="cursor-pointer hover:text-gray-700" />
+
+        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
+          <button
+            onClick={() => setOpenModal(true)}
+            className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
+          >
+            <Plus size={18} /> Add New Assembly
+          </button>
+
+          <button className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
+            <RefreshCw size={18} /> Refresh
+          </button>
         </div>
       </div>
 
-      {/* TABLE CARD */}
       <div className="bg-white rounded-2xl shadow-md border border-gray-100 mt-6 p-5">
-        {/* TABLE HEADER */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="font-semibold text-gray-800 text-lg">
             {data.length} Records Found
           </h2>
 
-          {/* Show Dropdown */}
           <div className="flex items-center gap-2 text-gray-500">
             <span className="text-sm font-medium">Show:</span>
             <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer transition">
@@ -97,8 +85,47 @@ export default function AssemblyLine() {
           </div>
         </div>
 
-        {/* TABLE */}
-        <div className="overflow-x-auto rounded-xl border border-gray-200">
+        {/* ============ MOBILE CARDS ============ */}
+        <div className="grid gap-4 sm:hidden">
+          {data.map((item, i) => (
+            <div
+              key={i}
+              className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-gray-800">
+                    {item.no} — {item.name}
+                  </p>
+                  <p className="text-sm text-gray-500">{item.process}</p>
+                </div>
+
+                <div className="flex gap-4">
+                  <Edit2
+                    size={20}
+                    className="text-blue-600 cursor-pointer hover:scale-110"
+                  />
+                  <Trash2
+                    size={20}
+                    className="text-red-500 cursor-pointer hover:scale-110"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-3 text-sm text-gray-600 space-y-1">
+                <p>
+                  <strong>Company:</strong> -
+                </p>
+                <p>
+                  <strong>Plant:</strong> -
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* ============ DESKTOP TABLE ============ */}
+        <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[800px] text-left">
             <thead>
               <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
@@ -107,8 +134,8 @@ export default function AssemblyLine() {
                 <th className="px-5 py-3 font-semibold">
                   Assembly Line Process
                 </th>
-                <th className="px-5 py-3 font-semibold">Company name</th>
-                <th className="px-5 py-3 font-semibold">Plant name</th>
+                <th className="px-5 py-3 font-semibold">Company</th>
+                <th className="px-5 py-3 font-semibold">Plant</th>
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
@@ -125,15 +152,15 @@ export default function AssemblyLine() {
                   <td className="px-5 py-4 text-sm">-</td>
                   <td className="px-5 py-4 text-sm">-</td>
 
-                  <td className="px-5 py-4 text-center">
-                    <div className="flex items-center justify-center gap-4">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center justify-center gap-5">
                       <Edit2
                         size={18}
-                        className="text-blue-500 hover:text-blue-700 cursor-pointer hover:scale-125 transition"
+                        className="text-blue-500 cursor-pointer hover:scale-125 transition"
                       />
                       <Trash2
                         size={18}
-                        className="text-red-500 hover:text-red-700 cursor-pointer hover:scale-125 transition"
+                        className="text-red-500 cursor-pointer hover:scale-125 transition"
                       />
                     </div>
                   </td>
@@ -159,7 +186,7 @@ export default function AssemblyLine() {
         </div>
       </div>
 
-      {/* ADD ASSEMBLY LINE MODAL */}
+      {/* ADD MODAL */}
       <AssemblyLineModal open={openModal} onClose={() => setOpenModal(false)} />
     </div>
   );

@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Search, Plus, RefreshCw, Eye, Edit2, Trash2 } from "lucide-react";
 import AddPlantModal from "../components/modal/addModal/AddPlantModal";
-import ViewPlantModal from "../components/modal/viewPlantModal";
 
 export default function PlantName() {
   const [search, setSearch] = useState("");
   const [plants, setPlants] = useState([]);
   const [openModal, setOpenModal] = useState(false);
-  const [selectedPlant, setSelectedPlant] = useState(null);
-  const [viewModal, setViewModal] = useState(false);
-  const [editData, setEditData] = useState(null);
 
+  const [mode, setMode] = useState("add"); // add | edit | view
+  const [selectedPlant, setSelectedPlant] = useState(null);
+
+  const [editData, setEditData] = useState(null);
 
   useEffect(() => {
     setPlants([
@@ -56,7 +56,12 @@ export default function PlantName() {
 
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
           <button
-            onClick={() => setOpenModal(true)}
+            onClick={() => {
+              setMode("add");
+              setSelectedPlant(null);
+              setEditData(null);
+              setOpenModal(true);
+            }}
             className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
           >
             <Plus size={18} /> Add New Plant
@@ -84,7 +89,7 @@ export default function PlantName() {
           </div>
         </div>
 
-        {/* Mobile Cards */}
+        {/* Mobile View */}
         <div className="grid gap-4 sm:hidden">
           {plants.map((p, i) => (
             <div
@@ -99,8 +104,10 @@ export default function PlantName() {
                 <div className="flex gap-4">
                   <Eye
                     onClick={() => {
+                      setMode("view");
                       setSelectedPlant(p);
-                      setViewModal(true);
+                      setEditData(null);
+                      setOpenModal(true);
                     }}
                     size={20}
                     className="text-blue-500 cursor-pointer"
@@ -109,7 +116,9 @@ export default function PlantName() {
                     size={20}
                     className="text-green-600 cursor-pointer hover:scale-125 transition"
                     onClick={() => {
+                      setMode("edit");
                       setEditData(p);
+                      setSelectedPlant(null);
                       setOpenModal(true);
                     }}
                   />
@@ -155,8 +164,10 @@ export default function PlantName() {
                   <td className="px-5 py-4 flex justify-center gap-5">
                     <Eye
                       onClick={() => {
+                        setMode("view");
                         setSelectedPlant(p);
-                        setViewModal(true);
+                        setEditData(null);
+                        setOpenModal(true);
                       }}
                       size={20}
                       className="text-blue-500 cursor-pointer hover:scale-125 transition"
@@ -165,7 +176,9 @@ export default function PlantName() {
                       size={20}
                       className="text-green-600 cursor-pointer hover:scale-125 transition"
                       onClick={() => {
+                        setMode("edit");
                         setEditData(p);
+                        setSelectedPlant(null);
                         setOpenModal(true);
                       }}
                     />
@@ -182,28 +195,26 @@ export default function PlantName() {
         </div>
       </div>
 
+      {/* SINGLE MODAL FOR ADD | EDIT | VIEW */}
       <AddPlantModal
         open={openModal}
+        mode={mode}
+        editData={editData}
+        viewData={selectedPlant}
         onClose={() => {
           setOpenModal(false);
           setEditData(null);
+          setSelectedPlant(null);
         }}
-        editData={editData}
-        onSubmit={(plant, mode) => {
-          if (mode === "add") {
+        onSubmit={(plant, actionMode) => {
+          if (actionMode === "add") {
             setPlants([...plants, plant]);
-          } else {
+          } else if (actionMode === "edit") {
             setPlants(
               plants.map((x) => (x.name === editData.name ? plant : x))
             );
           }
         }}
-      />
-
-      <ViewPlantModal
-        open={viewModal}
-        onClose={() => setViewModal(false)}
-        data={selectedPlant}
       />
     </div>
   );
