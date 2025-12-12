@@ -1,13 +1,13 @@
 import { Routes, Route } from "react-router-dom";
 import Login from "./component/Login";
-import UserRole from "./page/UserRole";
-import Process from "./page/Process";
-import PlantName from "./page/PlantName";
-import Employee from "./page/Employee";
-import Company from "./page/Company";
-import AssemblyLineStatus from "./page/AssemblyLineStatus";
-import AssemblyLine from "./page/AssemblyLine";
-import Dashboard from "./page/Dashboard";
+import UserRole from "./pages/UserRole";
+import Process from "./pages/Process";
+import PlantName from "./pages/PlantName";
+import Employee from "./pages/Employee";
+import Company from "./pages/Company";
+import AssemblyLineStatus from "./pages/AssemblyLineStatus";
+import AssemblyLine from "./pages/AssemblyLine";
+import Dashboard from "./pages/Dashboard";
 import MainLayout from "./layout/Mainlayout";
 
 function App() {
