@@ -36,7 +36,7 @@ export default function PlantName() {
   }, []);
 
   return (
-    <div className="p-4 sm:p-6">
+    <div>
       <div>
         <h1 className="text-xl sm:text-2xl font-semibold">Plants</h1>
         <p className="text-gray-500 text-sm">Manage plant information</p>

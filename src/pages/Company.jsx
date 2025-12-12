@@ -13,6 +13,10 @@ const Company = () => {
   const [openModal,setOpenModal] = useState(false)
 
 
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [drawerMode, setDrawerMode] = useState("add");
+  const [selectedCompany, setSelectedCompany] = useState(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const filteredCompanyies = listQuery?.data?.filter((com) =>
     com.company_name.toLowerCase().includes(search.toLowerCase())
@@ -29,7 +33,7 @@ const Company = () => {
     <div className="p-4 sm:p-6 w-full">
      
       <div>
-        <h1 className="text-xl sm:text-2xl font-semibold">Companyies</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold">Companies</h1>
         <p className="text-gray-500 text-sm">Manage Company</p>
       </div>
 
