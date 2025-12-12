@@ -10,6 +10,7 @@ import AssemblyLine from "../pages/AssemblyLine"
 import ProtectedRoute from "./ProtectedRoute"
 import MainLayout from "./Mainlayout"
 import AssemblyLineStatus from "../pages/AssemblyLineStatus"
+import PageNotFound from "../Components/PageNotFound/PageNotFound"
 
 
 export const AppRoute = () => {
@@ -50,8 +51,12 @@ export const AppRoute = () => {
             path: "/assembly-line-status",
             element: <MainLayout><AssemblyLineStatus /></MainLayout>
         },
-
+        {
+            path: "/*",
+            element: <PageNotFound />
+        }
 
     ]
     return useRoutes(routes);
 }
+  
