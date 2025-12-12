@@ -115,6 +115,7 @@ export default function AssemblyLineStatus() {
                 <option>001 / ASS1</option>
                 <option>002 / ASS2</option>
                 <option>003 / ASS3</option>
+                <option>004 / ASS4</option>
               </select>
               <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 transition-colors w-4 h-4 pointer-events-none" />
             </div>
