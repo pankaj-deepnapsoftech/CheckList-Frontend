@@ -28,7 +28,7 @@ const Sidebar = () => {
         { name: "Assembly Line", path: "/assembly-line", icon: <Key size={20} /> },
         { name: "Assembly Line Status", path: "/assembly-line-status", icon: <Key size={20} /> },
     ];
-
+ 
     const closeMobile = () => setIsMobileOpen(false);
 
     const handleLogout = () => {
