@@ -47,7 +47,7 @@ export const AppRoute = () => {
             element: <MainLayout><AssemblyLine /></MainLayout>
         },
         {
-            path: "//assembly-line-status",
+            path: "/assembly-line-status",
             element: <MainLayout><AssemblyLineStatus /></MainLayout>
         },
 
