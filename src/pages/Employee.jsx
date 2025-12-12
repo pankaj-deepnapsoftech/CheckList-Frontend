@@ -29,7 +29,7 @@ const  Employee=()=>{
   );
 
   return (
-    <div className="p-4 sm:p-6 w-full">
+    <div className="w-full">
       {/* Header */}
 
       {/* HEADER */}

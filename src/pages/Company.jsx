@@ -17,9 +17,9 @@ const  Company=()=>{
   const [search, setSearch] = useState("");
 
   const [openDrawer, setOpenDrawer] = useState(false);
-  const [drawerMode, setDrawerMode] = useState("add"); // add | edit | view
+  const [drawerMode, setDrawerMode] = useState("add");
   const [selectedCompany, setSelectedCompany] = useState(null);
-  const [drawerOpen, setDrawerOpen] = useState(false); // <-- drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const filteredCompanyies = companyies.filter((com) =>
     com.company_name.toLowerCase().includes(search.toLowerCase())
@@ -38,12 +38,12 @@ const  Company=()=>{
 };
 
   return (
-    <div className="p-4 sm:p-6 w-full">
+    <div className="w-full">
       {/* Header */}
 
       {/* HEADER */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-semibold">Companyies</h1>
+        <h1 className="text-xl sm:text-2xl font-semibold">Companies</h1>
         <p className="text-gray-500 text-sm">Manage Company</p>
       </div>
 
