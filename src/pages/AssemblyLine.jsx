@@ -8,6 +8,8 @@ import {
   RotateCcw,
   Download,
   Edit2,
+  Delete,
+  Trash2,
 } from "lucide-react";
 import AssemblyLineModal from "../components/modal/addModal/AddNewAssembly";
 
@@ -20,13 +22,16 @@ export default function AssemblyLine() {
       no: "001",
       name: "ASS 1",
       process: "PCB Depaneling",
-      responsibility: "Lorem ipsum",
     },
     {
       no: "002",
       name: "ASS 2",
       process: "PCB Depaneling",
-      responsibility: "Lorem ipsum",
+    },
+    {
+      no: "003",
+      name: "ASS 3",
+      process: "PCB Depaneling",
     },
   ];
 
@@ -87,6 +92,7 @@ export default function AssemblyLine() {
               <option>5</option>
               <option>10</option>
               <option>15</option>
+              <option>20</option>
             </select>
           </div>
         </div>
@@ -101,8 +107,9 @@ export default function AssemblyLine() {
                 <th className="px-5 py-3 font-semibold">
                   Assembly Line Process
                 </th>
-                <th className="px-5 py-3 font-semibold">Responsibility</th>
-                <th className="px-5 py-3 font-semibold text-center">Edit</th>
+                <th className="px-5 py-3 font-semibold">Company name</th>
+                <th className="px-5 py-3 font-semibold">Plant name</th>
+                <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
 
@@ -115,13 +122,20 @@ export default function AssemblyLine() {
                   <td className="px-5 py-4 text-sm">{item.no}</td>
                   <td className="px-5 py-4 text-sm">{item.name}</td>
                   <td className="px-5 py-4 text-sm">{item.process}</td>
-                  <td className="px-5 py-4 text-sm">{item.responsibility}</td>
+                  <td className="px-5 py-4 text-sm">-</td>
+                  <td className="px-5 py-4 text-sm">-</td>
 
                   <td className="px-5 py-4 text-center">
-                    <Edit2
-                      size={18}
-                      className="text-blue-500 hover:text-blue-700 cursor-pointer hover:scale-125 transition"
-                    />
+                    <div className="flex items-center justify-center gap-4">
+                      <Edit2
+                        size={18}
+                        className="text-blue-500 hover:text-blue-700 cursor-pointer hover:scale-125 transition"
+                      />
+                      <Trash2
+                        size={18}
+                        className="text-red-500 hover:text-red-700 cursor-pointer hover:scale-125 transition"
+                      />
+                    </div>
                   </td>
                 </tr>
               ))}
