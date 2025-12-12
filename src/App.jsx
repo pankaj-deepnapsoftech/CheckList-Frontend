@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import Login from "./component/Login";
+import Login from "./pages/auth/Login";
 import UserRole from "./pages/UserRole";
 import Process from "./pages/Process";
 import PlantName from "./pages/PlantName";
