@@ -100,12 +100,21 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           {/* Drawer Sidebar */}
           <aside className="relative w-64 bg-white shadow-xl p-4 flex flex-col justify-between h-full animate-slideIn">
             {/* Top Logo + Close Icon */}
-            <div className="flex items-center justify-between mb-6">
+            <div
+              className="flex items-center mb-6 mt-2"
+              onClick={() => {
+                closeMobile();
+                navigate("/");
+              }}
+            >
               <img
                 src="https://jpmgroup.co.in/assets/svg/logo-color.svg"
                 alt="Logo"
                 className="h-14 object-contain"
               />
+              <p className="text-[#2e4c99] font-semibold text-[19px]">
+                &nbsp;JP MINDA GROUP
+              </p>
               {/* <button
                 className="p-2 rounded-md bg-gray-100"
                 onClick={closeMobile}

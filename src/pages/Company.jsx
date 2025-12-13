@@ -27,12 +27,14 @@ const Company = () => {
     listQuery.refetch();
   };
 
-  return (
-    <div className="p-4 sm:p-6 w-full">
-      <div>
-        <h1 className="text-xl sm:text-2xl font-semibold">Companies</h1>
-        <p className="text-gray-500 text-sm">Manage Company</p>
-      </div>
+
+
+return (
+  <div >
+    <div>
+      <h1 className="text-2xl sm:text-3xl font-semibold">Companies</h1>
+      <p className="text-gray-500 text-sm">Manage Company</p>
+    </div>
 
       <div className="bg-white/80 backdrop-blur-md shadow-sm border border-gray-200 rounded-2xl p-4 mt-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
