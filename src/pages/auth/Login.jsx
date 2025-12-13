@@ -1,9 +1,37 @@
 import React, { useState } from "react";
 import ProductionVideo from "../../assets/ProductionVideo.mp4";
 import { Eye, EyeOff } from "lucide-react";
+import { loginValidationSchema } from "../../Validation/LoginValidation";
+import { useFormik } from "formik";
+import { useLogin } from "../../hooks/useLogin";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
+
+  const navigate = useNavigate();
+  const loginMutation = useLogin();
+
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+
+    validationSchema: loginValidationSchema,
+   
+
+    onSubmit: (values) => {
+      console.log(values)
+  loginMutation.mutate(values, {
+    onSuccess: () => {
+      // Cookies are already stored by browser
+      navigate("/");
+    },
+  });
+   },
+  });
+
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4">
@@ -22,14 +50,15 @@ export default function Login() {
       <div className="absolute top-0 left-0 w-full h-full bg-black/30"></div>
 
       {/* Login Box */}
-      <div
+      <form
         className="
       relative z-10 w-full max-w-md 
       bg-white/20 backdrop-blur-xl 
       shadow-2xl rounded-2xl 
       p-10 pt-20 border border-white/30 
       min-h-[400px]
-    "
+    " 
+    onSubmit={formik.handleSubmit}
       >
         {/* Circle With SVG */}
         <div
@@ -52,6 +81,7 @@ export default function Login() {
           <span className="text-white font-medium">Email address</span>
           <input
             type="email"
+            name="email"
             placeholder="Enter email"
             className="
           mt-2 w-full px-4 py-3 
@@ -59,7 +89,17 @@ export default function Login() {
           border border-gray-300 rounded-lg
           focus:outline-none focus:ring-2 focus:ring-blue-400
         "
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.email}
           />
+
+        {formik.touched.email && formik.errors.email && (
+            <p className="text-red-500 text-xs mt-1">
+              {formik.errors.email}
+            </p>
+          )}
+
         </label>
 
         {/* Password */}
@@ -67,6 +107,7 @@ export default function Login() {
           <span className="text-white font-medium">Password</span>
           <div className="relative mt-2">
             <input
+              name="password"   
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               className="
@@ -75,7 +116,16 @@ export default function Login() {
             border border-gray-300 rounded-lg
             focus:outline-none focus:ring-2 focus:ring-blue-400
           "
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+            value={formik.values.password}
             />
+
+            {formik.touched.password && formik.errors.password && (
+            <p className="text-red-500 text-xs mt-1">
+              {formik.errors.password}
+            </p>
+            )}
 
             <span
               onClick={() => setShowPassword(!showPassword)}
@@ -87,10 +137,13 @@ export default function Login() {
         </label>
 
         {/* Login Button */}
-        <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
-          Login
+        <button
+        type="submit"
+        disabled={loginMutation.isPending}
+        className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+          {loginMutation.isPending ? "Logging in..." : "Login"}
         </button>
-      </div>
+      </form>
     </div>
   );
 }
