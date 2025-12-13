@@ -69,6 +69,25 @@ export default function UserRoleModal({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [permOpen]);
 
+  // ESC key close
+  useEffect(() => {
+    const handleEsc = (e) => e.key === "Escape" && setPermOpen(false);
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, []);
+
+  // Click outside close
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (permOpen && permRef.current && !permRef.current.contains(e.target)) {
+        setPermOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, [permOpen]);
+
   if (!open) return null;
 
 

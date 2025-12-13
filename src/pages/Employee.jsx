@@ -30,7 +30,6 @@ const  Employee=()=>{
 
   return (
     <div className="w-full">
-      {/* Header */}
 
       {/* HEADER */}
       <div>

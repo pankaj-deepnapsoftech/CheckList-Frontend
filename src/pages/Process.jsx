@@ -52,16 +52,17 @@ const Process = () => {
 
         {/* Buttons */}
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-          <div className="flex justify-between items-center ">
-            <button
-              onClick={() => {
-                setOpenDrawer(true);
-              }}
-              className="px-5 py-2 bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2"
-            >
-              <Plus size={18} /> Add New Process
-            </button>
-          </div>
+        <div className="flex justify-between items-center ">
+        
+        <button
+         onClick={() => {
+         setOpenDrawer(true);
+        }}
+        className="px-5 py-2 bg-blue-500 text-white rounded-lg w-full justify-center hover:bg-blue-600 flex items-center gap-2">
+          <Plus size={18} /> Add New Process
+        </button>
+       
+       </div>
 
           <button className="border border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
