@@ -4,8 +4,8 @@ import UserRoleModal from "../components/modal/addModal/AddUserRoleModal";
 
 export default function UserRoles() {
   const [search, setSearch] = useState("");
-  const [viewModal, setViewModal] = useState(false);
-  const [editModal, setEditModal] = useState(false);
+  // const [viewModal, setViewModal] = useState(false);
+  // const [editModal, setEditModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add"); // add | edit
   const [selectedRole, setSelectedRole] = useState(null);

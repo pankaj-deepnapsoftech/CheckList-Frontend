@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { RefreshCw, Search, Eye, Edit2, Trash2, Plus } from "lucide-react";
 import CompanyDrawer from "../Components/modal/addModal/CompanyDrawer";
 import { useCompanies } from "../hooks/useCompanies";
 import { useDebounce } from "../hooks/useDebounce";
@@ -7,14 +7,16 @@ import Pagination from "../Components/Pagination/Pagination";
 
 const Company = () => {
   const [search, setSearch] = useState("");
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(1);
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const [viewModal, setViewModal] = useState(null)
-  const [mode, setMode] = useState("add")
-  const { debounce, value } = useDebounce(search)
+  const [viewModal, setViewModal] = useState(null);
+  const [mode, setMode] = useState("add");
+  const { debounce, value } = useDebounce(search);
   const { listQuery, remove, searchQuery } = useCompanies(value, page);
-  const filteredCompanies = debounce ? searchQuery?.data ?? [] : listQuery?.data ?? [];
+  const filteredCompanies = debounce
+    ? searchQuery?.data ?? []
+    : listQuery?.data ?? [];
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this company?")) {
@@ -22,20 +24,18 @@ const Company = () => {
     }
   };
   const handleRefresh = () => {
-    listQuery.refetch()
-  }
+    listQuery.refetch();
+  };
 
   return (
     <div className="p-4 sm:p-6 w-full">
-
       <div>
         <h1 className="text-xl sm:text-2xl font-semibold">Companies</h1>
         <p className="text-gray-500 text-sm">Manage Company</p>
       </div>
 
-
       <div className="bg-white shadow rounded-2xl p-4 mt-4 flex flex-col sm:flex-row justify-between gap-4">
-        <div className="flex items-center gap-3 w-full sm:max-w-[300px] border rounded-lg px-3 py-2">
+        <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
           <Search size={20} className="text-gray-500" />
           <input
             type="text"
@@ -51,19 +51,21 @@ const Company = () => {
             onClick={() => {
               setEditTable(null);
               setOpenModal(true);
-              setMode("add")
+              setMode("add");
             }}
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
           >
-            Add New Company
+            <Plus size={18} /> Add New Company
           </button>
 
-          <button onClick={handleRefresh} className="border px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100">
+          <button
+            onClick={handleRefresh}
+            className="border px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100"
+          >
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
       </div>
-
 
       <div className="grid gap-4 sm:hidden mt-4">
         {filteredCompanies?.map((com) => (
@@ -77,14 +79,22 @@ const Company = () => {
               </span>
 
               <div className="flex gap-4">
-                <Eye onClick={() => { setOpenModal(true); setViewModal(com); setMode("view") }} size={18} className="text-blue-500 cursor-pointer" />
+                <Eye
+                  onClick={() => {
+                    setOpenModal(true);
+                    setViewModal(com);
+                    setMode("view");
+                  }}
+                  size={18}
+                  className="text-blue-500 cursor-pointer"
+                />
                 <Edit2
                   size={18}
                   className="text-green-600 cursor-pointer"
                   onClick={() => {
                     setEditTable(com);
                     setOpenModal(true);
-                    setMode("edit")
+                    setMode("edit");
                   }}
                 />
                 <Trash2
@@ -96,62 +106,97 @@ const Company = () => {
             </div>
 
             <div className="mt-3 text-sm text-gray-600 space-y-1">
-              <p><strong>Address:</strong> {com.company_address}</p>
-              <p><strong>GST:</strong> {com.gst_no || "N/A"}</p>
-              <p><strong>Description:</strong> {com.description || "N/A"}</p>
+              <p>
+                <strong>Address:</strong> {com.company_address}
+              </p>
+              <p>
+                <strong>GST:</strong> {com.gst_no || "N/A"}
+              </p>
+              <p>
+                <strong>Description:</strong> {com.description || "N/A"}
+              </p>
             </div>
           </div>
         ))}
       </div>
 
-
-      <div className="hidden sm:block mt-4 overflow-x-auto rounded-xl border">
+      <div className="hidden sm:block mt-6 overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
         <table className="w-full min-w-[700px] text-left">
+          {/* TABLE HEADER */}
           <thead>
-            <tr className="bg-gray-100 text-center text-sm">
-              <th className="px-5 py-3">Company Name</th>
-              <th className="px-5 py-3">Address</th>
-              <th className="px-5 py-3">GST</th>
-              <th className="px-5 py-3">Description</th>
-              <th className="px-5 py-3">Actions</th>
+            <tr className="bg-gray-100/80 text-gray-700 text-sm border-b border-gray-200">
+              <th className="px-6 py-4 font-semibold">Company Name</th>
+              <th className="px-6 py-4 font-semibold">Address</th>
+              <th className="px-6 py-4 font-semibold text-center">GST</th>
+              <th className="px-6 py-4 font-semibold">Description</th>
+              <th className="px-6 py-4 font-semibold text-center">Actions</th>
             </tr>
           </thead>
 
-          <tbody>
+          {/* TABLE BODY */}
+          <tbody className="text-gray-700 text-sm">
             {filteredCompanies?.map((com) => (
               <tr
                 key={com._id}
-                className="border-b hover:bg-blue-50 text-center"
+                className="border-b border-gray-200 hover:bg-blue-50/50 transition-all duration-200"
               >
-                <td className="px-5 py-4">{com.company_name}</td>
-                <td className="px-5 py-4">{com.company_address}</td>
-                <td className="px-5 py-4">
-                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">
+                {/* COMPANY NAME */}
+                <td className="px-6 py-4 font-medium text-gray-800">
+                  {com.company_name}
+                </td>
+
+                {/* ADDRESS */}
+                <td className="px-6 py-4 text-gray-600 max-w-[260px] truncate">
+                  {com.company_address}
+                </td>
+
+                {/* GST */}
+                <td className="px-6 py-4 text-center">
+                  <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
                     {com.gst_no || "N/A"}
                   </span>
                 </td>
-                <td className="px-5 py-4">{com.description || "N/A"}</td>
-                <td className="px-5 py-4 flex justify-center gap-5">
-                  <Eye onClick={() => { setOpenModal(true); setViewModal(com); setMode("view") }} className="text-blue-500 cursor-pointer" />
-                  <Edit2
-                    className="text-green-500 cursor-pointer"
-                    onClick={() => {
-                      setEditTable(com);
-                      setOpenModal(true);
-                      setMode("edit")
-                    }}
-                  />
-                  <Trash2
-                    className="text-red-500 cursor-pointer"
-                    onClick={() => handleDelete(com._id)}
-                  />
+
+                {/* DESCRIPTION */}
+                <td className="px-6 py-4 text-gray-600">
+                  {com.description || "N/A"}
+                </td>
+
+                {/* ACTIONS */}
+                <td className="px-6 py-4">
+                  <div className="flex justify-center items-center gap-4">
+                    <Eye
+                      onClick={() => {
+                        setOpenModal(true);
+                        setViewModal(com);
+                        setMode("view");
+                      }}
+                      className="text-blue-600 hover:text-blue-700 hover:scale-125 transition cursor-pointer"
+                      size={20}
+                    />
+
+                    <Edit2
+                      onClick={() => {
+                        setEditTable(com);
+                        setOpenModal(true);
+                        setMode("edit");
+                      }}
+                      className="text-green-600 hover:text-green-700 hover:scale-125 transition cursor-pointer"
+                      size={20}
+                    />
+
+                    <Trash2
+                      onClick={() => handleDelete(com._id)}
+                      className="text-red-500 hover:text-red-600 hover:scale-125 transition cursor-pointer"
+                      size={20}
+                    />
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-
 
       <CompanyDrawer
         openModal={openModal}
@@ -160,7 +205,11 @@ const Company = () => {
         viewModal={viewModal}
         mode={mode}
       />
-      <Pagination page={page} setPage={setPage} hasNextpage={listQuery?.data?.length === 10} />
+      <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={listQuery?.data?.length === 10}
+      />
     </div>
   );
 };
