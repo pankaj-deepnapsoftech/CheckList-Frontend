@@ -1,35 +1,28 @@
 import React, { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import UserRoleModal from "../components/modal/addModal/AddUserRoleModal";
+import { useUserRole } from "../hooks/useUserRole";
 
 export default function UserRoles() {
+  const { UserlistQuery, removeUser } = useUserRole();
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [selectedRole, setSelectedRole] = useState(null);
 
-  const handleAddRole = (roleData) => {
-    console.log("Add Role API →", roleData);
-  };
+ const filteredRoles = UserlistQuery?.data?.filter((role) =>
+   role.name?.toLowerCase().includes(search.toLowerCase())
+ );
 
-  const handleUpdateRole = (roleData) => {
-    console.log("Update Role API →", roleData);
-  };
+    const handleDelete = (id) => {
+      if (window.confirm("Are you sure you want to delete this data?")) {
+        removeUser.mutate(id);
+      }
+    };
 
-  const roles = [
-    {
-      role: "IMPR",
-      description: "IMPR",
-      createdOn: "10/12/2025",
-      updatedOn: "10/12/2025",
-    },
-    {
-      role: "Sales & production",
-      description: "Sales",
-      createdOn: "10/12/2025",
-      updatedOn: "10/12/2025",
-    },
-  ];
+    const formatDate = (date) =>
+      date ? new Date(date).toLocaleDateString() : "—";
+
 
   return (
     <div>
@@ -71,12 +64,11 @@ export default function UserRoles() {
         </div>
       </div>
 
-      {/* TABLE CARD */}
       <div className="bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
-          <h2 className="font-semibold text-gray-800 text-lg">
-            {roles.length} Roles Found
+          <h2 className="text-gray-800 text-lg font-semibold">
+            {filteredRoles?.length} Roles Found
           </h2>
 
           <div className="flex items-center gap-2 text-gray-500">
@@ -90,14 +82,14 @@ export default function UserRoles() {
         </div>
 
         <div className="grid gap-4 sm:hidden">
-          {roles.map((item, i) => (
+          {filteredRoles?.map((item) => (
             <div
-              key={i}
+              key={item._id}
               className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
             >
               <div className="flex items-center justify-between">
                 <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {item.role}
+                  {item.name}
                 </span>
 
                 <div className="flex gap-4">
@@ -121,13 +113,17 @@ export default function UserRoles() {
                     }}
                   />
 
-                  <Trash2 size={20} className="text-red-500 cursor-pointer" />
+                  <Trash2
+                    size={20}
+                    className="text-red-500 cursor-pointer"
+                    onClick={() => handleDelete(item._id)}
+                  />
                 </div>
               </div>
 
               <div className="mt-3 text-sm text-gray-600">
                 <p>
-                  <strong>Description:</strong> {item.description}
+                  <strong>Description:</strong> {item.description || "N/A"}
                 </p>
               </div>
             </div>
@@ -147,42 +143,45 @@ export default function UserRoles() {
             </thead>
 
             <tbody className="text-gray-700">
-              {roles.map((item, i) => (
+              {filteredRoles?.map((item) => (
                 <tr
-                  key={i}
+                  key={item._id}
                   className="border-b border-gray-200 hover:bg-blue-50 transition"
                 >
                   <td className="px-5 py-4">
                     <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                      {item.role}
+                      {item.name}
                     </span>
                   </td>
                   <td className="px-5 py-4">{item.description}</td>
-                  <td className="px-5 py-4">{item.createdOn}</td>
-                  <td className="px-5 py-4">{item.updatedOn}</td>
+                  <td className="px-5 py-4">{formatDate(item.createdAt)}</td>
+                  <td className="px-5 py-4">{formatDate(item.updatedAt)}</td>
 
                   <td className="px-5 py-4 flex justify-center gap-5">
                     <Eye
                       size={20}
-                      className="text-blue-500 cursor-pointer hover:scale-125 transition"
+                      className="text-blue-500 cursor-pointer hover:scale-125"
                       onClick={() => {
                         setSelectedRole(item);
                         setModalMode("view");
                         setModalOpen(true);
                       }}
                     />
+
                     <Edit2
                       size={20}
-                      className="text-green-600 cursor-pointer hover:scale-125 transition"
+                      className="text-green-600 cursor-pointer hover:scale-125"
                       onClick={() => {
                         setSelectedRole(item);
                         setModalMode("edit");
                         setModalOpen(true);
                       }}
                     />
+
                     <Trash2
                       size={20}
-                      className="text-red-500 cursor-pointer hover:scale-125 transition"
+                      className="text-red-500 cursor-pointer hover:scale-125"
+                      onClick={() => handleDelete(item._id)}
                     />
                   </td>
                 </tr>
@@ -213,13 +212,6 @@ export default function UserRoles() {
         onClose={() => setModalOpen(false)}
         mode={modalMode}
         initialData={selectedRole}
-        onSubmit={
-          modalMode === "add"
-            ? handleAddRole
-            : modalMode === "edit"
-            ? handleUpdateRole
-            : undefined
-        }
       />
     </div>
   );
