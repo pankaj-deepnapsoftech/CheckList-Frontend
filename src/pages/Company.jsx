@@ -3,9 +3,6 @@ import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import CompanyDrawer from "../components/CompanyDrawer";
 import { useCompanies } from "../hooks/useCompanies";
 
-
-
-
 const Company = () => { 
   const { listQuery, remove } = useCompanies()
   const [search, setSearch] = useState("");

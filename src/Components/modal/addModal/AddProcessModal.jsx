@@ -65,7 +65,7 @@ export default function AddProcessModal({ open, onClose }) {
           />
         </label>
 
-        {/* ------- MULTIPLE CHECK ITEMS START ------- */}
+
         <span className="text-gray-700 font-medium">Check Items</span>
 
         <div className="space-y-4 mt-3 mb-6">
@@ -90,7 +90,6 @@ export default function AddProcessModal({ open, onClose }) {
                 )}
               </div>
 
-              {/* Check Item Name */}
               <input
                 type="text"
                 placeholder="Enter Check Item"
@@ -99,7 +98,6 @@ export default function AddProcessModal({ open, onClose }) {
                 className="w-full mb-3 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
               />
 
-              {/* Min & Max Row */}
               <div className="flex gap-3">
                 <input
                   type="number"
@@ -124,7 +122,6 @@ export default function AddProcessModal({ open, onClose }) {
             </div>
           ))}
 
-          {/* Add New Item Button */}
           <button
             onClick={addCheckItem}
             className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
@@ -134,9 +131,6 @@ export default function AddProcessModal({ open, onClose }) {
           </button>
         </div>
 
-        {/* ------- MULTIPLE CHECK ITEMS END ------- */}
-
-        {/* Checking Method */}
         <label className="block mb-4">
           <span className="text-gray-700 font-medium">Checking Method</span>
           <select
