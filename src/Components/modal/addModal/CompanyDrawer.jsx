@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useFormik } from "formik";
 import { useCompanies } from "../../../hooks/useCompanies";
@@ -10,7 +10,8 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
   const formik = useFormik({
     initialValues: {
       company_name: editTable?.company_name || viewModal?.company_name || "",
-      company_address: editTable?.company_address || viewModal?.company_address || "",
+      company_address:
+        editTable?.company_address || viewModal?.company_address || "",
       gst_no: editTable?.gst_no || viewModal?.gst_no || "",
       description: editTable?.description || viewModal?.description || "",
     },
@@ -53,23 +54,23 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
   const title = {
     add: "Add Company",
     edit: "Update Company",
-    view: "View Details"
-  }
-
-
+    view: "View Details",
+  };
 
   return (
-    <div className={`${openModal ? "translate-x-0" : "translate-x-full"}
- fixed inset-0 bg-black/40  z-50 flex justify-end`}>
-
+    <div
+      className={`${openModal ? "translate-x-0" : "translate-x-full"}
+ fixed inset-0 bg-black/40  z-50 flex justify-end`}
+    >
       <div className="bg-white h-full w-[420px] shadow-lg p-6 animate-slideLeft overflow-y-auto">
-
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">
-            {title[mode]}
-
-          </h2>
-          <button className="cursor-pointer" onClick={() => { setOpenModal(false); formik.resetForm() }}
+          <h2 className="text-xl font-semibold">{title[mode]}</h2>
+          <button
+            className="cursor-pointer"
+            onClick={() => {
+              setOpenModal(false);
+              formik.resetForm();
+            }}
           >
             <X size={22} className="text-gray-500 hover:text-black" />
           </button>
@@ -94,12 +95,11 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
             {formik.touched.company_name && formik.errors.company_name && (
               <p className="text-red-500">{formik.errors.company_name}</p>
             )}
-
           </div>
 
           <div>
             <label className="text-sm text-gray-700 font-medium">
-              Company Address
+              Company Address <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -110,13 +110,14 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
               name="company_address"
               disabled={isView}
             />
-            {formik.touched.company_address && formik.errors.company_address && (
-              <p className="text-red-500">{formik.errors.company_address}</p>
-            )}
+            {formik.touched.company_address &&
+              formik.errors.company_address && (
+                <p className="text-red-500">{formik.errors.company_address}</p>
+              )}
           </div>
 
           <div>
-            <label className="text-sm text-gray-700 font-medium">GST</label>
+            <label className="text-sm text-gray-700 font-medium">GST <span className="text-red-500">*</span></label>
             <input
               type="text"
               className="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 "
@@ -132,7 +133,9 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
           </div>
 
           <div>
-            <label className="text-sm text-gray-700 font-medium">Description</label>
+            <label className="text-sm text-gray-700 font-medium">
+              Description
+            </label>
             <textarea
               className="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 "
               value={formik.values.description}
@@ -144,20 +147,18 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
            
           </div>
 
-
           <button
             type="submit"
-            className={"bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 mt-4 "}
+            className={
+              "bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 mt-4 "
+            }
             disabled={isView}
           >
             {title[mode]}
           </button>
-
         </form>
       </div>
-
-
     </div>
   );
-}
+};
 export default CompanyDrawer;

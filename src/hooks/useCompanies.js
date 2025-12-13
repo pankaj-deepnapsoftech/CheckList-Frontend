@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 
 export const useCompanies = (search, page) => {
     const qc = useQueryClient();
-
+ 
     const listQuery = useQuery({
         queryKey: ["companies", page],
         queryFn: async () => {
