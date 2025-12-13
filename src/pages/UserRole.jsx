@@ -4,10 +4,8 @@ import UserRoleModal from "../components/modal/addModal/AddUserRoleModal";
 
 export default function UserRoles() {
   const [search, setSearch] = useState("");
-  const [viewModal, setViewModal] = useState(false);
-  const [editModal, setEditModal] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState("add"); // add | edit
+  const [modalMode, setModalMode] = useState("add");
   const [selectedRole, setSelectedRole] = useState(null);
 
   const handleAddRole = (roleData) => {
@@ -35,7 +33,6 @@ export default function UserRoles() {
 
   return (
     <div>
-      {/* HEADER */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">User Roles</h1>
         <p className="text-gray-500 text-sm">
@@ -43,7 +40,6 @@ export default function UserRoles() {
         </p>
       </div>
 
-      {/* Search + Buttons */}
       <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Search Box */}
         <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
@@ -57,7 +53,6 @@ export default function UserRoles() {
           />
         </div>
 
-        {/* Buttons */}
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
           <button
             onClick={() => {
@@ -84,7 +79,6 @@ export default function UserRoles() {
             {roles.length} Roles Found
           </h2>
 
-          {/* Show Dropdown */}
           <div className="flex items-center gap-2 text-gray-500">
             <span className="text-sm font-medium">Show:</span>
             <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer">
@@ -95,7 +89,6 @@ export default function UserRoles() {
           </div>
         </div>
 
-        {/* Mobile View Cards */}
         <div className="grid gap-4 sm:hidden">
           {roles.map((item, i) => (
             <div
@@ -107,7 +100,6 @@ export default function UserRoles() {
                   {item.role}
                 </span>
 
-                {/* ACTIONS */}
                 <div className="flex gap-4">
                   <Eye
                     size={20}
@@ -142,7 +134,6 @@ export default function UserRoles() {
           ))}
         </div>
 
-        {/* Desktop Table */}
         <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
             <thead>
