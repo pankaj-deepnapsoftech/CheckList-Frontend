@@ -2,27 +2,30 @@ import React, { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import UserRoleModal from "../components/modal/addModal/AddUserRoleModal";
 import { useUserRole } from "../hooks/useUserRole";
+import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../Components/Pagination/Pagination";
 
 export default function UserRoles() {
-  const { UserlistQuery, removeUser } = useUserRole();
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [selectedRole, setSelectedRole] = useState(null);
+  const { debounce, value } = useDebounce(search);
+  const { UserlistQuery, removeUser, SearchUserList } = useUserRole(value);
 
- const filteredRoles = UserlistQuery?.data?.filter((role) =>
-   role.name?.toLowerCase().includes(search.toLowerCase())
- );
+  const filteredRoles = debounce
+    ? SearchUserList?.data ?? []
+    : UserlistQuery?.data ?? [];
 
-    const handleDelete = (id) => {
-      if (window.confirm("Are you sure you want to delete this data?")) {
-        removeUser.mutate(id);
-      }
-    };
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this data?")) {
+      removeUser.mutate(id);
+    }
+  };
 
-    const formatDate = (date) =>
-      date ? new Date(date).toLocaleDateString() : "—";
-
+  const formatDate = (date) =>
+    date ? new Date(date).toLocaleDateString() : "—";
 
   return (
     <div>
@@ -191,21 +194,12 @@ export default function UserRoles() {
         </div>
 
         {/* Pagination */}
-        <div className="flex justify-center gap-3 mt-6">
-          <button className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 text-sm">
-            Previous
-          </button>
-
-          <button className="px-4 py-2 rounded-lg bg-blue-500 text-white font-medium shadow text-sm">
-            1
-          </button>
-
-          <button className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 text-sm">
-            Next
-          </button>
-        </div>
+        <Pagination
+          page={page}
+          setPage={setPage}
+          hasNextpage={UserlistQuery?.data?.length === 10}
+        />
       </div>
-
       {/* Modals */}
       <UserRoleModal
         open={modalOpen}
