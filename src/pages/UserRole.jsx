@@ -24,8 +24,37 @@ export default function UserRoles() {
     }
   };
 
-  const formatDate = (date) =>
-    date ? new Date(date).toLocaleDateString() : "—";
+ const formatPermissions = (permissions) => {
+   if (!permissions) return [];
+
+   // ✅ Case 1: Already an array of strings
+   if (Array.isArray(permissions)) {
+     return permissions
+       .map((p) => (typeof p === "string" ? p : p?.name))
+       .filter(Boolean);
+   }
+
+   // ✅ Case 2: Single string (DashboardPlantNameCompany)
+   if (typeof permissions === "string") {
+     return permissions
+       .replace(/([A-Z])/g, " $1")
+       .trim()
+       .split(" ")
+       .reduce((acc, word) => {
+         const last = acc[acc.length - 1];
+         if (last && last.length < 14) {
+           acc[acc.length - 1] = `${last} ${word}`;
+         } else {
+           acc.push(word);
+         }
+         return acc;
+       }, []);
+   }
+
+   return [];
+ };
+
+
 
   return (
     <div>
@@ -68,7 +97,6 @@ export default function UserRoles() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
             {filteredRoles?.length} Roles Found
@@ -84,6 +112,8 @@ export default function UserRoles() {
           </div>
         </div>
 
+        
+
         <div className="grid gap-4 sm:hidden">
           {filteredRoles?.map((item) => (
             <div
@@ -91,7 +121,7 @@ export default function UserRoles() {
               className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
             >
               <div className="flex items-center justify-between">
-                <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                <span className="px-3 py-1 text-md text-gray-800 font-medium">
                   {item.name}
                 </span>
 
@@ -125,22 +155,28 @@ export default function UserRoles() {
               </div>
 
               <div className="mt-3 text-sm text-gray-600">
-                <p>
-                  <strong>Description:</strong> {item.description || "N/A"}
-                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {formatPermissions(item?.permissions).map((perm, idx) => (
+                    <span
+                      key={idx}
+                      className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs"
+                    >
+                      {perm}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           ))}
         </div>
 
         <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
-          <table className="w-full min-w-[700px] text-left">
+          <table className="w-full  min-w-[700px] text-left">
             <thead>
               <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
-                <th className="px-5 py-3 font-semibold">Role</th>
+                <th className="px-5 py-3 font-semibold">Role Name</th>
+                <th className="px-5 py-3 font-semibold">Permissions</th>
                 <th className="px-5 py-3 font-semibold">Description</th>
-                <th className="px-5 py-3 font-semibold">Created On</th>
-                <th className="px-5 py-3 font-semibold">Last Updated</th>
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
@@ -151,15 +187,21 @@ export default function UserRoles() {
                   key={item._id}
                   className="border-b border-gray-200 hover:bg-blue-50 transition"
                 >
+                  <td className="px-5 py-4">{item?.name}</td>
                   <td className="px-5 py-4">
-                    <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                      {item.name}
-                    </span>
+                    <div className="flex flex-wrap gap-2 max-w-[280px]">
+                      {formatPermissions(item?.permissions).map((perm, idx) => (
+                        <span
+                          key={idx}
+                          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                        >
+                          {perm}
+                        </span>
+                      ))}
+                    </div>
                   </td>
-                  <td className="px-5 py-4">{item.description}</td>
-                  <td className="px-5 py-4">{formatDate(item.createdAt)}</td>
-                  <td className="px-5 py-4">{formatDate(item.updatedAt)}</td>
 
+                  <td className="px-5 py-4">{item.description}</td>
                   <td className="px-5 py-4 flex justify-center gap-5">
                     <Eye
                       size={20}

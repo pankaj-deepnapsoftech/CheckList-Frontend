@@ -173,7 +173,9 @@ export default function UserRoleModal({
 
           {/* PERMISSIONS */}
           <div className="relative mt-2" ref={permRef}>
-            <label className="text-sm font-medium">Permissions</label>
+            <label className="text-sm font-medium">
+              Permissions <span className="text-red-500">*</span>
+            </label>
 
             <div
               onClick={() => !isView && setPermOpen(!permOpen)}
