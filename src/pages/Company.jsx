@@ -34,36 +34,44 @@ const Company = () => {
         <p className="text-gray-500 text-sm">Manage Company</p>
       </div>
 
-      <div className="bg-white shadow rounded-2xl p-4 mt-4 flex flex-col sm:flex-row justify-between gap-4">
-        <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
-          <Search size={20} className="text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search companies..."
-            className="w-full outline-none"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
+      <div className="bg-white/80 backdrop-blur-md shadow-sm border border-gray-200 rounded-2xl p-4 mt-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* SEARCH */}
+          <div className="flex items-center gap-3 w-full sm:max-w-[320px] border border-gray-300 rounded-xl px-3 py-2 bg-white focus-within:border-blue-500 transition">
+            <Search size={20} className="text-gray-500 shrink-0" />
+            <input
+              type="text"
+              placeholder="Search companies..."
+              className="w-full outline-none text-sm bg-transparent"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
 
-        <div className="flex gap-3">
-          <button
-            onClick={() => {
-              setEditTable(null);
-              setOpenModal(true);
-              setMode("add");
-            }}
-            className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
-          >
-            <Plus size={18} /> Add New Company
-          </button>
+          {/* BUTTONS */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {/* ADD */}
+            <button
+              onClick={() => {
+                setEditTable(null);
+                setOpenModal(true);
+                setMode("add");
+              }}
+              className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 font-medium transition"
+            >
+              <Plus size={18} />
+              Add New Company
+            </button>
 
-          <button
-            onClick={handleRefresh}
-            className="border px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100"
-          >
-            <RefreshCw size={18} /> Refresh
-          </button>
+            {/* REFRESH */}
+            <button
+              onClick={handleRefresh}
+              className="w-full sm:w-auto border border-gray-300 bg-white px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 text-gray-700 hover:bg-gray-100 transition"
+            >
+              <RefreshCw size={18} />
+              Refresh
+            </button>
+          </div>
         </div>
       </div>
 
