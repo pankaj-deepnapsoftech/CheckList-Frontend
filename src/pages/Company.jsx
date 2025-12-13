@@ -25,8 +25,7 @@ const Company = () => {
     listQuery.refetch()
   }
 
-  return (
-    <div className="p-4 sm:p-6 w-full">
+
 
 return (
   <div >
