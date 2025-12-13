@@ -5,7 +5,7 @@ import axiosHandler from "../config/axiosconfig";
 
 export const useCompanies = () => {
     const qc = useQueryClient();
-
+ 
     const listQuery = useQuery({
         queryKey: ["companies"],
         queryFn: async () => {
