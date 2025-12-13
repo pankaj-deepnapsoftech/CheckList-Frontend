@@ -121,7 +121,7 @@ export default function UserRoles() {
               className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
             >
               <div className="flex items-center justify-between">
-                <span className="px-3 py-1 text-md text-gray-800 font-medium">
+                <span className=" py-1 text-md text-gray-800 font-medium">
                   {item.name}
                 </span>
 
