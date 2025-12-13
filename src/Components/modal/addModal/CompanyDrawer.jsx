@@ -7,7 +7,6 @@ import { companyValidationSchema } from "../../../Validation/CompanyValidation";
 const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) => {
 
   const { create, update } = useCompanies()
-  console.log(">>", editTable)
   const formik = useFormik({
     initialValues: {
       company_name: editTable?.company_name || viewModal?.company_name || "",
@@ -19,16 +18,33 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
     enableReinitialize: true,
     onSubmit: (value) => {
       if (editTable) {
-        update.mutate({ id: editTable?._id, data: value })
-        formik.resetForm()
-        setOpenModal(false)
+        update.mutate(
+          { id: editTable._id, data: value },
+          {
+            onSuccess: () => {
+              formik.resetForm();
+              setOpenModal(false);
+            },
+            onError: (error) => {
+              console.log("Update error:", error);
+             
+            }
+          }
+        );
       } else {
-        create.mutate(value)
-        formik.resetForm()
-        setOpenModal(false)
+        create.mutate(value, {
+          onSuccess: () => {
+            formik.resetForm();
+            setOpenModal(false);
+          },
+          onError: (error) => {
+            console.log("Create error:", error);
+           
+          }
+        });
       }
-
     }
+
 
   })
 
@@ -110,7 +126,9 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
               name="gst_no"
               disabled={isView}
             />
-
+            {formik.touched.gst_no && formik.errors.gst_no && (
+              <p className="text-red-500">{formik.errors.gst_no}</p>
+            )}
           </div>
 
           <div>
@@ -123,7 +141,7 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
               name="description"
               disabled={isView}
             />
-
+           
           </div>
 
 
