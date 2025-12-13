@@ -1,26 +1,33 @@
 
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
+import { toast } from "react-toastify";
 
 
-export const useCompanies = (search,page) => {
+export const useCompanies = (search, page) => {
     const qc = useQueryClient();
 
     const listQuery = useQuery({
-        queryKey: ["companies",page],
+        queryKey: ["companies", page],
         queryFn: async () => {
             const res = await axiosHandler.get(`/company/list-company?page=${page}&&limit=10`);
             return res?.data?.data;
         },
         enabled: !search,
-        placeholderData: keepPreviousData 
+        placeholderData: keepPreviousData
     });
 
 
     const create = useMutation({
-        mutationFn: (data) =>
-            axiosHandler.post("/company/create-company", data),
-
+        mutationFn: async (data) => {
+            try {
+                const res = await axiosHandler.post("/company/create-company", data)
+                toast.success(res?.data?.message);
+            } catch (error) { 
+                toast.error(error?.response?.data?.message)
+                console.log(error)
+            }
+        },
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["companies"] });
         },
@@ -28,15 +35,19 @@ export const useCompanies = (search,page) => {
 
 
     const update = useMutation({
-        mutationFn:async ({ id, data }) =>{
-             const res = await axiosHandler.put(`/company/update-company/${id}`, data)
-             console.log(res)
-            },
+        mutationFn: async ({ id, data }) => {
+           try {
+               const res = await axiosHandler.put(`/company/update-company/${id}`, data)
+               toast.success(res?.data?.message);
+           } catch (error) {
+            console.log(error)
+           }
+        },
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["companies"] });
         },
     })
-    
+
     const remove = useMutation({
         mutationFn: (id) => axiosHandler.delete(`/company/delete-company/${id}`),
         onSuccess: () => {
@@ -53,7 +64,7 @@ export const useCompanies = (search,page) => {
             return res.data.data;
         },
         enabled: !!search,
-        placeholderData: keepPreviousData 
+        placeholderData: keepPreviousData
     });
 
 
