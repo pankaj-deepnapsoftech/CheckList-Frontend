@@ -18,7 +18,7 @@ export default function AssemblyLineStatus() {
   const cards = [
     {
       line: "001 / ASS1",
-      title: "PCB Depaneling",
+      title: "PCB Depending",
       status: "Checked",
       items: [
         {
@@ -62,7 +62,7 @@ export default function AssemblyLineStatus() {
       title: "Case & Slider Greasing / 2000",
       status: "Unchecked",
       items: [
-        { label: "FLOIL G-347CA not expired", value: "Yes", status: "pass" },
+        { label: "FOIL G-347CA not expired", value: "Yes", status: "pass" },
         { label: "Slider greased properly", value: "Okay", status: "pass" },
         { label: "Case bush greased", value: "Okay", status: "pass" },
         { label: "ESD meter check", value: "0/2", status: "fail" },
@@ -82,24 +82,24 @@ export default function AssemblyLineStatus() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100">
       {/* Header */}
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
           <div>
-            <h1 className="text-3xl text-black font-semibold">
+            <h1 className="text-2xl sm:text-3xl text-black font-semibold">
               Assembly Line Status
             </h1>
-            <p className="text-slate-600 mt-2 text-lg">
+            <p className="text-gray-500 text-sm">
               Real-time production line monitoring & compliance
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <button className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
+            <button className="px-6 py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
               <Plus size={20} />
               New Check
             </button>
-            <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
+            <button className="px-6 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
               <Download size={20} />
               Export
             </button>
@@ -111,7 +111,7 @@ export default function AssemblyLineStatus() {
           <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
             {/* Assembly Line Select */}
             <div className="relative group">
-              <select className="appearance-none bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-2xl px-5 py-3 text-lg font-semibold text-slate-800 w-full lg:w-72 shadow-sm hover:shadow-md transition-all duration-200 focus:ring-4 focus:ring-blue-200 focus:border-blue-400">
+              <select className="appearance-none bg-linear-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-2xl px-5 py-3 text-lg font-semibold text-slate-800 w-full lg:w-72 shadow-sm hover:shadow-md transition-all duration-200 focus:ring-4 focus:ring-blue-200 focus:border-blue-400">
                 <option>001 / ASS1</option>
                 <option>002 / ASS2</option>
                 <option>003 / ASS3</option>
@@ -127,7 +127,7 @@ export default function AssemblyLineStatus() {
                 size={20}
               />
               <input
-                className="w-full pl-14 pr-5 py-3 bg-gradient-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-2xl text-lg font-medium text-slate-800 shadow-sm hover:shadow-md focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-200 placeholder-slate-400"
+                className="w-full pl-14 pr-5 py-3 bg-linear-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-2xl text-lg font-medium text-slate-800 shadow-sm hover:shadow-md focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-200 placeholder-slate-400"
                 placeholder="Search processes, parameters..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -164,7 +164,7 @@ export default function AssemblyLineStatus() {
                 <p className="text-sm font-medium text-slate-900">
                   Total Lines
                 </p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent mt-1">
+                <p className="text-3xl font-bold bg-linear-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent mt-1">
                   4
                 </p>
               </div>
@@ -177,13 +177,12 @@ export default function AssemblyLineStatus() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-900">Checked</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mt-1">
+                <p className="text-3xl font-bold bg-linear-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mt-1">
                   2
                 </p>
               </div>
               <div className="w-10 h-10 bg-blue-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <CheckCircle2 className="w-6 h-6 text-blue-600" />.
-
               </div>
             </div>
           </div>
@@ -191,7 +190,7 @@ export default function AssemblyLineStatus() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-900">Unchecked</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-red-600 to-red-700 bg-clip-text text-transparent mt-1">
+                <p className="text-3xl font-bold bg-linear-to-r from-red-600 to-red-700 bg-clip-text text-transparent mt-1">
                   2
                 </p>
               </div>
@@ -204,7 +203,7 @@ export default function AssemblyLineStatus() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-900">Compliance</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1">
+                <p className="text-3xl font-bold bg-linear-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1">
                   76%
                 </p>
               </div>

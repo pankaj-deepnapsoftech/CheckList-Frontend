@@ -46,7 +46,7 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
   return (
     <div className="w-full bg-white sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto flex items-center justify-between py-3 px-4 sm:px-6">
-        <div className="flex items-center gap-3 flex-shrink-0">
+        <div className="flex items-center gap-3 shrink-0">
         
           <button
             className="md:hidden p-2 rounded-lg hover:bg-gray-100"
@@ -60,7 +60,7 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
           </h2>
         </div>
 
-        <div className="flex items-center gap-4 sm:gap-6 flex-shrink-0">
+        <div className="flex items-center gap-4 sm:gap-6 shrink-0">
           <div className="relative cursor-pointer">
             <Bell size={22} className="text-gray-700"
             ref={notifButtonRef}
