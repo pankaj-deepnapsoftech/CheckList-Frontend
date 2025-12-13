@@ -4,14 +4,9 @@ import { useFormik } from "formik";
 import { useCompanies } from "../../../hooks/useCompanies";
 import { companyValidationSchema } from "../../../Validation/CompanyValidation";
 
-const CompanyDrawer = ({
-  openModal,
-  setOpenModal,
-  editTable,
-  viewModal,
-  mode,
-}) => {
-  const { create, update } = useCompanies();
+const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) => {
+
+  const { create, update } = useCompanies()
   const formik = useFormik({
     initialValues: {
       company_name: editTable?.company_name || viewModal?.company_name || "",
@@ -24,16 +19,35 @@ const CompanyDrawer = ({
     enableReinitialize: true,
     onSubmit: (value) => {
       if (editTable) {
-        update.mutate({ id: editTable?._id, data: value });
-        formik.resetForm();
-        setOpenModal(false);
+        update.mutate(
+          { id: editTable._id, data: value },
+          {
+            onSuccess: () => {
+              formik.resetForm();
+              setOpenModal(false);
+            },
+            onError: (error) => {
+              console.log("Update error:", error);
+             
+            }
+          }
+        );
       } else {
-        create.mutate(value);
-        formik.resetForm();
-        setOpenModal(false);
+        create.mutate(value, {
+          onSuccess: () => {
+            formik.resetForm();
+            setOpenModal(false);
+          },
+          onError: (error) => {
+            console.log("Create error:", error);
+           
+          }
+        });
       }
-    },
-  });
+    }
+
+
+  })
 
   if (!openModal) return null;
   const isView = !!viewModal;
@@ -130,6 +144,7 @@ const CompanyDrawer = ({
               name="description"
               disabled={isView}
             />
+           
           </div>
 
           <button
