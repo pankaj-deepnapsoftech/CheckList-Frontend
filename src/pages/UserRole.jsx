@@ -97,12 +97,12 @@ export default function UserRoles() {
       </div>
 
       <div className="bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
+        <div className="flex items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
             {filteredRoles?.length} Roles Found
           </h2>
 
-          <div className="flex items-center gap-2 text-gray-500">
+          <div className="flex items-center gap-2 text-gray-500 ml-auto">
             <span className="text-sm font-medium">Show:</span>
             <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer">
               <option>5</option>
@@ -111,8 +111,6 @@ export default function UserRoles() {
             </select>
           </div>
         </div>
-
-        
 
         <div className="grid gap-4 sm:hidden">
           {filteredRoles?.map((item) => (
