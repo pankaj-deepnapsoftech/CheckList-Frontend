@@ -1,36 +1,62 @@
 import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { useFormik } from "formik";
-import { useCompanies } from "../hooks/useCompanies";
-import { companyValidationSchema } from "../Validation/CompanyValidation";
+import { useCompanies } from "../../../hooks/useCompanies";
+import { companyValidationSchema } from "../../../Validation/CompanyValidation";
 
-const CompanyDrawer = ({ openModal, setOpenModal, editTable }) => {
+const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) => {
 
   const { create, update } = useCompanies()
-
   const formik = useFormik({
     initialValues: {
-      company_name: editTable?.company_name || "",
-      company_address: editTable?.company_address || "",
-      gst_no: editTable?.gst_no || "",
-      description: editTable?.description || "",
+      company_name: editTable?.company_name || viewModal?.company_name || "",
+      company_address: editTable?.company_address || viewModal?.company_address || "",
+      gst_no: editTable?.gst_no || viewModal?.gst_no || "",
+      description: editTable?.description || viewModal?.description || "",
     },
     validationSchema: companyValidationSchema,
     enableReinitialize: true,
     onSubmit: (value) => {
       if (editTable) {
-        update.mutate({ id: editTable?._id, data: value })
+        update.mutate(
+          { id: editTable._id, data: value },
+          {
+            onSuccess: () => {
+              formik.resetForm();
+              setOpenModal(false);
+            },
+            onError: (error) => {
+              console.log("Update error:", error);
+             
+            }
+          }
+        );
       } else {
-        create.mutate(value)
+        create.mutate(value, {
+          onSuccess: () => {
+            formik.resetForm();
+            setOpenModal(false);
+          },
+          onError: (error) => {
+            console.log("Create error:", error);
+           
+          }
+        });
       }
-      formik.resetForm()
-      setOpenModal(false)
     }
+
 
   })
 
   if (!openModal) return null;
- 
+  const isView = !!viewModal;
+  const title = {
+    add: "Add Company",
+    edit: "Update Company",
+    view: "View Details"
+  }
+
+
 
   return (
     <div className={`${openModal ? "translate-x-0" : "translate-x-full"}
@@ -40,7 +66,7 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable }) => {
 
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
-            {editTable ? "Edit Company" : "Add Company"}
+            {title[mode]}
 
           </h2>
           <button className="cursor-pointer" onClick={() => { setOpenModal(false); formik.resetForm() }}
@@ -61,6 +87,7 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable }) => {
               name="company_name"
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              disabled={isView}
               required
             />
 
@@ -81,6 +108,7 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable }) => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               name="company_address"
+              disabled={isView}
             />
             {formik.touched.company_address && formik.errors.company_address && (
               <p className="text-red-500">{formik.errors.company_address}</p>
@@ -96,6 +124,7 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable }) => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               name="gst_no"
+              disabled={isView}
             />
             {formik.touched.gst_no && formik.errors.gst_no && (
               <p className="text-red-500">{formik.errors.gst_no}</p>
@@ -110,18 +139,18 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable }) => {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               name="description"
+              disabled={isView}
             />
-            {formik.touched.description && formik.errors.description && (
-              <p className="text-red-500">{formik.errors.description}</p>
-            )}
+           
           </div>
 
 
           <button
             type="submit"
-            className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 mt-4"
+            className={"bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 mt-4 "}
+            disabled={isView}
           >
-            {editTable ? "Updated Company " : " Add Company"}
+            {title[mode]}
           </button>
 
         </form>
