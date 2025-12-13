@@ -37,7 +37,7 @@ export default function UserRoles() {
     <div>
       {/* HEADER */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-semibold">User Roles</h1>
+        <h1 className="text-2xl sm:text-3xl font-semibold">User Roles</h1>
         <p className="text-gray-500 text-sm">
           Manage user roles and permissions
         </p>

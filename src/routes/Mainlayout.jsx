@@ -6,7 +6,7 @@ export default function Layout({ children }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen">
       {/* FIXED SIDEBAR */}
       <Sidebar isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
 

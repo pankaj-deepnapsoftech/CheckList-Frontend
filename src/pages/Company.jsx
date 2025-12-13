@@ -30,9 +30,9 @@ const Company = () => {
 
 
 return (
-  <div className="p-4 sm:p-6 w-full">
+  <div >
     <div>
-      <h1 className="text-xl sm:text-2xl font-semibold">Companies</h1>
+      <h1 className="text-2xl sm:text-3xl font-semibold">Companies</h1>
       <p className="text-gray-500 text-sm">Manage Company</p>
     </div>
 
