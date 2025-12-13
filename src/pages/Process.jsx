@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
+import { Plus, RefreshCw, Search, Eye } from "lucide-react";
 import ViewProcessModal from "../components/modal/viewProcessModal.jsx";
 import AddProcessModal from "../components/modal/addModal/AddProcessModal";
 
@@ -70,32 +70,24 @@ const Process = () => {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
-        {/* Header: Count + Show Dropdown */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
-          <h2 className="text-gray-800 text-lg font-semibold">
-            {filteredProcesses.length} Process Found
-          </h2>
+  {/* Table */}
+  <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
+    {/* Header: Count + Show Dropdown */}
+    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
+      <h2 className="text-gray-800 text-lg font-semibold">
+        {filteredProcesses.length} Process Found
+      </h2>
 
-          {/* Show Dropdown */}
-          <div className="flex items-center gap-4 text-gray-600">
-            <span>Show:</span>
-            <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer">
-              <option>5</option>
-              <option>10</option>
-              <option>15</option>
-            </select>
-          </div>
-        </div>
-
-
-  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
-    <h2 className="text-gray-800 text-lg font-semibold">{filteredProcesses.length} Process Found</h2>
-
-      <AddProcessModal open={openDrawer} onClose={() => setOpenDrawer(false)} />
+      {/* Show Dropdown */}
+      <div className="flex items-center gap-4 text-gray-600">
+        <span>Show:</span>
+        <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer">
+          <option>5</option>
+          <option>10</option>
+          <option>15</option>
+        </select>
+      </div>
     </div>
-  </div>
 
 
   {/* Mobile View (Card Layout) */}
@@ -206,13 +198,10 @@ const Process = () => {
   </table>
 </div>
 
-</div>
-
-<AddProcessModal open={openDrawer} onClose={() => setOpenDrawer(false)}/>
-
-<ViewProcessModal open={viewOpen} onClose={() => setViewOpen(false)}data={selectedProcess}/>
-
-  </div>
+      <AddProcessModal open={openDrawer} onClose={() => setOpenDrawer(false)} />
+      <ViewProcessModal open={viewOpen} onClose={() => setViewOpen(false)} data={selectedProcess} />
+    </div>
+    </div>
   );
 };
 
