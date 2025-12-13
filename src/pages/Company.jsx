@@ -160,7 +160,7 @@ const Company = () => {
       </div>
 
       <CompanyDrawer setOpenModal={setOpenModal} openModal={openModal} editTable={editTable} />
-
+     
     </div>
   );
 }
