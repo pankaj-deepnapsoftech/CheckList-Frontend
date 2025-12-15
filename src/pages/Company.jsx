@@ -215,11 +215,7 @@ return (
         viewModal={viewModal}
         mode={mode}
       />
-      <Pagination
-        page={page}
-        setPage={setPage}
-        hasNextpage={listQuery?.data?.length === 10}
-      />
+      <Pagination page={page} setPage={setPage} hasNextpage={filteredCompanies?.length === 10} />
     </div>
   );
 };
