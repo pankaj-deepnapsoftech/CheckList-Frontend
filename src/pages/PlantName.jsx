@@ -26,7 +26,7 @@ const PlantName = () => {
   return (
     <div>
       <div>
-        <h1 className="text-xl sm:text-2xl font-semibold">Plants</h1>
+        <h1 className="text-2xl sm:text-3xl font-semibold">Plants</h1>
         <p className="text-gray-500 text-sm">Manage plant information</p>
       </div>
 

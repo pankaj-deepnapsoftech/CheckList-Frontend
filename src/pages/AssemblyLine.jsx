@@ -16,17 +16,17 @@ export default function AssemblyLine() {
     {
       no: "001",
       name: "ASS 1",
-      process: "PCB Depaneling",
+      process: "PCB Depending",
     },
     {
       no: "002",
       name: "ASS 2",
-      process: "PCB Depaneling",
+      process: "PCB Depending",
     },
     {
       no: "003",
       name: "ASS 3",
-      process: "PCB Depaneling",
+      process: "PCB Depending",
     },
   ];
 
@@ -34,7 +34,7 @@ export default function AssemblyLine() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-semibold">Assembly Line</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold">Assembly Line</h1>
           <p className="text-gray-500 text-sm">
             Manage all assembly lines efficiently
           </p>
@@ -52,7 +52,6 @@ export default function AssemblyLine() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-
 
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
           <button

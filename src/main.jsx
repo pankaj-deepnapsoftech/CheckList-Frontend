@@ -14,6 +14,7 @@ createRoot(document.getElementById("root")).render(
     <BrowserRouter>
     <ToastContainer/>
       <App />
+      <ToastContainer/>
     </BrowserRouter>
   </QueryClientProvider>
 )

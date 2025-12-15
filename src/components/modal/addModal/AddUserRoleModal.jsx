@@ -1,181 +1,304 @@
-import React, { useEffect, useState } from "react";
-import { X, ChevronDown, ChevronUp } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+import { X, ChevronDown, ChevronUp, Search } from "lucide-react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { useUserRole } from "../../../hooks/useUserRole";
+
+const SIDEBAR_PAGES = [
+  "Dashboard",
+  "Company",
+  "Plant Name",
+  "User Role",
+  "Employee",
+  "Process",
+  "Assembly Line",
+  "Assembly Line Status",
+];
+
+const validationSchema = Yup.object({
+  name: Yup.string().required("Role name is required"),
+  description: Yup.string(),
+  permissions: Yup.array(),
+});
 
 export default function UserRoleModal({
   open,
   onClose,
-  mode = "add", 
+  mode = "add",
   initialData = null,
-  onSubmit,
 }) {
-  const [formData, setFormData] = useState({
-    role: "",
-    description: "",
-    permissions: [],
-  });
+  const isView = mode === "view";
+  const { createUser, updateUser } = useUserRole();
 
   const [permOpen, setPermOpen] = useState(false);
+  const [searchPage, setSearchPage] = useState("");
+  const permRef = useRef(null);
 
-  const isView = mode === "view";
 
-  const PERMISSION_GROUPS = {
-    "Purchase Order": ["Create PO", "View PO", "Edit PO", "Delete PO"],
-    Inventory: ["Direct", "Indirect", "WIP"],
-    Users: ["Add User", "Edit User", "Delete User", "View User"],
-  };
+  const formik = useFormik({
+    initialValues: {
+      name: initialData?.name || "",
+      description: initialData?.description || "",
+      permissions: initialData?.permissions || [],
+    },
+    enableReinitialize: true,
+    validationSchema,
+    onSubmit: (values) => {
+      if (mode === "edit") {
+        updateUser.mutate({
+          id: initialData?._id,
+          data: values,
+        });
+      } else {
+        createUser.mutate(values);
+      }
 
-  
+      formik.resetForm();
+      onClose();
+    },
+  });
+
+
   useEffect(() => {
-    if ((mode === "edit" || mode === "view") && initialData) {
-      setFormData({
-        role: initialData.role || "",
-        description: initialData.description || "",
-        permissions: initialData.permissions || [],
-      });
-    } else {
-      setFormData({ role: "", description: "", permissions: [] });
-    }
-  }, [mode, initialData, open]);
+    const handleClickOutside = (e) => {
+      if (permOpen && permRef.current && !permRef.current.contains(e.target)) {
+        setPermOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [permOpen]);
+
+  // ESC key close
+  useEffect(() => {
+    const handleEsc = (e) => e.key === "Escape" && setPermOpen(false);
+    document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, []);
+
+  // Click outside close
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (permOpen && permRef.current && !permRef.current.contains(e.target)) {
+        setPermOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
+  }, [permOpen]);
 
   if (!open) return null;
 
-  const handleSubmit = () => {
-    if (!formData.role.trim()) return alert("Role is required");
-    onSubmit(formData);
-    onClose();
-  };
 
-  const togglePermission = (perm) => {
+  const togglePermission = (page) => {
     if (isView) return;
 
-    if (formData.permissions.includes(perm)) {
-      setFormData({
-        ...formData,
-        permissions: formData.permissions.filter((p) => p !== perm),
-      });
+    if (formik.values.permissions.includes(page)) {
+      formik.setFieldValue(
+        "permissions",
+        formik.values.permissions.filter((p) => p !== page)
+      );
     } else {
-      setFormData({
-        ...formData,
-        permissions: [...formData.permissions, perm],
-      });
+      formik.setFieldValue("permissions", [...formik.values.permissions, page]);
     }
   };
 
+  const removePermission = (page) => {
+    if (isView) return;
+    formik.setFieldValue(
+      "permissions",
+      formik.values.permissions.filter((p) => p !== page)
+    );
+  };
+
+  const filteredPages = SIDEBAR_PAGES.filter((p) =>
+    p.toLowerCase().includes(searchPage.toLowerCase())
+  );
+
+  const formatDate = (date) => {
+    if (!date) return "—";
+    return new Date(date).toLocaleString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+
   return (
-    <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-end">
-      <div className="bg-white h-full w-[420px] shadow-lg p-6 animate-slideLeft relative">
-        <button className="absolute right-4 top-4" onClick={onClose}>
-          <X size={22} className="text-gray-500 hover:text-black" />
-        </button>
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/40 backdrop-blur-sm">
+      <div className="bg-white h-full w-[420px] shadow-xl p-6 relative animate-slideLeft overflow-y-auto">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold">
+            {mode === "add"
+              ? "Add New Role"
+              : mode === "edit"
+              ? "Edit Role"
+              : "View Role"}
+          </h2>
 
-        <h2 className="text-xl font-semibold mb-6">
-          {mode === "add"
-            ? "Add New Role"
-            : mode === "edit"
-            ? "Edit Role"
-            : "View Role"}
-        </h2>
-
-        <div className="mb-4">
-          <label className="text-sm text-gray-700 font-medium">
-            Role <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            disabled={isView}
-            className={`w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 ${
-              isView ? "bg-gray-100 cursor-not-allowed" : ""
-            }`}
-            value={formData.role}
-            onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="text-sm text-gray-700 font-medium">
-            Description
-          </label>
-          <input
-            type="text"
-            disabled={isView}
-            className={`w-full border border-gray-300 rounded-lg px-3 py-2 mt-1 ${
-              isView ? "bg-gray-100 cursor-not-allowed" : ""
-            }`}
-            value={formData.description}
-            onChange={(e) =>
-              setFormData({ ...formData, description: e.target.value })
-            }
-          />
-        </div>
-
-        {/* PERMISSIONS */}
-        <div className="relative mt-3">
-          <label className="text-sm text-gray-700 font-medium">
-            Permissions
-          </label>
-          <div
-            className={`border border-gray-300 rounded-lg px-3 py-2 mt-1 bg-white min-h-[48px] cursor-pointer ${
-              isView ? "bg-gray-100 cursor-not-allowed" : ""
-            }`}
-            onClick={() => !isView && setPermOpen(!permOpen)}
+          <button
+            onClick={() => {
+              onClose();
+              formik.resetForm();
+            }}
           >
-            <div className="flex flex-wrap gap-2">
-              {formData.permissions.length === 0 && (
-                <span className="text-gray-400 text-sm">
-                  Select permissions...
-                </span>
-              )}
+            <X size={22} className="text-gray-500 hover:text-black" />
+          </button>
+        </div>
 
-              {formData.permissions.map((perm) => (
-                <span
-                  key={perm}
-                  className="bg-blue-100 text-blue-700 px-2 py-1 rounded-md text-sm"
-                >
-                  {perm}
-                </span>
-              ))}
-            </div>
-
-            <div className="absolute right-4 top-[55%] -translate-y-1/2">
-              {permOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-            </div>
+        <form className="flex flex-col gap-4" onSubmit={formik.handleSubmit}>
+          <div>
+            <label className="text-sm font-medium">
+              Role <span className="text-red-500">*</span>
+            </label>
+            <input
+              name="name"
+              disabled={isView}
+              value={formik.values.name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={`w-full border border-gray-300 rounded-xl px-3 py-2 mt-1 
+                ${
+                  isView
+                    ? "bg-gray-100 border border-gray-300 cursor-not-allowed"
+                    : "focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                }`}
+            />
+            {formik.touched.name && formik.errors.name && (
+              <p className="text-red-500 text-sm">{formik.errors.name}</p>
+            )}
           </div>
 
-          {permOpen && !isView && (
-            <div className="absolute bg-white border border-gray-300 rounded-lg shadow-lg mt-1 w-full z-50 max-h-60 overflow-auto p-3">
-              {Object.entries(PERMISSION_GROUPS).map(([group, perms]) => (
-                <div key={group} className="mb-3">
-                  <p className="font-semibold text-gray-700 text-sm border-b pb-1 mb-2">
-                    {group}
-                  </p>
+          <div>
+            <label className="text-sm font-medium">Description</label>
+            <input
+              name="description"
+              disabled={isView}
+              value={formik.values.description}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className={`w-full border border-gray-300 rounded-xl px-3 py-2 mt-1
+                ${
+                  isView
+                    ? "bg-gray-100 cursor-not-allowed"
+                    : "focus:ring-2 focus:ring-blue-100 focus:border-blue-500"
+                }`}
+            />
+          </div>
 
-                  {perms.map((perm) => (
+          {/* PERMISSIONS */}
+          <div className="relative mt-2" ref={permRef}>
+            <label className="text-sm font-medium">
+              Permissions <span className="text-red-500">*</span>
+            </label>
+
+            <div
+              onClick={() => !isView && setPermOpen(!permOpen)}
+              className={`border rounded-xl px-3 py-2 mt-1 min-h-[52px] cursor-pointer
+                ${
+                  permOpen
+                    ? "border-blue-500 ring-2 ring-blue-100"
+                    : "border-gray-300"
+                }
+                ${isView && "bg-gray-100 cursor-not-allowed"}
+              `}
+            >
+              <div className="flex flex-wrap gap-2">
+                {formik.values.permissions.length === 0 && (
+                  <span className="text-gray-400 text-sm">Select pages</span>
+                )}
+
+                {formik.values.permissions.map((page) => (
+                  <span
+                    key={page}
+                    className="group flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm border"
+                  >
+                    {page}
+                    {!isView && (
+                      <X
+                        size={14}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removePermission(page);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 cursor-pointer"
+                      />
+                    )}
+                  </span>
+                ))}
+              </div>
+
+              <div className="absolute right-4 top-[65%] -translate-y-1/2">
+                {permOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+              </div>
+            </div>
+
+            {permOpen && !isView && (
+              <div className="absolute z-50 mt-2 w-full rounded-xl border bg-white shadow-xl">
+                <div className="p-3 border-b flex items-center gap-2">
+                  <Search size={16} />
+                  <input
+                    value={searchPage}
+                    onChange={(e) => setSearchPage(e.target.value)}
+                    placeholder="Search pages..."
+                    className="w-full text-sm outline-none"
+                  />
+                </div>
+
+                <div className="max-h-56 overflow-auto p-2">
+                  {filteredPages.map((page) => (
                     <label
-                      key={perm}
-                      className="flex items-center gap-2 py-1 cursor-pointer"
+                      key={page}
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
                     >
                       <input
                         type="checkbox"
-                        checked={formData.permissions.includes(perm)}
-                        onChange={() => togglePermission(perm)}
+                        checked={formik.values.permissions.includes(page)}
+                        onChange={() => togglePermission(page)}
                       />
-                      <span className="text-gray-700 text-sm">{perm}</span>
+                      <span className="text-sm">{page}</span>
                     </label>
                   ))}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
 
-        {!isView && (
-          <button
-            onClick={handleSubmit}
-            className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 mt-6 w-full"
-          >
-            {mode === "add" ? "Submit" : "Update Role"}
-          </button>
-        )}
+          {!isView && (
+            <button
+              type="submit"
+              className="mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-medium"
+            >
+              {mode === "add" ? "Create Role" : "Update Role"}
+            </button>
+          )}
+          {isView && (
+            <>
+              {/* CREATED ON */}
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Created On
+                </label>
+                <div className="w-full border border-gray-300 rounded-xl px-3 py-2 mt-1 bg-gray-100 text-gray-800 cursor-not-allowed">
+                  {formatDate(initialData?.createdAt)}
+                </div>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-gray-700">
+                  Last Updated
+                </label>
+                <div className="w-full border border-gray-300 rounded-xl px-3 py-2 mt-1 bg-gray-100 text-gray-800 cursor-not-allowed">
+                  {formatDate(initialData?.updatedAt)}
+                </div>
+              </div>
+            </>
+          )}
+        </form>
       </div>
     </div>
   );
