@@ -12,7 +12,7 @@ export default function UserRoles() {
   const [modalMode, setModalMode] = useState("add");
   const [selectedRole, setSelectedRole] = useState(null);
   const { debounce, value } = useDebounce(search);
-  const { UserlistQuery, removeUser, SearchUserList } = useUserRole(value);
+  const { UserlistQuery, removeUser, SearchUserList } = useUserRole(value,page);
 
   const filteredRoles = debounce
     ? SearchUserList?.data ?? []
@@ -66,7 +66,6 @@ export default function UserRoles() {
       </div>
 
       <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Search Box */}
         <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
           <Search size={20} className="text-gray-500" />
           <input
@@ -233,14 +232,14 @@ export default function UserRoles() {
           </table>
         </div>
 
-        {/* Pagination */}
+       
         <Pagination
           page={page}
           setPage={setPage}
           hasNextpage={UserlistQuery?.data?.length === 10}
         />
       </div>
-      {/* Modals */}
+
       <UserRoleModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
