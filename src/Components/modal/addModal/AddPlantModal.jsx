@@ -94,7 +94,7 @@ const AddPlantModal = (
               name="plant_name"
             />
             {formik?.touched.plant_name && formik?.errors?.plant_name && (
-              <p>{formik?.errors?.plant_name}</p>
+              <p className="text-sm text-red-500">{formik?.errors?.plant_name}</p>
             )}
           </label>
 
@@ -110,8 +110,8 @@ const AddPlantModal = (
               onChange={formik.handleChange}
               name="plant_address"
             />
-            {formik?.touched.plant_name && formik?.errors?.plant_name && (
-              <p>{formik?.errors?.plant_name}</p>
+            {formik?.touched.plant_address && formik?.errors?.plant_address && (
+              <p className="text-sm text-red-500">{formik?.errors?.plant_address}</p>
             )}
           </label>
 
@@ -133,8 +133,8 @@ const AddPlantModal = (
                 <option key={c?._id} value={c?._id}>{c?.company_name}</option>
               ))}
             </select>
-            {formik?.touched.plant_name && formik?.errors?.plant_name && (
-              <p>{formik?.errors?.plant_name}</p>
+            {formik?.touched.company_id && formik?.errors?.company_id && (
+              <p className="text-sm text-red-500">{formik?.errors?.company_id}</p>
             )}
           </label>
 
@@ -149,8 +149,8 @@ const AddPlantModal = (
                 `}
               onChange={formik.handleChange}
             />
-            {formik?.touched.plant_name && formik?.errors?.plant_name && (
-              <p>{formik?.errors?.plant_name}</p>
+            {formik?.touched.description && formik?.errors?.description && (
+              <p>{formik?.errors?.description}</p>
             )}
           </label>
 
