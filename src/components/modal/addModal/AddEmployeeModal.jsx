@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
+import { useCompanies } from "../../../hooks/useCompanies";
 
 export default function AddEmployeeModal({
   open,
@@ -11,7 +12,11 @@ export default function AddEmployeeModal({
   onSubmit,
 })
 
+
+
 {
+const { AllCompanyData } = useCompanies(null, null, open);
+  
   const [formData, setFormData] = useState({
   full_name: "",
   email: "",
@@ -25,21 +30,13 @@ export default function AddEmployeeModal({
   showAssemblyDropdown: false,
 });
 
-  if (!open) return null;
-
-  const toggleAssemblyLine = (id) => {
-    setFormData((prev) => ({
-      ...prev,
-      assambly_line: prev.assambly_line.includes(id)
-        ? prev.assambly_line.filter((x) => x !== id)
-        : [...prev.assambly_line, id],
-    }));
-  };
+useCompanies();
+if (!open) return null;
+  
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-end">
       <div className="bg-white h-full w-[420px] shadow-lg p-6 animate-slideLeft">
-
         {/* HEADER */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">Add Employee</h2>
@@ -50,7 +47,6 @@ export default function AddEmployeeModal({
 
         {/* FORM */}
         <div className="flex flex-col gap-4">
-
           {/* Full Name */}
           <Field label="Full Name">
             <input
@@ -73,7 +69,6 @@ export default function AddEmployeeModal({
               }
             />
           </Field>
-
 
           {/* Password */}
           <Field label="Password">
@@ -144,92 +139,103 @@ export default function AddEmployeeModal({
               }
             >
               <option value="">Select Company</option>
-              {companies.map((c) => (
+
+              {AllCompanyData?.data?.map((c) => (
                 <option key={c._id} value={c._id}>
                   {c.company_name}
                 </option>
               ))}
             </select>
+
+            {AllCompanyData?.isLoading && (
+              <p className="text-xs text-gray-500 mt-1">Loading companies...</p>
+            )}
           </Field>
 
           {/* Assembly Lines */}
           {/* Assembly Line Dropdown */}
-<div className="w-full">
-  <label className="text-sm text-gray-700 font-medium">
-    Assembly Line
-  </label>
-
-  {/* Dropdown Button */}
-  <div className="relative mt-1">
-    <button
-      type="button"
-      className="w-full border rounded-lg px-3 py-2 bg-white flex justify-between items-center"
-      onClick={() =>
-        setFormData((prev) => ({
-          ...prev,
-          showAssemblyDropdown: !prev.showAssemblyDropdown,
-        }))
-      }
-    >
-      <span className="text-gray-700">
-        {formData.assambly_line.length > 0
-          ? `${formData.assambly_line.length} Selected`
-          : "Select Assembly Lines"}
-      </span>
-
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className={`size-5 transition-transform ${
-          formData.showAssemblyDropdown ? "rotate-180" : ""
-        }`}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-      </svg>
-    </button>
-
-    {/* Dropdown Menu */}
-    {formData.showAssemblyDropdown && (
-      <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-md max-h-48 overflow-y-auto z-50 p-2">
-
-        {assemblyLines.length === 0 ? (
-          <p className="text-gray-500 text-sm px-2 py-1">
-            No Assembly Lines Available
-          </p>
-        ) : (
-          assemblyLines.map((line) => (
-            <label
-              key={line._id}
-              className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded cursor-pointer"
-            >
-              <input
-                type="checkbox"
-                checked={formData.assambly_line.includes(line._id)}
-                onChange={() => {
-                  setFormData((prev) => {
-                    const exists = prev.assambly_line.includes(line._id);
-
-                    return {
-                      ...prev,
-                      assambly_line: exists
-                        ? prev.assambly_line.filter((id) => id !== line._id)
-                        : [...prev.assambly_line, line._id],
-                    };
-                  });
-                }}
-              />
-              {line.line_name}
+          <div className="w-full">
+            <label className="text-sm text-gray-700 font-medium">
+              Assembly Line
             </label>
-          ))
-        )}
-      </div>
-    )}
-  </div>
-</div>
 
+            {/* Dropdown Button */}
+            <div className="relative mt-1">
+              <button
+                type="button"
+                className="w-full border rounded-lg px-3 py-2 bg-white flex justify-between items-center"
+                onClick={() =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    showAssemblyDropdown: !prev.showAssemblyDropdown,
+                  }))
+                }
+              >
+                <span className="text-gray-700">
+                  {formData.assambly_line.length > 0
+                    ? `${formData.assambly_line.length} Selected`
+                    : "Select Assembly Lines"}
+                </span>
+
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className={`size-5 transition-transform ${
+                    formData.showAssemblyDropdown ? "rotate-180" : ""
+                  }`}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m19.5 8.25-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </button>
+
+              {/* Dropdown Menu */}
+              {formData.showAssemblyDropdown && (
+                <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-md max-h-48 overflow-y-auto z-50 p-2">
+                  {assemblyLines.length === 0 ? (
+                    <p className="text-gray-500 text-sm px-2 py-1">
+                      No Assembly Lines Available
+                    </p>
+                  ) : (
+                    assemblyLines.map((line) => (
+                      <label
+                        key={line._id}
+                        className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded cursor-pointer"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.assambly_line.includes(line._id)}
+                          onChange={() => {
+                            setFormData((prev) => {
+                              const exists = prev.assambly_line.includes(
+                                line._id
+                              );
+
+                              return {
+                                ...prev,
+                                assambly_line: exists
+                                  ? prev.assambly_line.filter(
+                                      (id) => id !== line._id
+                                    )
+                                  : [...prev.assambly_line, line._id],
+                              };
+                            });
+                          }}
+                        />
+                        {line.line_name}
+                      </label>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Submit */}
           <button
