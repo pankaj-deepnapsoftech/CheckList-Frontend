@@ -97,7 +97,6 @@ export const usePlantsByCompany = (companyId) => {
     queryKey: ["plants-by-company", companyId],
     queryFn: async () => {
       const res = await axiosHandler.get(`/plant/all-plants-data/${companyId}`);
-      console.log("This is my company id ==========>>>>>>",res)
       return res?.data?.data;
     },
     enabled: !!companyId,
