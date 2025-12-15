@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { X } from "lucide-react";
 import { useCompanies } from "../../../hooks/useCompanies";
+import { usePlantsByCompany } from "../../../hooks/UsePlantName";
+import {useUserRole} from "../../../hooks/useUserRole";
 
 export default function AddEmployeeModal({
   open,
@@ -16,6 +18,7 @@ export default function AddEmployeeModal({
 
 {
 const { AllCompanyData } = useCompanies(null, null, open);
+const {AllRolesData} = useUserRole();
   
   const [formData, setFormData] = useState({
   full_name: "",
@@ -30,7 +33,8 @@ const { AllCompanyData } = useCompanies(null, null, open);
   showAssemblyDropdown: false,
 });
 
-useCompanies();
+const plantsQuery = usePlantsByCompany(formData.employee_company);
+
 if (!open) return null;
   
 
@@ -92,12 +96,17 @@ if (!open) return null;
               }
             >
               <option value="">Select Role</option>
-              {roles.map((r) => (
+
+              {(AllRolesData?.data || []).map((r) => (
                 <option key={r._id} value={r._id}>
                   {r.name}
                 </option>
               ))}
             </select>
+
+            {AllRolesData?.isLoading && (
+              <p className="text-xs text-gray-500 mt-1">Loading roles...</p>
+            )}
           </Field>
 
           {/* Designation */}
@@ -111,32 +120,19 @@ if (!open) return null;
             />
           </Field>
 
-          {/* Plant */}
-          <Field label="Employee Plant">
-            <select
-              className="input"
-              value={formData.Employee_plant}
-              onChange={(e) =>
-                setFormData({ ...formData, Employee_plant: e.target.value })
-              }
-            >
-              <option value="">Select Plant</option>
-              {plants.map((p) => (
-                <option key={p._id} value={p._id}>
-                  {p.plant_name}
-                </option>
-              ))}
-            </select>
-          </Field>
-
           {/* Company */}
           <Field label="Employee Company">
             <select
               className="input"
               value={formData.employee_company}
-              onChange={(e) =>
-                setFormData({ ...formData, employee_company: e.target.value })
-              }
+              onChange={(e) => {
+                const value = e.target.value;
+                setFormData({
+                  ...formData,
+                  employee_company: value,
+                  Employee_plant: "",
+                });
+              }}
             >
               <option value="">Select Company</option>
 
@@ -149,6 +145,27 @@ if (!open) return null;
 
             {AllCompanyData?.isLoading && (
               <p className="text-xs text-gray-500 mt-1">Loading companies...</p>
+            )}
+          </Field>
+
+          {/* Plant */}
+          <Field label="Employee Plant">
+            <select
+              className="input"
+              value={formData.Employee_plant}
+              onChange={(e) =>
+                setFormData({ ...formData, Employee_plant: e.target.value })
+              }
+            >
+              <option value="">Select Plant</option>
+              {(plantsQuery?.data || []).map((p) => (
+                <option key={p._id} value={p._id}>
+                  {p.plant_name}
+                </option>
+              ))}
+            </select>
+            {plantsQuery?.isLoading && (
+              <p className="text-xs text-gray-500 mt-1">Loading plants...</p>
             )}
           </Field>
 

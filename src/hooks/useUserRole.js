@@ -72,12 +72,28 @@ export const useUserRole = (search,page) => {
     },
   });
 
+   const AllRolesData = useQuery({
+     queryKey: ["user-roles"],
+     queryFn: async () => {
+       const res = await axiosHandler.get(`/roles/all-roles-data`);
+       return res?.data?.data;
+     },
+     onError: (error) => {
+       toast.error(
+         error?.response?.data?.message || "Failed to fetch user roles"
+       );
+     },
+   });
+
+
+
 
   return {
     UserlistQuery,
     createUser,
     updateUser,
     removeUser,
-    SearchUserList
+    SearchUserList,
+    AllRolesData,
   };
 };
