@@ -1,157 +1,170 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { UsePlantName } from "../../../hooks/UsePlantName";
+import { useFormik } from "formik";
+import { useCompanies } from "../../../hooks/useCompanies";
+import { plantValidationSchema } from "../../../Validation/PlantValidation";
 
-export default function AddPlantModal({
-  open,
-  onClose,
-  onSubmit,
-  editData,
-  viewData,
-  mode = "add", // add | edit | view
-}) {
-  const [plantName, setPlantName] = useState("");
-  const [address, setAddress] = useState("");
-  const [company, setCompany] = useState("");
-  const [description, setDescription] = useState("");
+const AddPlantModal = (
+  { openModal, setOpenModal, editTable, viewModal, mode }
+) => {
+  const { CreatePlantName, UpdatedPLant } = UsePlantName()
+  const {listQuery} = useCompanies()
+  const isView = !!viewModal;
+  const title = {
+    add: "Add Company",
+    edit: "Update Company",
+    view: "View Details"
+  }
 
-  const isView = mode === "view";
-
-  useEffect(() => {
-    const src = editData || viewData;
-
-    if (src) {
-      setPlantName(src.name || "");
-      setAddress(src.address || "");
-      setCompany(src.company || "");
-      setDescription(src.description || "");
-    } else {
-      setPlantName("");
-      setAddress("");
-      setCompany("");
-      setDescription("");
+//  console.log(editTable)
+  const formik = useFormik({
+    initialValues:{
+      plant_name: viewModal?.plant_name || editTable?.plant_name || "",
+      plant_address: viewModal?.plant_name  || editTable?.plant_address ||"",
+      company_id: viewModal?.company_id?._id || editTable?.company_id?._id|| "",
+      description: viewModal?.plant_name || editTable?.description|| "",
+    },
+    enableReinitialize:true,
+    validationSchema:plantValidationSchema ,
+    onSubmit: (value)=>{
+      if(editTable){
+        UpdatedPLant.mutate({id:editTable?._id,data:value},{
+          onSuccess: ()=>{
+            formik.resetForm()
+            setOpenModal(false)
+          }
+        })
+      }else{
+        CreatePlantName.mutate(value, {
+          onSuccess: () => {
+            formik.resetForm()
+            setOpenModal(false)
+          }
+        })
+      }
     }
-  }, [editData, viewData, mode, open]);
+  })
 
-  if (!open) return null;
 
-  const handleSubmit = () => {
-    const plant = {
-      name: plantName,
-      address,
-      company,
-      description,
-    };
 
-    if (!isView) {
-      onSubmit(plant, mode);
-    }
 
-    onClose();
-  };
+ 
 
   return (
-    <div className="fixed inset-0 z-50 flex">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-        onClick={onClose}
+    <div className={`${openModal ? "translate-x-0" : "translate-x-full"}
+ fixed inset-0 bg-black/40  z-50 flex justify-end`}>
+
+      <div 
+        className="absolute inset-0 bg-black/30 "
+        onClick={() => { setOpenModal(false); formik.resetForm() }}
       />
 
-      {/* Right Panel */}
+
       <div className="ml-auto h-full w-full max-w-md bg-white shadow-xl p-6 relative animate-slideLeft">
-        {/* Close Button */}
+
         <button
           className="absolute right-4 top-4 text-gray-600 hover:text-black"
-          onClick={onClose}
+          onClick={() => { setOpenModal(false); formik.resetForm() }}
         >
           <X size={20} />
         </button>
 
-        {/* Title */}
+
         <h2 className="text-xl font-semibold mb-6">
-          {mode === "add"
-            ? "Add New Plant"
-            : mode === "edit"
-            ? "Edit Plant"
-            : "View Plant"}
+          {title[mode]}
         </h2>
 
-        {/* Fields */}
-        <label className="block mb-4">
-          <span className="text-gray-700 font-medium">
-            Plant Name{" "}
-            {mode !== "view" && <span className="text-red-500">*</span>}
-          </span>
-          <input
-            type="text"
-            placeholder="Plant Name"
-            value={plantName}
-            readOnly={isView}
-            className={`mt-2 w-full px-4 py-3 border rounded-lg ${
-              isView
-                ? "bg-gray-100 border-gray-200 cursor-not-allowed"
-                : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            }`}
-            onChange={(e) => setPlantName(e.target.value)}
-          />
-        </label>
 
-        <label className="block mb-4">
-          <span className="text-gray-700 font-medium">Address</span>
-          <textarea
-            placeholder="Address"
-            value={address}
-            readOnly={isView}
-            className={`mt-2 w-full px-4 py-3 border rounded-lg h-20 resize-none ${
-              isView
-                ? "bg-gray-100 border-gray-200 cursor-not-allowed"
-                : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            }`}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-        </label>
+       <form onSubmit={formik.handleSubmit} >
+          <label className="block mb-4">
+            <span className="text-gray-700 font-medium">
+              Plant Name{" "}
+              {mode !== "view" && <span className="text-red-500">*</span>}
+            </span>
+            <input
+              type="text"
+              placeholder="Plant Name"
+              value={formik.values.plant_name}
+              readOnly={isView}
+              className={`mt-2 w-full px-4 py-3 border rounded-lg 
+                 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400
+                `}
+              onChange={formik.handleChange}
+              name="plant_name"
+            />
+            {formik?.touched.plant_name && formik?.errors?.plant_name && (
+              <p className="text-sm text-red-500">{formik?.errors?.plant_name}</p>
+            )}
+          </label>
 
-        <label className="block mb-4">
-          <span className="text-gray-700 font-medium">Company</span>
-          <input
-            type="text"
-            placeholder="Company"
-            value={company}
-            readOnly={isView}
-            className={`mt-2 w-full px-4 py-3 border rounded-lg ${
-              isView
-                ? "bg-gray-100 border-gray-200 cursor-not-allowed"
-                : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            }`}
-            onChange={(e) => setCompany(e.target.value)}
-          />
-        </label>
+          <label className="block mb-4">
+            <span className="text-gray-700 font-medium">Address</span>
+            <textarea
+              placeholder="Address"
+              value={formik.values.plant_address}
+              readOnly={isView}
+              className={`mt-2 w-full px-4 py-3 border rounded-lg 
+                 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400
+                `}
+              onChange={formik.handleChange}
+              name="plant_address"
+            />
+            {formik?.touched.plant_address && formik?.errors?.plant_address && (
+              <p className="text-sm text-red-500">{formik?.errors?.plant_address}</p>
+            )}
+          </label>
 
-        <label className="block mb-6">
-          <span className="text-gray-700 font-medium">Description</span>
-          <textarea
-            placeholder="Description"
-            value={description}
-            readOnly={isView}
-            className={`mt-2 w-full px-4 py-3 border rounded-lg h-24 resize-none ${
-              isView
-                ? "bg-gray-100 border-gray-200 cursor-not-allowed"
-                : "border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            }`}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </label>
+          <label className="block mb-4">
+            <span className="text-gray-700 font-medium">Company</span>
+            <select
+              type="text"
+              placeholder="Company"
+              value={formik.values.company_id}
+              readOnly={isView}
+              className={`mt-2 w-full px-4 py-3 border rounded-lg 
+                 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400
+                `}
+              onChange={formik.handleChange}
+              name="company_id"
+            >
+              <option> Select Company</option>
+              {listQuery?.data?.map((c)=> ( 
+                <option key={c?._id} value={c?._id}>{c?.company_name}</option>
+              ))}
+            </select>
+            {formik?.touched.company_id && formik?.errors?.company_id && (
+              <p className="text-sm text-red-500">{formik?.errors?.company_id}</p>
+            )}
+          </label>
 
-        {/* Submit Button (hidden in view mode) */}
-        {!isView && (
+          <label className="block mb-6">
+            <span className="text-gray-700 font-medium">Description</span>
+            <textarea
+              placeholder="Description"
+              value={formik.values.description}
+              name="description"
+              readOnly={isView}
+              className={`mt-2 w-full px-4 py-3 border rounded-lg h-24 resize-none  border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400
+                `}
+              onChange={formik.handleChange}
+            />
+            {formik?.touched.description && formik?.errors?.description && (
+              <p>{formik?.errors?.description}</p>
+            )}
+          </label>
+
           <button
-            onClick={handleSubmit}
+            type="submit"
             className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
           >
-            {mode === "add" ? "Submit" : "Update Plant"}
+            {title[mode]}
           </button>
-        )}
+       </form>
+
       </div>
     </div>
   );
 }
+
+export default AddPlantModal;
