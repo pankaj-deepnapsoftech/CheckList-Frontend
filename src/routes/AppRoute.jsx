@@ -11,6 +11,7 @@ import ProtectedRoute from "./ProtectedRoute"
 import MainLayout from "./Mainlayout"
 import AssemblyLineStatus from "../pages/AssemblyLineStatus"
 import PageNotFound from "../Components/PageNotFound/PageNotFound"
+import CheckList from "../pages/CheckList"
 
 
 export const AppRoute = () => {
@@ -42,6 +43,10 @@ export const AppRoute = () => {
         {
             path: "/company",
             element: <MainLayout><Company /></MainLayout>
+        },
+        {
+            path: "/checklist",
+            element: <MainLayout><CheckList /></MainLayout>
         },
         {
             path: "/assembly-line",
