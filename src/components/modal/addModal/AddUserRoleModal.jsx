@@ -81,8 +81,6 @@ export default function UserRoleModal({
   });
 
 
-console.log(initialData)
-
 useEffect(() => {
   const handleClickOutside = (e) => {
     if (permOpen && permRef.current && !permRef.current.contains(e.target)) {
