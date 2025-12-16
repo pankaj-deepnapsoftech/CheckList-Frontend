@@ -78,6 +78,8 @@ export const useCompanies = (search, page) => {
     
   });
 
+  
+
 
 
     return { listQuery, create, update, remove, searchQuery, AllCompanyData };

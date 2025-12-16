@@ -6,7 +6,8 @@ import { useCompanies } from "../../../hooks/useCompanies";
 import { usePlantsByCompany } from "../../../hooks/UsePlantName";
 import { useUserRole } from "../../../hooks/useUserRole";
 import {RegisterEmployee} from "../../../hooks/useRegisterEmployee";
-
+import { Eye } from "lucide-react";
+import { EyeOff } from 'lucide-react';
 
 export default function AddEmployeeModal({
   open,
@@ -21,6 +22,8 @@ export default function AddEmployeeModal({
   const { AllCompanyData } = useCompanies(null, null, open);
   const { AllRolesData } = useUserRole();
  const { createEmployee, updateEmployee } = RegisterEmployee();
+ const [showPassword, setShowPassword] = useState(false);
+
 
 
   const [assemblyOpen, setAssemblyOpen] = useState(false);
@@ -115,7 +118,7 @@ const validationSchema = Yup.object({
               : "View Employee"}
           </h2>
 
-          <button onClick={onClose}>
+          <button onClick={onClose} className="cursor-pointer">
             <X size={22} />
           </button>
         </div>
@@ -149,13 +152,27 @@ const validationSchema = Yup.object({
             {/* Password (only for add) */}
             {mode === "add" && (
               <Field label="Password">
-                <input
-                  name="password"
-                  type="password"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                  className="input"
-                />
+                <div className="relative">
+                  <input
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formik.values.password}
+                    onChange={formik.handleChange}
+                    className="input pr-10"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer transition"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="text-blue-500" size={20} />
+                    ) : (
+                      <Eye className="text-blue-500" size={20} />
+                    )}
+                  </button>
+                </div>
               </Field>
             )}
 
@@ -177,7 +194,7 @@ const validationSchema = Yup.object({
                 disabled={isView}
                 value={formik.values.role}
                 onChange={formik.handleChange}
-                className="input"
+                className="input cursor-pointer"
               >
                 <option value="">Select Role</option>
                 {(AllRolesData?.data || []).map((r) => (
@@ -198,7 +215,7 @@ const validationSchema = Yup.object({
                   formik.setFieldValue("employee_company", e.target.value);
                   formik.setFieldValue("Employee_plant", "");
                 }}
-                className="input"
+                className="input cursor-pointer"
               >
                 <option value="">Select Company</option>
                 {(AllCompanyData?.data || []).map((c) => (
@@ -215,7 +232,7 @@ const validationSchema = Yup.object({
                 disabled={isView}
                 value={formik.values.Employee_plant}
                 onChange={formik.handleChange}
-                className="input"
+                className="input cursor-pointer"
               >
                 <option value="">Select Plant</option>
                 {(plantsQuery?.data || []).map((p) => (
@@ -234,7 +251,7 @@ const validationSchema = Yup.object({
                 type="button"
                 disabled={isView}
                 onClick={() => setAssemblyOpen(!assemblyOpen)}
-                className="input flex justify-between"
+                className="input flex justify-between cursor-pointer"
               >
                 {formik.values.assambly_line.length
                   ? `${formik.values.assambly_line.length} Selected`
@@ -269,7 +286,7 @@ const validationSchema = Yup.object({
             {!isView && (
               <button
                 type="submit"
-                className="bg-blue-600 text-white py-2 rounded-lg mt-4"
+                className="bg-blue-600 cursor-pointer text-white py-2 rounded-lg mt-4"
               >
                 {mode === "add" ? "Add Employee" : "Update Employee"}
               </button>
