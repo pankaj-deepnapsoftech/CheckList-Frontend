@@ -114,12 +114,6 @@ export default function Login() {
               value={formik.values.password}
             />
 
-            {formik.touched.password && formik.errors.password && (
-              <p className="text-red-500 text-xs mt-1">
-                {formik.errors.password}
-              </p>
-            )}
-
             <span
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-700"
@@ -127,6 +121,11 @@ export default function Login() {
               {showPassword ? <EyeOff /> : <Eye />}
             </span>
           </div>
+          {formik.touched.password && formik.errors.password && (
+            <p className="text-red-500 text-xs mt-1">
+              {formik.errors.password}
+            </p>
+          )}
           <p
             className="flex justify-end font-semibold mt-1 text-white"
             onClick={() => navigate("/forgot-password")}

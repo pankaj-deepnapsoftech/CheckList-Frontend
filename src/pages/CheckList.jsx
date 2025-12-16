@@ -2,9 +2,6 @@ import { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import AddChecklistModal from "../components/modal/addModal/AddCheckListModal";
 
-
-
-
 const checklist = Array(10).fill({
   item: "Process 1",
   description: "Description of checklist",
@@ -13,17 +10,10 @@ const checklist = Array(10).fill({
 });
 
 const  CheckList=()=>{
-
   const [search, setSearch] = useState("");
-
   const [openChecklistModal, setOpenChecklistModal] = useState(false);
   const [modalMode, setModalMode] = useState("add"); // add | edit | view
   const [selectedChecklist, setSelectedChecklist] = useState(null);
-
-
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
-
-  const [viewEmployee, setViewEmployee] = useState(null);
 
   const filteredChecklist = checklist.filter((emp) =>
     emp.item.toLowerCase().includes(search.toLowerCase())
@@ -232,22 +222,7 @@ const  CheckList=()=>{
         }}
       />
 
-      {/* <AddEmployeeModal
-        open={openDrawer}
-        onClose={() => setOpenDrawer(false)}
-      /> */}
-
-      {/* <EditEmployeeModal
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        data={selectedEmployee}
-      /> */}
-
-      {/* <ViewEmployeeModal
-        open={viewOpen}
-        onClose={() => setViewOpen(false)}
-        data={viewEmployee}
-      /> */}
+     
     </div>
   );
 }
