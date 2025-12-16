@@ -75,7 +75,7 @@ export const useCompanies = (search, page) => {
       const res = await axiosHandler.get("/company/all-companies");
       return res?.data?.data;
     },
-    enabled,
+    
   });
 
 
