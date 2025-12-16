@@ -22,7 +22,7 @@ const PlantName = () => {
 
   const filetredData = debounce ? searchQuery?.data ?? [] : getPlantName?.data ?? [] ;
 
-
+  console.log(editTable)
   return (
     <div>
       <div>
@@ -77,7 +77,7 @@ const PlantName = () => {
           </div>
         </div>
 
-        {/* Mobile View */}
+     
         <div className="grid gap-4 sm:hidden">
           {filetredData?.map((p, i) => (
             <div
@@ -94,7 +94,7 @@ const PlantName = () => {
                     onClick={() => {
                       setMode("view");
                       setViewModal(p)
-                      setEditTable(null);
+                      setEditTable(p);
                       setOpenModal(true);
                     }}
                     size={20}
@@ -106,6 +106,7 @@ const PlantName = () => {
                     onClick={() => {
                       setMode("edit");
                       setOpenModal(true);
+                      setEditTable(p);
                     }}
                   />
 

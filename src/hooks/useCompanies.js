@@ -4,20 +4,27 @@ import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
 
-export const useCompanies = (search, page, enabled = true) => {
-  const qc = useQueryClient();
-
-  const listQuery = useQuery({
-    queryKey: ["companies", page],
-    queryFn: async () => {
-      const res = await axiosHandler.get(
-        `/company/list-company?page=${page}&&limit=10`
-      );
-      return res?.data?.data;
-    },
-    enabled: !search,
-    placeholderData: keepPreviousData,
-  });
+export const useCompanies = (search, page) => {
+    const qc = useQueryClient();
+ 
+    const listQuery = useQuery({
+        queryKey: ["companies", page],
+        queryFn: async () => {
+            const res = await axiosHandler.get(`/company/list-company?page=${page}&&limit=10`);
+            return res?.data?.data;
+        },
+        enabled: !search,
+        placeholderData: keepPreviousData
+    });
+    const AllCompanyData = useQuery({
+        queryKey: ["companies"],
+        queryFn: async () => {
+            const res = await axiosHandler.get(`/company/all-companies`);
+            return res?.data?.data;
+        },
+        enabled: !search,
+        placeholderData: keepPreviousData
+    });
 
   const create = useMutation({
     mutationFn: async (data) => {
@@ -80,5 +87,6 @@ export const useCompanies = (search, page, enabled = true) => {
   });
 
 
-  return { listQuery, create, update, remove, searchQuery, AllCompanyData };
-};
+
+    return { listQuery, create, update, remove, searchQuery, AllCompanyData };
+}

@@ -12,12 +12,13 @@ import {
   X,
   ChartNoAxesCombined,
 } from "lucide-react";
+import { useLogin } from "../hooks/useLogin";
 
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const closeMobile = () => setIsMobileOpen(false);
   const navigate = useNavigate();
-
+  const { logOutUser } = useLogin()  
   const allMenu = [
     {
       name: "Dashboard",
@@ -38,8 +39,8 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   ];
 
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
+    logOutUser.mutate()
+    navigate("/login")
   };
 
   return (
@@ -90,7 +91,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         {/* Logout */}
         <div className="mt-auto pt-4 border-t border-gray-200">
           <button
-            onClick={handleLogout}
+            onClick={() => handleLogout()}
             className="w-full flex items-center justify-center gap-2 
                        bg-blue-500 hover:bg-blue-600 text-white 
                        rounded-lg py-2.5 shadow-sm transition-all"
@@ -159,7 +160,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             {/* Logout Mobile */}
             <div className="mt-auto pt-4 border-t border-gray-200">
               <button
-                onClick={handleLogout}
+                onClick={()=>handleLogout ()}
                 className="w-full flex items-center justify-center gap-2 
                            bg-blue-500 hover:bg-blue-600 text-white 
                            rounded-lg py-2.5 shadow-sm transition-all"
