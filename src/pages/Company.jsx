@@ -81,7 +81,7 @@ return (
         {filteredCompanies?.map((com) => (
           <div
             key={com._id}
-            className="border rounded-xl p-4 bg-white shadow-sm"
+            className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm"
           >
             <div className="flex justify-between items-center">
               <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">
