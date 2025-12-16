@@ -16,15 +16,7 @@ export const useCompanies = (search, page) => {
         enabled: !search,
         placeholderData: keepPreviousData
     });
-    const AllCompanyData = useQuery({
-        queryKey: ["companies"],
-        queryFn: async () => {
-            const res = await axiosHandler.get(`/company/all-companies`);
-            return res?.data?.data;
-        },
-        enabled: !search,
-        placeholderData: keepPreviousData
-    });
+
 
   const create = useMutation({
     mutationFn: async (data) => {
