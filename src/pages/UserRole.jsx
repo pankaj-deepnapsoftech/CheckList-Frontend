@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
-import UserRoleModal from "../components/modal/addModal/AddUserRoleModal";
+import UserRoleModal, { PERMISSION_MAP } from "../components/modal/addModal/AddUserRoleModal";
 import { useUserRole } from "../hooks/useUserRole";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
+
+const PATH_TO_KEY_MAP = Object.fromEntries(
+  Object.entries(PERMISSION_MAP).map(([key, value]) => [value, key])
+);
+
+ 
 
 export default function UserRoles() {
   const [search, setSearch] = useState("");
@@ -12,7 +18,7 @@ export default function UserRoles() {
   const [modalMode, setModalMode] = useState("add");
   const [selectedRole, setSelectedRole] = useState(null);
   const { debounce, value } = useDebounce(search);
-  const { UserlistQuery, removeUser, SearchUserList } = useUserRole(value);
+  const { UserlistQuery, removeUser, SearchUserList } = useUserRole(value,page);
 
   const filteredRoles = debounce
     ? SearchUserList?.data ?? []
@@ -66,7 +72,6 @@ export default function UserRoles() {
       </div>
 
       <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Search Box */}
         <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
           <Search size={20} className="text-gray-500" />
           <input
@@ -85,24 +90,24 @@ export default function UserRoles() {
               setModalMode("add");
               setModalOpen(true);
             }}
-            className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
+            className="bg-blue-500 cursor-pointer text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
           >
             <Plus size={18} /> Add New Role
           </button>
 
-          <button className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
+          <button className="border cursor-pointer border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
+        <div className="flex items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
             {filteredRoles?.length} Roles Found
           </h2>
 
-          <div className="flex items-center gap-2 text-gray-500">
+          <div className="flex items-center gap-2 text-gray-500 ml-auto">
             <span className="text-sm font-medium">Show:</span>
             <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer">
               <option>5</option>
@@ -111,8 +116,6 @@ export default function UserRoles() {
             </select>
           </div>
         </div>
-
-        
 
         <div className="grid gap-4 sm:hidden">
           {filteredRoles?.map((item) => (
@@ -195,7 +198,7 @@ export default function UserRoles() {
                           key={idx}
                           className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                         >
-                          {perm}
+                          {PATH_TO_KEY_MAP[perm]}
                         </span>
                       ))}
                     </div>
@@ -235,14 +238,13 @@ export default function UserRoles() {
           </table>
         </div>
 
-        {/* Pagination */}
         <Pagination
           page={page}
           setPage={setPage}
           hasNextpage={UserlistQuery?.data?.length === 10}
         />
       </div>
-      {/* Modals */}
+
       <UserRoleModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}

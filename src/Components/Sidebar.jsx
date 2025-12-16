@@ -12,11 +12,18 @@ import {
   X,
   ChartNoAxesCombined,
 } from "lucide-react";
+import { useLogin } from "../hooks/useLogin";
 
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
+  
+  const { logedinUser } = useLogin()
+
+  const permissions = logedinUser?.data?.role?.permissions || [];
+  const IsSuper = logedinUser?.data?.is_admin === true ;
   const closeMobile = () => setIsMobileOpen(false);
   const navigate = useNavigate();
+  const { logOutUser } = useLogin();
 
   const allMenu = [
     {
@@ -37,9 +44,12 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     },
   ];
 
+  const allowedMenu = IsSuper ? allMenu : allMenu.filter(i => permissions.includes(i?.path))
+
+
   const handleLogout = () => {
-    localStorage.clear();
-    navigate("/login");
+    logOutUser.mutate()
+    navigate("/login")
   };
 
   return (
@@ -47,26 +57,35 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       {/* ---------- DESKTOP SIDEBAR ---------- */}
       <aside className="hidden md:flex w-64 bg-white shadow-xl p-5 flex-col justify-between h-screen">
         <div>
-          <div className="flex justify-center mb-6">
+          <div
+            className="flex flex-col items-center mb-6 mt-2"
+            onClick={() => {
+              closeMobile();
+              navigate("/");
+            }}
+          >
             <img
               src="https://jpmgroup.co.in/assets/svg/logo-color.svg"
               alt="Logo"
-              className="h-32 object-contain"
+              className="h-20 object-contain"
             />
+            <p className="text-[#2e4c99] font-semibold text-[18px] mt-2">
+              &nbsp;JP MINDA GROUP
+            </p>
+
           </div>
 
           <nav className="flex flex-col gap-1">
-            {allMenu.map((item) => (
+            {allowedMenu.map((item) => (
               <NavLink
                 key={item.name}
                 to={item.path}
                 end
                 className={({ isActive }) =>
                   `flex items-center gap-3 p-2 rounded-lg transition-all
-                  ${
-                    isActive
-                      ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
-                      : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
+                  ${isActive
+                    ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
+                    : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
                   }`
                 }
               >
@@ -80,7 +99,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         {/* Logout */}
         <div className="mt-auto pt-4 border-t border-gray-200">
           <button
-            onClick={handleLogout}
+            onClick={() => handleLogout()}
             className="w-full flex items-center justify-center gap-2 
                        bg-blue-500 hover:bg-blue-600 text-white 
                        rounded-lg py-2.5 shadow-sm transition-all"
@@ -125,7 +144,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
 
             {/* Menu Items */}
             <nav className="flex flex-col gap-1">
-              {allMenu.map((item) => (
+              {allowedMenu.map((item) => (
                 <NavLink
                   key={item.name}
                   to={item.path}
@@ -133,10 +152,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   onClick={closeMobile}
                   className={({ isActive }) =>
                     `flex items-center gap-3 p-2 rounded-lg transition-all
-                    ${
-                      isActive
-                        ? "bg-blue-100 text-blue-600 font-medium"
-                        : "text-gray-700 hover:bg-gray-100"
+                    ${isActive
+                      ? "bg-blue-100 text-blue-600 font-medium"
+                      : "text-gray-700 hover:bg-gray-100"
                     }`
                   }
                 >
@@ -149,7 +167,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             {/* Logout Mobile */}
             <div className="mt-auto pt-4 border-t border-gray-200">
               <button
-                onClick={handleLogout}
+                onClick={() => handleLogout()}
                 className="w-full flex items-center justify-center gap-2 
                            bg-blue-500 hover:bg-blue-600 text-white 
                            rounded-lg py-2.5 shadow-sm transition-all"

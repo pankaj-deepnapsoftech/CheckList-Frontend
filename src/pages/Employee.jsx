@@ -1,36 +1,51 @@
 import { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import AddEmployeeModal from "../components/modal/addModal/AddEmployeeModal";
-import EditEmployeeModal from "../components/modal/editModal/editEmployeeModal";
-import ViewEmployeeModal from "../components/ViewEmployeeModal";
-
-
-const employees = Array(10).fill({
-  name: "Raghav Chadha",
-  userId: "454334",
-  role: "Lorem Ipsum",
-  designation: "Lorem Ipsum",
-});
+import { RegisterEmployee } from "../hooks/useRegisterEmployee";
+import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../Components/Pagination/Pagination";
+import { UserCheck } from "lucide-react";
+import { UserX } from "lucide-react";
 
 const  Employee=()=>{
 
   const [search, setSearch] = useState("");
-
-   const [openDrawer, setOpenDrawer] = useState(false);
-
-  const [editOpen, setEditOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState("add");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const { debounce, value } = useDebounce(search);
+  const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
+    RegisterEmployee(value, page);
 
-  const [viewOpen, setViewOpen] = useState(false);
-  const [viewEmployee, setViewEmployee] = useState(null);
+  
 
-  const filteredEmployees = employees.filter((emp) =>
-    emp.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredEmployees = debounce
+    ? searchEmployee?.data ?? []
+    : getAllEmployee?.data ?? [];
+
+    console.log("this is my get all employee data", toggleTerminateEmployee?.data?.message);
+
+    const handleTerminateToggle = (emp) => {
+      toggleTerminateEmployee.mutate(
+        {
+          id: emp._id,
+          terminate: !emp.terminate, 
+        },
+        {
+          onSuccess: () => {
+            console.log(
+              `Employee ${emp.full_name} terminate = ${!emp.terminate}`
+            );
+          },
+        }
+      );
+    };
+
+
 
   return (
     <div className="w-full">
-
       {/* HEADER */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">Employees</h1>
@@ -57,14 +72,18 @@ const  Employee=()=>{
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3 self-center">
           <div className="flex justify-between items-center ">
             <button
-              onClick={() => setOpenDrawer(true)}
-              className="px-5 py-2 bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2"
+              onClick={() => {
+                setModalMode("add");
+                setSelectedEmployee(null);
+                setModalOpen(true);
+              }}
+              className="px-5 py-2 cursor-pointer bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2"
             >
               <Plus size={18} /> Add New Employee
             </button>
           </div>
 
-          <button className="border border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
+          <button className="border cursor-pointer border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
@@ -99,7 +118,7 @@ const  Employee=()=>{
               {/* Header: Name + actions */}
               <div className="flex items-center flex-wrap justify-between gap-3">
                 <span className="bg-blue-500 whitespace-nowrap text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {emp.name}
+                  {emp.full_name || "N/A"}
                 </span>
 
                 {/* ACTIONS */}
@@ -108,35 +127,53 @@ const  Employee=()=>{
                     size={20}
                     className="text-blue-500 cursor-pointer"
                     onClick={() => {
-                      setViewEmployee(emp);
-                      setViewOpen(true);
+                      setModalMode("view");
+                      setSelectedEmployee(emp);
+                      setModalOpen(true);
                     }}
                   />
+
                   <Edit2
                     size={20}
-                    className="text-green-600 cursor-pointer"
+                    className="text-green-500 cursor-pointer"
                     onClick={() => {
+                      setModalMode("edit");
                       setSelectedEmployee(emp);
-                      setEditOpen(true);
+                      setModalOpen(true);
                     }}
                   />
-                  <Trash2 size={20} className="text-red-500 cursor-pointer" />
+
+                  {emp.terminate ? (
+                    <UserX
+                      size={22}
+                      onClick={() => handleTerminateToggle(emp)}
+                      className="text-red-500 cursor-pointer hover:scale-125 transition"
+                      title="Re-Activate Employee"
+                    />
+                  ) : (
+                    <UserCheck
+                      size={22}
+                      onClick={() => handleTerminateToggle(emp)}
+                      className="text-green-600 cursor-pointer hover:scale-125 transition"
+                      title="Terminate Employee"
+                    />
+                  )}
                 </div>
               </div>
 
-              {/* More details */}
               <div className="mt-3 text-sm text-gray-600 space-y-1">
                 <p>
-                  <strong>User ID:</strong> {emp.userId}
+                  <strong>User ID:</strong> {emp.user_id || "N/A"}
                 </p>
 
                 <p>
                   <strong>Role:</strong>{" "}
-                  <span className="">{emp.role || "N/A"}</span>
+                  <span className="">{emp?.role?.name || "N/A"}</span>
                 </p>
 
                 <p>
-                  <strong>Designation:</strong> {emp.designation || "N/A"}
+                  <strong>Designation:</strong>{" "}
+                  {emp.designation || emp.desigination || "N/A"}
                 </p>
               </div>
             </div>
@@ -145,7 +182,7 @@ const  Employee=()=>{
 
         {/* Table */}
         <div className="overflow-x-auto hidden sm:block w-full rounded-xl border border-gray-200">
-          <table className="w-full  text-left">
+          <table className="w-full  text-center">
             {/* Table Header */}
             <thead>
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
@@ -162,16 +199,24 @@ const  Employee=()=>{
               {filteredEmployees.map((emp, i) => (
                 <tr
                   key={i}
-                  className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
+                  className={`border-b border-gray-200 transition ${
+                    emp.terminate
+                      ? "opacity-50 bg-gray-50"
+                      : "hover:bg-blue-50/40"
+                  }`}
                 >
-                  <td className="px-5 py-4">{emp.name}</td>
-                  <td className="px-5 py-4 whitespace-nowrap">{emp.userId}</td>
+                  <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
+                  <td className="px-5 py-4 whitespace-nowrap">
+                    {emp.user_id || "N/A"}
+                  </td>
                   <td className="px-5 py-4 whitespace-nowrap">
                     <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow">
-                      {emp.role || "N/A"}
+                      {emp?.role?.name || "N/A"}
                     </span>
                   </td>
-                  <td className="px-5 py-4 ">{emp.designation || "N/A"}</td>
+                  <td className="px-5 py-4 ">
+                    {emp.designation || emp.desigination || "N/A"}
+                  </td>
 
                   {/* Actions */}
                   <td className="px-5 py-4 flex justify-center gap-5">
@@ -180,8 +225,9 @@ const  Employee=()=>{
                       size={20}
                       className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
                       onClick={() => {
-                        setViewEmployee(emp);
-                        setViewOpen(true);
+                        setModalMode("view");
+                        setSelectedEmployee(emp);
+                        setModalOpen(true);
                       }}
                     />
 
@@ -190,16 +236,28 @@ const  Employee=()=>{
                       size={20}
                       className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition transform"
                       onClick={() => {
+                        setModalMode("edit");
                         setSelectedEmployee(emp);
-                        setEditOpen(true);
+                        setModalOpen(true);
                       }}
                     />
 
                     {/* DELETE */}
-                    <Trash2
-                      size={20}
-                      className="text-red-500 hover:text-red-600 hover:scale-125 cursor-pointer transition transform"
-                    />
+                    {emp.terminate ? (
+                      <UserX
+                        size={22}
+                        onClick={() => handleTerminateToggle(emp)}
+                        className="text-red-500 hover:scale-125 cursor-pointer transition"
+                        title="Re-Activate Employee"
+                      />
+                    ) : (
+                      <UserCheck
+                        size={22}
+                        onClick={() => handleTerminateToggle(emp)}
+                        className="text-green-600 hover:scale-125 cursor-pointer transition"
+                        title="Terminate Employee"
+                      />
+                    )}
                   </td>
                 </tr>
               ))}
@@ -209,20 +267,18 @@ const  Employee=()=>{
       </div>
 
       <AddEmployeeModal
-        open={openDrawer}
-        onClose={() => setOpenDrawer(false)}
+        open={modalOpen}
+        mode={modalMode}
+        initialData={selectedEmployee}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedEmployee(null);
+        }}
       />
-
-      <EditEmployeeModal
-        open={editOpen}
-        onClose={() => setEditOpen(false)}
-        data={selectedEmployee}
-      />
-
-      <ViewEmployeeModal
-        open={viewOpen}
-        onClose={() => setViewOpen(false)}
-        data={viewEmployee}
+      <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={filteredEmployees?.length === 10}
       />
     </div>
   );

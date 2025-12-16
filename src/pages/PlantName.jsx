@@ -1,40 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Search, Plus, RefreshCw, Eye, Edit2, Trash2 } from "lucide-react";
 import AddPlantModal from "../components/modal/addModal/AddPlantModal";
+import { UsePlantName } from "../hooks/UsePlantName";
+import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../Components/Pagination/Pagination";
 
-export default function PlantName() {
+const PlantName = () => {
+  const [page,setPage] = useState(1)
   const [search, setSearch] = useState("");
-  const [plants, setPlants] = useState([]);
+  const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [viewModal, setViewModal] = useState(null)
+  const [mode, setMode] = useState("add")
+  const { debounce, value } = useDebounce(search)
+  const { getPlantName, DeletePlantData, searchQuery } = UsePlantName(value,page)
+  const handleDeletePlant  = (id)=>{
+    if(window.confirm("Are you sure you want to delete Plant Data")){
+      DeletePlantData.mutate(id)
+    }
+  }
 
-  const [mode, setMode] = useState("add"); // add | edit | view
-  const [selectedPlant, setSelectedPlant] = useState(null);
+  const filetredData = debounce ? searchQuery?.data ?? [] : getPlantName?.data ?? [] ;
 
-  const [editData, setEditData] = useState(null);
-
-  useEffect(() => {
-    setPlants([
-      {
-        name: "Lorem Ipsum",
-        address: "Cyber City, Gurugram",
-        company: "Lorem Ipsum",
-        description: "Lorem Ipsum is dummy text",
-      },
-      {
-        name: "Dolor Sit",
-        address: "MG Road, Bengaluru",
-        company: "Dolor Inc",
-        description: "Dolor Sit Amet",
-      },
-      {
-        name: "Amet Consectetur",
-        address: "Koramangala, Bengaluru",
-        company: "Consectetur Ltd",
-        description: "Amet Consectetur Dummy",
-      },
-    ]);
-  }, []);
-
+  console.log(editTable)
   return (
     <div>
       <div>
@@ -58,8 +46,8 @@ export default function PlantName() {
           <button
             onClick={() => {
               setMode("add");
-              setSelectedPlant(null);
-              setEditData(null);
+             
+              setEditTable(null);
               setOpenModal(true);
             }}
             className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
@@ -76,7 +64,7 @@ export default function PlantName() {
       <div className="bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="font-semibold text-gray-800 text-lg">
-            {plants.length} Plants Found
+            {filetredData.length} Plants Found
           </h2>
 
           <div className="flex items-center gap-2 text-gray-500">
@@ -89,24 +77,24 @@ export default function PlantName() {
           </div>
         </div>
 
-        {/* Mobile View */}
+     
         <div className="grid gap-4 sm:hidden">
-          {plants.map((p, i) => (
+          {filetredData?.map((p, i) => (
             <div
               key={i}
               className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
             >
               <div className="flex items-center justify-between">
                 <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {p.name}
+                  {p.plant_name}
                 </span>
 
                 <div className="flex gap-4">
                   <Eye
                     onClick={() => {
                       setMode("view");
-                      setSelectedPlant(p);
-                      setEditData(null);
+                      setViewModal(p)
+                      setEditTable(p);
                       setOpenModal(true);
                     }}
                     size={20}
@@ -117,29 +105,28 @@ export default function PlantName() {
                     className="text-green-600 cursor-pointer hover:scale-125 transition"
                     onClick={() => {
                       setMode("edit");
-                      setEditData(p);
-                      setSelectedPlant(null);
                       setOpenModal(true);
+                      setEditTable(p);
                     }}
                   />
 
-                  <Trash2 size={20} className="text-red-500 cursor-pointer" />
+                  <Trash2 size={20} className="text-red-500 cursor-pointer" onClick={()=> handleDeletePlant(p?._id)}/>
                 </div>
               </div>
 
               <div className="mt-3 text-sm text-gray-600">
                 <p>
-                  <strong>Address:</strong> {p.address}
+                  <strong>Address:</strong> {p.company_id?.company_address}
                 </p>
                 <p>
-                  <strong>Company:</strong> {p.company}
+                  <strong>Company:</strong> {p.company_id?.company_name}
                 </p>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Desktop Table */}
+    
         <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
             <thead>
@@ -152,22 +139,22 @@ export default function PlantName() {
             </thead>
 
             <tbody className="text-gray-700">
-              {plants.map((p, i) => (
+              {filetredData?.map((p, i) => (
                 <tr
                   key={i}
                   className="border-b border-gray-200 hover:bg-blue-50 transition"
                 >
-                  <td className="px-5 py-4">{p.name}</td>
-                  <td className="px-5 py-4">{p.address}</td>
-                  <td className="px-5 py-4">{p.company}</td>
+                  <td className="px-5 py-4">{p.plant_name}</td>
+                  <td className="px-5 py-4">{p.company_id?.company_address}</td>
+                  <td className="px-5 py-4">{p.company_id?.company_name}</td>
 
                   <td className="px-5 py-4 flex justify-center gap-5">
                     <Eye
                       onClick={() => {
                         setMode("view");
-                        setSelectedPlant(p);
-                        setEditData(null);
+                        setEditTable(null);
                         setOpenModal(true);
+                        setViewModal(p)
                       }}
                       size={20}
                       className="text-blue-500 cursor-pointer hover:scale-125 transition"
@@ -177,13 +164,13 @@ export default function PlantName() {
                       className="text-green-600 cursor-pointer hover:scale-125 transition"
                       onClick={() => {
                         setMode("edit");
-                        setEditData(p);
-                        setSelectedPlant(null);
+                        setEditTable(p);
                         setOpenModal(true);
                       }}
                     />
 
                     <Trash2
+                      onClick={()=> handleDeletePlant(p?._id)}
                       size={20}
                       className="text-red-500 cursor-pointer hover:scale-125 transition"
                     />
@@ -195,27 +182,16 @@ export default function PlantName() {
         </div>
       </div>
 
-      {/* SINGLE MODAL FOR ADD | EDIT | VIEW */}
+    
       <AddPlantModal
-        open={openModal}
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+        editTable={editTable}
         mode={mode}
-        editData={editData}
-        viewData={selectedPlant}
-        onClose={() => {
-          setOpenModal(false);
-          setEditData(null);
-          setSelectedPlant(null);
-        }}
-        onSubmit={(plant, actionMode) => {
-          if (actionMode === "add") {
-            setPlants([...plants, plant]);
-          } else if (actionMode === "edit") {
-            setPlants(
-              plants.map((x) => (x.name === editData.name ? plant : x))
-            );
-          }
-        }}
+        viewModal={viewModal}
       />
+      <Pagination page={page} setPage={setPage} hasNextpage={filetredData?.length === 10} />
     </div>
   );
 }
+export default PlantName;
