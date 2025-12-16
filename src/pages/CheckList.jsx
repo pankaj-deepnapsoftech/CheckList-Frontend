@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import AddChecklistModal from "../components/modal/addModal/AddCheckListModal";
 
-const checklist = Array(10).fill({
+const checklist = Array(5).fill({
   item: "Process 1",
   description: "Description of checklist",
   check_list_method: "Lorem Ipsum",
@@ -12,9 +12,8 @@ const checklist = Array(10).fill({
 const  CheckList=()=>{
   const [search, setSearch] = useState("");
   const [openChecklistModal, setOpenChecklistModal] = useState(false);
-  const [modalMode, setModalMode] = useState("add"); // add | edit | view
+  const [modalMode, setModalMode] = useState("add");
   const [selectedChecklist, setSelectedChecklist] = useState(null);
-
   const filteredChecklist = checklist.filter((emp) =>
     emp.item.toLowerCase().includes(search.toLowerCase())
   );
@@ -52,7 +51,7 @@ const  CheckList=()=>{
                 setSelectedChecklist(null);
                 setOpenChecklistModal(true);
               }}
-              className="px-5 py-2 bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2"
+              className="px-5 py-2 cursor-pointer bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2"
             >
               <Plus size={18} /> Add New CheckList
             </button>
