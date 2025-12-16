@@ -73,6 +73,34 @@ export const UsePlantName = (search, page) => {
         placeholderData: keepPreviousData
     });
 
+    const AllPlantsData = useQuery({
+      queryKey: ["plant"],
+      queryFn: async (id) => {
+        const res = await axiosHandler.get(`/plant/all-plants-data/${id}`);
+        return res?.data?.data;
+      },
+      enabled:false
+    });
 
-    return { getPlantName, CreatePlantName, UpdatedPLant, DeletePlantData, searchQuery }
+
+    return {
+      getPlantName,
+      CreatePlantName,
+      UpdatedPLant,
+      DeletePlantData,
+      searchQuery,
+      AllPlantsData,
+    };
+}
+
+export const usePlantsByCompany = (companyId) => {
+  const query = useQuery({
+    queryKey: ["plants-by-company", companyId],
+    queryFn: async () => {
+      const res = await axiosHandler.get(`/plant/all-plants-data/${companyId}`);
+      return res?.data?.data;
+    },
+    enabled: !!companyId,
+  });
+  return query;
 }

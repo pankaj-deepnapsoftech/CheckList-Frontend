@@ -48,12 +48,22 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       {/* ---------- DESKTOP SIDEBAR ---------- */}
       <aside className="hidden md:flex w-64 bg-white shadow-xl p-5 flex-col justify-between h-screen">
         <div>
-          <div className="flex justify-center mb-6">
+          <div
+            className="flex flex-col items-center mb-6 mt-2"
+            onClick={() => {
+              closeMobile();
+              navigate("/");
+            }}
+          >
             <img
               src="https://jpmgroup.co.in/assets/svg/logo-color.svg"
               alt="Logo"
-              className="h-32 object-contain"
+              className="h-20 object-contain"
             />
+            <p className="text-[#2e4c99] font-semibold text-[18px] mt-2">
+              &nbsp;JP MINDA GROUP
+            </p>
+           
           </div>
 
           <nav className="flex flex-col gap-1">
