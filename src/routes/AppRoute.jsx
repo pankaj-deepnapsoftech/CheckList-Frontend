@@ -20,7 +20,9 @@ export const AppRoute = () => {
 
     const user = logedinUser.data;
     const isLoading = logedinUser.isLoading;
+   
 
+    
     const withProtection = (Component) => (
         <ProtectedRoute user={user} isLoading={isLoading}>
             <MainLayout>

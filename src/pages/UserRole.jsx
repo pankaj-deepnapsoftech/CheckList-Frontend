@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
-import UserRoleModal from "../components/modal/addModal/AddUserRoleModal";
+import UserRoleModal, { PERMISSION_MAP } from "../components/modal/addModal/AddUserRoleModal";
 import { useUserRole } from "../hooks/useUserRole";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
+
+const PATH_TO_KEY_MAP = Object.fromEntries(
+  Object.entries(PERMISSION_MAP).map(([key, value]) => [value, key])
+);
+
+ 
 
 export default function UserRoles() {
   const [search, setSearch] = useState("");
@@ -192,7 +198,7 @@ export default function UserRoles() {
                           key={idx}
                           className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                         >
-                          {perm}
+                          {PATH_TO_KEY_MAP[perm]}
                         </span>
                       ))}
                     </div>
