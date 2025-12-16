@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
-import AddEmployeeModal from "../components/modal/addModal/AddEmployeeModal";
-import EditEmployeeModal from "../components/modal/editModal/editEmployeeModal";
-import ViewEmployeeModal from "../components/ViewEmployeeModal";
+
 
 
 const checklist = Array(10).fill({
@@ -200,22 +198,22 @@ const  CheckList=()=>{
         </div>
       </div>
 
-      <AddEmployeeModal
+      {/* <AddEmployeeModal
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
-      />
+      /> */}
 
-      <EditEmployeeModal
+      {/* <EditEmployeeModal
         open={editOpen}
         onClose={() => setEditOpen(false)}
         data={selectedEmployee}
-      />
+      /> */}
 
-      <ViewEmployeeModal
+      {/* <ViewEmployeeModal
         open={viewOpen}
         onClose={() => setViewOpen(false)}
         data={viewEmployee}
-      />
+      /> */}
       
     </div>
   );

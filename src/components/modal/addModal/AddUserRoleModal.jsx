@@ -7,15 +7,16 @@ import { useUserRole } from "../../../hooks/useUserRole";
 
 
  export  const PERMISSION_MAP = {
-  Dashboard: "/",
-  Company: "/company",
-  "Plant Name": "/plant-name",
-  "User Role": "/user-role",
-  Employee: "/employee",
-  Process: "/process",
-  "Assembly Line": "/assembly-line",
-  "Assembly Line Status": "/assembly-line-status",
-};
+   Dashboard: "/",
+   Company: "/company",
+   "Plant Name": "/plant-name",
+   "User Role": "/user-role",
+   Employee: "/employee",
+   Process: "/process",
+   "Assembly Line": "/assembly-line",
+   "Assembly Line Status": "/assembly-line-status",
+   CheckList: "/checklist",
+ };
 
 const SIDEBAR_PAGES = Object.keys(PERMISSION_MAP);
 
