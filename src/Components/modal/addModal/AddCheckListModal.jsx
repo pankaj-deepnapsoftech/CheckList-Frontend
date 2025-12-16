@@ -1,241 +1,230 @@
-import React, { useState } from "react";
+import React from "react";
 import { X } from "lucide-react";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 
-export default function AddCheckListModal({
+
+
+export default function AddChecklistModal({
   open,
   onClose,
-  item,
-  description,
-  checklist_item_method,
-  checklist_item_time,
+  mode = "add",
+  initialData = null,
+  processes = [],
   onSubmit,
-})
+}) {
+  const isView = mode === "view";
 
-{
-  const [formData, setFormData] = useState({
-  item: "",
-  descrition: "",
-  checklist_item_method: "",
-  checklist_item_time: "",
-});
+  const validationSchema = Yup.object({
+    process: Yup.string().required("Process is required"),
+    item: Yup.string().required("Item is required"),
+    description: Yup.string().required("Description is required"),
+    check_list_method: Yup.string().required("Checklist method is required"),
+    check_list_time: Yup.string().required("Checklist time is required"),
+    result_type: Yup.string().required("Result type is required"),
+
+    min: Yup.number().when("result_type", {
+      is: "measurement",
+      then: () => Yup.number().required("Min value required"),
+    }),
+
+    max: Yup.number().when("result_type", {
+      is: "measurement",
+      then: () => Yup.number().required("Max value required"),
+    }),
+
+    uom: Yup.string().when("result_type", {
+      is: "measurement",
+      then: () => Yup.string().required("UOM is required"),
+    }),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      process: initialData?.process || "",
+      item: initialData?.item || "",
+      description: initialData?.description || "",
+      check_list_method: initialData?.check_list_method || "",
+      check_list_time: initialData?.check_list_time || "",
+      result_type: initialData?.result_type || "", // yesno | measurement
+      min: initialData?.min || "",
+      max: initialData?.max || "",
+      uom: initialData?.uom || "",
+    },
+    enableReinitialize: true,
+    validationSchema,
+    onSubmit: (values) => {
+      onSubmit(values);
+      formik.resetForm();
+      onClose();
+    },
+  });
 
   if (!open) return null;
 
-  const toggleAssemblyLine = (id) => {
-    setFormData((prev) => ({
-      ...prev,
-      assambly_line: prev.assambly_line.includes(id)
-        ? prev.assambly_line.filter((x) => x !== id)
-        : [...prev.assambly_line, id],
-    }));
-  };
-
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-end">
-      <div className="bg-white h-full w-[420px] shadow-lg p-6 animate-slideLeft">
-
+      <div className="bg-white h-full w-[420px] shadow-lg p-6 animate-slideLeft overflow-y-auto">
         {/* HEADER */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">Add CheckList</h2>
+          <h2 className="text-xl font-semibold">
+            {mode === "add"
+              ? "Add Checklist"
+              : mode === "edit"
+              ? "Edit Checklist"
+              : "View Checklist"}
+          </h2>
           <button onClick={onClose}>
-            <X size={22} className="text-gray-500 hover:text-black" />
+            <X size={22} />
           </button>
         </div>
 
         {/* FORM */}
-        <div className="flex flex-col gap-4">
-
-          {/* Full Name */}
-          <Field label="Full Name">
-            <input
-              className="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1"
-              value={formData.item}
-              onChange={(e) =>
-                setFormData({ ...formData, item: e.target.value })
-              }
-            />
-          </Field>
-
-          {/* Email */}
-          <Field label="Email">
-            <input
-              type="text"
-              className="input"
-              value={formData.descrition}
-              onChange={(e) =>
-                setFormData({ ...formData, d: e.target.value })
-              }
-            />
-          </Field>
-
-
-          {/* Password */}
-          <Field label="Password">
-            <input
-              type="password"
-              className="input"
-              value={formData.password}
-              onChange={(e) =>
-                setFormData({ ...formData, password: e.target.value })
-              }
-            />
-          </Field>
-
-          {/* Role */}
-          <Field label="Role">
+        <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4">
+          {/* Process */}
+          <Field label="Process">
             <select
+              name="process"
+              disabled={isView}
+              value={formik.values.process}
+              onChange={formik.handleChange}
               className="input"
-              value={formData.role}
-              onChange={(e) =>
-                setFormData({ ...formData, role: e.target.value })
-              }
             >
-              <option value="">Select Role</option>
-              {roles.map((r) => (
-                <option key={r._id} value={r._id}>
-                  {r.name}
-                </option>
-              ))}
-            </select>
-          </Field>
-
-          {/* Designation */}
-          <Field label="Designation">
-            <input
-              className="input"
-              value={formData.designation}
-              onChange={(e) =>
-                setFormData({ ...formData, designation: e.target.value })
-              }
-            />
-          </Field>
-
-          {/* Plant */}
-          <Field label="Employee Plant">
-            <select
-              className="input"
-              value={formData.Employee_plant}
-              onChange={(e) =>
-                setFormData({ ...formData, Employee_plant: e.target.value })
-              }
-            >
-              <option value="">Select Plant</option>
-              {plants.map((p) => (
+              <option value="">Select Process</option>
+              {processes.map((p) => (
                 <option key={p._id} value={p._id}>
-                  {p.plant_name}
+                  {p.process_name}
                 </option>
               ))}
             </select>
           </Field>
 
-          {/* Company */}
-          <Field label="Employee Company">
-            <select
+          {/* Item */}
+          <Field label="Item">
+            <input
+              name="item"
+              disabled={isView}
+              value={formik.values.item}
+              onChange={formik.handleChange}
               className="input"
-              value={formData.employee_company}
-              onChange={(e) =>
-                setFormData({ ...formData, employee_company: e.target.value })
-              }
-            >
-              <option value="">Select Company</option>
-              {companies.map((c) => (
-                <option key={c._id} value={c._id}>
-                  {c.company_name}
-                </option>
-              ))}
-            </select>
+            />
           </Field>
 
-          {/* Assembly Lines */}
-          {/* Assembly Line Dropdown */}
-<div className="w-full">
-  <label className="text-sm text-gray-700 font-medium">
-    Assembly Line
-  </label>
+          {/* Description */}
+          <Field label="Description">
+            <textarea
+              name="description"
+              disabled={isView}
+              value={formik.values.description}
+              onChange={formik.handleChange}
+              className="input"
+            />
+          </Field>
 
-  {/* Dropdown Button */}
-  <div className="relative mt-1">
-    <button
-      type="button"
-      className="w-full border rounded-lg px-3 py-2 bg-white flex justify-between items-center"
-      onClick={() =>
-        setFormData((prev) => ({
-          ...prev,
-          showAssemblyDropdown: !prev.showAssemblyDropdown,
-        }))
-      }
-    >
-      <span className="text-gray-700">
-        {formData.assambly_line.length > 0
-          ? `${formData.assambly_line.length} Selected`
-          : "Select Assembly Lines"}
-      </span>
+          {/* Checklist Method */}
+          <Field label="Checklist Method">
+            <input
+              name="check_list_method"
+              disabled={isView}
+              value={formik.values.check_list_method}
+              onChange={formik.handleChange}
+              className="input"
+            />
+          </Field>
 
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className={`size-5 transition-transform ${
-          formData.showAssemblyDropdown ? "rotate-180" : ""
-        }`}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-      </svg>
-    </button>
+          {/* Checklist Time */}
+          <Field label="Checklist Time">
+            <input
+              name="check_list_time"
+              disabled={isView}
+              value={formik.values.check_list_time}
+              onChange={formik.handleChange}
+              className="input"
+            />
+          </Field>
 
-    {/* Dropdown Menu */}
-    {formData.showAssemblyDropdown && (
-      <div className="absolute mt-1 w-full bg-white border rounded-lg shadow-md max-h-48 overflow-y-auto z-50 p-2">
+          {/* Result Type */}
+          <Field label="Result Type">
+            <div className="flex gap-4 mt-1">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="result_type"
+                  value="yesno"
+                  disabled={isView}
+                  checked={formik.values.result_type === "yesno"}
+                  onChange={formik.handleChange}
+                />
+                Yes / No
+              </label>
 
-        {assemblyLines.length === 0 ? (
-          <p className="text-gray-500 text-sm px-2 py-1">
-            No Assembly Lines Available
-          </p>
-        ) : (
-          assemblyLines.map((line) => (
-            <label
-              key={line._id}
-              className="flex items-center gap-2 px-2 py-1 hover:bg-gray-100 rounded cursor-pointer"
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="result_type"
+                  value="measurement"
+                  disabled={isView}
+                  checked={formik.values.result_type === "measurement"}
+                  onChange={formik.handleChange}
+                />
+                Measurement
+              </label>
+            </div>
+          </Field>
+
+         
+
+          {/* MEASUREMENT */}
+          {formik.values.result_type === "measurement" && (
+            <>
+              <Field label="Min Value">
+                <input
+                  type="number"
+                  name="min"
+                  disabled={isView}
+                  value={formik.values.min}
+                  onChange={formik.handleChange}
+                  className="input"
+                />
+              </Field>
+
+              <Field label="Max Value">
+                <input
+                  type="number"
+                  name="max"
+                  disabled={isView}
+                  value={formik.values.max}
+                  onChange={formik.handleChange}
+                  className="input"
+                />
+              </Field>
+
+              <Field label="UOM">
+              
+                <input
+                  name="uom"
+                  disabled={isView}
+                  value={formik.values.uom}
+                  onChange={formik.handleChange}
+                  className="input"
+                />
+              </Field>
+            </>
+          )}
+
+          {/* SUBMIT */}
+          {!isView && (
+            <button
+              type="submit"
+              className="bg-blue-600 text-white py-2 rounded-lg mt-4"
             >
-              <input
-                type="checkbox"
-                checked={formData.assambly_line.includes(line._id)}
-                onChange={() => {
-                  setFormData((prev) => {
-                    const exists = prev.assambly_line.includes(line._id);
-
-                    return {
-                      ...prev,
-                      assambly_line: exists
-                        ? prev.assambly_line.filter((id) => id !== line._id)
-                        : [...prev.assambly_line, line._id],
-                    };
-                  });
-                }}
-              />
-              {line.line_name}
-            </label>
-          ))
-        )}
-      </div>
-    )}
-  </div>
-</div>
-
-
-          {/* Submit */}
-          <button
-            className="bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 mt-4"
-            onClick={() => onSubmit(formData)}
-          >
-            Add Employee
-          </button>
-        </div>
+              {mode === "add" ? "Add Checklist" : "Update Checklist"}
+            </button>
+          )}
+        </form>
       </div>
 
-      {/* ANIMATION */}
+      {/* STYLES */}
       <style>{`
         @keyframes slideLeft {
           from { transform: translateX(100%); }
@@ -255,6 +244,7 @@ export default function AddCheckListModal({
   );
 }
 
+/* FIELD WRAPPER */
 function Field({ label, children }) {
   return (
     <div>

@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
+import AddChecklistModal from "../components/modal/addModal/AddCheckListModal";
+
 
 
 
@@ -14,12 +16,13 @@ const  CheckList=()=>{
 
   const [search, setSearch] = useState("");
 
-  const [openDrawer, setOpenDrawer] = useState(false);
+  const [openChecklistModal, setOpenChecklistModal] = useState(false);
+  const [modalMode, setModalMode] = useState("add"); // add | edit | view
+  const [selectedChecklist, setSelectedChecklist] = useState(null);
 
-  const [editOpen, setEditOpen] = useState(false);
+
   const [selectedEmployee, setSelectedEmployee] = useState(null);
 
-  const [viewOpen, setViewOpen] = useState(false);
   const [viewEmployee, setViewEmployee] = useState(null);
 
   const filteredChecklist = checklist.filter((emp) =>
@@ -28,7 +31,6 @@ const  CheckList=()=>{
 
   return (
     <div className="w-full">
-
       {/* HEADER */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">Checklist</h1>
@@ -55,7 +57,11 @@ const  CheckList=()=>{
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3 self-center">
           <div className="flex justify-between items-center ">
             <button
-              onClick={() => setOpenDrawer(true)}
+              onClick={() => {
+                setModalMode("add");
+                setSelectedChecklist(null);
+                setOpenChecklistModal(true);
+              }}
               className="px-5 py-2 bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2"
             >
               <Plus size={18} /> Add New CheckList
@@ -106,18 +112,22 @@ const  CheckList=()=>{
                     size={20}
                     className="text-blue-500 cursor-pointer"
                     onClick={() => {
-                      setViewEmployee(cl);
-                      setViewOpen(true);
+                      setModalMode("view");
+                      setSelectedChecklist(cl);
+                      setOpenChecklistModal(true);
                     }}
                   />
+
                   <Edit2
                     size={20}
                     className="text-green-600 cursor-pointer"
                     onClick={() => {
-                      setSelectedEmployee(cl);
-                      setEditOpen(true);
+                      setModalMode("edit");
+                      setSelectedChecklist(cl);
+                      setOpenChecklistModal(true);
                     }}
                   />
+
                   <Trash2 size={20} className="text-red-500 cursor-pointer" />
                 </div>
               </div>
@@ -160,7 +170,9 @@ const  CheckList=()=>{
                 >
                   <td className="px-5 py-4">{cl.item || "N/A"}</td>
                   <td className="px-5 py-4 ">{cl.description || "N/A"}</td>
-                  <td className="px-5 py-4 ">{cl.check_list_method || "N/A"}</td>
+                  <td className="px-5 py-4 ">
+                    {cl.check_list_method || "N/A"}
+                  </td>
                   <td className="px-5 py-4 ">{cl.check_list_time || "N/A"}</td>
 
                   {/* Actions */}
@@ -170,8 +182,9 @@ const  CheckList=()=>{
                       size={20}
                       className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
                       onClick={() => {
-                        setViewEmployee(cl);
-                        setViewOpen(true);
+                        setModalMode("view");
+                        setSelectedChecklist(cl);
+                        setOpenChecklistModal(true);
                       }}
                     />
 
@@ -180,8 +193,9 @@ const  CheckList=()=>{
                       size={20}
                       className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition transform"
                       onClick={() => {
-                        setSelectedEmployee(cl);
-                        setEditOpen(true);
+                        setModalMode("edit");
+                        setSelectedChecklist(cl);
+                        setOpenChecklistModal(true);
                       }}
                     />
 
@@ -197,6 +211,26 @@ const  CheckList=()=>{
           </table>
         </div>
       </div>
+
+      <AddChecklistModal
+        open={openChecklistModal}
+        onClose={() => setOpenChecklistModal(false)}
+        mode={modalMode}
+        initialData={selectedChecklist}
+        processes={[
+          { _id: "1", process_name: "Process 1" },
+          { _id: "2", process_name: "Process 2" },
+        ]}
+        onSubmit={(data) => {
+          if (modalMode === "add") {
+            console.log("ADD", data);
+            // createChecklist.mutate(data)
+          } else if (modalMode === "edit") {
+            console.log("UPDATE", selectedChecklist._id, data);
+            // updateChecklist.mutate({ id: selectedChecklist._id, data })
+          }
+        }}
+      />
 
       {/* <AddEmployeeModal
         open={openDrawer}
@@ -214,7 +248,6 @@ const  CheckList=()=>{
         onClose={() => setViewOpen(false)}
         data={viewEmployee}
       /> */}
-      
     </div>
   );
 }
