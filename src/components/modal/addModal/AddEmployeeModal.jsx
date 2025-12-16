@@ -11,8 +11,8 @@ import {RegisterEmployee} from "../../../hooks/useRegisterEmployee";
 export default function AddEmployeeModal({
   open,
   onClose,
-  mode = "add", // add | edit | view
-  initialData = null, // employee data for edit/view
+  mode = "add", 
+  initialData = null,
   assemblyLines = [],
   onSubmit,
 }) {
@@ -106,7 +106,6 @@ const validationSchema = Yup.object({
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex justify-end">
       <div className="bg-white h-full w-[420px] shadow-lg p-6 animate-slideLeft overflow-y-auto">
-        {/* HEADER */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
             {mode === "add"
