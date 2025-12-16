@@ -4,6 +4,8 @@ import AddEmployeeModal from "../components/modal/addModal/AddEmployeeModal";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
+import { UserCheck } from "lucide-react";
+import { UserX } from "lucide-react";
 
 const  Employee=()=>{
 
@@ -13,11 +15,34 @@ const  Employee=()=>{
   const [modalMode, setModalMode] = useState("add");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const { debounce, value } = useDebounce(search);
-  const { getAllEmployee, searchEmployee } = RegisterEmployee(value, page);
+  const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
+    RegisterEmployee(value, page);
+
+  
 
   const filteredEmployees = debounce
     ? searchEmployee?.data ?? []
     : getAllEmployee?.data ?? [];
+
+    console.log("this is my get all employee data", toggleTerminateEmployee?.data?.message);
+
+    const handleTerminateToggle = (emp) => {
+      toggleTerminateEmployee.mutate(
+        {
+          id: emp._id,
+          terminate: !emp.terminate, 
+        },
+        {
+          onSuccess: () => {
+            console.log(
+              `Employee ${emp.full_name} terminate = ${!emp.terminate}`
+            );
+          },
+        }
+      );
+    };
+
+
 
   return (
     <div className="w-full">
@@ -52,13 +77,13 @@ const  Employee=()=>{
                 setSelectedEmployee(null);
                 setModalOpen(true);
               }}
-              className="px-5 py-2 bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2"
+              className="px-5 py-2 cursor-pointer bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2"
             >
               <Plus size={18} /> Add New Employee
             </button>
           </div>
 
-          <button className="border border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
+          <button className="border cursor-pointer border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
@@ -118,11 +143,24 @@ const  Employee=()=>{
                     }}
                   />
 
-                  <Trash2 size={20} className="text-red-500 cursor-pointer" />
+                  {emp.terminate ? (
+                    <UserX
+                      size={22}
+                      onClick={() => handleTerminateToggle(emp)}
+                      className="text-red-500 cursor-pointer hover:scale-125 transition"
+                      title="Re-Activate Employee"
+                    />
+                  ) : (
+                    <UserCheck
+                      size={22}
+                      onClick={() => handleTerminateToggle(emp)}
+                      className="text-green-600 cursor-pointer hover:scale-125 transition"
+                      title="Terminate Employee"
+                    />
+                  )}
                 </div>
               </div>
 
-              {/* More details */}
               <div className="mt-3 text-sm text-gray-600 space-y-1">
                 <p>
                   <strong>User ID:</strong> {emp.user_id || "N/A"}
@@ -144,7 +182,7 @@ const  Employee=()=>{
 
         {/* Table */}
         <div className="overflow-x-auto hidden sm:block w-full rounded-xl border border-gray-200">
-          <table className="w-full  text-left">
+          <table className="w-full  text-center">
             {/* Table Header */}
             <thead>
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
@@ -161,7 +199,11 @@ const  Employee=()=>{
               {filteredEmployees.map((emp, i) => (
                 <tr
                   key={i}
-                  className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
+                  className={`border-b border-gray-200 transition ${
+                    emp.terminate
+                      ? "opacity-50 bg-gray-50"
+                      : "hover:bg-blue-50/40"
+                  }`}
                 >
                   <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
                   <td className="px-5 py-4 whitespace-nowrap">
@@ -201,10 +243,21 @@ const  Employee=()=>{
                     />
 
                     {/* DELETE */}
-                    <Trash2
-                      size={20}
-                      className="text-red-500 hover:text-red-600 hover:scale-125 cursor-pointer transition transform"
-                    />
+                    {emp.terminate ? (
+                      <UserX
+                        size={22}
+                        onClick={() => handleTerminateToggle(emp)}
+                        className="text-red-500 hover:scale-125 cursor-pointer transition"
+                        title="Re-Activate Employee"
+                      />
+                    ) : (
+                      <UserCheck
+                        size={22}
+                        onClick={() => handleTerminateToggle(emp)}
+                        className="text-green-600 hover:scale-125 cursor-pointer transition"
+                        title="Terminate Employee"
+                      />
+                    )}
                   </td>
                 </tr>
               ))}
