@@ -1,11 +1,46 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
+import { toast } from "react-toastify";
+
 
 export const useLogin = () => {
-  return useMutation({
+  const qc = useQueryClient();
+
+  const logedinUser = useQuery({
+    queryKey: ["users"],
+    queryFn: async () => {
+      const res = await axiosHandler.get("/users/loged-in-user");
+      sessionStorage.setItem("user", JSON.stringify(res?.data?.user));
+      return res.data.user;
+    },
+    retry: false,
+  });
+
+  const loginUser = useMutation({
     mutationFn: async (data) => {
       const res = await axiosHandler.post("/users/login-user", data);
-      return res;
+      return res.data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["users"] });
     },
   });
+
+  const logOutUser = useMutation({
+    mutationFn: async () => {
+      await axiosHandler.get("/users/logout-user");
+    },
+    onSuccess: () => {
+      qc.removeQueries({ queryKey: ["users"] });
+      sessionStorage.removeItem("user");
+    }
+
+  });
+
+  return {
+    logedinUser,
+    loginUser,
+    logOutUser,
+  };
 };
+

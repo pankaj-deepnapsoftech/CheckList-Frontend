@@ -4,15 +4,16 @@ import { toast } from "react-toastify"
 
 
 
-export const UsePlantName = (search,page) => {
+export const UsePlantName = (search, page) => {
     const qc = useQueryClient()
     const getPlantName = useQuery({
-        queryKey: ["plant",page],
+        queryKey: ["plant", page],
         queryFn: async () => {
             const res = await axiosHandler.get(`/plant/list-plant?page=${page}&&limit=10`);
             return res?.data?.data;
-        }
-
+        },
+        enabled: !search,
+        placeholderData: keepPreviousData
     })
 
     const CreatePlantName = useMutation({
@@ -48,19 +49,19 @@ export const UsePlantName = (search,page) => {
     const DeletePlantData = useMutation({
 
         mutationFn: async (id) => {
-           try {
-               const res = await axiosHandler.delete(`/plant/delete-plant/${id}`)
-               toast.success(res?.data?.message)
-           } catch (error) {
-               toast.error(error?.response?.data?.message)
-           }
+            try {
+                const res = await axiosHandler.delete(`/plant/delete-plant/${id}`)
+                toast.success(res?.data?.message)
+            } catch (error) {
+                toast.error(error?.response?.data?.message)
+            }
         },
         onSuccess: () => {
             qc.invalidateQueries({ queryKey: ["plant"] });
         },
     })
 
-  const searchQuery = useQuery({
+    const searchQuery = useQuery({
         queryKey: ["search-company", search],
         queryFn: async () => {
             const res = await axiosHandler.get(
@@ -69,7 +70,7 @@ export const UsePlantName = (search,page) => {
             return res.data.data;
         },
         enabled: !!search,
-        placeholderData: keepPreviousData 
+        placeholderData: keepPreviousData
     });
 
 

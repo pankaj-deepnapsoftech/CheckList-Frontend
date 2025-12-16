@@ -1,9 +1,18 @@
-import React from 'react'
+import { Navigate } from "react-router-dom";
 
-const ProtectedRoute = () => {
-  return (
-    <div></div>
-  )
-}
+const ProtectedRoute = ({ children, user, isLoading }) => {
 
-export default ProtectedRoute
+
+    if (isLoading) {
+        return null;
+    }
+
+   
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+
+    return children;
+};
+
+export default ProtectedRoute;
