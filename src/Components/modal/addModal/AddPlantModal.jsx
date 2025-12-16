@@ -17,7 +17,7 @@ const AddPlantModal = (
     view: "View Details"
   }
 
- console.log(editTable) 
+
   const formik = useFormik({
     initialValues:{
       plant_name: viewModal?.plant_name || editTable?.plant_name || "",
