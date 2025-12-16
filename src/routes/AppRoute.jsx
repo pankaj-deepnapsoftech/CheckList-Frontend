@@ -12,6 +12,7 @@ import AssemblyLineStatus from "../pages/AssemblyLineStatus";
 import PageNotFound from "../Components/PageNotFound/PageNotFound";
 import ProtectedRoute from "./ProtectedRoute";
 import { useLogin } from "../hooks/useLogin";
+import ForgetPassword from "../pages/auth/ForgetPassword";
 
 
 export const AppRoute = () => {
@@ -30,6 +31,7 @@ export const AppRoute = () => {
 
     return useRoutes([
         { path: "/login", element: <Login /> },
+        {path: "/forgot-password", element: <ForgetPassword />},
         { path: "/", element: withProtection(Dashboard) },
         { path: "/user-role", element: withProtection(UserRoles) },
         { path: "/process", element: withProtection(Process) },

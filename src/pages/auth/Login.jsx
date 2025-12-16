@@ -10,7 +10,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
-  const { loginUser,logedinUser } = useLogin();
+  const { loginUser, logedinUser } = useLogin();
 
   const formik = useFormik({
     initialValues: {
@@ -20,18 +20,15 @@ export default function Login() {
 
     validationSchema: loginValidationSchema,
 
-
     onSubmit: (values) => {
       loginUser.mutate(values, {
         onSuccess: () => {
-          navigate("/")
+          navigate("/");
         },
       });
-      
     },
   });
 
- 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4">
       {/* Background Video */}
@@ -94,11 +91,8 @@ export default function Login() {
           />
 
           {formik.touched.email && formik.errors.email && (
-            <p className="text-red-500 text-xs mt-1">
-              {formik.errors.email}
-            </p>
+            <p className="text-red-500 text-xs mt-1">{formik.errors.email}</p>
           )}
-
         </label>
 
         {/* Password */}
@@ -133,13 +127,20 @@ export default function Login() {
               {showPassword ? <EyeOff /> : <Eye />}
             </span>
           </div>
+          <p
+            className="flex justify-end font-semibold mt-1 text-white"
+            onClick={() => navigate("/forgot-password")}
+          >
+            Forgot Password?
+          </p>
         </label>
 
         {/* Login Button */}
         <button
           type="submit"
           disabled={loginUser.isPending}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+        >
           {loginUser.isPending ? "Logging in..." : "Login"}
         </button>
       </form>
