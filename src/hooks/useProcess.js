@@ -3,14 +3,14 @@ import { toast } from "react-toastify"
 import axiosHandler from "../config/axiosconfig"
 
 
-export const useProcess = (search,page) => {
+export const useProcess = (search,page,limit) => {
 
      const qc = useQueryClient()
 
     const  getProcessData = useQuery({
-        queryKey:["process",page],
+        queryKey:["process",page,limit],
         queryFn: async() =>  {
-            const res = await axiosHandler.get(`/process/get-process-list?page=${page}&&limit=10`)
+            const res = await axiosHandler.get(`/process/get-process-list?page=${page}&&limit=${limit}`)
             return res?.data?.data ;
         },
         enabled:!search 

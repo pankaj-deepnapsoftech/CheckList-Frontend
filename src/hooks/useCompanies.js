@@ -4,13 +4,13 @@ import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
 
-export const useCompanies = (search, page) => {
+export const useCompanies = (search, page , limit) => {
     const qc = useQueryClient();
  
     const listQuery = useQuery({
-        queryKey: ["companies", page],
+        queryKey: ["companies", page , limit],
         queryFn: async () => {
-            const res = await axiosHandler.get(`/company/list-company?page=${page}&&limit=10`);
+            const res = await axiosHandler.get(`/company/list-company?page=${page}&&limit=${limit}`);
             return res?.data?.data;
         },
         enabled: !search,
