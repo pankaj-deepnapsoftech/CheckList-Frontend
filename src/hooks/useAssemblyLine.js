@@ -14,7 +14,7 @@ export const useAssemblyLine = (search, page) => {
             const res = await axiosHandler.get(`/assembly/get-assembly?page=${page}&&limit=10`)
             return res?.data?.data;
         },
-         enabled: !search,
+        enabled: !search,
         placeholderData: keepPreviousData,
     })
 
@@ -29,6 +29,30 @@ export const useAssemblyLine = (search, page) => {
         }
     })
 
+    const UpdateAssemblyLine = useMutation({
+        mutationFn: ({ id, data }) => axiosHandler.put(`/assembly/update-assembly/${id}`, data),
+        onSuccess: (data) => {
+            toast.success(data?.message)
+            qc.invalidateQueries({ queryKey: ["assembly"] })
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message)
+        }
+    })
+
+    const DeleteAssemblyLine = useMutation({
+        mutationFn: async (id) => {
+            const res = await axiosHandler.delete(`/assembly/delete-assembly/${id}`)
+            return res?.data;
+        },
+        onSuccess: (data) => {
+            qc.invalidateQueries({ queryKey: ["assembly"] });
+            toast.success(data?.message);
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message);
+        }
+    });
     const searchQuery = useQuery({
         queryKey: ["search-assembly-line", search],
         queryFn: async () => {
@@ -42,5 +66,5 @@ export const useAssemblyLine = (search, page) => {
     });
 
 
-    return { createAssemblyLine, getAssemblyLineData, searchQuery };
+    return { createAssemblyLine, getAssemblyLineData, searchQuery, UpdateAssemblyLine, DeleteAssemblyLine };
 }

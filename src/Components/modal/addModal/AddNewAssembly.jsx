@@ -6,41 +6,34 @@ import { useCompanies } from "../../../hooks/useCompanies";
 import { usePlantsByCompany } from "../../../hooks/UsePlantName";
 import { useProcess } from "../../../hooks/useProcess";
 import { RegisterEmployee } from "../../../hooks/useRegisterEmployee";
+import { UsePart } from "../../../hooks/usePart";
+export default function AssemblyLineModal({ openModal, setOpenModal, editTable, viewModal, mode }) {
+  if (!open) return null;
+  const { createAssemblyLine, UpdateAssemblyLine } = useAssemblyLine()
+  const { AllCompanyData } = useCompanies()
+  const { AllProcessData } = useProcess()
+  const { AllEmpData } = RegisterEmployee()
+  const { getAllPart } = UsePart()
 
-export default function AssemblyLineModal({
-  openModal,
-  setOpenModal,
-  editTable,
-  viewModal,
-  mode,
-}) {
-  if (!openModal) return null;
 
-  const { createAssemblyLine } = useAssemblyLine();
-  const { AllCompanyData } = useCompanies();
-  const { AllProcessData } = useProcess();
-  const { AllEmpData } = RegisterEmployee();
-
+ 
   const formik = useFormik({
     initialValues: {
       assembly_name:
         editTable?.assembly_name || viewModal?.assembly_name || "",
       assembly_number:
         editTable?.assembly_number || viewModal?.assembly_number || "",
-      company_id: editTable?.company_id || viewModal?.company_id || "",
-      plant_id: editTable?.plant_id || viewModal?.plant_id || "",
-      responsibility:
-        editTable?.responsibility || viewModal?.responsibility || "",
-      processes:
-        editTable?.processes ||
-        viewModal?.processes ||
-        [{ process_id: "" }],
+      company_id: editTable?.company_id?._id || viewModal?.company_id || "",
+      plant_id: editTable?.plant_id?._id || viewModal?.plant_id || "",
+      responsibility: editTable?.responsibility?._id || viewModal?.responsibility || "",
+      part_id: editTable?.part_id || viewModal?.part_id?._id || "",
+      process_id: editTable?.process_id?.map((i)=> i?._id) || viewModal?.process_id || [""],
     },
-    // validationSchema: assemblyValidationSchema,
+    validationSchema: assemblyValidationSchema,
     enableReinitialize: true,
     onSubmit: (value) => {
       if (editTable) {
-        update.mutate(
+        UpdateAssemblyLine.mutate(
           { id: editTable._id, data: value },
           {
             onSuccess: () => {
