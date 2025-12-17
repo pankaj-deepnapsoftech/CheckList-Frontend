@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
+import { Plus, RefreshCw, Search, Eye, Edit2, Trash2, Ban } from "lucide-react";
 import AddEmployeeModal from "../components/modal/addModal/AddEmployeeModal";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useDebounce } from "../hooks/useDebounce";
@@ -17,14 +17,13 @@ const  Employee=()=>{
   const { debounce, value } = useDebounce(search);
   const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
     RegisterEmployee(value, page);
-
   
 
   const filteredEmployees = debounce
     ? searchEmployee?.data ?? []
     : getAllEmployee?.data ?? [];
 
-    console.log("this is my get all employee data", toggleTerminateEmployee?.data?.message);
+    console.log("this is my get all employee data", filteredEmployees);
 
     const handleTerminateToggle = (emp) => {
       toggleTerminateEmployee.mutate(
@@ -118,7 +117,7 @@ const  Employee=()=>{
               {/* Header: Name + actions */}
               <div className="flex items-center flex-wrap justify-between gap-3">
                 <span className="bg-blue-500 whitespace-nowrap text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {emp.full_name || "N/A"}
+                  {emp.user_id || "N/A"}
                 </span>
 
                 {/* ACTIONS */}
@@ -144,7 +143,7 @@ const  Employee=()=>{
                   />
 
                   {emp.terminate ? (
-                    <UserX
+                    <Ban
                       size={22}
                       onClick={() => handleTerminateToggle(emp)}
                       className="text-red-500 cursor-pointer hover:scale-125 transition"
@@ -154,7 +153,7 @@ const  Employee=()=>{
                     <UserCheck
                       size={22}
                       onClick={() => handleTerminateToggle(emp)}
-                      className="text-green-600 cursor-pointer hover:scale-125 transition"
+                      className="text-purple-500 cursor-pointer hover:scale-125 transition"
                       title="Terminate Employee"
                     />
                   )}
@@ -163,17 +162,19 @@ const  Employee=()=>{
 
               <div className="mt-3 text-sm text-gray-600 space-y-1">
                 <p>
-                  <strong>User ID:</strong> {emp.user_id || "N/A"}
+                  <strong>Name:</strong> {emp.full_name || "N/A"}
                 </p>
 
                 <p>
-                  <strong>Role:</strong>{" "}
-                  <span className="">{emp?.role?.name || "N/A"}</span>
+                  <strong>Plant:</strong>{" "}
+                  <span className="">
+                    {emp?.employee_plant?.plant_name || "N/A"}
+                  </span>
                 </p>
 
                 <p>
-                  <strong>Designation:</strong>{" "}
-                  {emp.designation || emp.desigination || "N/A"}
+                  <strong>Company:</strong>{" "}
+                  {emp?.employee_company?.company_name || "N/A"}
                 </p>
               </div>
             </div>
@@ -186,10 +187,10 @@ const  Employee=()=>{
             {/* Table Header */}
             <thead>
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
-                <th className="px-5 py-3 font-semibold">Name</th>
                 <th className="px-5 py-3 font-semibold">User ID</th>
-                <th className="px-5 py-3 font-semibold">Role</th>
-                <th className="px-5 py-3 font-semibold">Designation</th>
+                <th className="px-5 py-3 font-semibold">Name</th>
+                <th className="px-5 py-3 font-semibold">Plant</th>
+                <th className="px-5 py-3 font-semibold">Company</th>
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
@@ -205,17 +206,18 @@ const  Employee=()=>{
                       : "hover:bg-blue-50/40"
                   }`}
                 >
-                  <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
                   <td className="px-5 py-4 whitespace-nowrap">
                     {emp.user_id || "N/A"}
                   </td>
+                  <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
                   <td className="px-5 py-4 whitespace-nowrap">
                     <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow">
-                      {emp?.role?.name || "N/A"}
+                      {emp?.employee_plant?.plant_name || "N/A"}
                     </span>
                   </td>
+
                   <td className="px-5 py-4 ">
-                    {emp.designation || emp.desigination || "N/A"}
+                    {emp?.employee_company?.company_name || "N/A"}
                   </td>
 
                   {/* Actions */}
@@ -244,7 +246,7 @@ const  Employee=()=>{
 
                     {/* DELETE */}
                     {emp.terminate ? (
-                      <UserX
+                      <Ban
                         size={22}
                         onClick={() => handleTerminateToggle(emp)}
                         className="text-red-500 hover:scale-125 cursor-pointer transition"
@@ -254,7 +256,7 @@ const  Employee=()=>{
                       <UserCheck
                         size={22}
                         onClick={() => handleTerminateToggle(emp)}
-                        className="text-green-600 hover:scale-125 cursor-pointer transition"
+                        className="text-purple-500 hover:scale-125 cursor-pointer transition"
                         title="Terminate Employee"
                       />
                     )}
