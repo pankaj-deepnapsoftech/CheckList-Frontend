@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, RefreshCw, Search, Edit2, Trash2 } from "lucide-react";
 import Pagination from "../Components/Pagination/Pagination.jsx";
 import AddPartsModal from "../components/modal/addModal/AddPartsModal.jsx";
+import {UsePart} from "../hooks/usePart.js";
 
 const actionBtn =
   "p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:shadow-md";
@@ -13,6 +14,8 @@ const dummyParts = [
 ];
 
 const Parts = () => {
+
+  const { getPartData } = UsePart();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [parts, setParts] = useState(dummyParts);
@@ -22,11 +25,10 @@ const Parts = () => {
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add");
 
-  const filteredParts = parts.filter(
-    (p) =>
-      p.part_no.toLowerCase().includes(search.toLowerCase()) ||
-      p.part_name.toLowerCase().includes(search.toLowerCase())
-  );
+  console.log("this is my part", getPartData?.data);
+
+  const filteredParts = getPartData?.data  || []
+
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this part?")) {
@@ -45,7 +47,7 @@ const Parts = () => {
       {/* TOOLBAR */}
       <div className="bg-white shadow rounded-2xl p-4 mt-4 flex flex-col sm:flex-row justify-between gap-4">
         <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
-            <Search size={20} className="text-gray-500" />
+          <Search size={20} className="text-gray-500" />
           <input
             type="text"
             placeholder="Search parts..."
@@ -80,16 +82,16 @@ const Parts = () => {
       {/* LIST */}
       <div className="bg-white rounded-2xl shadow mt-6 p-5">
         <h2 className="text-gray-800 text-lg font-semibold mb-4">
-          {filteredParts.length} Parts Found
+          {filteredParts?.length} Parts Found
         </h2>
 
         {/* MOBILE */}
         <div className="grid gap-4 sm:hidden">
-          {filteredParts.map((part) => (
+          {filteredParts?.map((part) => (
             <div key={part._id} className=" rounded-xl p-4 shadow-sm bg-white">
               <div className="flex justify-between items-center">
                 <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">
-                  {part.part_no}
+                  {part.part_number}
                 </span>
 
                 <div className="flex gap-2">
@@ -125,30 +127,20 @@ const Parts = () => {
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
                 <th className="px-5 py-3 font-semibold">Parts No.</th>
                 <th className="px-5 py-3 font-semibold">Parts Name</th>
-                {/* <th className="px-5 py-3 font-semibold">Check Items</th>
-                        <th className="px-5 py-3 font-semibold">Check Time</th> */}
+         
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
 
             <tbody className="text-gray-700">
-              {filteredParts?.map((pro, i) => (
+              {filteredParts?.map((pro) => (
                 <tr
-                  key={i}
+                  key={pro._id}
                   className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
                 >
-                  <td className="px-5 py-4">{}</td>
-                  <td className="px-5 py-4 ">{}</td>
-                  {/* <td className="px-5 py-4">
-                            <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow whitespace-nowrap">
-                              {pro.check_items || "N/A"}
-                            </span>
-                          </td>
-                          <td className="px-5 py-4">
-                            <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow whitespace-nowrap">
-                              {pro.check_time || "N/A"}
-                            </span>
-                          </td> */}
+                  <td className="px-5 py-4">{pro.part_number}</td>
+
+                  <td className="px-5 py-4">{pro.part_name}</td>
                   <td className="px-5 py-4">
                     <div className="flex justify-center gap-2">
                       <button
