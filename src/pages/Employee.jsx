@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2, Ban } from "lucide-react";
 import AddEmployeeModal from "../components/modal/addModal/AddEmployeeModal";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
@@ -8,7 +8,7 @@ import { UserCheck } from "lucide-react";
 import Refresh from "../components/Refresh/Refresh";
 import { UserX } from "lucide-react";
 
-const  Employee=()=>{
+const Employee = () => {
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -16,12 +16,17 @@ const  Employee=()=>{
   const [limit,setLimit]=useState(10);
   const [modalMode, setModalMode] = useState("add");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedPlant, setSelectedPlant] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("");
   const { debounce, value } = useDebounce(search);
   
   const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
-    RegisterEmployee(value, page ,limit);
+    RegisterEmployee(selectedCompany,
+      selectedPlant,
+      value,
+      page,limit); 
 
-  const [showRefresh, setShowRefresh] = useState(false);
+ const [showRefresh, setShowRefresh] = useState(false);
 
 
   const handleRefresh = async () => {
@@ -31,49 +36,53 @@ const  Employee=()=>{
     setShowRefresh(false);  // Hide overlay
   };
 
-    const [selectedPlant, setSelectedPlant] = useState("");
-    const [selectedCompany, setSelectedCompany] = useState("");
-
   const filteredEmployees = debounce
     ? searchEmployee?.data ?? []
     : getAllEmployee?.data ?? [];
 
 
-    const handleTerminateToggle = (emp) => {
-      toggleTerminateEmployee.mutate(
-        {
-          id: emp._id,
-          terminate: !emp.terminate, 
+  const handleTerminateToggle = (emp) => {
+    toggleTerminateEmployee.mutate(
+      {
+        id: emp._id,
+        terminate: !emp.terminate,
+      },
+      {
+        onSuccess: () => {
+          console.log(
+            `Employee ${emp.full_name} terminate = ${!emp.terminate}`
+          );
         },
-        {
-          onSuccess: () => {
-            console.log(
-              `Employee ${emp.full_name} terminate = ${!emp.terminate}`
-            );
-          },
-        }
-      );
-    };
+      }
+    );
+  };
 
-    const plantOptions = [
-      ...new Set(
-        (getAllEmployee?.data || [])
-          .map((emp) => emp?.employee_plant?.plant_name)
-          .filter(Boolean)
-      ),
-    ];
-
-    const companyOptions = [
-      ...new Set(
-        (getAllEmployee?.data || [])
-          .map((emp) => emp?.employee_company?.company_name)
-          .filter(Boolean)
-      ),
-    ];
-
-    
+  const plantOptions = [
+    ...new Map(
+      (getAllEmployee?.data || [])
+        .map(emp => emp?.employee_plant)
+        .filter(Boolean)
+        .map(plant => [plant._id, plant]) 
+    ).values(),
+  ];
 
 
+  const companyOptions = [
+    ...new Map(
+      (getAllEmployee?.data || [])
+        .map(emp => emp?.employee_company)
+        .filter(Boolean)
+        .map(company => [company._id, company])
+    ).values(),
+  ];
+
+
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, selectedCompany, selectedPlant]);
+
+  console.log("ids",selectedCompany, selectedPlant)
   return (
     <div className="w-full relative">
       {/* HEADER */}
@@ -107,12 +116,14 @@ const  Employee=()=>{
               className="border border-gray-200 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto"
             >
               <option value="">All Companies</option>
-              {companyOptions.map((company, i) => (
-                <option key={i} value={company}>
-                  {company}
+
+              {companyOptions.map((company) => (
+                <option key={company._id} value={company._id}>
+                  {company.company_name}  
                 </option>
               ))}
             </select>
+
 
             {/* Plant Filter */}
             <select
@@ -122,8 +133,8 @@ const  Employee=()=>{
             >
               <option value="">All Plants</option>
               {plantOptions.map((plant, i) => (
-                <option key={i} value={plant}>
-                  {plant}
+                <option key={i} value={plant?._id}>
+                  {plant?.plant_name}
                 </option>
               ))}
             </select>
@@ -279,11 +290,10 @@ const  Employee=()=>{
               {filteredEmployees.map((emp, i) => (
                 <tr
                   key={i}
-                  className={`border-b border-gray-200 transition ${
-                    emp.terminate
+                  className={`border-b border-gray-200 transition ${emp.terminate
                       ? "opacity-50 bg-gray-50"
                       : "hover:bg-blue-50/40"
-                  }`}
+                    }`}
                 >
                   <td className="px-5 py-4 whitespace-nowrap">
                     {emp.user_id || "N/A"}

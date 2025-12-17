@@ -20,11 +20,18 @@ export default function AssemblyLine() {
   const [viewModal, setViewModal] = useState(null);
   const [mode, setMode] = useState("add");
   const { debounce, value } = useDebounce(search)
-  const { getAssemblyLineData, searchQuery } = useAssemblyLine(value,page)
-
-
-
+  const { getAssemblyLineData, searchQuery, DeleteAssemblyLine } = useAssemblyLine(value, page)
   const data = debounce ? searchQuery?.data ?? [] : getAssemblyLineData?.data ?? [];
+
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you Sure you want delete Assembly Line Data")){
+      DeleteAssemblyLine.mutate(id)
+    }
+
+  }
+
+
 
   return (
     <div>

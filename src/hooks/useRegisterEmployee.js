@@ -8,9 +8,9 @@ import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
 
-export const RegisterEmployee = (search, page,limit ,enabled  = true ) => {
+export const RegisterEmployee = (cmId,plId,search, page,limit enabled = true) => {
   const qc = useQueryClient();
-
+  
   const getAllEmployee = useQuery({
     queryKey: ["employees", page , limit],
     queryFn: async () => {
@@ -37,18 +37,25 @@ export const RegisterEmployee = (search, page,limit ,enabled  = true ) => {
       qc.invalidateQueries({ queryKey: ["employees"] });
     },
   });
-
   const searchEmployee = useQuery({
-    queryKey: ["search-employee", search],
+    queryKey: ["search-employee", cmId, plId, search],
     queryFn: async () => {
       const res = await axiosHandler.get(
-        `/users/search-employee?search=${search}`
+        `/users/search-employee`,
+        {
+          params: {
+            company: cmId,
+            plant: plId,
+            search: search,
+          },
+        }
       );
       return res.data.data;
     },
-    enabled: !!search,
-    placeholderData: keepPreviousData,
+    enabled: !!search, 
+    keepPreviousData: true,
   });
+
 
   const updateEmployee = useMutation({
     mutationFn: async ({ id, data }) => {
