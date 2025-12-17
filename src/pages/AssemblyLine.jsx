@@ -5,30 +5,26 @@ import {
   RefreshCw,
   Edit2,
   Trash2,
+  Eye,
 } from "lucide-react";
 import AssemblyLineModal from "../components/modal/addModal/AddNewAssembly";
+import { useAssemblyLine } from "../hooks/useAssemblyLine";
+import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../Components/Pagination/Pagination";
 
 export default function AssemblyLine() {
+  const [page, setPage] = useState(1)
   const [search, setSearch] = useState("");
+  const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [viewModal, setViewModal] = useState(null);
+  const [mode, setMode] = useState("add");
+  const { debounce, value } = useDebounce(search)
+  const { getAssemblyLineData, searchQuery } = useAssemblyLine(value,page)
 
-  const data = [
-    {
-      no: "001",
-      name: "ASS 1",
-      process: "PCB Depending",
-    },
-    {
-      no: "002",
-      name: "ASS 2",
-      process: "PCB Depending",
-    },
-    {
-      no: "003",
-      name: "ASS 3",
-      process: "PCB Depending",
-    },
-  ];
+
+
+  const data = debounce ? searchQuery?.data ?? [] : getAssemblyLineData?.data ?? [];
 
   return (
     <div>
@@ -55,7 +51,11 @@ export default function AssemblyLine() {
 
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
           <button
-            onClick={() => setOpenModal(true)}
+            onClick={() => {
+              setEditTable(null)
+              setOpenModal(true)
+              setMode("add")
+            }}
             className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
           >
             <Plus size={18} /> Add New Assembly
@@ -70,7 +70,7 @@ export default function AssemblyLine() {
       <div className="bg-white rounded-2xl shadow-md border border-gray-100 mt-6 p-5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="font-semibold text-gray-800 text-lg">
-            {data.length} Records Found
+            {data?.length} Records Found
           </h2>
 
           <div className="flex items-center gap-2 text-gray-500">
@@ -85,7 +85,7 @@ export default function AssemblyLine() {
         </div>
 
         {/* ============ MOBILE CARDS ============ */}
-        <div className="grid gap-4 sm:hidden">
+        {/* <div className="grid gap-4 sm:hidden">
           {data.map((item, i) => (
             <div
               key={i}
@@ -100,13 +100,28 @@ export default function AssemblyLine() {
                 </div>
 
                 <div className="flex gap-4">
+                  <Eye
+                    onClick={() => {
+                      setOpenModal(true);
+                      setViewModal(item);
+                      setMode("view");
+                    }}
+                    size={18}
+                    className="text-blue-500 cursor-pointer"
+                  />
                   <Edit2
-                    size={20}
-                    className="text-blue-600 cursor-pointer hover:scale-110"
+                    size={18}
+                    className="text-green-600 cursor-pointer"
+                    onClick={() => {
+                      setEditTable(item);
+                      setOpenModal(true);
+                      setMode("edit");
+                    }}
                   />
                   <Trash2
-                    size={20}
-                    className="text-red-500 cursor-pointer hover:scale-110"
+                    size={18}
+                    className="text-red-500 cursor-pointer"
+                    onClick={() => handleDelete(item?._id)}
                   />
                 </div>
               </div>
@@ -121,7 +136,7 @@ export default function AssemblyLine() {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
 
         {/* ============ DESKTOP TABLE ============ */}
         <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
@@ -140,26 +155,43 @@ export default function AssemblyLine() {
             </thead>
 
             <tbody className="text-gray-700">
-              {data.map((item, i) => (
+              {data?.map((item, i) => (
                 <tr
                   key={i}
                   className="border-b border-gray-200 hover:bg-blue-50/40 transition"
                 >
-                  <td className="px-5 py-4 text-sm">{item.no}</td>
-                  <td className="px-5 py-4 text-sm">{item.name}</td>
-                  <td className="px-5 py-4 text-sm">{item.process}</td>
-                  <td className="px-5 py-4 text-sm">-</td>
-                  <td className="px-5 py-4 text-sm">-</td>
+                  <td className="px-5 py-4 text-sm">{item?.assembly_number}</td>
+                  <td className="px-5 py-4 text-sm">{item?.assembly_name}</td>
+                  <td className="px-5 py-4 text-sm">{item?.process_id?.map((i) => (
+                    <p>{i?.process_name} ({i?.process_no})</p>
+                  ))}</td>
+                  <td className="px-5 py-4 text-sm">{item?.company_id?.company_name}</td>
+                  <td className="px-5 py-4 text-sm">{item?.plant_id?.plant_name}</td>
 
                   <td className="px-5 py-4">
-                    <div className="flex items-center justify-center gap-5">
+                    <div className="flex gap-4">
+                      <Eye
+                        onClick={() => {
+                          setOpenModal(true);
+                          setViewModal(item);
+                          setMode("view");
+                        }}
+                        size={18}
+                        className="text-blue-500 cursor-pointer"
+                      />
                       <Edit2
                         size={18}
-                        className="text-blue-500 cursor-pointer hover:scale-125 transition"
+                        className="text-green-600 cursor-pointer"
+                        onClick={() => {
+                          setEditTable(item);
+                          setOpenModal(true);
+                          setMode("edit");
+                        }}
                       />
                       <Trash2
                         size={18}
-                        className="text-red-500 cursor-pointer hover:scale-125 transition"
+                        className="text-red-500 cursor-pointer"
+                        onClick={() => handleDelete(item?._id)}
                       />
                     </div>
                   </td>
@@ -169,24 +201,16 @@ export default function AssemblyLine() {
           </table>
         </div>
 
-        {/* PAGINATION */}
-        <div className="flex justify-center gap-3 mt-6">
-          <button className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition text-sm">
-            Previous
-          </button>
 
-          <button className="px-4 py-2 rounded-lg bg-blue-500 text-white font-medium shadow text-sm">
-            1
-          </button>
-
-          <button className="px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-600 hover:bg-gray-100 transition text-sm">
-            Next
-          </button>
-        </div>
       </div>
 
-      {/* ADD MODAL */}
-      <AssemblyLineModal open={openModal} onClose={() => setOpenModal(false)} />
-    </div>
+      <AssemblyLineModal
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+        editTable={editTable}
+        viewModal={viewModal}
+        mode={mode} />
+      <Pagination page={page} setPage={setPage} hasNextpage={data?.length === 10} />
+    </div >
   );
 }

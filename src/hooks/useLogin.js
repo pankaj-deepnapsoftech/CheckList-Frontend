@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
@@ -13,7 +13,8 @@ export const useLogin = () => {
       return res.data.user;
     },
     retry: false,
-  });
+    placeholderData: keepPreviousData,
+  });  
 
   const loginUser = useMutation({
     mutationFn: async (data) => {
