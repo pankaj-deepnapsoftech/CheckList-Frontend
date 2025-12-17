@@ -2,17 +2,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
-export const UsePart = () => {
+export const UsePart = (page) => {
   const qc = useQueryClient();
 
-
-   const getPartData = useQuery({
-     queryKey: ["parts"],
-     queryFn: async () => {
-       const res = await axiosHandler.get("/parts/all-parts");
-       return res?.data?.data;
-     },
-   });
+  const getPartData = useQuery({
+    queryKey: ["parts", page],
+    queryFn: async () => {
+      const res = await axiosHandler.get(
+        `/parts/all-parts?page=${page}&&limit=10`
+      );
+      return res?.data?.data;
+    },
+  });
 
   const getAllPart = useQuery({
     queryKey: ["parts"],
@@ -22,16 +23,14 @@ export const UsePart = () => {
     },
   });
 
-
-
   const createPart = useMutation({
-    mutationFn: async(data) => {
-        const res = await axiosHandler.post("/parts/create-part", data)
-        return res?.data ;
+    mutationFn: async (data) => {
+      const res = await axiosHandler.post("/parts/create-part", data);
+      return res?.data;
     },
 
     onSuccess: (data) => {
-        qc.invalidateQueries({ queryKey: ["parts"] });
+      qc.invalidateQueries({ queryKey: ["parts"] });
       toast.success(data?.message);
     },
 
@@ -41,14 +40,14 @@ export const UsePart = () => {
   });
 
   const updateParts = useMutation({
-    mutationFn: async({ id, data }) =>{
-      const res = await axiosHandler.put(`/parts/update-part/${id}`, data)
+    mutationFn: async ({ id, data }) => {
+      const res = await axiosHandler.put(`/parts/update-part/${id}`, data);
       return res?.data;
     },
 
     onSuccess: (data) => {
-        qc.invalidateQueries({ queryKey: ["parts"] });
-        toast.success(data?.message);
+      qc.invalidateQueries({ queryKey: ["parts"] });
+      toast.success(data?.message);
     },
 
     onError: (error) => {
@@ -56,5 +55,18 @@ export const UsePart = () => {
     },
   });
 
-  return { getAllPart, createPart, updateParts, getPartData };
+  const removeParts = useMutation({
+    mutationFn: (id) => axiosHandler.delete(`/parts/delete-part/${id}`),
+
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["parts"] });
+      toast.success(data?.message || "User Deleted Sucessfully");
+    },
+
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Failed to delete Parts ");
+    },
+  });
+
+  return { getAllPart, createPart, updateParts, getPartData, removeParts };
 };

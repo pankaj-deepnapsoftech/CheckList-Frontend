@@ -33,14 +33,12 @@ export default function UserRoles() {
  const formatPermissions = (permissions) => {
    if (!permissions) return [];
 
-   // ✅ Case 1: Already an array of strings
    if (Array.isArray(permissions)) {
      return permissions
        .map((p) => (typeof p === "string" ? p : p?.name))
        .filter(Boolean);
    }
 
-   // ✅ Case 2: Single string (DashboardPlantNameCompany)
    if (typeof permissions === "string") {
      return permissions
        .replace(/([A-Z])/g, " $1")

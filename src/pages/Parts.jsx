@@ -7,32 +7,25 @@ import {UsePart} from "../hooks/usePart.js";
 const actionBtn =
   "p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:shadow-md";
 
-const dummyParts = [
-  { _id: "1", part_no: "P-001", part_name: "Gear Box" },
-  { _id: "2", part_no: "P-002", part_name: "Shaft" },
-  { _id: "3", part_no: "P-003", part_name: "Bearing" },
-];
 
 const Parts = () => {
 
-  const { getPartData } = UsePart();
+
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-  const [parts, setParts] = useState(dummyParts);
 
   const [editTable, setEditTable] = useState(null);
-  const [viewModal, setViewModal] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add");
 
-  console.log("this is my part", getPartData?.data);
+    const { getPartData, removeParts } = UsePart(page);
 
   const filteredParts = getPartData?.data  || []
 
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this part?")) {
-      setParts((prev) => prev.filter((p) => p._id !== id));
+     removeParts.mutate(id);
     }
   };
 
@@ -61,7 +54,6 @@ const Parts = () => {
           <button
             onClick={() => {
               setEditTable(null);
-              setViewModal(null);
               setMode("add");
               setOpenModal(true);
             }}
@@ -127,7 +119,7 @@ const Parts = () => {
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
                 <th className="px-5 py-3 font-semibold">Parts No.</th>
                 <th className="px-5 py-3 font-semibold">Parts Name</th>
-         
+
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
@@ -181,7 +173,11 @@ const Parts = () => {
         />
 
         {/* PAGINATION (UI ONLY) */}
-        <Pagination page={page} setPage={setPage} hasNextpage={false} />
+        <Pagination
+          page={page}
+          setPage={setPage}
+          hasNextpage={getPartData?.data?.length === 10}
+        />
       </div>
     </div>
   );
