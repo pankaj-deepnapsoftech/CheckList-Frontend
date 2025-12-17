@@ -18,47 +18,46 @@ export const UsePlantName = (search, page) => {
 
     const CreatePlantName = useMutation({
         mutationFn: async (data) => {
-            try {
-                const res = await axiosHandler.post("/plant/create-plant", data)
-                toast.success(res?.data?.message)
-            } catch (error) {
-                toast.error(error?.response?.data?.message)
-            }
+            const res = await axiosHandler.post("/plant/create-plant", data)
+            return res?.data;
         },
-        onSuccess: () => {
+        onSuccess: (data) => {
             qc.invalidateQueries({ queryKey: ["plant"] })
+            toast.success(data?.message)
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message)
         }
     })
 
 
     const UpdatedPLant = useMutation({
         mutationFn: async ({ id, data }) => {
-            try {
-                const res = await axiosHandler.put(`/plant/update-plant/${id}`, data)
-                toast.success(res?.data?.message)
-            } catch (error) {
-                toast.error(error?.response?.data?.message)
-            }
-
+            const res = await axiosHandler.put(`/plant/update-plant/${id}`, data)
+            return res?.data;
         },
-        onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ["plant"] });
+        onSuccess: (data) => {
+            qc.invalidateQueries({ queryKey: ["plant"] })
+            toast.success(data?.message)
         },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message)
+        }
     })
 
     const DeletePlantData = useMutation({
 
         mutationFn: async (id) => {
-            try {
                 const res = await axiosHandler.delete(`/plant/delete-plant/${id}`)
-                toast.success(res?.data?.message)
-            } catch (error) {
-                toast.error(error?.response?.data?.message)
-            }
+               return res?.data ;
         },
-        onSuccess: () => {
-            qc.invalidateQueries({ queryKey: ["plant"] });
+        onSuccess: (data) => {
+            qc.invalidateQueries({ queryKey: ["plant"] })
+            toast.success(data?.message)
         },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message)
+        }
     })
 
     const searchQuery = useQuery({
@@ -73,34 +72,26 @@ export const UsePlantName = (search, page) => {
         placeholderData: keepPreviousData
     });
 
-    const AllPlantsData = useQuery({
-      queryKey: ["plant"],
-      queryFn: async (id) => {
-        const res = await axiosHandler.get(`/plant/all-plants-data/${id}`);
-        return res?.data?.data;
-      },
-      enabled:false
-    });
 
 
     return {
-      getPlantName,
-      CreatePlantName,
-      UpdatedPLant,
-      DeletePlantData,
-      searchQuery,
-      AllPlantsData,
+        getPlantName,
+        CreatePlantName,
+        UpdatedPLant,
+        DeletePlantData,
+        searchQuery,
+
     };
 }
 
 export const usePlantsByCompany = (companyId) => {
-  const query = useQuery({
-    queryKey: ["plants-by-company", companyId],
-    queryFn: async () => {
-      const res = await axiosHandler.get(`/plant/all-plants-data/${companyId}`);
-      return res?.data?.data;
-    },
-    enabled: !!companyId,
-  });
-  return query;
+    const query = useQuery({
+        queryKey: ["plants-by-company", companyId],
+        queryFn: async () => {
+            const res = await axiosHandler.get(`/plant/all-plants-data/${companyId}`);
+            return res?.data?.data;
+        },
+        enabled: !!companyId,
+    });
+    return query;
 }
