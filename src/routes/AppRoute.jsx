@@ -13,7 +13,8 @@ import PageNotFound from "../Components/PageNotFound/PageNotFound";
 import ProtectedRoute from "./ProtectedRoute";
 import { useLogin } from "../hooks/useLogin";
 import ForgetPassword from "../pages/auth/ForgetPassword";
-import CheckList from "../pages/CheckList";
+import CheckItem from "../pages/CheckItem";
+import Parts from "../pages/Parts";
 
 
 
@@ -39,6 +40,7 @@ export const AppRoute = () => {
       { path: "/", element: withProtection(Dashboard) },
       { path: "/user-role", element: withProtection(UserRoles) },
       { path: "/process", element: withProtection(Process) },
+      {path: "/parts", element: withProtection(Parts)},
       { path: "/plant-name", element: withProtection(PlantName) },
       { path: "/employee", element: withProtection(Employee) },
       { path: "/company", element: withProtection(Company) },
@@ -47,7 +49,7 @@ export const AppRoute = () => {
         path: "/assembly-line-status",
         element: withProtection(AssemblyLineStatus),
       },
-      { path: "/checklist", element: withProtection(CheckList) },
+      { path: "/checkitem", element: withProtection(CheckItem) },
       { path: "/*", element: <PageNotFound /> },
     ]);
 };

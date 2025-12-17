@@ -11,16 +11,16 @@ import {
   Building,
   X,
   ChartNoAxesCombined,
+  LaptopMinimalCheck,
+  GitCompare,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
-
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
-  
-  const { logedinUser } = useLogin()
+  const { logedinUser } = useLogin();
 
   const permissions = logedinUser?.data?.role?.permissions || [];
-  const IsSuper = logedinUser?.data?.is_admin === true ;
+  const IsSuper = logedinUser?.data?.is_admin === true;
   const closeMobile = () => setIsMobileOpen(false);
   const navigate = useNavigate();
   const { logOutUser } = useLogin();
@@ -35,9 +35,14 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     { name: "Plant Name", path: "/plant-name", icon: <Package size={20} /> },
     { name: "User Role", path: "/user-role", icon: <Shield size={20} /> },
     { name: "Employee", path: "/employee", icon: <User size={20} /> },
+    { name: "Part", path: "/parts", icon: <GitCompare size={20} /> },
     { name: "Process", path: "/process", icon: <ShoppingBag size={20} /> },
     { name: "Assembly Line", path: "/assembly-line", icon: <Key size={20} /> },
-    { name: "CheckList", path: "/checklist", icon: <Key size={20} /> },
+    {
+      name: "Check Item",
+      path: "/checkitem",
+      icon: <LaptopMinimalCheck size={20} />,
+    },
     {
       name: "Assembly Line Status",
       path: "/assembly-line-status",
@@ -45,12 +50,13 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     },
   ];
 
-  const allowedMenu = IsSuper ? allMenu : allMenu.filter(i => permissions.includes(i?.path))
-
+  const allowedMenu = IsSuper
+    ? allMenu
+    : allMenu.filter((i) => permissions.includes(i?.path));
 
   const handleLogout = () => {
-    logOutUser.mutate()
-    navigate("/login")
+    logOutUser.mutate();
+    navigate("/login");
   };
 
   return (
@@ -73,7 +79,6 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             <p className="text-[#2e4c99] font-semibold text-[18px] mt-2">
               &nbsp;JP MINDA GROUP
             </p>
-
           </div>
 
           <nav className="flex flex-col gap-1">
@@ -84,9 +89,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 end
                 className={({ isActive }) =>
                   `flex items-center gap-3 p-2 rounded-lg transition-all
-                  ${isActive
-                    ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
-                    : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
+                  ${
+                    isActive
+                      ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
+                      : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
                   }`
                 }
               >
@@ -153,9 +159,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   onClick={closeMobile}
                   className={({ isActive }) =>
                     `flex items-center gap-3 p-2 rounded-lg transition-all
-                    ${isActive
-                      ? "bg-blue-100 text-blue-600 font-medium"
-                      : "text-gray-700 hover:bg-gray-100"
+                    ${
+                      isActive
+                        ? "bg-blue-100 text-blue-600 font-medium"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`
                   }
                 >

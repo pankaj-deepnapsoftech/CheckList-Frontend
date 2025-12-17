@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
@@ -13,15 +13,20 @@ export const useLogin = () => {
       return res.data.user;
     },
     retry: false,
-  });
+    placeholderData: keepPreviousData,
+  });  
 
   const loginUser = useMutation({
     mutationFn: async (data) => {
       const res = await axiosHandler.post("/users/login-user", data);
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["users"] });
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
     },
   });
 
@@ -32,6 +37,10 @@ export const useLogin = () => {
     onSuccess: () => {
       qc.removeQueries({ queryKey: ["users"] });
       sessionStorage.removeItem("user");
+      toast.success("Logout Successfully");
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
     },
   });
 
@@ -40,8 +49,11 @@ export const useLogin = () => {
       const res = await axiosHandler.post("/users/verify-email", data);
       return res.data;
     },
-    onSuccess: () => {
-      toast.success("Password reset link sent to your email!");
+    onSuccess: (data) => {
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
     },
   });
 

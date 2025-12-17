@@ -39,63 +39,69 @@ export const RegisterEmployee = (search, page,limit ,enabled  = true ) => {
   });
 
   const searchEmployee = useQuery({
-      queryKey: ["search-employee", search],
-      queryFn: async () => {
-        const res = await axiosHandler.get(
-          `/users/search-employee?search=${search}`
-        );
-        return res.data.data;
-      },
-      enabled: !!search,
-      placeholderData: keepPreviousData,
-    });
-
-    const updateEmployee = useMutation({
-        mutationFn: async ({ id, data }) => {
-          try {
-            const res = await axiosHandler.put(
-              `/users/update-user-by-admin/${id}`,
-              data
-            );
-            toast.success(res?.data?.message);
-          } catch (error) {
-            console.log(error);
-          }
-        },
-        onSuccess: () => {
-          qc.invalidateQueries({ queryKey: ["employees"] });
-        },
+    queryKey: ["search-employee", search],
+    queryFn: async () => {
+      const res = await axiosHandler.get(
+        `/users/search-employee?search=${search}`
+      );
+      return res.data.data;
+    },
+    enabled: !!search,
+    placeholderData: keepPreviousData,
   });
-  
-const toggleTerminateEmployee = useMutation({
-  mutationFn: async ({ id, terminate }) => {
-    const res = await axiosHandler.put(`/users/update-user-by-admin/${id}`, {
-      terminate,
-    });
 
-    return {
-      terminate,
-      message: res?.data?.message,
-    };
-  },
+  const updateEmployee = useMutation({
+    mutationFn: async ({ id, data }) => {
+      try {
+        const res = await axiosHandler.put(
+          `/users/update-user-by-admin/${id}`,
+          data
+        );
+        toast.success(res?.data?.message);
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["employees"] });
+    },
+  });
 
-  onSuccess: ({ terminate }) => {
-    if (terminate) {
-      toast.error("User Terminated Successfully", {
+  const toggleTerminateEmployee = useMutation({
+    mutationFn: async ({ id, terminate }) => {
+      const res = await axiosHandler.put(`/users/update-user-by-admin/${id}`, {
+        terminate,
       });
-    } else {
-      toast.success("User Successfully Un-Terminated", {
-      });
+
+      return {
+        terminate,
+        message: res?.data?.message,
+      };
+    },
+
+    onSuccess: ({ terminate }) => {
+      if (terminate) {
+        toast.error("User Terminated Successfully", {
+        });
+      } else {
+        toast.success("User Successfully Un-Terminated", {
+        });
+      }
+
+      qc.invalidateQueries({ queryKey: ["employees"] });
+    },
+
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    },
+  });
+  const AllEmpData = useQuery({
+    queryKey: ["get-all-employees"],
+    queryFn: async () => {
+      const res = await axiosHandler.get("/users/get-all-employees");
+      return res?.data?.data;
     }
-
-    qc.invalidateQueries({ queryKey: ["employees"] });
-  },
-
-  onError: (error) => {
-    toast.error(error?.response?.data?.message || "Something went wrong");
-  },
-});
-
+  })
 
   return {
     getAllEmployee,
@@ -103,5 +109,6 @@ const toggleTerminateEmployee = useMutation({
     searchEmployee,
     updateEmployee,
     toggleTerminateEmployee,
+    AllEmpData
   };
 };

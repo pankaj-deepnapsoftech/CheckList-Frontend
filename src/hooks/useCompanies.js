@@ -20,41 +20,44 @@ export const useCompanies = (search, page , limit) => {
 
   const create = useMutation({
     mutationFn: async (data) => {
-      try {
-        const res = await axiosHandler.post("/company/create-company", data);
-        toast.success(res?.data?.message);
-      } catch (error) {
-        toast.error(error?.response?.data?.message);
-        console.log(error);
-      }
+      const res = await axiosHandler.post("/company/create-company", data);
+      return res?.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["companies"] });
+      toast.success(data?.message);
     },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message);
+    }
   });
 
   const update = useMutation({
     mutationFn: async ({ id, data }) => {
-      try {
-        const res = await axiosHandler.put(
-          `/company/update-company/${id}`,
-          data
-        );
-        toast.success(res?.data?.message);
-      } catch (error) {
-        console.log(error);
-      }
+      const res = await axiosHandler.put(`/company/update-company/${id}`, data);
+      return res?.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["companies"] });
+      toast.success(data?.message);
     },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message);
+    }
   });
 
   const remove = useMutation({
-    mutationFn: (id) => axiosHandler.delete(`/company/delete-company/${id}`),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["companies"] });
+    mutationFn: async (id) => {
+      const res = await axiosHandler.delete(`/company/delete-company/${id}`)
+      return res?.data;
     },
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["companies"] });
+      toast.success(data?.message);
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message);
+    } 
   });
 
   const searchQuery = useQuery({
@@ -75,12 +78,10 @@ export const useCompanies = (search, page , limit) => {
       const res = await axiosHandler.get("/company/all-companies");
       return res?.data?.data;
     },
-    
+
   });
 
-  
 
 
-
-    return { listQuery, create, update, remove, searchQuery, AllCompanyData };
+  return { listQuery, create, update, remove, searchQuery, AllCompanyData };
 }

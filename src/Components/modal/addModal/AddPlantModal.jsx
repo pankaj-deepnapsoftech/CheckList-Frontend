@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+// import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import { UsePlantName } from "../../../hooks/UsePlantName";
 import { useFormik } from "formik";
@@ -99,7 +99,7 @@ const AddPlantModal = (
           </label>
 
           <label className="block mb-4">
-            <span className="text-gray-700 font-medium">Address</span>
+            <span className="text-gray-700 font-medium">Address <span className="font-light">(optional)</span></span>
             <textarea
               placeholder="Address"
               value={formik.values.plant_address}
@@ -116,7 +116,7 @@ const AddPlantModal = (
           </label>
 
           <label className="block mb-4">
-            <span className="text-gray-700 font-medium">Company</span>
+            <span className="text-gray-700 font-medium">Company <span className="text-red-500">*</span></span>
             <select
               type="text"
               placeholder="Company"
@@ -139,7 +139,7 @@ const AddPlantModal = (
           </label>
 
           <label className="block mb-6">
-            <span className="text-gray-700 font-medium">Description</span>
+            <span className="text-gray-700 font-medium">Description <span className="font-light">(optional)</span></span>
             <textarea
               placeholder="Description"
               value={formik.values.description}

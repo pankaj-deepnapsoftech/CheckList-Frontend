@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
+import { Plus, RefreshCw, Search, Eye, Edit2, Trash2, Ban } from "lucide-react";
 import AddEmployeeModal from "../components/modal/addModal/AddEmployeeModal";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useDebounce } from "../hooks/useDebounce";
@@ -31,13 +31,13 @@ const  Employee=()=>{
     setShowRefresh(false);  // Hide overlay
   };
 
-  
+    const [selectedPlant, setSelectedPlant] = useState("");
+    const [selectedCompany, setSelectedCompany] = useState("");
 
   const filteredEmployees = debounce
     ? searchEmployee?.data ?? []
     : getAllEmployee?.data ?? [];
 
-    console.log("this is my get all employee data", toggleTerminateEmployee?.data?.message);
 
     const handleTerminateToggle = (emp) => {
       toggleTerminateEmployee.mutate(
@@ -55,6 +55,23 @@ const  Employee=()=>{
       );
     };
 
+    const plantOptions = [
+      ...new Set(
+        (getAllEmployee?.data || [])
+          .map((emp) => emp?.employee_plant?.plant_name)
+          .filter(Boolean)
+      ),
+    ];
+
+    const companyOptions = [
+      ...new Set(
+        (getAllEmployee?.data || [])
+          .map((emp) => emp?.employee_company?.company_name)
+          .filter(Boolean)
+      ),
+    ];
+
+    
 
 
   return (
@@ -68,7 +85,8 @@ const  Employee=()=>{
       {/* Search + Buttons */}
       <div className="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.06)] rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-wrap">
         {/* Search Box */}
-        <div className="flex justify-between items-center ">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+          {/* Search */}
           <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
             <Search size={20} className="text-gray-500" />
             <input
@@ -78,6 +96,37 @@ const  Employee=()=>{
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+          </div>
+
+          {/* Filters */}
+          <div className="flex gap-3 w-full sm:w-auto">
+            {/* Company Filter */}
+            <select
+              value={selectedCompany}
+              onChange={(e) => setSelectedCompany(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto"
+            >
+              <option value="">All Companies</option>
+              {companyOptions.map((company, i) => (
+                <option key={i} value={company}>
+                  {company}
+                </option>
+              ))}
+            </select>
+
+            {/* Plant Filter */}
+            <select
+              value={selectedPlant}
+              onChange={(e) => setSelectedPlant(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto"
+            >
+              <option value="">All Plants</option>
+              {plantOptions.map((plant, i) => (
+                <option key={i} value={plant}>
+                  {plant}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -90,7 +139,7 @@ const  Employee=()=>{
                 setSelectedEmployee(null);
                 setModalOpen(true);
               }}
-              className="px-5 py-2 cursor-pointer bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2"
+              className="px-5 py-2 cursor-pointer bg-blue-500 text-white rounded-lg w-full justify-center hover:bg-blue-600 flex items-center gap-2"
             >
               <Plus size={18} /> Add New Employee
             </button>
@@ -143,7 +192,7 @@ const  Employee=()=>{
               {/* Header: Name + actions */}
               <div className="flex items-center flex-wrap justify-between gap-3">
                 <span className="bg-blue-500 whitespace-nowrap text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {emp.full_name || "N/A"}
+                  {emp.user_id || "N/A"}
                 </span>
 
                 {/* ACTIONS */}
@@ -169,7 +218,7 @@ const  Employee=()=>{
                   />
 
                   {emp.terminate ? (
-                    <UserX
+                    <Ban
                       size={22}
                       onClick={() => handleTerminateToggle(emp)}
                       className="text-red-500 cursor-pointer hover:scale-125 transition"
@@ -179,7 +228,7 @@ const  Employee=()=>{
                     <UserCheck
                       size={22}
                       onClick={() => handleTerminateToggle(emp)}
-                      className="text-green-600 cursor-pointer hover:scale-125 transition"
+                      className="text-purple-500 cursor-pointer hover:scale-125 transition"
                       title="Terminate Employee"
                     />
                   )}
@@ -188,17 +237,19 @@ const  Employee=()=>{
 
               <div className="mt-3 text-sm text-gray-600 space-y-1">
                 <p>
-                  <strong>User ID:</strong> {emp.user_id || "N/A"}
+                  <strong>Name:</strong> {emp.full_name || "N/A"}
                 </p>
 
                 <p>
-                  <strong>Role:</strong>{" "}
-                  <span className="">{emp?.role?.name || "N/A"}</span>
+                  <strong>Plant:</strong>{" "}
+                  <span className="">
+                    {emp?.employee_plant?.plant_name || "N/A"}
+                  </span>
                 </p>
 
                 <p>
-                  <strong>Designation:</strong>{" "}
-                  {emp.designation || emp.desigination || "N/A"}
+                  <strong>Company:</strong>{" "}
+                  {emp?.employee_company?.company_name || "N/A"}
                 </p>
               </div>
             </div>
@@ -215,10 +266,10 @@ const  Employee=()=>{
             {/* Table Header */}
             <thead>
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
-                <th className="px-5 py-3 font-semibold">Name</th>
                 <th className="px-5 py-3 font-semibold">User ID</th>
-                <th className="px-5 py-3 font-semibold">Role</th>
-                <th className="px-5 py-3 font-semibold">Designation</th>
+                <th className="px-5 py-3 font-semibold">Name</th>
+                <th className="px-5 py-3 font-semibold">Plant</th>
+                <th className="px-5 py-3 font-semibold">Company</th>
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
@@ -234,17 +285,18 @@ const  Employee=()=>{
                       : "hover:bg-blue-50/40"
                   }`}
                 >
-                  <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
                   <td className="px-5 py-4 whitespace-nowrap">
                     {emp.user_id || "N/A"}
                   </td>
+                  <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
                   <td className="px-5 py-4 whitespace-nowrap">
                     <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow">
-                      {emp?.role?.name || "N/A"}
+                      {emp?.employee_plant?.plant_name || "N/A"}
                     </span>
                   </td>
+
                   <td className="px-5 py-4 ">
-                    {emp.designation || emp.desigination || "N/A"}
+                    {emp?.employee_company?.company_name || "N/A"}
                   </td>
 
                   {/* Actions */}
@@ -273,7 +325,7 @@ const  Employee=()=>{
 
                     {/* DELETE */}
                     {emp.terminate ? (
-                      <UserX
+                      <Ban
                         size={22}
                         onClick={() => handleTerminateToggle(emp)}
                         className="text-red-500 hover:scale-125 cursor-pointer transition"
@@ -283,7 +335,7 @@ const  Employee=()=>{
                       <UserCheck
                         size={22}
                         onClick={() => handleTerminateToggle(emp)}
-                        className="text-green-600 hover:scale-125 cursor-pointer transition"
+                        className="text-purple-500 hover:scale-125 cursor-pointer transition"
                         title="Terminate Employee"
                       />
                     )}
