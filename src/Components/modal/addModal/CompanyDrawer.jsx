@@ -134,7 +134,7 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
 
           <div>
             <label className="text-sm text-gray-700 font-medium">
-              Description
+              Description <span className="font-light">(optional)</span>
             </label>
             <textarea
               className="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 "
