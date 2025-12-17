@@ -74,7 +74,7 @@ const Process = () => {
       </div>
 
       <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-1">
           <h2 className="text-gray-800 text-lg font-semibold">
             {filteredProcesses?.length} Process Found
           </h2>
@@ -89,57 +89,47 @@ const Process = () => {
           </div>
         </div>
 
-        <div className="grid gap-4 sm:hidden mt-4">
-          {filteredProcesses?.map((pro, i) => (
-            <div
-              key={i}
-              className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
-            >
-              <div className="flex items-center flex-wrap justify-between gap-3">
-                <span className="bg-blue-500 whitespace-nowrap text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {pro?.process_no || "N/A"}
-                </span>
+        <div className="sm:hidden space-y-3 mt-4">
+  {filteredProcesses?.map((pro, i) => (
+    <div
+      key={i}
+      className="bg-white border border-gray-200 rounded-xl px-4 py-3 shadow-sm"
+    >
+      {/* Top Row */}
+      <div className="flex items-center justify-between">
+        <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
+          {pro?.process_no}
+        </span>
 
-                <button
-                  className={`${actionBtn} text-green-600 hover:bg-green-100`}
-                  onClick={() => {
-                    setOpenModal(true);
-                    setMode("edit");
-                    setEditTable(pro);
-                  }}
-                >
-                  <Edit2 size={18} />
-                </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              setOpenModal(true);
+              setMode("edit");
+              setEditTable(pro);
+            }}
+            className="p-2 rounded-lg text-green-600 hover:bg-green-100"
+          >
+            <Edit2 size={16} />
+          </button>
 
-                <button
-                  className={`${actionBtn} text-red-500 hover:bg-red-100`}
-                >
-                  <Trash2 size={18} onClick={() => handleDelete(pro?._id)} />
-                </button>
-              </div>
-
-              <div className="mt-3 text-sm text-gray-600 space-y-2">
-                <p>
-                  <span className="text-gray-800 font-semibold text-sm">
-                    {pro.process_name}
-                  </span>
-                </p>
-
-                {/* <p>
-                  <strong>Check Items:</strong>{" "}
-                  <span className="flex flex-col">
-                    {pro.check_items || "N/A"}
-                  </span>
-                </p> */}
-
-                {/* <p>
-                  <strong>Check Time:</strong>{" "}
-                  <span className="">{pro.check_time || "N/A"}</span>
-                </p> */}
-              </div>
-            </div>
-          ))}
+          <button
+            onClick={() => handleDelete(pro?._id)}
+            className="p-2 rounded-lg text-red-500 hover:bg-red-100"
+          >
+            <Trash2 size={16} />
+          </button>
         </div>
+      </div>
+
+      {/* Process Name */}
+      <p className="mt-2 text-sm font-medium text-gray-800">
+        {pro.process_name}
+      </p>
+    </div>
+  ))}
+</div>
+
 
         <div className="overflow-x-auto hidden sm:block rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
@@ -218,5 +208,5 @@ const Process = () => {
     </div>
   );
 };
-
+  
 export default Process;
