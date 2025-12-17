@@ -20,8 +20,12 @@ export const useLogin = () => {
       const res = await axiosHandler.post("/users/login-user", data);
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["users"] });
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
     },
   });
 
@@ -32,6 +36,10 @@ export const useLogin = () => {
     onSuccess: () => {
       qc.removeQueries({ queryKey: ["users"] });
       sessionStorage.removeItem("user");
+      toast.success("Logout Successfully");
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
     },
   });
 
@@ -40,8 +48,11 @@ export const useLogin = () => {
       const res = await axiosHandler.post("/users/verify-email", data);
       return res.data;
     },
-    onSuccess: () => {
-      toast.success("Password reset link sent to your email!");
+    onSuccess: (data) => {
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      toast.error(error.response.data.message);
     },
   });
 
