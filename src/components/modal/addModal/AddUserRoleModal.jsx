@@ -15,7 +15,7 @@ import { useUserRole } from "../../../hooks/useUserRole";
    Process: "/process",
    "Assembly Line": "/assembly-line",
    "Assembly Line Status": "/assembly-line-status",
-   CheckList: "/checklist",
+   "Approval Check Sheet": "/checksheet",
  };
 
 const SIDEBAR_PAGES = Object.keys(PERMISSION_MAP);

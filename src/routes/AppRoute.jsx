@@ -13,7 +13,7 @@ import PageNotFound from "../Components/PageNotFound/PageNotFound";
 import ProtectedRoute from "./ProtectedRoute";
 import { useLogin } from "../hooks/useLogin";
 import ForgetPassword from "../pages/auth/ForgetPassword";
-import CheckList from "../pages/CheckList";
+import CheckSheet from "../pages/CheckSheet";
 
 
 
@@ -47,7 +47,7 @@ export const AppRoute = () => {
         path: "/assembly-line-status",
         element: withProtection(AssemblyLineStatus),
       },
-      { path: "/checklist", element: withProtection(CheckList) },
+      { path: "/checksheet", element: withProtection(CheckSheet) },
       { path: "/*", element: <PageNotFound /> },
     ]);
 };

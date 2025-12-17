@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
-import AddChecklistModal from "../components/modal/addModal/AddCheckListModal";
+import AddCheckSheetModal from "../components/modal/addModal/AddCheckSheetModal";
 
 
-const checklist = Array(5).fill({
+const checkSheet = Array(5).fill({
   item: "Process 1",
-  description: "Description of checklist",
+  description: "Description of checkSheet",
   check_list_method: "Lorem Ipsum",
   check_list_time: "Lorem Ipsum",
 });
 
-const  CheckList=()=>{
+const  CheckSheet=()=>{
   const [search, setSearch] = useState("");
-  const [openChecklistModal, setOpenChecklistModal] = useState(false);
+  const [openCheckSheetModal, setOpenCheckSheetModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
-  const [selectedChecklist, setSelectedChecklist] = useState(null);
-  const filteredChecklist = checklist.filter((emp) =>
+  const [selectedCheckSheet, setSelectedCheckSheet] = useState(null);
+  const filteredCheckSheet = checkSheet.filter((emp) =>
     emp.item.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -23,8 +23,8 @@ const  CheckList=()=>{
     <div className="w-full">
       {/* HEADER */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-semibold">Checklist</h1>
-        <p className="text-gray-500 text-sm">Manage Your Checklist</p>
+        <h1 className="text-2xl sm:text-3xl font-semibold">Approval Check Sheet</h1>
+        <p className="text-gray-500 text-sm">Manage Your Approval Check Sheet</p>
       </div>
 
       {/* Search + Buttons */}
@@ -49,12 +49,12 @@ const  CheckList=()=>{
             <button
               onClick={() => {
                 setModalMode("add");
-                setSelectedChecklist(null);
-                setOpenChecklistModal(true);
+                setSelectedCheckSheet(null);
+                setOpenCheckSheetModal(true);
               }}
               className="px-5 py-2 cursor-pointer bg-blue-500 text-white rounded-lg w-full justify-center hover:bg-blue-600 flex items-center gap-2"
             >
-              <Plus size={18} /> Add New CheckList
+              <Plus size={18} /> Add New Check Sheet
             </button>
           </div>
 
@@ -69,7 +69,7 @@ const  CheckList=()=>{
         {/* Header: Count + Show Dropdown */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
-            {filteredChecklist.length} Items Found
+            {filteredCheckSheet.length} Items Found
           </h2>
 
           {/* Show Dropdown */}
@@ -85,7 +85,7 @@ const  CheckList=()=>{
 
         {/* Mobile View (Card Layout) */}
         <div className="grid gap-4 sm:hidden mt-4">
-          {filteredChecklist.map((cl, i) => (
+          {filteredCheckSheet.map((cl, i) => (
             <div
               key={i}
               className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
@@ -103,8 +103,8 @@ const  CheckList=()=>{
                     className="text-blue-500 cursor-pointer"
                     onClick={() => {
                       setModalMode("view");
-                      setSelectedChecklist(cl);
-                      setOpenChecklistModal(true);
+                      setSelectedCheckSheet(cl);
+                      setOpenCheckSheetModal(true);
                     }}
                   />
 
@@ -113,8 +113,8 @@ const  CheckList=()=>{
                     className="text-green-600 cursor-pointer"
                     onClick={() => {
                       setModalMode("edit");
-                      setSelectedChecklist(cl);
-                      setOpenChecklistModal(true);
+                      setSelectedCheckSheet(cl);
+                      setOpenCheckSheetModal(true);
                     }}
                   />
 
@@ -145,15 +145,15 @@ const  CheckList=()=>{
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
                 <th className="px-5 py-3 font-semibold">Item</th>
                 <th className="px-5 py-3 font-semibold">Description</th>
-                <th className="px-5 py-3 font-semibold">CheckList Date</th>
-                <th className="px-5 py-3 font-semibold">CheckList Time</th>
+                <th className="px-5 py-3 font-semibold">Check Sheet Date</th>
+                <th className="px-5 py-3 font-semibold">Check Sheet Time</th>
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
 
             {/* Table Body */}
             <tbody className="text-gray-700">
-              {filteredChecklist.map((cl, i) => (
+              {filteredCheckSheet.map((cl, i) => (
                 <tr
                   key={i}
                   className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
@@ -173,8 +173,8 @@ const  CheckList=()=>{
                       className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
                       onClick={() => {
                         setModalMode("view");
-                        setSelectedChecklist(cl);
-                        setOpenChecklistModal(true);
+                        setSelectedCheckSheet(cl);
+                        setOpenCheckSheetModal(true);
                       }}
                     />
 
@@ -184,8 +184,8 @@ const  CheckList=()=>{
                       className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition transform"
                       onClick={() => {
                         setModalMode("edit");
-                        setSelectedChecklist(cl);
-                        setOpenChecklistModal(true);
+                        setSelectedCheckSheet(cl);
+                        setOpenCheckSheetModal(true);
                       }}
                     />
 
@@ -202,11 +202,11 @@ const  CheckList=()=>{
         </div>
       </div>
 
-      <AddChecklistModal
-        open={openChecklistModal}
-        onClose={() => setOpenChecklistModal(false)}
+      <AddCheckSheetModal
+        open={openCheckSheetModal}
+        onClose={() => setOpenCheckSheetModal(false)}
         mode={modalMode}
-        initialData={selectedChecklist}
+        initialData={selectedCheckSheet}
         processes={[
           { _id: "1", process_name: "Process 1" },
           { _id: "2", process_name: "Process 2" },
@@ -214,10 +214,10 @@ const  CheckList=()=>{
         onSubmit={(data) => {
           if (modalMode === "add") {
             console.log("ADD", data);
-            // createChecklist.mutate(data)
+            // createCheckSheet.mutate(data)
           } else if (modalMode === "edit") {
-            console.log("UPDATE", selectedChecklist._id, data);
-            // updateChecklist.mutate({ id: selectedChecklist._id, data })
+            console.log("UPDATE", selectedCheckSheet._id, data);
+            // updateCheckSheet.mutate({ id: selectedCheckSheet._id, data })
           }
         }}
       />
@@ -227,4 +227,4 @@ const  CheckList=()=>{
   );
 }
 
-export default CheckList
+export default CheckSheet
