@@ -118,7 +118,7 @@ export default function Dashboard() {
       <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold">
-            Check Sheet Dashboard
+            Check Item Dashboard
           </h1>
           <p className="text-sm text-gray-500 mt-1">
             Monitor assembly checks, errors and progress
@@ -385,7 +385,7 @@ export default function Dashboard() {
             </h4>
             <div className="mt-3 flex flex-wrap gap-2">
               <button className="text-sm px-3 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700">
-                New Check Sheet
+                New Check Item
               </button>
               <button className="text-sm px-3 py-2 border border-gray-300 rounded-lg bg-white">
                 Import
@@ -472,7 +472,7 @@ export default function Dashboard() {
       </section>
 
       <footer className="text-center text-xs text-gray-400 mt-6">
-        © {new Date().getFullYear()} Check Sheet Management
+        © {new Date().getFullYear()} Check Item Management
       </footer>
     </div>
   );

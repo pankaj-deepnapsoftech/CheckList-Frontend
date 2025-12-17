@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { useProcess } from "../../../hooks/useProcess";
 
 
-export default function AddCheckSheetModal({
+export default function AddCheckItemModal({
   open,
   onClose,
   mode = "add",
@@ -22,8 +22,8 @@ export default function AddCheckSheetModal({
     process: Yup.string().required("Process is required"),
     item: Yup.string().required("Item is required"),
     description: Yup.string().required("Description is required"),
-    check_list_method: Yup.string().required("Check Sheet method is required"),
-    check_list_time: Yup.string().required("Check Sheet time is required"),
+    check_list_method: Yup.string().required("Check Item method is required"),
+    check_list_time: Yup.string().required("Check Item time is required"),
     result_type: Yup.string().required("Result type is required"),
 
     min: Yup.number().when("result_type", {
@@ -72,10 +72,10 @@ export default function AddCheckSheetModal({
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold">
             {mode === "add"
-              ? "Add Check Sheet"
+              ? "Add Check Item"
               : mode === "edit"
-              ? "Edit Check Sheet"
-              : "View Check Sheet"}
+              ? "Edit Check Item"
+              : "View Check Item"}
           </h2>
           <button onClick={onClose}>
             <X size={22} />
@@ -124,8 +124,8 @@ export default function AddCheckSheetModal({
             />
           </Field>
 
-          {/* Check Sheet Method */}
-          <Field label="Check Sheet Method">
+          {/* Check Item Method */}
+          <Field label="Check Item Method">
             <input
               name="check_list_method"
               disabled={isView}
@@ -135,8 +135,8 @@ export default function AddCheckSheetModal({
             />
           </Field>
 
-          {/* Check Sheet Time */}
-          <Field label="Check Sheet Time">
+          {/* Check Item Time */}
+          <Field label="Check Item Time">
             <input
               name="check_list_time"
               disabled={isView}
@@ -218,7 +218,7 @@ export default function AddCheckSheetModal({
               type="submit"
               className="bg-blue-600 text-white py-2 rounded-lg mt-4"
             >
-              {mode === "add" ? "Add Check Sheet" : "Update Check Sheet"}
+              {mode === "add" ? "Add Check Item" : "Update Check Item"}
             </button>
           )}
         </form>

@@ -244,7 +244,7 @@ const validationSchema = Yup.object({
             </Field>
 
             {/* Assembly Line Dropdown */}
-            <div>
+            {/* <div>
               <label className="text-sm font-medium">Assembly Line</label>
 
               <button
@@ -280,7 +280,7 @@ const validationSchema = Yup.object({
                   ))}
                 </div>
               )}
-            </div>
+            </div> */}
 
             {/* Submit */}
             {!isView && (

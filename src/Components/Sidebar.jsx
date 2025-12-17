@@ -37,8 +37,8 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     { name: "Process", path: "/process", icon: <ShoppingBag size={20} /> },
     { name: "Assembly Line", path: "/assembly-line", icon: <Key size={20} /> },
     {
-      name: "Approval Check Sheet",
-      path: "/checksheet",
+      name: "Check Item",
+      path: "/checkitem",
       icon: <LaptopMinimalCheck size={20} />,
     },
     {
