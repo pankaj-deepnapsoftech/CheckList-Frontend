@@ -52,7 +52,7 @@ const  CheckList=()=>{
                 setSelectedChecklist(null);
                 setOpenChecklistModal(true);
               }}
-              className="px-5 py-2 cursor-pointer bg-blue-600 text-white rounded-lg w-full justify-center hover:bg-blue-700 flex items-center gap-2"
+              className="px-5 py-2 cursor-pointer bg-blue-500 text-white rounded-lg w-full justify-center hover:bg-blue-600 flex items-center gap-2"
             >
               <Plus size={18} /> Add New CheckList
             </button>
