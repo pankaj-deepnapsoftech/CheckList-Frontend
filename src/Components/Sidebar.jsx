@@ -14,13 +14,11 @@ import {
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
-
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
-  
-  const { logedinUser } = useLogin()
+  const { logedinUser } = useLogin();
 
   const permissions = logedinUser?.data?.role?.permissions || [];
-  const IsSuper = logedinUser?.data?.is_admin === true ;
+  const IsSuper = logedinUser?.data?.is_admin === true;
   const closeMobile = () => setIsMobileOpen(false);
   const navigate = useNavigate();
   const { logOutUser } = useLogin();
@@ -45,12 +43,13 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     },
   ];
 
-  const allowedMenu = IsSuper ? allMenu : allMenu.filter(i => permissions.includes(i?.path))
-
+  const allowedMenu = IsSuper
+    ? allMenu
+    : allMenu.filter((i) => permissions.includes(i?.path));
 
   const handleLogout = () => {
-    logOutUser.mutate()
-    navigate("/login")
+    logOutUser.mutate();
+    navigate("/login");
   };
 
   return (
@@ -73,7 +72,6 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             <p className="text-[#2e4c99] font-semibold text-[18px] mt-2">
               &nbsp;JP MINDA GROUP
             </p>
-
           </div>
 
           <nav className="flex flex-col gap-1">
@@ -84,9 +82,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 end
                 className={({ isActive }) =>
                   `flex items-center gap-3 p-2 rounded-lg transition-all
-                  ${isActive
-                    ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
-                    : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
+                  ${
+                    isActive
+                      ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
+                      : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
                   }`
                 }
               >
@@ -153,9 +152,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   onClick={closeMobile}
                   className={({ isActive }) =>
                     `flex items-center gap-3 p-2 rounded-lg transition-all
-                    ${isActive
-                      ? "bg-blue-100 text-blue-600 font-medium"
-                      : "text-gray-700 hover:bg-gray-100"
+                    ${
+                      isActive
+                        ? "bg-blue-100 text-blue-600 font-medium"
+                        : "text-gray-700 hover:bg-gray-100"
                     }`
                   }
                 >
