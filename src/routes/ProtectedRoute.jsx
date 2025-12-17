@@ -1,9 +1,29 @@
-import React from 'react'
+import { Navigate, useLocation } from "react-router-dom";
 
-const ProtectedRoute = () => {
-  return (
-    <div></div>
-  )
-}
+const ProtectedRoute = ({ user, isLoading, children }) => {
+    const location = useLocation();
 
-export default ProtectedRoute
+    if (isLoading) return null;
+
+    if (!user) {
+        return <Navigate to="/login" replace />;
+    }
+
+    
+    if (user?.is_admin === true) {
+        return children;
+    }
+
+    const permissions = user?.role?.permissions || [];
+    const currentPath = location.pathname;
+    const hasAccess = permissions.includes(currentPath); 
+
+    if (!hasAccess) {
+        const redirectPath = permissions[0] || "/";
+        return <Navigate to={redirectPath} replace />;
+    }
+
+    return children;
+};
+
+export default ProtectedRoute;

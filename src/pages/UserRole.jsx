@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
-import UserRoleModal from "../components/modal/addModal/AddUserRoleModal";
+import UserRoleModal, { PERMISSION_MAP } from "../components/modal/addModal/AddUserRoleModal";
 import { useUserRole } from "../hooks/useUserRole";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
+
+const PATH_TO_KEY_MAP = Object.fromEntries(
+  Object.entries(PERMISSION_MAP).map(([key, value]) => [value, key])
+);
+
+ 
 
 export default function UserRoles() {
   const [search, setSearch] = useState("");
@@ -84,12 +90,12 @@ export default function UserRoles() {
               setModalMode("add");
               setModalOpen(true);
             }}
-            className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
+            className="bg-blue-500 cursor-pointer text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
           >
             <Plus size={18} /> Add New Role
           </button>
 
-          <button className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
+          <button className="border cursor-pointer border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
@@ -192,7 +198,7 @@ export default function UserRoles() {
                           key={idx}
                           className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
                         >
-                          {perm}
+                          {PATH_TO_KEY_MAP[perm]}
                         </span>
                       ))}
                     </div>
@@ -232,7 +238,6 @@ export default function UserRoles() {
           </table>
         </div>
 
-       
         <Pagination
           page={page}
           setPage={setPage}

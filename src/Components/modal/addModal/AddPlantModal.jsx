@@ -9,15 +9,15 @@ const AddPlantModal = (
   { openModal, setOpenModal, editTable, viewModal, mode }
 ) => {
   const { CreatePlantName, UpdatedPLant } = UsePlantName()
-  const {listQuery} = useCompanies()
+  const { AllCompanyData } = useCompanies()
   const isView = !!viewModal;
   const title = {
-    add: "Add Company",
-    edit: "Update Company",
+    add: "Add Plant",
+    edit: "Update Plant",
     view: "View Details"
   }
 
-//  console.log(editTable)
+
   const formik = useFormik({
     initialValues:{
       plant_name: viewModal?.plant_name || editTable?.plant_name || "",
@@ -129,7 +129,7 @@ const AddPlantModal = (
               name="company_id"
             >
               <option> Select Company</option>
-              {listQuery?.data?.map((c)=> ( 
+              {AllCompanyData?.data?.map((c)=> ( 
                 <option key={c?._id} value={c?._id}>{c?.company_name}</option>
               ))}
             </select>

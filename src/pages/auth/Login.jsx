@@ -10,7 +10,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
-  const loginMutation = useLogin();
+  const { loginUser, logedinUser } = useLogin();
 
   const formik = useFormik({
     initialValues: {
@@ -19,19 +19,15 @@ export default function Login() {
     },
 
     validationSchema: loginValidationSchema,
-   
 
     onSubmit: (values) => {
-      console.log(values)
-  loginMutation.mutate(values, {
-    onSuccess: () => {
-      // Cookies are already stored by browser
-      navigate("/");
+      loginUser.mutate(values, {
+        onSuccess: () => {
+          navigate("/");
+        },
+      });
     },
   });
-   },
-  });
-
 
   return (
     <div className="relative min-h-screen flex items-center justify-center px-4">
@@ -57,8 +53,8 @@ export default function Login() {
       shadow-2xl rounded-2xl 
       p-10 pt-20 border border-white/30 
       min-h-[400px]
-    " 
-    onSubmit={formik.handleSubmit}
+    "
+        onSubmit={formik.handleSubmit}
       >
         {/* Circle With SVG */}
         <div
@@ -94,12 +90,9 @@ export default function Login() {
             value={formik.values.email}
           />
 
-        {formik.touched.email && formik.errors.email && (
-            <p className="text-red-500 text-xs mt-1">
-              {formik.errors.email}
-            </p>
+          {formik.touched.email && formik.errors.email && (
+            <p className="text-red-500 text-xs mt-1">{formik.errors.email}</p>
           )}
-
         </label>
 
         {/* Password */}
@@ -107,7 +100,7 @@ export default function Login() {
           <span className="text-white font-medium">Password</span>
           <div className="relative mt-2">
             <input
-              name="password"   
+              name="password"
               type={showPassword ? "text" : "password"}
               placeholder="Password"
               className="
@@ -116,16 +109,10 @@ export default function Login() {
             border border-gray-300 rounded-lg
             focus:outline-none focus:ring-2 focus:ring-blue-400
           "
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
-            value={formik.values.password}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.password}
             />
-
-            {formik.touched.password && formik.errors.password && (
-            <p className="text-red-500 text-xs mt-1">
-              {formik.errors.password}
-            </p>
-            )}
 
             <span
               onClick={() => setShowPassword(!showPassword)}
@@ -134,14 +121,26 @@ export default function Login() {
               {showPassword ? <EyeOff /> : <Eye />}
             </span>
           </div>
+          {formik.touched.password && formik.errors.password && (
+            <p className="text-red-500 text-xs mt-1">
+              {formik.errors.password}
+            </p>
+          )}
+          <p
+            className="flex justify-end font-semibold mt-1 text-white"
+            onClick={() => navigate("/forgot-password")}
+          >
+            Forgot Password?
+          </p>
         </label>
 
         {/* Login Button */}
         <button
-        type="submit"
-        disabled={loginMutation.isPending}
-        className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
-          {loginMutation.isPending ? "Logging in..." : "Login"}
+          type="submit"
+          disabled={loginUser.isPending}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+        >
+          {loginUser.isPending ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>
