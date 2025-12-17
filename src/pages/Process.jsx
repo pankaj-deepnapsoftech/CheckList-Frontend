@@ -103,7 +103,7 @@ const Process = () => {
               key={i}
               className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center  gap-2">
                 <button
                   className={`${actionBtn} text-blue-500 hover:bg-blue-100`}
                   onClick={() => {
@@ -143,18 +143,18 @@ const Process = () => {
                 </p>
 
 
-                <p>
+                {/* <p>
                   <strong>Check Items:</strong>{" "}
                   <span className="flex flex-col">
                     {pro.check_items || "N/A"}
                   </span>
-                </p>
+                </p> */}
 
 
-                <p>
+                {/* <p>
                   <strong>Check Time:</strong>{" "}
                   <span className="">{pro.check_time || "N/A"}</span>
-                </p>
+                </p> */}
               </div>
             </div>
           ))}
@@ -168,11 +168,8 @@ const Process = () => {
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
                 <th className="px-5 py-3 font-semibold">Process No.</th>
                 <th className="px-5 py-3 font-semibold">Process Name</th>
-                <th className="px-5 py-3 font-semibold">Check Items</th>
-                <th className="px-5 py-3 font-semibold">Check Time</th>
-                <th className="px-5 py-3 font-semibold text-center">
-                  Responsibility
-                </th>
+                {/* <th className="px-5 py-3 font-semibold">Check Items</th>
+                <th className="px-5 py-3 font-semibold">Check Time</th> */}
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
@@ -186,7 +183,7 @@ const Process = () => {
                 >
                   <td className="px-5 py-4">{pro.process_no}</td>
                   <td className="px-5 py-4 ">{pro.process_name}</td>
-                  <td className="px-5 py-4">
+                  {/* <td className="px-5 py-4">
                     <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow whitespace-nowrap">
                       {pro.check_items || "N/A"}
                     </span>
@@ -195,8 +192,7 @@ const Process = () => {
                     <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow whitespace-nowrap">
                       {pro.check_time || "N/A"}
                     </span>
-                  </td>
-                  <td className="px-5 py-4">{pro.responsibility || "N/A"}</td>
+                  </td> */}
                   <td className="px-5 py-4">
                     <div className="flex justify-center gap-2">
                       <button

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import AddChecklistModal from "../components/modal/addModal/AddCheckListModal";
 
+
 const checklist = Array(5).fill({
   item: "Process 1",
   description: "Description of checklist",

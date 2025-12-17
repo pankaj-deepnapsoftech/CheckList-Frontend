@@ -2,7 +2,7 @@ import React from "react";
 import { X } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-
+import { useProcess } from "../../../hooks/useProcess";
 
 
 export default function AddChecklistModal({
@@ -14,6 +14,9 @@ export default function AddChecklistModal({
   onSubmit,
 }) {
   const isView = mode === "view";
+
+  const {getProcessData} = useProcess()
+
 
   const validationSchema = Yup.object({
     process: Yup.string().required("Process is required"),
@@ -91,7 +94,7 @@ export default function AddChecklistModal({
               className="input"
             >
               <option value="">Select Process</option>
-              {processes.map((p) => (
+              {getProcessData?.data?.map((p) => (
                 <option key={p._id} value={p._id}>
                   {p.process_name}
                 </option>
@@ -172,8 +175,6 @@ export default function AddChecklistModal({
             </div>
           </Field>
 
-         
-
           {/* MEASUREMENT */}
           {formik.values.result_type === "measurement" && (
             <>
@@ -200,7 +201,6 @@ export default function AddChecklistModal({
               </Field>
 
               <Field label="UOM">
-              
                 <input
                   name="uom"
                   disabled={isView}

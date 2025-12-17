@@ -59,7 +59,7 @@ return (
                 setOpenModal(true);
                 setMode("add");
               }}
-              className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 font-medium transition"
+              className="px-5 py-2 bg-blue-500 text-white rounded-lg w-full justify-center hover:bg-blue-600 flex items-center gap-2"
             >
               <Plus size={18} />
               Add New Company
