@@ -11,6 +11,7 @@ import {
   Building,
   X,
   ChartNoAxesCombined,
+  LaptopMinimalCheck,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -35,7 +36,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     { name: "Employee", path: "/employee", icon: <User size={20} /> },
     { name: "Process", path: "/process", icon: <ShoppingBag size={20} /> },
     { name: "Assembly Line", path: "/assembly-line", icon: <Key size={20} /> },
-    { name: "CheckList", path: "/checklist", icon: <Key size={20} /> },
+    {
+      name: "Check Item",
+      path: "/checkitem",
+      icon: <LaptopMinimalCheck size={20} />,
+    },
     {
       name: "Assembly Line Status",
       path: "/assembly-line-status",

@@ -4,17 +4,19 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useUserRole } from "../../../hooks/useUserRole";
 
-export const PERMISSION_MAP = {
-  Dashboard: "/",
-  Company: "/company",
-  "Plant Name": "/plant-name",
-  "User Role": "/user-role",
-  Employee: "/employee",
-  Process: "/process",
-  "Assembly Line": "/assembly-line",
-  "Assembly Line Status": "/assembly-line-status",
-  "Approval Check Sheet": "/checksheet",
-};
+
+
+ export  const PERMISSION_MAP = {
+   Dashboard: "/",
+   Company: "/company",
+   "Plant Name": "/plant-name",
+   "User Role": "/user-role",
+   Employee: "/employee",
+   Process: "/process",
+   "Assembly Line": "/assembly-line",
+   "Assembly Line Status": "/assembly-line-status",
+   "Approval Check Item": "/checkitem",
+ };
 
 const SIDEBAR_PAGES = Object.keys(PERMISSION_MAP);
 
