@@ -25,17 +25,16 @@ export const RegisterEmployee = (search, page, enabled = true) => {
 
   const createEmployee = useMutation({
     mutationFn: async (data) => {
-      try {
-        const res = await axiosHandler.post("/users/register-user", data);
-        toast.success(res?.data?.message);
-      } catch (error) {
-        toast.error(error?.response?.data?.message);
-        console.log(error);
-      }
+      const res = await axiosHandler.post("/users/register-user", data);
+      return res?.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["employees"] });
+      toast.success(data?.message);
     },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Failed to create Employee");
+    }
   });
 
   const searchEmployee = useQuery({
@@ -52,18 +51,18 @@ export const RegisterEmployee = (search, page, enabled = true) => {
 
   const updateEmployee = useMutation({
     mutationFn: async ({ id, data }) => {
-      try {
-        const res = await axiosHandler.put(
-          `/users/update-user-by-admin/${id}`,
-          data
-        );
-        toast.success(res?.data?.message);
-      } catch (error) {
-        console.log(error);
-      }
+      const res = await axiosHandler.put(
+        `/users/update-user-by-admin/${id}`,
+        data
+      );
+      return res?.data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employees"] });
+      toast.success(data?.message);
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Failed to update employee");
     },
   });
 
