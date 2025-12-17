@@ -106,8 +106,8 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
 
 
 
-          <button type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
-            Submit
+          <button disabled={isView} type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+            {title[mode]}
           </button>
         </form>
       </div>
