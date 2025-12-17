@@ -17,13 +17,14 @@ const  Employee=()=>{
   const { debounce, value } = useDebounce(search);
   const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
     RegisterEmployee(value, page);
-  
+
+    const [selectedPlant, setSelectedPlant] = useState("");
+    const [selectedCompany, setSelectedCompany] = useState("");
 
   const filteredEmployees = debounce
     ? searchEmployee?.data ?? []
     : getAllEmployee?.data ?? [];
 
-    console.log("this is my get all employee data", filteredEmployees);
 
     const handleTerminateToggle = (emp) => {
       toggleTerminateEmployee.mutate(
@@ -41,6 +42,23 @@ const  Employee=()=>{
       );
     };
 
+    const plantOptions = [
+      ...new Set(
+        (getAllEmployee?.data || [])
+          .map((emp) => emp?.employee_plant?.plant_name)
+          .filter(Boolean)
+      ),
+    ];
+
+    const companyOptions = [
+      ...new Set(
+        (getAllEmployee?.data || [])
+          .map((emp) => emp?.employee_company?.company_name)
+          .filter(Boolean)
+      ),
+    ];
+
+    
 
 
   return (
@@ -54,7 +72,8 @@ const  Employee=()=>{
       {/* Search + Buttons */}
       <div className="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.06)] rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-wrap">
         {/* Search Box */}
-        <div className="flex justify-between items-center ">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+          {/* Search */}
           <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
             <Search size={20} className="text-gray-500" />
             <input
@@ -64,6 +83,37 @@ const  Employee=()=>{
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
+          </div>
+
+          {/* Filters */}
+          <div className="flex gap-3 w-full sm:w-auto">
+            {/* Company Filter */}
+            <select
+              value={selectedCompany}
+              onChange={(e) => setSelectedCompany(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto"
+            >
+              <option value="">All Companies</option>
+              {companyOptions.map((company, i) => (
+                <option key={i} value={company}>
+                  {company}
+                </option>
+              ))}
+            </select>
+
+            {/* Plant Filter */}
+            <select
+              value={selectedPlant}
+              onChange={(e) => setSelectedPlant(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto"
+            >
+              <option value="">All Plants</option>
+              {plantOptions.map((plant, i) => (
+                <option key={i} value={plant}>
+                  {plant}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
