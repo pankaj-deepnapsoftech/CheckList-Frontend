@@ -12,6 +12,7 @@ import {
   X,
   ChartNoAxesCombined,
   LaptopMinimalCheck,
+  GitCompare,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -34,6 +35,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     { name: "Plant Name", path: "/plant-name", icon: <Package size={20} /> },
     { name: "User Role", path: "/user-role", icon: <Shield size={20} /> },
     { name: "Employee", path: "/employee", icon: <User size={20} /> },
+    { name: "Part", path: "/parts", icon: <GitCompare size={20} /> },
     { name: "Process", path: "/process", icon: <ShoppingBag size={20} /> },
     { name: "Assembly Line", path: "/assembly-line", icon: <Key size={20} /> },
     {
