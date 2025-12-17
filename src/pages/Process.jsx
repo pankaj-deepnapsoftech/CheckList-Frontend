@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
+import { Plus, RefreshCw, Search, Edit2, Trash2 } from "lucide-react";
 import AddProcessModal from "../components/modal/addModal/AddProcessModal";
 import { useProcess } from "../hooks/useProcess.js";
 import { useDebounce } from "../hooks/useDebounce.js";
@@ -33,20 +33,18 @@ const Process = () => {
   };
   return (
     <div className="w-full">
-
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">Process</h1>
         <p className="text-gray-500 text-sm">Manage your Processes</p>
       </div>
 
       <div className="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.06)] rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-
         <div className="flex justify-between items-center ">
           <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
             <Search size={20} className="text-gray-500" />
             <input
               type="text"
-              placeholder="Search companies..."
+              placeholder="Search process..."
               className="w-full outline-none text-gray-700"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -54,21 +52,19 @@ const Process = () => {
           </div>
         </div>
 
-
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
           <div className="flex justify-between items-center ">
-
             <button
               onClick={() => {
-                setEditTable(null)
-                setOpenModal(true)
-                setViewModal((null))
-                setMode("add")
+                setEditTable(null);
+                setOpenModal(true);
+                setViewModal(null);
+                setMode("add");
               }}
-              className="px-5 py-2 bg-blue-500 text-white rounded-lg w-full justify-center hover:bg-blue-600 flex items-center gap-2">
+              className="px-5 py-2 bg-blue-500 text-white rounded-lg w-full justify-center hover:bg-blue-600 flex items-center gap-2"
+            >
               <Plus size={18} /> Add New Process
             </button>
-
           </div>
 
           <button className="border border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
@@ -77,14 +73,11 @@ const Process = () => {
         </div>
       </div>
 
-
       <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
-
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
             {filteredProcesses?.length} Process Found
           </h2>
-
 
           <div className="flex items-center gap-4 text-gray-600">
             <span>Show:</span>
@@ -96,24 +89,16 @@ const Process = () => {
           </div>
         </div>
 
-
         <div className="grid gap-4 sm:hidden mt-4">
           {filteredProcesses?.map((pro, i) => (
             <div
               key={i}
               className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
             >
-              <div className="flex items-center  gap-2">
-                <button
-                  className={`${actionBtn} text-blue-500 hover:bg-blue-100`}
-                  onClick={() => {
-                    setOpenModal(true);
-                    setMode("view");
-                    setViewModal(pro);
-                  }}
-                >
-                  <Eye size={18} />
-                </button>
+              <div className="flex items-center flex-wrap justify-between gap-3">
+                <span className="bg-blue-500 whitespace-nowrap text-white px-3 py-1 rounded-full text-xs font-medium">
+                  {pro?.process_no || "N/A"}
+                </span>
 
                 <button
                   className={`${actionBtn} text-green-600 hover:bg-green-100`}
@@ -133,8 +118,6 @@ const Process = () => {
                 </button>
               </div>
 
-
-
               <div className="mt-3 text-sm text-gray-600 space-y-2">
                 <p>
                   <span className="text-gray-800 font-semibold text-sm">
@@ -142,14 +125,12 @@ const Process = () => {
                   </span>
                 </p>
 
-
                 {/* <p>
                   <strong>Check Items:</strong>{" "}
                   <span className="flex flex-col">
                     {pro.check_items || "N/A"}
                   </span>
                 </p> */}
-
 
                 {/* <p>
                   <strong>Check Time:</strong>{" "}
@@ -160,10 +141,8 @@ const Process = () => {
           ))}
         </div>
 
-
         <div className="overflow-x-auto hidden sm:block rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
-
             <thead>
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
                 <th className="px-5 py-3 font-semibold">Process No.</th>
@@ -173,7 +152,6 @@ const Process = () => {
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
-
 
             <tbody className="text-gray-700">
               {filteredProcesses?.map((pro, i) => (
@@ -196,18 +174,6 @@ const Process = () => {
                   <td className="px-5 py-4">
                     <div className="flex justify-center gap-2">
                       <button
-                        title="View"
-                        className={`${actionBtn} text-blue-500 hover:bg-blue-100`}
-                        onClick={() => {
-                          setOpenModal(true);
-                          setMode("view");
-                          setViewModal(pro);
-                        }}
-                      >
-                        <Eye size={18} />
-                      </button>
-
-                      <button
                         title="Edit"
                         className={`${actionBtn} text-green-600 hover:bg-green-100`}
                         onClick={() => {
@@ -223,11 +189,13 @@ const Process = () => {
                         title="Delete"
                         className={`${actionBtn} text-red-500 hover:bg-red-100`}
                       >
-                        <Trash2 size={18} onClick={() => handleDelete(pro?._id)} />
+                        <Trash2
+                          size={18}
+                          onClick={() => handleDelete(pro?._id)}
+                        />
                       </button>
                     </div>
                   </td>
-
                 </tr>
               ))}
             </tbody>
@@ -241,8 +209,11 @@ const Process = () => {
           viewModal={viewModal}
           mode={mode}
         />
-        <Pagination page={page} setPage={setPage} hasNextpage={filteredProcesses?.length === 10} />
-
+        <Pagination
+          page={page}
+          setPage={setPage}
+          hasNextpage={filteredProcesses?.length === 10}
+        />
       </div>
     </div>
   );
