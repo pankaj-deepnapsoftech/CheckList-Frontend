@@ -21,9 +21,12 @@ const Employee = () => {
   const { debounce, value } = useDebounce(search);
   
   const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
-    RegisterEmployee(value, page ,limit);
+    RegisterEmployee(selectedCompany,
+      selectedPlant,
+      value,
+      page,limit); 
 
-  const [showRefresh, setShowRefresh] = useState(false);
+ const [showRefresh, setShowRefresh] = useState(false);
 
 
   const handleRefresh = async () => {
@@ -32,7 +35,6 @@ const Employee = () => {
     await Promise.all([getAllEmployee.refetch(), minDelay]); 
     setShowRefresh(false);  // Hide overlay
   };
-
 
   const filteredEmployees = debounce
     ? searchEmployee?.data ?? []
