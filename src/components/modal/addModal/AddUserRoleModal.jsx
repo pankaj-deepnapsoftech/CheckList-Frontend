@@ -305,7 +305,7 @@ export default function UserRoleModal({
             >
               {mode === "add" ? "Create Role" : "Update Role"}
             </button>
-          )}
+          )} 
           {isView && (
             <>
               {/* CREATED ON */}

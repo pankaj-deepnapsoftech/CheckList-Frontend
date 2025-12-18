@@ -3,8 +3,9 @@ import { X } from "lucide-react";
 import { useFormik } from "formik";
 import { useCompanies } from "../../../hooks/useCompanies";
 import { companyValidationSchema } from "../../../Validation/CompanyValidation";
+import { useEffect } from "react";
 
-const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) => {
+const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode, setMode }) => {
 
   const { create, update } = useCompanies()
   const formik = useFormik({
@@ -49,14 +50,15 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode }) 
 
   })
 
-  if (!openModal) return null;
-  const isView = !!viewModal;
+  const isView = mode === "view";
   const title = {
     add: "Add Company",
     edit: "Update Company",
     view: "View Details",
   };
 
+  
+  if (!openModal) return null;
   return (
     <div
       className={`${openModal ? "translate-x-0" : "translate-x-full"}

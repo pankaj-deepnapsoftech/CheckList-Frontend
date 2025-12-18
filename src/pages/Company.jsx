@@ -259,6 +259,7 @@ return (
         editTable={editTable}
         viewModal={viewModal}
         mode={mode}
+      setMode={setMode}
       />
       <Pagination page={page} setPage={setPage} hasNextpage={filteredCompanies?.length === limit} />
 
