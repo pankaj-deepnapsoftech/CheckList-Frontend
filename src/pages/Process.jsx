@@ -31,6 +31,8 @@ const Process = () => {
   };
 
    const handleRefresh = async () => {
+    setPage(1);
+    setSearch("");
     setShowRefresh(true);  
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
     await Promise.all([getProcessData.refetch(), minDelay]); 

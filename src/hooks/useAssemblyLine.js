@@ -7,14 +7,14 @@ import {
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
-export const useAssemblyLine = (search, page) => {
+export const useAssemblyLine = (search, page , limit) => {
   const qc = useQueryClient();
 
   const getAssemblyLineData = useQuery({
-    queryKey: ["assembly", page],
+    queryKey: ["assembly", page ,limit],
     queryFn: async () => {
       const res = await axiosHandler.get(
-        `/assembly/get-assembly?page=${page}&&limit=10`
+        `/assembly/get-assembly?page=${page}&&limit=${limit}`
       );
       return res?.data?.data;
     },

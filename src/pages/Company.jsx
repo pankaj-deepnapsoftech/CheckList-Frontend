@@ -29,6 +29,8 @@ const Company = () => {
   };
 
   const handleRefresh = async () => {
+    setPage(1);
+    setSearch("");
     setShowRefresh(true);  
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
     await Promise.all([listQuery.refetch(), minDelay]); 
@@ -167,11 +169,12 @@ const Company = () => {
       </div>
       )}
 
+
       {showRefresh ? (
-        <Refresh />
-      ) : (
-      <div className="hidden sm:block mt-6  overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
-        <table className="w-full min-w-[700px] text-left ">
+                <Refresh />
+              ) : (
+      <div className="hidden sm:block mt-6 overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+        <table className="w-full min-w-[700px] text-left">
           {/* TABLE HEADER */}
           <thead>
             <tr className="bg-gray-100/80 text-gray-700 text-sm border-b border-gray-200">
@@ -247,7 +250,7 @@ const Company = () => {
           </tbody>
         </table>
         </div>
-      )}
+              )}
       </div>
       
       <CompanyDrawer
@@ -259,9 +262,6 @@ const Company = () => {
       setMode={setMode}
       />
       <Pagination page={page} setPage={setPage} hasNextpage={filteredCompanies?.length === limit} />
-
-      
-      
 
     </div>
           
