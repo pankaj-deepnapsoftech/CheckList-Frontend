@@ -6,16 +6,11 @@ import { useDebounce } from "../hooks/useDebounce.js";
 import Pagination from "../Components/Pagination/Pagination.jsx";
 import Refresh from "../components/Refresh/Refresh";
 
-
-
 const actionBtn =
   "p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:shadow-md";
 
-
 const Process = () => {
-
-
-  const [page,setPage] = useState(1)
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
@@ -64,18 +59,16 @@ const Process = () => {
         <p className="text-gray-500 text-sm">Manage your Processes</p>
       </div>
 
-      <div className="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.06)] rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex justify-between items-center ">
-          <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
-            <Search size={20} className="text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search process..."
-              className="w-full outline-none text-gray-700"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
+      <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
+          <Search size={20} className="text-gray-500" />
+          <input
+            type="text"
+            placeholder="Search process..."
+            className="w-full outline-none text-gray-700"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </div>
 
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
@@ -204,7 +197,7 @@ const Process = () => {
                     className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
                   >
                     <td className="px-5 py-4">{pro.process_no}</td>
-                    <td className="px-5 py-4 ">{pro.process_name}</td>
+                    <td className="px-5 py-4 "><span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">{pro.process_name}</span></td>
                     <td className="px-5 py-4">
                       <span className="px-5 py-4 ">
                         {formatDateDMY(pro.createdAt)}
@@ -266,5 +259,5 @@ const Process = () => {
     </div>
   );
 };
-  
+
 export default Process;
