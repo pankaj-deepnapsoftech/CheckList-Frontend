@@ -4,7 +4,6 @@ import UserRoleModal, { PERMISSION_MAP } from "../components/modal/addModal/AddU
 import { useUserRole } from "../hooks/useUserRole";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
-import Refresh from "../components/Refresh/Refresh";
 
 const PATH_TO_KEY_MAP = Object.fromEntries(
   Object.entries(PERMISSION_MAP).map(([key, value]) => [value, key])
@@ -17,11 +16,9 @@ export default function UserRoles() {
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
-  const [limit , setLimit] = useState(10);
   const [selectedRole, setSelectedRole] = useState(null);
   const { debounce, value } = useDebounce(search);
-  const { UserlistQuery, removeUser, SearchUserList } = useUserRole(value,page,limit);
-  const [showRefresh, setShowRefresh] = useState(false);
+  const { UserlistQuery, removeUser, SearchUserList } = useUserRole(value,page);
 
   const filteredRoles = debounce
     ? SearchUserList?.data ?? []
@@ -82,7 +79,7 @@ export default function UserRoles() {
         </p>
       </div>
 
-      <div className="bg-white  shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
           <Search size={20} className="text-gray-500" />
           <input
@@ -106,15 +103,13 @@ export default function UserRoles() {
             <Plus size={18} /> Add New Role
           </button>
 
-          <button className="border cursor-pointer border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
-          onClick={handleRefresh}
-          >
+          <button className="border cursor-pointer border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
       </div>
 
-      <div className="relative min-h-[300px] bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
+      <div className="bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
         <div className="flex items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
             {filteredRoles?.length} Roles Found
@@ -122,24 +117,14 @@ export default function UserRoles() {
 
           <div className="flex items-center gap-2 text-gray-500 ml-auto">
             <span className="text-sm font-medium">Show:</span>
-            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-0 "
-            value={limit}
-              onChange={(e) => {
-              setLimit(Number(e.target.value));
-              setPage(1); 
-            }}
-            >
+            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer">
               <option>5</option>
               <option>10</option>
-              <option>50</option>
-              <option>100</option>
+              <option>15</option>
             </select>
           </div>
         </div>
-        
-      {showRefresh ? (
-              <Refresh />
-            ) : (
+
         <div className="grid gap-4 sm:hidden">
           {filteredRoles?.map((item) => (
             <div
@@ -195,12 +180,7 @@ export default function UserRoles() {
             </div>
           ))}
         </div>
-        )}
 
-
-      {showRefresh ? (
-              <Refresh />
-            ) : (
         <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full  min-w-[700px] text-left">
             <thead>
@@ -265,15 +245,13 @@ export default function UserRoles() {
             </tbody>
           </table>
         </div>
-        )}
-        
-      </div>
 
-      <Pagination
+        <Pagination
           page={page}
           setPage={setPage}
-          hasNextpage={UserlistQuery?.data?.length === limit}
+          hasNextpage={UserlistQuery?.data?.length === 10}
         />
+      </div>
 
       <UserRoleModal
         open={modalOpen}
@@ -281,8 +259,6 @@ export default function UserRoles() {
         mode={modalMode}
         initialData={selectedRole}
       />
-
-      
     </div>
   );
 }

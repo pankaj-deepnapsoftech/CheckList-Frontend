@@ -35,7 +35,7 @@ const  CheckItem=()=>{
             <Search size={20} className="text-gray-500" />
             <input
               type="text"
-              placeholder="Search check items..."
+              placeholder="Search employees..."
               className="w-full outline-none text-gray-700"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
