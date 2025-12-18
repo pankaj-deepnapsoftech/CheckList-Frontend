@@ -4,18 +4,18 @@ import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
 
-export const useCompanies = (search, page) => {
-  const qc = useQueryClient();
-
-  const listQuery = useQuery({
-    queryKey: ["companies", page],
-    queryFn: async () => {
-      const res = await axiosHandler.get(`/company/list-company?page=${page}&&limit=10`);
-      return res?.data?.data;
-    },
-    enabled: !search,
-    placeholderData: keepPreviousData
-  });
+export const useCompanies = (search, page , limit) => {
+    const qc = useQueryClient();
+ 
+    const listQuery = useQuery({
+        queryKey: ["companies", page , limit],
+        queryFn: async () => {
+            const res = await axiosHandler.get(`/company/list-company?page=${page}&&limit=${limit}`);
+            return res?.data?.data;
+        },
+        enabled: !search,
+        placeholderData: keepPreviousData
+    });
 
 
   const create = useMutation({
@@ -80,8 +80,6 @@ export const useCompanies = (search, page) => {
     },
 
   });
-
-
 
 
 
