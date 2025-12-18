@@ -36,6 +36,7 @@ export default function AssemblyLine() {
 
   const handleRefresh = async () => {
     setPage(1);
+    setSearch("");
     setShowRefresh(true);  
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
     await Promise.all([getAssemblyLineData.refetch(), minDelay]); 
@@ -109,7 +110,11 @@ export default function AssemblyLine() {
         </div>
 
         {/* ============ MOBILE CARDS ============ */}
-        {/* <div className="grid gap-4 sm:hidden">
+        {/*
+        {showRefresh ? (
+                <Refresh />
+              ) : (
+        <div className="grid gap-4 sm:hidden">
           {data.map((item, i) => (
             <div
               key={i}
@@ -160,7 +165,8 @@ export default function AssemblyLine() {
               </div>
             </div>
           ))}
-        </div> */}
+        </div>
+        )} */}
 
         {/* ============ DESKTOP TABLE ============ */}
       {showRefresh ? (
