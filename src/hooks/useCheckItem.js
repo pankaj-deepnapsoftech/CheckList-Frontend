@@ -28,7 +28,41 @@ export const useCheckItem = () => {
         }
     })
 
+      const updateCheckItem = useMutation({
+        mutationFn: ({ id, data }) =>
+          axiosHandler.put(`/checkitem/update-checklist/${id}`, data),
+
+        onSuccess: () => {
+          toast.success("Check Item updated sucessfully");
+          qc.invalidateQueries({ queryKey: ["checkitem"] });
+        },
+
+        onError: (error) => {
+          toast.error(
+            error?.response?.data?.message || "Failed to update role "
+          );
+        },
+      });
+
+        const removeItem = useMutation({
+          mutationFn: (id) =>
+            axiosHandler.delete(`/checkitem/delete-checklist/${id}`),
+
+          onSuccess: () => {
+            toast.success("Check Item deleted successfully ");
+            qc.invalidateQueries({ queryKey: ["checkitem"] });
+          },
+
+          onError: (error) => {
+            toast.error(
+              error?.response?.data?.message || "Failed to delete role "
+            );
+          },
+        });
 
 
-    return { getCheckItemData, CreateCheckItem }
+
+
+
+    return { getCheckItemData, CreateCheckItem, updateCheckItem, removeItem };
 }
