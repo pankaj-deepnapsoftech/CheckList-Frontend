@@ -12,7 +12,6 @@ const Parts = () => {
 
   const [limit,setLimit]=useState(10);
   const [page, setPage] = useState(1);
-  const { getPartData, removeParts } = UsePart(page,limit);
   const [search, setSearch] = useState("");
 
   const [editTable, setEditTable] = useState(null);
@@ -217,7 +216,7 @@ const Parts = () => {
         />
 
         {/* PAGINATION (UI ONLY) */}
-        <Pagination page={page} setPage={setPage} hasNextpage={filteredParts.length === limit} />
+        <Pagination page={page} setPage={setPage} hasNextpage={filteredCompanies?.length === limit}  />
       </div>
     </div>
   );
