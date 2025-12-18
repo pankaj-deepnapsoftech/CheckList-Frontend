@@ -82,6 +82,10 @@ return (
         </div>
       </div>
 
+
+      {showRefresh ? (
+        <Refresh />
+          ) : (
       <div className="grid gap-4 sm:hidden mt-4">
         {filteredCompanies?.map((com) => (
           <div
@@ -135,6 +139,10 @@ return (
         ))}
       </div>
 
+
+      {showRefresh ? (
+            <Refresh />
+          ) : (
       <div className="hidden sm:block mt-6 overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
         <table className="w-full min-w-[700px] text-left">
           {/* TABLE HEADER */}
@@ -212,6 +220,7 @@ return (
           </tbody>
         </table>
       </div>
+      )}
 
       <CompanyDrawer
         openModal={openModal}
