@@ -2,14 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
-export const UsePart = () => {
+export const UsePart = (page,limit) => {
   const qc = useQueryClient();
 
 
    const getPartData = useQuery({
-     queryKey: ["parts"],
+     queryKey: ["parts", page , limit],
      queryFn: async () => {
-       const res = await axiosHandler.get("/parts/all-parts");
+       const res = await axiosHandler.get(`/parts/all-parts?page=${page}&&limit=${limit}`);
        return res?.data?.data;
      },
    });
