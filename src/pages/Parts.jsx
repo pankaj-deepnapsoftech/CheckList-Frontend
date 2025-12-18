@@ -226,7 +226,7 @@ const Parts = () => {
         {/* PAGINATION (UI ONLY) */}
         <Pagination page={page} setPage={setPage} hasNextpage={filteredParts?.length === limit} />
       </div>
-    </div>
+    
   );
 };
 
