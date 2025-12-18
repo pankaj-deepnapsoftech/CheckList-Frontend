@@ -30,6 +30,7 @@ const Company = () => {
 
   const handleRefresh = async () => {
     setPage(1);
+    setSearch("");
     setShowRefresh(true);  
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
     await Promise.all([listQuery.refetch(), minDelay]); 
@@ -172,7 +173,9 @@ return (
       )}
 
 
-      
+      {showRefresh ? (
+                <Refresh />
+              ) : (
       <div className="hidden sm:block mt-6 overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
         <table className="w-full min-w-[700px] text-left">
           {/* TABLE HEADER */}
@@ -250,7 +253,7 @@ return (
           </tbody>
         </table>
         </div>
-    
+              )}
       </div>
       
       <CompanyDrawer

@@ -20,7 +20,7 @@ const Parts = () => {
   const [showRefresh, setShowRefresh] = useState(false);
  
 
-  const { getPartData, removeParts } = UsePart(page);
+  const { getPartData, removeParts } = UsePart(page,limit);
 
   const filteredParts = getPartData?.data || [];
 
@@ -82,7 +82,7 @@ const Parts = () => {
       </div>
 
       {/* LIST */}
-      <div className="bg-white rounded-2xl shadow mt-6 p-5">
+      <div className="relative min-h-[300px] bg-white rounded-2xl shadow mt-6 p-5">
         {/* Header: Count + Show Dropdown */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
@@ -108,6 +108,9 @@ const Parts = () => {
         </div>
 
         {/* MOBILE */}
+        {showRefresh ? (
+                <Refresh />
+              ) : (
         <div className="grid gap-4 sm:hidden">
           {filteredParts?.map((part) => (
             <div key={part._id} className=" rounded-xl p-4 shadow-sm bg-white">
@@ -152,8 +155,12 @@ const Parts = () => {
             </div>
           ))}
         </div>
+        )}
 
         {/* DESKTOP */}
+        {showRefresh ? (
+                <Refresh />
+              ) : (
         <div className="overflow-x-auto hidden sm:block rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
             <thead>
@@ -208,18 +215,19 @@ const Parts = () => {
             </tbody>
           </table>
         </div>
+        )}
 
-        {/* MODAL */}
-        <AddPartsModal
+        
+      </div>
+
+       <AddPartsModal
           openModal={openModal}
           setOpenModal={setOpenModal}
           mode={mode}
           initialData={editTable}
         />
-
-        {/* PAGINATION (UI ONLY) */}
-        <Pagination page={page} setPage={setPage} hasNextpage={filteredCompanies?.length === limit}  />
-      </div>
+      {/* PAGINATION (UI ONLY) */}
+        <Pagination page={page} setPage={setPage} hasNextpage={filteredParts?.length === limit}  />
     </div>
   );
 };
