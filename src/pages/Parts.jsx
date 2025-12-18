@@ -140,7 +140,7 @@ const Parts = () => {
                 >
                   <td className="px-5 py-4">{pro.part_number}</td>
 
-                  <td className="px-5 py-4">{pro.part_name}</td>
+                  <td className="px-5 py-4"><span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">{pro.part_name}</span></td>
                   <td className="px-5 py-4">
                     <div className="flex justify-center gap-2">
                       <button

@@ -1,37 +1,29 @@
 import React, { useState } from "react";
-import {
-  Search,
-  Plus,
-  RefreshCw,
-  Edit2,
-  Trash2,
-  Eye,
-} from "lucide-react";
+import { Search, Plus, RefreshCw, Edit2, Trash2, Eye } from "lucide-react";
 import AssemblyLineModal from "../components/modal/addModal/AddNewAssembly";
 import { useAssemblyLine } from "../hooks/useAssemblyLine";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 
 export default function AssemblyLine() {
-  const [page, setPage] = useState(1)
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [viewModal, setViewModal] = useState(null);
   const [mode, setMode] = useState("add");
-  const { debounce, value } = useDebounce(search)
-  const { getAssemblyLineData, searchQuery, DeleteAssemblyLine } = useAssemblyLine(value, page)
-  const data = debounce ? searchQuery?.data ?? [] : getAssemblyLineData?.data ?? [];
-
+  const { debounce, value } = useDebounce(search);
+  const { getAssemblyLineData, searchQuery, DeleteAssemblyLine } =
+    useAssemblyLine(value, page);
+  const data = debounce
+    ? searchQuery?.data ?? []
+    : getAssemblyLineData?.data ?? [];
 
   const handleDelete = (id) => {
-    if (window.confirm("Are you Sure you want delete Assembly Line Data")){
-      DeleteAssemblyLine.mutate(id)
+    if (window.confirm("Are you Sure you want delete Assembly Line Data")) {
+      DeleteAssemblyLine.mutate(id);
     }
-
-  }
-
-
+  };
 
   return (
     <div>
@@ -44,12 +36,12 @@ export default function AssemblyLine() {
         </div>
       </div>
 
-      <div className="bg-white shadow-sm rounded-2xl p-4 mt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
+      <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
           <Search size={20} className="text-gray-500" />
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search assembly line..."
             className="w-full outline-none text-gray-700"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -59,9 +51,9 @@ export default function AssemblyLine() {
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
           <button
             onClick={() => {
-              setEditTable(null)
-              setOpenModal(true)
-              setMode("add")
+              setEditTable(null);
+              setOpenModal(true);
+              setMode("add");
             }}
             className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
           >
@@ -168,12 +160,24 @@ export default function AssemblyLine() {
                   className="border-b border-gray-200 hover:bg-blue-50/40 transition"
                 >
                   <td className="px-5 py-4 text-sm">{item?.assembly_number}</td>
-                  <td className="px-5 py-4 text-sm">{item?.assembly_name}</td>
-                  <td className="px-5 py-4 text-sm">{item?.process_id?.map((i) => (
-                    <p>{i?.process_name} ({i?.process_no})</p>
-                  ))}</td>
-                  <td className="px-5 py-4 text-sm">{item?.company_id?.company_name}</td>
-                  <td className="px-5 py-4 text-sm">{item?.plant_id?.plant_name}</td>
+                  <td className="px-5 py-4 text-sm">
+                    <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+                      {item?.assembly_name}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4 text-sm">
+                    {item?.process_id?.map((i) => (
+                      <p>
+                        {i?.process_name} ({i?.process_no})
+                      </p>
+                    ))}
+                  </td>
+                  <td className="px-5 py-4 text-sm">
+                    {item?.company_id?.company_name}
+                  </td>
+                  <td className="px-5 py-4 text-sm">
+                    {item?.plant_id?.plant_name}
+                  </td>
 
                   <td className="px-5 py-4">
                     <div className="flex gap-4">
@@ -207,8 +211,6 @@ export default function AssemblyLine() {
             </tbody>
           </table>
         </div>
-
-
       </div>
 
       <AssemblyLineModal
@@ -216,8 +218,13 @@ export default function AssemblyLine() {
         setOpenModal={setOpenModal}
         editTable={editTable}
         viewModal={viewModal}
-        mode={mode} />
-      <Pagination page={page} setPage={setPage} hasNextpage={data?.length === 10} />
-    </div >
+        mode={mode}
+      />
+      <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={data?.length === 10}
+      />
+    </div>
   );
 }

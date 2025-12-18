@@ -6,23 +6,28 @@ import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 
 const PlantName = () => {
-  const [page,setPage] = useState(1)
+  const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const [viewModal, setViewModal] = useState(null)
-  const [mode, setMode] = useState("add")
-  const { debounce, value } = useDebounce(search)
-  const { getPlantName, DeletePlantData, searchQuery } = UsePlantName(value,page)
-  const handleDeletePlant  = (id)=>{
-    if(window.confirm("Are you sure you want to delete Plant Data")){
-      DeletePlantData.mutate(id)
+  const [viewModal, setViewModal] = useState(null);
+  const [mode, setMode] = useState("add");
+  const { debounce, value } = useDebounce(search);
+  const { getPlantName, DeletePlantData, searchQuery } = UsePlantName(
+    value,
+    page
+  );
+  const handleDeletePlant = (id) => {
+    if (window.confirm("Are you sure you want to delete Plant Data")) {
+      DeletePlantData.mutate(id);
     }
-  }
+  };
 
-  const filetredData = debounce ? searchQuery?.data ?? [] : getPlantName?.data ?? [] ;
+  const filetredData = debounce
+    ? searchQuery?.data ?? []
+    : getPlantName?.data ?? [];
 
-  console.log(editTable)
+  console.log(editTable);
   return (
     <div>
       <div>
@@ -46,7 +51,7 @@ const PlantName = () => {
           <button
             onClick={() => {
               setMode("add");
-             
+
               setEditTable(null);
               setOpenModal(true);
             }}
@@ -77,7 +82,6 @@ const PlantName = () => {
           </div>
         </div>
 
-     
         <div className="grid gap-4 sm:hidden">
           {filetredData?.map((p, i) => (
             <div
@@ -93,7 +97,7 @@ const PlantName = () => {
                   <Eye
                     onClick={() => {
                       setMode("view");
-                      setViewModal(p)
+                      setViewModal(p);
                       setEditTable(p);
                       setOpenModal(true);
                     }}
@@ -110,7 +114,11 @@ const PlantName = () => {
                     }}
                   />
 
-                  <Trash2 size={20} className="text-red-500 cursor-pointer" onClick={()=> handleDeletePlant(p?._id)}/>
+                  <Trash2
+                    size={20}
+                    className="text-red-500 cursor-pointer"
+                    onClick={() => handleDeletePlant(p?._id)}
+                  />
                 </div>
               </div>
 
@@ -126,7 +134,6 @@ const PlantName = () => {
           ))}
         </div>
 
-    
         <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
             <thead>
@@ -146,7 +153,11 @@ const PlantName = () => {
                 >
                   <td className="px-5 py-4">{p.plant_name}</td>
                   <td className="px-5 py-4">{p.company_id?.company_address}</td>
-                  <td className="px-5 py-4">{p.company_id?.company_name}</td>
+                  <td className="px-5 py-4">
+                    <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+                      {p.company_id?.company_name}
+                    </span>
+                  </td>
 
                   <td className="px-5 py-4 flex justify-center gap-5">
                     <Eye
@@ -154,7 +165,7 @@ const PlantName = () => {
                         setMode("view");
                         setEditTable(null);
                         setOpenModal(true);
-                        setViewModal(p)
+                        setViewModal(p);
                       }}
                       size={20}
                       className="text-blue-500 cursor-pointer hover:scale-125 transition"
@@ -170,7 +181,7 @@ const PlantName = () => {
                     />
 
                     <Trash2
-                      onClick={()=> handleDeletePlant(p?._id)}
+                      onClick={() => handleDeletePlant(p?._id)}
                       size={20}
                       className="text-red-500 cursor-pointer hover:scale-125 transition"
                     />
@@ -182,7 +193,6 @@ const PlantName = () => {
         </div>
       </div>
 
-    
       <AddPlantModal
         openModal={openModal}
         setOpenModal={setOpenModal}
@@ -190,8 +200,12 @@ const PlantName = () => {
         mode={mode}
         viewModal={viewModal}
       />
-      <Pagination page={page} setPage={setPage} hasNextpage={filetredData?.length === 10} />
+      <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={filetredData?.length === 10}
+      />
     </div>
   );
-}
+};
 export default PlantName;
