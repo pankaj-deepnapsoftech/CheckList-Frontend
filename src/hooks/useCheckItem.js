@@ -1,18 +1,30 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import {keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axiosHandler from "../config/axiosconfig"
 import { toast } from "react-toastify"
 
-export const useCheckItem = () => {
+export const useCheckItem = (search,page,limit) => {
 
     const qc = useQueryClient()
 
     const getCheckItemData = useQuery({
-        queryKey: ["checkitem"],
+        queryKey: ["checkitem",page,limit],
         queryFn: async () => {
-            const res = await axiosHandler.get(`/checkitem/get-checkitem`)
+            const res = await axiosHandler.get(`/checkitem/get-checkitem?page=${page}&&limit=${limit}`)
             return res?.data?.data;
         }
     })
+
+    const searchQuery = useQuery({
+      queryKey: ["search-checkitem", search],
+      queryFn: async () => {
+      const res = await axiosHandler.get(
+        `/checkitem/search-checkitem?search=${search}`
+       );
+       return res.data.data;
+       },
+      enabled: !!search,
+      placeholderData: keepPreviousData,
+    });
 
     const CreateCheckItem = useMutation({
         mutationFn: async (values) => {
@@ -60,9 +72,11 @@ export const useCheckItem = () => {
           },
         });
 
-
-
-
-
-    return { getCheckItemData, CreateCheckItem, updateCheckItem, removeItem };
+    return { 
+      getCheckItemData, 
+      CreateCheckItem, 
+      updateCheckItem, 
+      removeItem,
+      searchQuery 
+    };
 }
