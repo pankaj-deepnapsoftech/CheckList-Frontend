@@ -8,14 +8,14 @@ import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
 
-export const RegisterEmployee = (cmId,plId,search, page, enabled = true) => {
+export const RegisterEmployee = (cmId,plId,search, page,limit, enabled = true) => {
   const qc = useQueryClient();
   
   const getAllEmployee = useQuery({
-    queryKey: ["employees", page],
+    queryKey: ["employees", page , limit],
     queryFn: async () => {
       const res = await axiosHandler.get(
-        `/users/get-employees?page=${page}&&limit=10`
+        `/users/get-employees?page=${page}&&limit=${limit}`
       );
       return res?.data?.data;
     },
