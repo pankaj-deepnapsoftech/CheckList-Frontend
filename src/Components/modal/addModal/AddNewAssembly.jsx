@@ -65,8 +65,7 @@ export default function AssemblyLineModal({
     },
   });
 
-
-  const isView = mode === "view";
+  const isView = !!viewModal;
   const PlantData = usePlantsByCompany(formik?.values?.company_id);
   const title = {
     add: "Add Assembly Line",

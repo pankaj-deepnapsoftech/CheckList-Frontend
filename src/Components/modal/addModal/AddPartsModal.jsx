@@ -16,9 +16,7 @@ export default function AddPartsModal({
   initialData = null,
 }) {
   const isView = mode === "view";
-  const { createPart, updateParts, getPartData } = UsePart();
-
-  console.log("This is my assembly number", getPartData?.data)
+  const { createPart, updateParts } = UsePart();
 
   const formik = useFormik({
     initialValues: {
@@ -113,18 +111,6 @@ export default function AddPartsModal({
               <p className="text-red-500 text-sm">{formik.errors.part_name}</p>
             )}
           </div>
-
-          {/* TOTAL ASSEMBLIES (VIEW ONLY) */}
-          {isView && (
-            <div>
-              <label className="text-sm font-medium">Total Assemblies</label>
-              <input
-                value={initialData?.total_assemblies ?? 0}
-                disabled
-                className="mt-1 w-full px-4 py-3 rounded-lg border bg-gray-100 text-gray-700"
-              />
-            </div>
-          )}
 
           {!isView && (
             <button

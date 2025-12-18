@@ -4,31 +4,21 @@ import AddPlantModal from "../components/modal/addModal/AddPlantModal";
 import { UsePlantName } from "../hooks/UsePlantName";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
-import Refresh from "../components/Refresh/Refresh";
 
 const PlantName = () => {
   const [page,setPage] = useState(1)
   const [search, setSearch] = useState("");
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  const [viewModal, setViewModal] = useState(null);
-  const [limit , setLimit]=useState(10);
+  const [viewModal, setViewModal] = useState(null)
   const [mode, setMode] = useState("add")
   const { debounce, value } = useDebounce(search)
-  const { getPlantName, DeletePlantData, searchQuery } = UsePlantName(value,page,limit);
-  const [showRefresh, setShowRefresh] = useState(false);
+  const { getPlantName, DeletePlantData, searchQuery } = UsePlantName(value,page)
   const handleDeletePlant  = (id)=>{
     if(window.confirm("Are you sure you want to delete Plant Data")){
       DeletePlantData.mutate(id)
     }
   }
-
-   const handleRefresh = async () => {
-    setShowRefresh(true);  
-    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
-    await Promise.all([getPlantName.refetch(), minDelay]); 
-    setShowRefresh(false);  // Hide overlay
-  };
 
   const filetredData = debounce ? searchQuery?.data ?? [] : getPlantName?.data ?? [] ;
 
@@ -65,15 +55,13 @@ const PlantName = () => {
             <Plus size={18} /> Add New Plant
           </button>
 
-          <button className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
-          onClick={handleRefresh}
-          >
+          <button className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
       </div>
 
-      <div className="relative min-h-[300px] bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
+      <div className="bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="font-semibold text-gray-800 text-lg">
             {filetredData.length} Plants Found
@@ -81,24 +69,15 @@ const PlantName = () => {
 
           <div className="flex items-center gap-2 text-gray-500">
             <span className="text-sm font-medium">Show:</span>
-            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-0 "
-              value={limit}
-              onChange={(e) => {
-              setLimit(Number(e.target.value));
-              setPage(1); 
-            }}
-            >
+            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer">
               <option>5</option>
               <option>10</option>
-              <option>50</option>
-              <option>100</option>
+              <option>15</option>
             </select>
           </div>
         </div>
 
-     {showRefresh ? (
-        <Refresh />
-      ) : (
+     
         <div className="grid gap-4 sm:hidden">
           {filetredData?.map((p, i) => (
             <div
@@ -146,12 +125,8 @@ const PlantName = () => {
             </div>
           ))}
         </div>
-        )}
 
-
-      {showRefresh ? (
-                <Refresh />
-              ) : (
+    
         <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
             <thead>
@@ -205,9 +180,9 @@ const PlantName = () => {
             </tbody>
           </table>
         </div>
-              )}
       </div>
 
+    
       <AddPlantModal
         openModal={openModal}
         setOpenModal={setOpenModal}
@@ -215,9 +190,7 @@ const PlantName = () => {
         mode={mode}
         viewModal={viewModal}
       />
-      <Pagination page={page} setPage={setPage} hasNextpage={filetredData?.length === limit} />
-
-
+      <Pagination page={page} setPage={setPage} hasNextpage={filetredData?.length === 10} />
     </div>
   );
 }

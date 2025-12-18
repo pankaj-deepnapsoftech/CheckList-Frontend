@@ -5,7 +5,6 @@ import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import { UserCheck } from "lucide-react";
-import Refresh from "../components/Refresh/Refresh";
 import { UserX } from "lucide-react";
 
 const Employee = () => {
@@ -13,28 +12,18 @@ const Employee = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
-  const [limit,setLimit]=useState(10);
   const [modalMode, setModalMode] = useState("add");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
   const { debounce, value } = useDebounce(search);
-  
   const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
     RegisterEmployee(selectedCompany,
       selectedPlant,
       value,
-      page,limit); 
-
- const [showRefresh, setShowRefresh] = useState(false);
+      page); 
 
 
-  const handleRefresh = async () => {
-    setShowRefresh(true);  
-    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
-    await Promise.all([getAllEmployee.refetch(), minDelay]); 
-    setShowRefresh(false);  // Hide overlay
-  };
 
   const filteredEmployees = debounce
     ? searchEmployee?.data ?? []
@@ -84,7 +73,7 @@ const Employee = () => {
 
   console.log("ids",selectedCompany, selectedPlant)
   return (
-    <div className="w-full relative">
+    <div className="w-full">
       {/* HEADER */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">Employees</h1>
@@ -156,16 +145,14 @@ const Employee = () => {
             </button>
           </div>
 
-          <button className="border cursor-pointer border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
-           onClick={handleRefresh}
-          >
+          <button className="border cursor-pointer border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
       </div>
 
       {/* Table */}
-      <div className="relative min-h-[300px] bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
+      <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
         {/* Header: Count + Show Dropdown */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
@@ -175,25 +162,15 @@ const Employee = () => {
           {/* Show Dropdown */}
           <div className="flex items-center gap-4 text-gray-600">
             <span>Show:</span>
-            <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0 "
-              value={limit}
-              onChange={(e) => {
-              setLimit(Number(e.target.value));
-              setPage(1); 
-            }}
-            >
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
+            <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer">
+              <option>5</option>
+              <option>10</option>
+              <option>15</option>
             </select>
           </div>
         </div>
 
         {/* Mobile View (Card Layout) */}
-        {showRefresh ? (
-                <Refresh />
-              ) : (
         <div className="grid gap-4 sm:hidden mt-4">
           {filteredEmployees.map((emp, i) => (
             <div
@@ -266,12 +243,8 @@ const Employee = () => {
             </div>
           ))}
         </div>
-        )}
 
         {/* Table */}
-      {showRefresh ? (
-        <Refresh />
-        ) : (
         <div className="overflow-x-auto hidden sm:block w-full rounded-xl border border-gray-200">
           <table className="w-full  text-center">
             {/* Table Header */}
@@ -355,7 +328,6 @@ const Employee = () => {
             </tbody>
           </table>
         </div>
-        )}
       </div>
 
       <AddEmployeeModal
@@ -370,11 +342,8 @@ const Employee = () => {
       <Pagination
         page={page}
         setPage={setPage}
-        hasNextpage={filteredEmployees?.length === limit}
+        hasNextpage={filteredEmployees?.length === 10}
       />
-
- 
-
     </div>
   );
 }
