@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, RefreshCw, Search, Edit2, Trash2 } from "lucide-react";
+import { Plus, RefreshCw, Search, Edit2, Trash2, Eye } from "lucide-react";
 import Pagination from "../Components/Pagination/Pagination.jsx";
 import AddPartsModal from "../components/modal/addModal/AddPartsModal.jsx";
 import {UsePart} from "../hooks/usePart.js";
@@ -8,35 +8,25 @@ import Refresh from "../components/Refresh/Refresh";
 const actionBtn =
   "p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:shadow-md";
 
-const dummyParts = [
-  { _id: "1", part_no: "P-001", part_name: "Gear Box" },
-  { _id: "2", part_no: "P-002", part_name: "Shaft" },
-  { _id: "3", part_no: "P-003", part_name: "Bearing" },
-];
-
 const Parts = () => {
 
   const [limit,setLimit]=useState(10);
   const [page, setPage] = useState(1);
-  const { getPartData } = UsePart(page,limit);
   const [search, setSearch] = useState("");
-  const [parts, setParts] = useState(dummyParts);
 
   const [editTable, setEditTable] = useState(null);
-  const [viewModal, setViewModal] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add");
   const [showRefresh, setShowRefresh] = useState(false);
  
 
-  console.log("this is my part", getPartData?.data);
+  const { getPartData, removeParts } = UsePart(page);
 
-  const filteredParts = getPartData?.data  || []
-
+  const filteredParts = getPartData?.data || [];
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this part?")) {
-      setParts((prev) => prev.filter((p) => p._id !== id));
+      removeParts.mutate(id);
     }
   };
 
@@ -74,7 +64,6 @@ const Parts = () => {
           <button
             onClick={() => {
               setEditTable(null);
-              setViewModal(null);
               setMode("add");
               setOpenModal(true);
             }}
@@ -129,6 +118,17 @@ const Parts = () => {
 
                 <div className="flex gap-2">
                   <button
+                    title="View"
+                    className="text-blue-500 cursor-pointer"
+                    onClick={() => {
+                      setEditTable(part);
+                      setMode("view");
+                      setOpenModal(true);
+                    }}
+                  >
+                    <Eye size={20} />
+                  </button>
+                  <button
                     className={`${actionBtn} text-green-600 hover:bg-green-100`}
                     onClick={() => {
                       setEditTable(part);
@@ -160,7 +160,8 @@ const Parts = () => {
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
                 <th className="px-5 py-3 font-semibold">Parts No.</th>
                 <th className="px-5 py-3 font-semibold">Parts Name</th>
-         
+                <th className="px-5 py-3 font-semibold">Total Assembly</th>
+
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
@@ -174,6 +175,9 @@ const Parts = () => {
                   <td className="px-5 py-4">{pro.part_number}</td>
 
                   <td className="px-5 py-4">{pro.part_name}</td>
+
+                  <td className="px-5 py-4">{pro.total_assemblies}</td>
+
                   <td className="px-5 py-4">
                     <div className="flex justify-center gap-2">
                       <button

@@ -22,16 +22,14 @@ export const UsePart = (page,limit) => {
     },
   });
 
-
-
   const createPart = useMutation({
-    mutationFn: async(data) => {
-        const res = await axiosHandler.post("/parts/create-part", data)
-        return res?.data ;
+    mutationFn: async (data) => {
+      const res = await axiosHandler.post("/parts/create-part", data);
+      return res?.data;
     },
 
     onSuccess: (data) => {
-        qc.invalidateQueries({ queryKey: ["parts"] });
+      qc.invalidateQueries({ queryKey: ["parts"] });
       toast.success(data?.message);
     },
 
@@ -41,14 +39,14 @@ export const UsePart = (page,limit) => {
   });
 
   const updateParts = useMutation({
-    mutationFn: async({ id, data }) =>{
-      const res = await axiosHandler.put(`/parts/update-part/${id}`, data)
+    mutationFn: async ({ id, data }) => {
+      const res = await axiosHandler.put(`/parts/update-part/${id}`, data);
       return res?.data;
     },
 
     onSuccess: (data) => {
-        qc.invalidateQueries({ queryKey: ["parts"] });
-        toast.success(data?.message);
+      qc.invalidateQueries({ queryKey: ["parts"] });
+      toast.success(data?.message);
     },
 
     onError: (error) => {
@@ -56,5 +54,18 @@ export const UsePart = (page,limit) => {
     },
   });
 
-  return { getAllPart, createPart, updateParts, getPartData };
+  const removeParts = useMutation({
+    mutationFn: (id) => axiosHandler.delete(`/parts/delete-part/${id}`),
+
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["parts"] });
+      toast.success(data?.message || "User Deleted Sucessfully");
+    },
+
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Failed to delete Parts ");
+    },
+  });
+
+  return { getAllPart, createPart, updateParts, getPartData, removeParts };
 };

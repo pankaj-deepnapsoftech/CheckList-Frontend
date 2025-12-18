@@ -4,6 +4,7 @@ import CompanyDrawer from "../Components/modal/addModal/CompanyDrawer";
 import { useCompanies } from "../hooks/useCompanies";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
+import Refresh from "../components/Refresh/Refresh";
 
 const Company = () => {
   const [search, setSearch] = useState("");
@@ -11,9 +12,12 @@ const Company = () => {
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [viewModal, setViewModal] = useState(null);
+  const [limit,setLimit] = useState(10);
   const [mode, setMode] = useState("add");
   const { debounce, value } = useDebounce(search);
-  const { listQuery, remove, searchQuery } = useCompanies(value, page);
+  const { listQuery, remove, searchQuery } = useCompanies(value, page , limit);
+  const [showRefresh, setShowRefresh] = useState(false);
+
   const filteredCompanies = debounce
     ? searchQuery?.data ?? []
     : listQuery?.data ?? [];
@@ -32,10 +36,8 @@ const Company = () => {
     setShowRefresh(false);  // Hide overlay
   };
 
-
-
 return (
-  <div >
+  <div className="" >
     <div>
       <h1 className="text-2xl sm:text-3xl font-semibold">Companies</h1>
       <p className="text-gray-500 text-sm">Manage Company</p>
@@ -82,6 +84,39 @@ return (
         </div>
       </div>
 
+      
+
+     
+
+      <div className="relative min-h-[300px] bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
+   
+        {/* Header: Count + Show Dropdown */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
+          <h2 className="text-gray-800 text-lg font-semibold">
+            {filteredCompanies.length} Companies Found
+          </h2>
+
+          {/* Show Dropdown */}
+          <div className="flex items-center gap-4 text-gray-600">
+            <span>Show:</span>
+            <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0"
+              value={limit}
+              onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setPage(1); 
+            }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+        </div>
+
+      {showRefresh ? (
+        <Refresh />
+      ) : (
       <div className="grid gap-4 sm:hidden mt-4">
         {filteredCompanies?.map((com) => (
           <div
@@ -134,6 +169,7 @@ return (
           </div>
         ))}
       </div>
+      )}
 
 
       
@@ -213,18 +249,23 @@ return (
             ))}
           </tbody>
         </table>
+        </div>
+    
       </div>
-
+      
       <CompanyDrawer
         openModal={openModal}
         setOpenModal={setOpenModal}
         editTable={editTable}
         viewModal={viewModal}
         mode={mode}
+      setMode={setMode}
       />
       <Pagination page={page} setPage={setPage} hasNextpage={filteredCompanies?.length === limit} />
 
     </div>
+          
+    
   );
 };
 

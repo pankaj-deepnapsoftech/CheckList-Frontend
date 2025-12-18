@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import AddCheckItemModal from "../components/modal/addModal/AddCheckItemModal";
+import { useCheckItem } from "../hooks/useCheckItem";
 
 
 const checkItem = Array(5).fill({
@@ -15,9 +16,10 @@ const  CheckItem=()=>{
   const [openCheckItemModal, setOpenCheckItemModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [selectedCheckItem, setSelectedCheckItem] = useState(null);
-  const filteredCheckItem = checkItem.filter((emp) =>
-    emp.item.toLowerCase().includes(search.toLowerCase())
-  );
+  const {getCheckItemData} = useCheckItem()
+
+
+  const filteredCheckItem = getCheckItemData?.data ;
 
   return (
     <div className="w-full">
@@ -35,7 +37,7 @@ const  CheckItem=()=>{
             <Search size={20} className="text-gray-500" />
             <input
               type="text"
-              placeholder="Search employees..."
+              placeholder="Search check items..."
               className="w-full outline-none text-gray-700"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -70,7 +72,7 @@ const  CheckItem=()=>{
         {/* Header: Count + Show Dropdown */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
-            {filteredCheckItem.length} Items Found
+            {filteredCheckItem?.length} Items Found
           </h2>
 
           {/* Show Dropdown */}
@@ -86,7 +88,7 @@ const  CheckItem=()=>{
 
         {/* Mobile View (Card Layout) */}
         <div className="grid gap-4 sm:hidden mt-4">
-          {filteredCheckItem.map((cl, i) => (
+          {filteredCheckItem?.map((cl, i) => (
             <div
               key={i}
               className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
@@ -144,28 +146,30 @@ const  CheckItem=()=>{
             {/* Table Header */}
             <thead>
               <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
-                <th className="px-5 py-3 font-semibold">Item</th>
+                <th className="px-5 py-3 font-semibold">Check Item</th>
+                <th className="px-5 py-3 font-semibold">Checking Method</th>
+                <th className="px-5 py-3 font-semibold">Check Time</th>
+                <th className="px-5 py-3 font-semibold">Process</th>
                 <th className="px-5 py-3 font-semibold">Description</th>
-                <th className="px-5 py-3 font-semibold">Check Item Date</th>
-                <th className="px-5 py-3 font-semibold">Check Item Time</th>
                 <th className="px-5 py-3 font-semibold text-center">Actions</th>
               </tr>
             </thead>
 
             {/* Table Body */}
             <tbody className="text-gray-700">
-              {filteredCheckItem.map((cl, i) => (
+              {filteredCheckItem?.map((cl, i) => (
                 <tr
                   key={i}
                   className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
                 >
                   <td className="px-5 py-4">{cl.item || "N/A"}</td>
-                  <td className="px-5 py-4 ">{cl.description || "N/A"}</td>
+                
                   <td className="px-5 py-4 ">
                     {cl.check_list_method || "N/A"}
                   </td>
                   <td className="px-5 py-4 ">{cl.check_list_time || "N/A"}</td>
-
+                  <td className="px-5 py-4 ">{cl.process?.process_name} ({cl.process?.process_no})</td>
+                  <td className="px-5 py-4 ">{cl.description || "N/A"}</td>
                   {/* Actions */}
                   <td className="px-5 py-4 flex justify-center gap-5">
                     {/* VIEW */}
