@@ -12,10 +12,11 @@ import { useUserRole } from "../../../hooks/useUserRole";
    "Plant Name": "/plant-name",
    "User Role": "/user-role",
    Employee: "/employee",
+   Part: "/parts",
    Process: "/process",
    "Assembly Line": "/assembly-line",
+   "Check Item": "/checkitem",
    "Assembly Line Status": "/assembly-line-status",
-   "Approval Check Item": "/checkitem",
  };
 
 const SIDEBAR_PAGES = Object.keys(PERMISSION_MAP);
@@ -129,10 +130,6 @@ export default function UserRoleModal({
       formik.values.permissions.filter((p) => p !== page)
     );
   };
-
-  const filteredPages = SIDEBAR_PAGES.filter((p) =>
-    p.toLowerCase().includes(searchPage.toLowerCase())
-  );
 
   const formatDate = (date) => {
     if (!date) return "—";
