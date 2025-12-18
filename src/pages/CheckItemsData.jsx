@@ -57,7 +57,7 @@ const CheckItemsData = () => {
                   Check Item Name
                 </label>
                 <input
-                  type="text"
+                  type="text"  
                   placeholder="Ex: Visual inspection"
                   className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
