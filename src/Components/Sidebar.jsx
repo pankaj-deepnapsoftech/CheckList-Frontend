@@ -13,6 +13,7 @@ import {
   ChartNoAxesCombined,
   LaptopMinimalCheck,
   GitCompare,
+  ChevronsLeftRightEllipsis,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -42,6 +43,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: "Check Item",
       path: "/checkitem",
       icon: <LaptopMinimalCheck size={20} />,
+    },
+    {
+      name: "CheckItem-Data",
+      path: "/checkitem-data",
+      icon: <ChevronsLeftRightEllipsis size={20} />,
     },
     {
       name: "Assembly Line Status",
