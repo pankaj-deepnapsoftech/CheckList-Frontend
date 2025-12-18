@@ -16,17 +16,25 @@ const  CheckItem=()=>{
   const [openCheckItemModal, setOpenCheckItemModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [selectedCheckItem, setSelectedCheckItem] = useState(null);
-  const {getCheckItemData} = useCheckItem()
+  const {getCheckItemData, removeItem} = useCheckItem()
 
 
   const filteredCheckItem = getCheckItemData?.data ;
+
+    const handleDelete = (id) => {
+      if (window.confirm("Are you sure you want to delete this Item?")) {
+        removeItem.mutate(id);
+      }
+    };
 
   return (
     <div className="w-full">
       {/* HEADER */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-semibold">Approval Check Item</h1>
-        <p className="text-gray-500 text-sm">Manage Your Approval Check Item</p>
+        <h1 className="text-2xl sm:text-3xl font-semibold">
+          Check Item
+        </h1>
+        <p className="text-gray-500 text-sm">Manage Your Check Item</p>
       </div>
 
       {/* Search + Buttons */}
@@ -42,7 +50,6 @@ const  CheckItem=()=>{
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            
           </div>
         </div>
 
@@ -121,7 +128,11 @@ const  CheckItem=()=>{
                     }}
                   />
 
-                  <Trash2 size={20} className="text-red-500 cursor-pointer" />
+                  <Trash2
+                    onClick={() => handleDelete(cl._id)}
+                    size={20}
+                    className="text-red-500 cursor-pointer"
+                  />
                 </div>
               </div>
 
@@ -163,12 +174,14 @@ const  CheckItem=()=>{
                   className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
                 >
                   <td className="px-5 py-4">{cl.item || "N/A"}</td>
-                
+
                   <td className="px-5 py-4 ">
                     {cl.check_list_method || "N/A"}
                   </td>
                   <td className="px-5 py-4 ">{cl.check_list_time || "N/A"}</td>
-                  <td className="px-5 py-4 ">{cl.process?.process_name} ({cl.process?.process_no})</td>
+                  <td className="px-5 py-4 ">
+                    {cl.process?.process_name} ({cl.process?.process_no})
+                  </td>
                   <td className="px-5 py-4 ">{cl.description || "N/A"}</td>
                   {/* Actions */}
                   <td className="px-5 py-4 flex justify-center gap-5">
@@ -196,6 +209,7 @@ const  CheckItem=()=>{
 
                     {/* DELETE */}
                     <Trash2
+                      onClick={() => handleDelete(cl._id)}
                       size={20}
                       className="text-red-500 hover:text-red-600 hover:scale-125 cursor-pointer transition transform"
                     />
@@ -226,8 +240,6 @@ const  CheckItem=()=>{
           }
         }}
       />
-
-     
     </div>
   );
 }

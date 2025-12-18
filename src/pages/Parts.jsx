@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Plus, RefreshCw, Search, Edit2, Trash2, Eye } from "lucide-react";
 import Pagination from "../Components/Pagination/Pagination.jsx";
 import AddPartsModal from "../components/modal/addModal/AddPartsModal.jsx";
-import {UsePart} from "../hooks/usePart.js";
+import { UsePart } from "../hooks/usePart.js";
 import Refresh from "../components/Refresh/Refresh";
 
 const actionBtn =
@@ -10,10 +10,9 @@ const actionBtn =
 
 const Parts = () => {
 
-  const [limit,setLimit]=useState(10);
+  const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
-
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add");
@@ -33,9 +32,9 @@ const Parts = () => {
   const handleRefresh = async () => {
     setPage(1);
     setSearch("");
-    setShowRefresh(true);  
-    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
-    await Promise.all([getPartData.refetch(), minDelay]); 
+    setShowRefresh(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all([getPartData.refetch(), minDelay]);
     setShowRefresh(false);  // Hide overlay
   };
 
@@ -95,9 +94,9 @@ const Parts = () => {
             <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0 "
               value={limit}
               onChange={(e) => {
-              setLimit(Number(e.target.value));
-              setPage(1); 
-            }}
+                setLimit(Number(e.target.value));
+                setPage(1);
+              }}
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -226,8 +225,10 @@ const Parts = () => {
           mode={mode}
           initialData={editTable}
         />
-      {/* PAGINATION (UI ONLY) */}
-        <Pagination page={page} setPage={setPage} hasNextpage={filteredParts?.length === limit}  />
+
+        {/* PAGINATION (UI ONLY) */}
+        <Pagination page={page} setPage={setPage} hasNextpage={filteredParts?.length === limit} />
+      </div>
     </div>
   );
 };
