@@ -16,6 +16,7 @@ import { useUserRole } from "../../../hooks/useUserRole";
    Process: "/process",
    "Assembly Line": "/assembly-line",
    "Check Item": "/checkitem",
+   "CheckItem Data": "/checkitem-data",
    "Assembly Line Status": "/assembly-line-status",
  };
 
