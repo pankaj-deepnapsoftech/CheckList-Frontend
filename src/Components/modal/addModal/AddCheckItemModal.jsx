@@ -3,8 +3,6 @@ import { X } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useProcess } from "../../../hooks/useProcess";
-import { validationSchema } from "../../../Validation/CheckItemValidation";
-import { useCheckItem } from "../../../hooks/useCheckItem";
 
 
 export default function AddCheckItemModal({
@@ -18,7 +16,31 @@ export default function AddCheckItemModal({
   const isView = mode === "view";
 
   const {getProcessData} = useProcess()
-  const {CreateCheckItem} = useCheckItem()
+
+
+  const validationSchema = Yup.object({
+    process: Yup.string().required("Process is required"),
+    item: Yup.string().required("Item is required"),
+    description: Yup.string().required("Description is required"),
+    check_list_method: Yup.string().required("Check Item method is required"),
+    check_list_time: Yup.string().required("Check Item time is required"),
+    result_type: Yup.string().required("Result type is required"),
+
+    min: Yup.number().when("result_type", {
+      is: "measurement",
+      then: () => Yup.number().required("Min value required"),
+    }),
+
+    max: Yup.number().when("result_type", {
+      is: "measurement",
+      then: () => Yup.number().required("Max value required"),
+    }),
+
+    uom: Yup.string().when("result_type", {
+      is: "measurement",
+      then: () => Yup.string().required("UOM is required"),
+    }),
+  });
 
   const formik = useFormik({
     initialValues: {
@@ -28,14 +50,16 @@ export default function AddCheckItemModal({
       check_list_method: initialData?.check_list_method || "",
       check_list_time: initialData?.check_list_time || "",
       result_type: initialData?.result_type || "", // yesno | measurement
-      min: initialData?.min || "0",
-      max: initialData?.max || "0",
-      uom: initialData?.uom || "0",
+      min: initialData?.min || "",
+      max: initialData?.max || "",
+      uom: initialData?.uom || "",
     },
     enableReinitialize: true,
-    validationSchema: validationSchema,
+    validationSchema,
     onSubmit: (values) => {
-      CreateCheckItem.mutate(values)
+      onSubmit(values);
+      formik.resetForm();
+      onClose();
     },
   });
 
@@ -71,8 +95,8 @@ export default function AddCheckItemModal({
             >
               <option value="">Select Process</option>
               {getProcessData?.data?.map((p) => (
-                <option key={p?._id} value={p?._id}>
-                  {p?.process_name}({p?.process_no})
+                <option key={p._id} value={p._id}>
+                  {p.process_name}
                 </option>
               ))}
             </select>
@@ -101,7 +125,7 @@ export default function AddCheckItemModal({
           </Field>
 
           {/* Check Item Method */}
-          <Field label="Check  Method">
+          <Field label="Check Item Method">
             <input
               name="check_list_method"
               disabled={isView}
@@ -112,7 +136,7 @@ export default function AddCheckItemModal({
           </Field>
 
           {/* Check Item Time */}
-          <Field label="Checking Time">
+          <Field label="Check Item Time">
             <input
               name="check_list_time"
               disabled={isView}

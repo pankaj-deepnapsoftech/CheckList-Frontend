@@ -33,8 +33,7 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
     }
   })
 
-
-  const isView = mode === "view";
+  const isView = !!viewModal;
   const title = {
     add: "Add Process",
     edit: "Update Edit",

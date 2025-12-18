@@ -4,12 +4,12 @@ import { toast } from "react-toastify"
 
 
 
-export const UsePlantName = (search, page , limit) => {
+export const UsePlantName = (search, page) => {
     const qc = useQueryClient()
     const getPlantName = useQuery({
-        queryKey: ["plant", page , limit],
+        queryKey: ["plant", page],
         queryFn: async () => {
-            const res = await axiosHandler.get(`/plant/list-plant?page=${page}&&limit=${limit}`);
+            const res = await axiosHandler.get(`/plant/list-plant?page=${page}&&limit=10`);
             return res?.data?.data;
         },
         enabled: !search,

@@ -10,7 +10,7 @@ const AddPlantModal = (
 ) => {
   const { CreatePlantName, UpdatedPLant } = UsePlantName()
   const { AllCompanyData } = useCompanies()
-  const isView = mode === "view";
+  const isView = !!viewModal;
   const title = {
     add: "Add Plant",
     edit: "Update Plant",
