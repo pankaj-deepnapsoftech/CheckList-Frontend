@@ -4,103 +4,112 @@ const CheckItemsData = () => {
   const [isActive, setIsActive] = useState("yes");
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* HEADER */}
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900">
-          CheckItems Data
-        </h1>
-        <p className="text-gray-500 text-sm mt-1">
-          Manage check items data dynamically
-        </p>
-      </div>
-
-      {/* FILTERS */}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 sm:p-5">
-        <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
-          <select className="w-full sm:w-48 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            <option value="">Assembly</option>
-            <option value="">1</option>
-            <option value="">2</option>
-          </select>
-
-          <select className="w-full sm:w-48 border border-gray-300 rounded-xl px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            <option value="">Process</option>
-            <option value="">1</option>
-            <option value="">2</option>
-          </select>
-        </div>
-      </div>
-
-      {/* FORM CARD */}
-      <div className="bg-white mt-6 rounded-2xl border border-gray-100 shadow-md p-5 sm:p-7">
-        <div className="border-b border-gray-200 pb-3 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Lorem Ipsum
-          </h2>
-          <p className="text-sm text-gray-500">
-            Fill in the check item details
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        {/* PAGE HEADER */}
+        <div className="mb-6">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 tracking-tight">
+            Check Items
+          </h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Configure and manage quality check items
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Check Item Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Check Item Name
-            </label>
-            <input
-              type="text"
-              placeholder="Enter item name"
-              className="w-full rounded-xl border border-gray-300 px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
+        {/* FILTER BAR */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <select className="w-full sm:w-52 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              <option value="">Select Assembly</option>
+              <option value="">Assembly 1</option>
+              <option value="">Assembly 2</option>
+            </select>
+
+            <select className="w-full sm:w-52 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              <option value="">Select Process</option>
+              <option value="">Process 1</option>
+              <option value="">Process 2</option>
+            </select>
+          </div>
+        </div>
+
+        {/* FORM CONTAINER */}
+        <div className="mt-6 bg-white rounded-xl border border-gray-200 shadow-md">
+          
+          {/* FORM HEADER */}
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-gray-900">
+              Lorem Ipsum
+            </h2>
+            <p className="text-sm text-gray-500">
+              Enter check item information
+            </p>
           </div>
 
-          {/* Is Active */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Is Active
-            </label>
-
-            <div className="flex items-center gap-6 rounded-xl border border-gray-300 px-4 py-3">
-              {/* YES */}
-              <label className="flex items-center gap-2 cursor-pointer">
+          {/* FORM BODY */}
+          <div className="px-6 py-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Check Item Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Check Item Name
+                </label>
                 <input
-                  type="radio"
-                  name="isActive"
-                  value="yes"
-                  checked={isActive === "yes"}
-                  onChange={() => setIsActive("yes")}
-                  className="accent-blue-600"
+                  type="text"
+                  placeholder="Ex: Visual inspection"
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
-                <span className="text-sm text-gray-700">Yes</span>
-              </label>
+              </div>
 
-              {/* NO */}
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="radio"
-                  name="isActive"
-                  value="no"
-                  checked={isActive === "no"}
-                  onChange={() => setIsActive("no")}
-                  className="accent-blue-600"
-                />
-                <span className="text-sm text-gray-700">No</span>
-              </label>
+              {/* Status */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Status
+                </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="isActive"
+                      checked={isActive === "yes"}
+                      onChange={() => setIsActive("yes")}
+                      className="accent-blue-600"
+                    />
+                    <span className="text-sm text-gray-700">
+                      Active
+                    </span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="isActive"
+                      checked={isActive === "no"}
+                      onChange={() => setIsActive("no")}
+                      className="accent-blue-600"
+                    />
+                    <span className="text-sm text-gray-700">
+                      Inactive
+                    </span>
+                  </label>
+                
+              </div>
             </div>
           </div>
+
+          {/* FORM FOOTER */}
+          <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex flex-col-reverse sm:flex-row justify-end gap-3">
+            <button className="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
+              Cancel
+            </button>
+            <button className="px-6 py-2.5 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition shadow">
+              Save Check Item
+            </button>
+          </div>
         </div>
 
-        {/* ACTION BUTTONS */}
-        <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 mt-8">
-          <button className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
-            Cancel
-          </button>
-          <button className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 transition shadow">
-            Save
-          </button>
-        </div>
       </div>
     </div>
   );
