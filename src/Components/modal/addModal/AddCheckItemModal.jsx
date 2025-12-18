@@ -18,26 +18,46 @@ export default function AddCheckItemModal({
   const isView = mode === "view";
 
   const {getProcessData} = useProcess()
-  const {CreateCheckItem} = useCheckItem()
+  const { CreateCheckItem, updateCheckItem } = useCheckItem();
 
-  const formik = useFormik({
-    initialValues: {
-      process: initialData?.process || "",
-      item: initialData?.item || "",
-      description: initialData?.description || "",
-      check_list_method: initialData?.check_list_method || "",
-      check_list_time: initialData?.check_list_time || "",
-      result_type: initialData?.result_type || "", // yesno | measurement
-      min: initialData?.min || "0",
-      max: initialData?.max || "0",
-      uom: initialData?.uom || "0",
-    },
-    enableReinitialize: true,
-    validationSchema: validationSchema,
-    onSubmit: (values) => {
-      CreateCheckItem.mutate(values)
-    },
-  });
+ const formik = useFormik({
+  initialValues: {
+    process:
+      initialData?.process?._id || initialData?.process || "",
+    item: initialData?.item || "",
+    description: initialData?.description || "",
+    check_list_method: initialData?.check_list_method || "",
+    check_list_time: initialData?.check_list_time || "",
+    result_type: initialData?.result_type || "",
+    min: initialData?.min || "0",
+    max: initialData?.max || "0",
+    uom: initialData?.uom || "0",
+  },
+  enableReinitialize: true,
+  validationSchema,
+  onSubmit: (values) => {
+    if (mode === "edit") {
+      updateCheckItem.mutate(
+        { id: initialData?._id, data: values },
+        {
+          onSuccess: () => {
+            onClose();
+            formik.resetForm();
+          },
+        }
+      );
+    } else {
+      CreateCheckItem.mutate(values, {
+        onSuccess: () => {
+          onClose();
+          formik.resetForm();
+        },
+      });
+    }
+  },
+});
+
+
 
   if (!open) return null;
 
