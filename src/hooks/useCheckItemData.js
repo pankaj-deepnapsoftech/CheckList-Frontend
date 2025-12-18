@@ -1,0 +1,51 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import axiosHandler from "../config/axiosconfig"
+import { toast } from "react-toastify"
+
+export const useCheckItemData = () => {
+
+    const qc = useQueryClient()
+
+
+    const getAssemblyAndProcessData = useQuery({
+        queryKey: ["assembly"],
+        queryFn: async () => {
+            const res = await axiosHandler.get(`/assembly/get-assembly-responsibal`);
+            return res?.data?.data;
+        }
+    })
+
+    const PostCheckListForm = useMutation({
+        mutationFn: async ({ assembly_id,
+            process_id },) => {
+            const res = await axiosHandler.post(`/assembly/checklist-form`,{
+                assembly_id: assembly_id,
+                process_id: process_id,
+            });
+            return res?.data?.data;
+        },
+        onSuccess: (data) => {
+            qc.invalidateQueries({ queryKey: ["assebly"] })
+            toast.success(data?.message)
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message);
+        }
+    })
+
+    const PostCheckListFormHistory = useMutation({
+        mutationFn: async (data) => {
+            const res = await axiosHandler.post(`/checkitem-history/create-checklist-history`,data);
+            return res?.data;
+        },
+        onSuccess: (data) => {
+            qc.invalidateQueries({ queryKey: ["checkitem-history"] })
+            toast.success(data?.message)
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message);
+        }
+    })
+
+    return { getAssemblyAndProcessData, PostCheckListForm, PostCheckListFormHistory }
+}

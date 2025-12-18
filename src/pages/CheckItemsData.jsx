@@ -1,0 +1,323 @@
+import React, { useEffect, useState } from "react";
+import { useCheckItemData } from "../hooks/useCheckItemData";
+import { useFormik } from "formik";
+import { toast } from "react-toastify";
+
+const CheckItemsData = () => {
+  const [assembly_id, setAssembly_id] = useState("");
+  const [process_id, setProcess_id] = useState("");
+  const { getAssemblyAndProcessData, PostCheckListForm, PostCheckListFormHistory } = useCheckItemData();
+  const [errors, setErrors] = useState({});
+
+  const selectedAssembly = getAssemblyAndProcessData?.data?.find(
+    (a) => a._id === assembly_id
+  );
+
+  console.log("heyy", PostCheckListForm?.data)
+  const handleMeasurementChange = (itemId, value, min, max) => {
+    if (value === "") {
+      setErrors((prev) => ({ ...prev, [itemId]: "" }));
+      return;
+    }
+    const numValue = Number(value);
+
+    if (numValue < min || numValue > max) {
+      setErrors((prev) => ({
+        ...prev,
+        [itemId]: `Value must be between ${min} and ${max}`,
+      }));
+    } else {
+      setErrors((prev) => ({ ...prev, [itemId]: "" }));
+    }
+  };
+
+  
+  const formik = useFormik({
+    initialValues: {
+      data: []
+    },
+    onSubmit: (values) => {
+      const allFilled = PostCheckListForm?.data?.every(
+        (assembly) => assembly.checklist_item?.length === values.data.filter(
+          (d) => d.assembly === assembly._id
+        ).length
+      );
+
+      if (allFilled) {
+        PostCheckListFormHistory.mutate(values);
+      } else {
+        toast.error("Please fill all checklist items before submitting.");
+      }
+    }
+  });
+
+
+
+  const setResult = (checkListId, result, assemblyId, processId) => {
+    const exists = formik.values.data.find(
+      (i) => i.checkList === checkListId
+    );
+
+    let updatedData;
+
+    if (exists) {
+      updatedData = formik.values.data.map((i) =>
+        i.checkList === checkListId ? { ...i, result } : i
+      );
+    } else {
+      updatedData = [
+        ...formik.values.data,
+        {
+          checkList: checkListId,
+          process_id: processId,
+          assembly: assemblyId,
+          result
+        }
+      ];
+    }
+
+    formik.setFieldValue("data", updatedData);
+  };
+
+  useEffect(() => {
+    if (assembly_id && process_id) {
+      PostCheckListForm.mutate({ assembly_id, process_id });
+    }
+  }, [assembly_id, process_id]);
+
+  return (
+    <div className="min-h-screen bg-slate-100">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+
+
+        <div className="mb-8 rounded-2xl bg-white border border-slate-200 shadow-sm p-6">
+          <h1 className="text-3xl font-bold text-slate-900">
+            Quality Check Items
+          </h1>
+          <p className="text-slate-500 mt-1">
+            Review, verify, and record checklist values per assembly & process
+          </p>
+        </div>
+
+        <div className="mb-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
+            <select
+              value={assembly_id}
+              onChange={(e) => {
+                setAssembly_id(e.target.value);
+                setProcess_id("");
+              }}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm
+                         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            >
+              <option value="">Select Assembly</option>
+              {getAssemblyAndProcessData?.data?.map((i) => (
+                <option key={i._id} value={i._id}>
+                  {i.assembly_name} ({i.assembly_number})
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={process_id}
+              onChange={(e) => setProcess_id(e.target.value)}
+              disabled={!assembly_id}
+              className="rounded-lg border border-gray-300 px-4 py-2 text-sm
+                         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                         disabled:bg-gray-100 disabled:border-gray-200"
+            >
+              <option value="">Select Process</option>
+              {selectedAssembly?.process_id?.map((p) => (
+                <option key={p._id} value={p._id}>
+                  {p.process_name} ({p.process_no})
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+
+        {PostCheckListForm?.data?.map((assembly) => (
+          <div
+            key={assembly._id}
+            className="mb-10 rounded-2xl bg-white border border-slate-200 shadow-lg overflow-hidden"
+          >
+
+            <div className="bg-[#6955e7] p-6 text-white">
+              <h2 className="text-2xl font-bold">
+                {assembly.assembly_name}
+                <span className="ml-2 text-indigo-200 text-lg">
+                  ({assembly.assembly_number})
+                </span>
+              </h2>
+              <p className="text-sm mt-1">
+                Process:{" "}
+                <span className="font-semibold">
+                  {assembly.process_id.process_name} (
+                  {assembly.process_id.process_no})
+                </span>
+              </p>
+            </div>
+
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-6 bg-slate-50">
+              <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                <p className="text-xs text-slate-500 font-medium">Company</p>
+                <p className="font-semibold text-slate-800 text-lg">
+                  {assembly.company_id.company_name}
+                </p>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                <p className="text-xs text-slate-500 font-medium">Plant</p>
+                <p className="font-semibold text-slate-800 text-lg">
+                  {assembly.plant_id.plant_name}
+                </p>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                <p className="text-xs text-slate-500 font-medium">
+                  Responsible
+                </p>
+                <p className="font-semibold text-slate-800">
+                  {assembly.responsibility.full_name}
+                  <span className="ml-1 text-indigo-600">
+                    ({assembly.responsibility.user_id})
+                  </span>
+                </p>
+                <p className="text-xs text-slate-400">
+                  {assembly.responsibility.email}
+                </p>
+              </div>
+            </div>
+
+
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-indigo-700 mb-5">
+                Checklist Items
+              </h3>
+
+              <div className="space-y-4">
+                {assembly.checklist_item.map((item, index) => (
+                  <div
+                    key={item._id}
+
+                    className="grid grid-cols-1 sm:grid-cols-6 gap-4 items-center
+                 rounded-xl border border-gray-200 bg-slate-50
+                 p-4 hover:shadow-md transition"
+                  >
+
+                    <div className="sm:col-span-2">
+                      <p className="font-semibold text-slate-800">
+                        {index + 1}. {item.item}
+                      </p>
+                      <p className="text-xs text-indigo-600">
+                        Method: {item.check_list_method}
+                      </p>
+
+
+                      {item.result_type === "measurement" && (
+                        <p className="text-xs text-slate-500 mt-1">
+                          Min: <span className="font-semibold">{item.min}</span> |
+                          Max: <span className="font-semibold">{item.max}</span> |
+                          UOM: <span className="font-semibold">{item.uom}</span>
+                        </p>
+                      )}
+                    </div>
+
+
+                    <div className="text-sm font-medium text-slate-600">
+                      ⏱ {item.check_list_time}
+                    </div>
+
+
+                    <div>
+                      {item.result_type === "yes/no" ? (
+                        <select
+                          onChange={(e) =>
+                            setResult(
+                              item._id,
+                              e.target.value,
+                              assembly._id,
+                              assembly.process_id._id
+                            )
+                          }
+                          required
+                          className=" w-full rounded-lg  border  border-gray-300  px-3  py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 hover:border-gray-400"
+                        >
+                          <option value="">Select</option>
+                          <option value="yes">Yes</option>
+                          <option value="no">No</option>
+                        </select>
+
+
+                      ) : (
+                        <>
+                          <input
+                            type="text"
+                            required
+                            min={item.min}
+                            max={item.max}
+                            onChange={(e) => {
+                              handleMeasurementChange(
+                                item._id,
+                                e.target.value,
+                                item.min,
+                                item.max
+                              );
+                              setResult(
+                                item._id,
+                                e.target.value,
+                                assembly._id,
+                                assembly.process_id._id
+                              )
+                            }
+                            }
+                            className={`w-full rounded-lg border px-3 py-2 text-sm
+                focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                ${errors[item._id]
+                                ? "border-red-400"
+                                : "border-gray-300"
+                              }`}
+                            placeholder="Enter value"
+                          />
+
+
+                          {errors[item._id] && (
+                            <p className="text-xs text-red-500 mt-1">
+                              {errors[item._id]}
+                            </p>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          </div>
+        ))}
+
+        {formik.errors.data && (
+          <p className="text-red-500 text-sm mb-2">{formik.errors.data}</p>
+        )}
+        <div className="flex justify-end mt-2">
+          <button
+            type="submit"
+            onClick={formik.handleSubmit}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-colors duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            disabled={formik.values.data.length === 0}
+          >
+            Submit
+          </button>
+        </div>
+
+
+
+      </div>
+    </div >
+  );
+};
+
+export default CheckItemsData;

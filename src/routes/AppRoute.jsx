@@ -15,6 +15,7 @@ import { useLogin } from "../hooks/useLogin";
 import ForgetPassword from "../pages/auth/ForgetPassword";
 import CheckItem from "../pages/CheckItem";
 import Parts from "../pages/Parts";
+import CheckItemsData from "../pages/CheckItemsData";
 
 
 
@@ -50,6 +51,7 @@ export const AppRoute = () => {
         element: withProtection(AssemblyLineStatus),
       },
       { path: "/checkitem", element: withProtection(CheckItem) },
+      { path: "/checkitem-data", element: withProtection(CheckItemsData) },
       { path: "/*", element: <PageNotFound /> },
     ]);
 };
