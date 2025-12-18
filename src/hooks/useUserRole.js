@@ -2,13 +2,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
-export const useUserRole = (search,page) => {
+export const useUserRole = (search,page,limit) => {
   const qc = useQueryClient();
 
   const UserlistQuery = useQuery({
-    queryKey: ["user-roles",page],
+    queryKey: ["user-roles",page,limit],
     queryFn: async () => {
-      const res = await axiosHandler.get(`/roles/get-list-roles?page=${page}&&limit=10`);
+      const res = await axiosHandler.get(`/roles/get-list-roles?page=${page}&&limit=${limit}`);
       return res?.data?.data;
     },
     onError: (error) => {
