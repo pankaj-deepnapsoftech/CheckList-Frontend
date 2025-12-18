@@ -195,7 +195,7 @@ const Process = () => {
                     className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
                   >
                     <td className="px-5 py-4">{pro.process_no}</td>
-                    <td className="px-5 py-4 ">{pro.process_name}</td>
+                    <td className="px-5 py-4 "><span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">{pro.process_name}</span></td>
                     <td className="px-5 py-4">
                       <span className="px-5 py-4 ">
                         {formatDateDMY(pro.createdAt)}
