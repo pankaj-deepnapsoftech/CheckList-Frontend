@@ -2,20 +2,24 @@ import { useState } from "react";
 import { Plus, RefreshCw, Search, Edit2, Trash2, Eye } from "lucide-react";
 import Pagination from "../Components/Pagination/Pagination.jsx";
 import AddPartsModal from "../components/modal/addModal/AddPartsModal.jsx";
-import { UsePart } from "../hooks/usePart.js";
+import {UsePart} from "../hooks/usePart.js";
+import Refresh from "../components/Refresh/Refresh";
 
 const actionBtn =
   "p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:shadow-md";
 
 const Parts = () => {
+
+  const [limit,setLimit]=useState(10);
   const [page, setPage] = useState(1);
+  const { getPartData, removeParts } = UsePart(page,limit);
   const [search, setSearch] = useState("");
 
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add");
-
-  const { getPartData, removeParts } = UsePart(page);
+  const [showRefresh, setShowRefresh] = useState(false);
+ 
 
   const filteredParts = getPartData?.data || [];
 
@@ -23,6 +27,15 @@ const Parts = () => {
     if (window.confirm("Are you sure you want to delete this part?")) {
       removeParts.mutate(id);
     }
+  };
+
+  const handleRefresh = async () => {
+    setPage(1);
+    setSearch("");
+    setShowRefresh(true);  
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
+    await Promise.all([getPartData.refetch(), minDelay]); 
+    setShowRefresh(false);  // Hide overlay
   };
 
   return (
@@ -59,8 +72,8 @@ const Parts = () => {
           </button>
 
           <button
-            onClick={() => setSearch("")}
-            className="border cursor-pointer border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
+            onClick={handleRefresh}
+            className="px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100"
           >
             <RefreshCw size={18} /> Refresh
           </button>
@@ -69,9 +82,29 @@ const Parts = () => {
 
       {/* LIST */}
       <div className="bg-white rounded-2xl shadow mt-6 p-5">
-        <h2 className="text-gray-800 text-lg font-semibold mb-4">
-          {filteredParts?.length} Parts Found
-        </h2>
+        {/* Header: Count + Show Dropdown */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
+          <h2 className="text-gray-800 text-lg font-semibold">
+            {filteredParts.length} Parts Found
+          </h2>
+
+          {/* Show Dropdown */}
+          <div className="flex items-center gap-4 text-gray-600">
+            <span>Show:</span>
+            <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0 "
+              value={limit}
+              onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setPage(1); 
+            }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+        </div>
 
         {/* MOBILE */}
         <div className="grid gap-4 sm:hidden">
@@ -184,11 +217,7 @@ const Parts = () => {
         />
 
         {/* PAGINATION (UI ONLY) */}
-        <Pagination
-          page={page}
-          setPage={setPage}
-          hasNextpage={getPartData?.data?.length === 10}
-        />
+        <Pagination page={page} setPage={setPage} hasNextpage={filteredParts.length === limit} />
       </div>
     </div>
   );

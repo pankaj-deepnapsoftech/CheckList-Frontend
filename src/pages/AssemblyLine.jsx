@@ -11,6 +11,7 @@ import AssemblyLineModal from "../components/modal/addModal/AddNewAssembly";
 import { useAssemblyLine } from "../hooks/useAssemblyLine";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
+import Refresh from "../components/Refresh/Refresh";
 
 export default function AssemblyLine() {
   const [page, setPage] = useState(1)
@@ -18,10 +19,12 @@ export default function AssemblyLine() {
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [viewModal, setViewModal] = useState(null);
+  const [limit,setLimit]=useState(10);
   const [mode, setMode] = useState("add");
   const { debounce, value } = useDebounce(search)
-  const { getAssemblyLineData, searchQuery, DeleteAssemblyLine } = useAssemblyLine(value, page)
+  const { getAssemblyLineData, searchQuery, DeleteAssemblyLine } = useAssemblyLine(value, page , limit)
   const data = debounce ? searchQuery?.data ?? [] : getAssemblyLineData?.data ?? [];
+  const [showRefresh, setShowRefresh] = useState(false);
 
 
   const handleDelete = (id) => {
@@ -31,7 +34,13 @@ export default function AssemblyLine() {
 
   }
 
-
+  const handleRefresh = async () => {
+    setPage(1);
+    setShowRefresh(true);  
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
+    await Promise.all([getAssemblyLineData.refetch(), minDelay]); 
+    setShowRefresh(false);  // Hide overlay
+  };
 
   return (
     <div>
@@ -68,13 +77,15 @@ export default function AssemblyLine() {
             <Plus size={18} /> Add New Assembly
           </button>
 
-          <button className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
+          <button className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
+          onClick={handleRefresh}
+          >
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-md border border-gray-100 mt-6 p-5">
+      <div className="relative min-h-[300px] bg-white rounded-2xl shadow-md border border-gray-100 mt-6 p-5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="font-semibold text-gray-800 text-lg">
             {data?.length} Records Found
@@ -82,11 +93,17 @@ export default function AssemblyLine() {
 
           <div className="flex items-center gap-2 text-gray-500">
             <span className="text-sm font-medium">Show:</span>
-            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer transition">
+            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer transition focus:outline-none focus:ring-0"
+              value={limit}
+              onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setPage(1); 
+            }}
+            >
               <option>5</option>
               <option>10</option>
-              <option>15</option>
-              <option>20</option>
+              <option>50</option>
+              <option>100</option>
             </select>
           </div>
         </div>
@@ -146,6 +163,9 @@ export default function AssemblyLine() {
         </div> */}
 
         {/* ============ DESKTOP TABLE ============ */}
+      {showRefresh ? (
+                <Refresh />
+              ) : (
         <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[800px] text-left">
             <thead>
@@ -207,8 +227,7 @@ export default function AssemblyLine() {
             </tbody>
           </table>
         </div>
-
-
+        )}
       </div>
 
       <AssemblyLineModal
@@ -217,7 +236,7 @@ export default function AssemblyLine() {
         editTable={editTable}
         viewModal={viewModal}
         mode={mode} />
-      <Pagination page={page} setPage={setPage} hasNextpage={data?.length === 10} />
+      <Pagination page={page} setPage={setPage} hasNextpage={data?.length === limit} />
     </div >
   );
 }

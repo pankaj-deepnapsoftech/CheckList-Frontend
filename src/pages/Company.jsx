@@ -29,6 +29,7 @@ const Company = () => {
   };
 
   const handleRefresh = async () => {
+    setPage(1);
     setShowRefresh(true);  
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
     await Promise.all([listQuery.refetch(), minDelay]); 
@@ -262,9 +263,6 @@ return (
       setMode={setMode}
       />
       <Pagination page={page} setPage={setPage} hasNextpage={filteredCompanies?.length === limit} />
-
-      
-      
 
     </div>
           

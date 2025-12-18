@@ -24,6 +24,7 @@ const PlantName = () => {
   }
 
    const handleRefresh = async () => {
+    setPage(1);
     setShowRefresh(true);  
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
     await Promise.all([getPlantName.refetch(), minDelay]); 
