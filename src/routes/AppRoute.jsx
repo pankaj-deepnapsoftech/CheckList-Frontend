@@ -16,6 +16,7 @@ import ForgetPassword from "../pages/auth/ForgetPassword";
 import CheckItem from "../pages/CheckItem";
 import Parts from "../pages/Parts";
 import CheckItemsData from "../pages/CheckItemsData";
+import CheckItemHistory from "../pages/CheckItemHistory";
 
 
 
@@ -41,7 +42,7 @@ export const AppRoute = () => {
       { path: "/", element: withProtection(Dashboard) },
       { path: "/user-role", element: withProtection(UserRoles) },
       { path: "/process", element: withProtection(Process) },
-      {path: "/parts", element: withProtection(Parts)},
+      { path: "/parts", element: withProtection(Parts) },
       { path: "/plant-name", element: withProtection(PlantName) },
       { path: "/employee", element: withProtection(Employee) },
       { path: "/company", element: withProtection(Company) },
@@ -52,6 +53,10 @@ export const AppRoute = () => {
       },
       { path: "/checkitem", element: withProtection(CheckItem) },
       { path: "/checkitem-data", element: withProtection(CheckItemsData) },
+      {
+        path: "/check-item-history",
+        element: withProtection(CheckItemHistory),
+      },
       { path: "/*", element: <PageNotFound /> },
     ]);
 };

@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useCheckItemData } from "../hooks/useCheckItemData";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
+import { History } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 
 const CheckItemsData = () => {
   const [assembly_id, setAssembly_id] = useState("");
@@ -88,15 +91,18 @@ const CheckItemsData = () => {
   return (
     <div className="min-h-screen bg-slate-100">
       <div className="max-w-7xl mx-auto px-4 py-8">
-
-
-        <div className="mb-8 rounded-2xl bg-white border border-slate-200 shadow-sm p-6">
-          <h1 className="text-3xl font-bold text-slate-900">
-            Quality Check Items
-          </h1>
-          <p className="text-slate-500 mt-1">
-            Review, verify, and record checklist values per assembly & process
-          </p>
+        <div className="mb-8 rounded-2xl bg-white border border-slate-200 shadow-sm p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
+                Quality Check Items
+              </h1>
+              <p className="text-slate-500 mt-1 text-sm sm:text-base">
+                Review, verify, and record checklist values per assembly &
+                process
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="mb-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
@@ -136,13 +142,11 @@ const CheckItemsData = () => {
           </div>
         </div>
 
-
         {PostCheckListForm?.data?.map((assembly) => (
           <div
             key={assembly._id}
             className="mb-10 rounded-2xl bg-white border border-slate-200 shadow-lg overflow-hidden"
           >
-
             <div className="bg-[#6955e7] p-6 text-white">
               <h2 className="text-2xl font-bold">
                 {assembly.assembly_name}
@@ -158,7 +162,6 @@ const CheckItemsData = () => {
                 </span>
               </p>
             </div>
-
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-6 bg-slate-50">
               <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
@@ -191,7 +194,6 @@ const CheckItemsData = () => {
               </div>
             </div>
 
-
             <div className="p-6">
               <h3 className="text-xl font-bold text-indigo-700 mb-5">
                 Checklist Items
@@ -201,12 +203,10 @@ const CheckItemsData = () => {
                 {assembly.checklist_item.map((item, index) => (
                   <div
                     key={item._id}
-
                     className="grid grid-cols-1 sm:grid-cols-6 gap-4 items-center
                  rounded-xl border border-gray-200 bg-slate-50
                  p-4 hover:shadow-md transition"
                   >
-
                     <div className="sm:col-span-2">
                       <p className="font-semibold text-slate-800">
                         {index + 1}. {item.item}
@@ -215,24 +215,22 @@ const CheckItemsData = () => {
                         Method: {item.check_list_method}
                       </p>
 
-
                       {item.result_type === "measurement" && (
                         <p className="text-xs text-slate-500 mt-1">
-                          Min: <span className="font-semibold">{item.min}</span> |
-                          Max: <span className="font-semibold">{item.max}</span> |
+                          Min: <span className="font-semibold">{item.min}</span>{" "}
+                          | Max:{" "}
+                          <span className="font-semibold">{item.max}</span> |
                           UOM: <span className="font-semibold">{item.uom}</span>
                         </p>
                       )}
                     </div>
 
-
                     <div className="text-sm font-medium text-slate-600">
                       ⏱ {item.check_list_time}
                     </div>
 
-
                     <div>
-                      {item.result_type === "yes/no" ? (
+                      {item.result_type === "yesno" ? (
                         <select
                           onChange={(e) =>
                             setResult(
@@ -249,8 +247,6 @@ const CheckItemsData = () => {
                           <option value="yes">Yes</option>
                           <option value="no">No</option>
                         </select>
-
-
                       ) : (
                         <>
                           <input
@@ -270,18 +266,13 @@ const CheckItemsData = () => {
                                 e.target.value,
                                 assembly._id,
                                 assembly.process_id._id
-                              )
-                            }
-                            }
+                              );
+                            }}
                             className={`w-full rounded-lg border px-3 py-2 text-sm
                 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-                ${errors[item._id]
-                                ? "border-red-400"
-                                : "border-gray-300"
-                              }`}
+                ${errors[item._id] ? "border-red-400" : "border-gray-300"}`}
                             placeholder="Enter value"
                           />
-
 
                           {errors[item._id] && (
                             <p className="text-xs text-red-500 mt-1">
@@ -294,7 +285,6 @@ const CheckItemsData = () => {
                   </div>
                 ))}
               </div>
-
             </div>
           </div>
         ))}
@@ -312,11 +302,8 @@ const CheckItemsData = () => {
             Submit
           </button>
         </div>
-
-
-
       </div>
-    </div >
+    </div>
   );
 };
 
