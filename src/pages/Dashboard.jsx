@@ -1,13 +1,6 @@
 import { Search } from "lucide-react";
 import React, { useState, useMemo } from "react";
-
-/* ---------- Sample data ---------- */
-const SUMMARY = [
-  { title: "Total Assembly", value: 100, delta: 5 },
-  { title: "Total Employees", value: 70, delta: -2 },
-  { title: "Total Roles", value: 9, delta: 1 },
-  { title: "All Processes", value: 8, delta: 0 },
-];
+import { useDashboardCards } from "../hooks/useDashboard";
 
 const LINE_DATA = [
   { label: "500", running: 18, fault: 8 },
@@ -27,17 +20,65 @@ const PIE_DATA = [
 ];
 
 const TABLE_ROWS = [
-  { process: "500", name: "PCB Depaneling", method: "Visual By ESD Meter", check: "SOP", status: "Complete" },
-  { process: "1000 A", name: "Print Plate Soldering", method: "Visual Check", check: "When Bit Change", status: "Complete" },
-  { process: "1000 B", name: "Print Plate Soldering", method: "Visual By Limit Sample", check: "SOP", status: "Pending" },
-  { process: "2000", name: "Case & Slider Greasing", method: "Weighting Machine", check: "SOP", status: "Complete" },
-  { process: "5000", name: "Cover Assy", method: "Visual Check In Pressure Gauge", check: "SOP", status: "Error" },
-  { process: "6000", name: "Knob assy", method: "Visual & Manual", check: "SOP", status: "Pending" },
-  { process: "7000", name: "Auto Check", method: "Visual Check In FR unit", check: "SOP", status: "Complete" },
-  { process: "8000", name: "Final Inspection", method: "Visual & Manual", check: "SOP", status: "Complete" },
+  {
+    process: "500",
+    name: "PCB Depaneling",
+    method: "Visual By ESD Meter",
+    check: "SOP",
+    status: "Complete",
+  },
+  {
+    process: "1000 A",
+    name: "Print Plate Soldering",
+    method: "Visual Check",
+    check: "When Bit Change",
+    status: "Complete",
+  },
+  {
+    process: "1000 B",
+    name: "Print Plate Soldering",
+    method: "Visual By Limit Sample",
+    check: "SOP",
+    status: "Pending",
+  },
+  {
+    process: "2000",
+    name: "Case & Slider Greasing",
+    method: "Weighting Machine",
+    check: "SOP",
+    status: "Complete",
+  },
+  {
+    process: "5000",
+    name: "Cover Assy",
+    method: "Visual Check In Pressure Gauge",
+    check: "SOP",
+    status: "Error",
+  },
+  {
+    process: "6000",
+    name: "Knob assy",
+    method: "Visual & Manual",
+    check: "SOP",
+    status: "Pending",
+  },
+  {
+    process: "7000",
+    name: "Auto Check",
+    method: "Visual Check In FR unit",
+    check: "SOP",
+    status: "Complete",
+  },
+  {
+    process: "8000",
+    name: "Final Inspection",
+    method: "Visual & Manual",
+    check: "SOP",
+    status: "Complete",
+  },
 ];
 
-/* ---------- Small helpers ---------- */
+/* ---------- Helpers ---------- */
 function getMinMax(arr, key) {
   const vals = arr.map((r) => r[key]);
   return [Math.min(...vals), Math.max(...vals)];
@@ -50,7 +91,7 @@ function toPolylinePoints(data, key, width = 600, height = 140, pad = 20) {
   const range = Math.max(1, max - min);
   return data
     .map((d, i) => {
-      const x = pad + i * stepX;
+      const x = pad + i * stepX;  
       const y = pad + (height - pad * 2) * (1 - (d[key] - min) / range);
       return `${x},${y}`;
     })
@@ -63,6 +104,7 @@ function describeArc(cx, cy, r, startAngle, endAngle) {
   const largeArcFlag = endAngle - startAngle <= Math.PI ? "0" : "1";
   return `M ${cx} ${cy} L ${start.x} ${start.y} A ${r} ${r} 0 ${largeArcFlag} 0 ${end.x} ${end.y} Z`;
 }
+
 function polarToCartesian(cx, cy, r, angleInRad) {
   return { x: cx + r * Math.cos(angleInRad), y: cy + r * Math.sin(angleInRad) };
 }
@@ -70,20 +112,22 @@ function polarToCartesian(cx, cy, r, angleInRad) {
 /* ---------- Subcomponents ---------- */
 function StatCard({ title, value, delta }) {
   return (
-    <div className="bg-white border border-gray-200/60 rounded-2xl p-5 
-      shadow-[0_1px_3px_rgba(0,0,0,0.06)]
-      hover:shadow-[0_4px_12px_rgba(0,0,0,0.10)]
-      transition-all duration-300">
-
+    <div className="bg-white border border-gray-200/60 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-300">
       <div className="flex items-center justify-between">
         <div>
           <div className="text-xs text-gray-500">{title}</div>
-          <div className="mt-1 text-2xl font-semibold text-gray-800">{value}</div>
+          <div className="mt-1 text-2xl font-semibold text-gray-800">
+            {value}
+          </div>
         </div>
       </div>
-
-      <div className={`mt-3 text-sm ${delta >= 0 ? "text-green-600" : "text-red-500"}`}>
-        {delta >= 0 ? `▲ ${Math.abs(delta)}` : `▼ ${Math.abs(delta)}`} v/s last month
+      <div
+        className={`mt-3 text-sm ${
+          delta >= 0 ? "text-green-600" : "text-red-500"
+        }`}
+      >
+        {delta >= 0 ? `▲ ${Math.abs(delta)}` : `▼ ${Math.abs(delta)}`} v/s last
+        month
       </div>
     </div>
   );
@@ -103,17 +147,47 @@ function Tooltip({ x, y, text }) {
 
 /* ---------- Main Component ---------- */
 export default function Dashboard() {
-  const [range, setRange] = useState("Weekly");
   const [lineHover, setLineHover] = useState({ x: null, y: null, text: null });
   const [pieHover, setPieHover] = useState({ x: null, y: null, text: null });
 
-  const linePolylineRunning = useMemo(() => toPolylinePoints(LINE_DATA, "running", 680, 150, 12), []);
-  const linePolylineFault = useMemo(() => toPolylinePoints(LINE_DATA, "fault", 680, 150, 12), []);
+  // Top cards data
+  const { data: cardData, isLoading } = useDashboardCards();
+  const summaryCards = [
+    {
+      title: "Total Assembly",
+      value: cardData?.totals?.assembly ?? 0,
+      delta: cardData?.month_difference?.assembly ?? 0,
+    },
+    {
+      title: "Total Employees",
+      value: cardData?.totals?.employee ?? 0,
+      delta: cardData?.month_difference?.employee ?? 0,
+    },
+    {
+      title: "Total Processes",
+      value: cardData?.totals?.process ?? 0,
+      delta: cardData?.month_difference?.process ?? 0,
+    },
+    {
+      title: "Total Parts",
+      value: cardData?.totals?.parts ?? 0,
+      delta: cardData?.month_difference?.parts ?? 0,
+    },
+  ];
+
+  const linePolylineRunning = useMemo(
+    () => toPolylinePoints(LINE_DATA, "running", 680, 150, 12),
+    []
+  );
+  const linePolylineFault = useMemo(
+    () => toPolylinePoints(LINE_DATA, "fault", 680, 150, 12),
+    []
+  );
 
   const pieTotal = PIE_DATA.reduce((s, p) => s + p.value, 0);
 
   return (
-    <div className="min-h-screen from-gray-50 to-gray-100 text-gray-900">
+    <div className="min-h-screen from-gray-50 to-gray-100 text-gray-900 p-4 md:p-6">
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
         <div>
@@ -124,36 +198,17 @@ export default function Dashboard() {
             Monitor assembly checks, errors and progress
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <div className="hidden md:flex items-center border border-gray-200/70 rounded-lg px-3 py-2 bg-white shadow-sm">
-            <Search size={20} className="text-gray-500 mr-2" />
-            <input
-              placeholder="Search process, name..."
-              className="outline-none text-sm"
-            />
-          </div>
-
-          <button className="px-3 py-2 bg-white border border-gray-200/70 rounded-lg shadow-sm text-sm">
-            Aug 21 - Sep 21
-          </button>
-
-          <select
-            className="text-sm px-3 py-2 border border-gray-200/70 rounded-lg bg-white shadow-sm"
-            value={range}
-            onChange={(e) => setRange(e.target.value)}
-          >
-            <option>Weekly</option>
-            <option>Monthly</option>
-            <option>Yearly</option>
-          </select>
-        </div>
       </header>
 
-      {/* Summary */}
+      {/* Summary Cards */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        {SUMMARY.map((s, i) => (
-          <StatCard key={i} title={s.title} value={s.value} delta={s.delta} />
+        {summaryCards.map((s, i) => (
+          <StatCard
+            key={i}
+            title={s.title}
+            value={isLoading ? "—" : s.value}
+            delta={s.delta}
+          />
         ))}
       </section>
 
@@ -162,17 +217,14 @@ export default function Dashboard() {
         {/* LEFT SIDE */}
         <div className="lg:col-span-8 space-y-6">
           {/* Line Chart */}
-          <div className="bg-white rounded-2xl border border-gray-200/60 shadow-[0_1px_3px_rgba(0,0,0,0.06)] p-5">
+          <div className="bg-white rounded-2xl border border-gray-200/60 shadow-sm p-5">
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-sm font-semibold text-gray-700">
                   Assembly Graph
                 </h3>
-                <div className="text-xs text-gray-400">
-                  Showing {range} data
-                </div>
+                <div className="text-xs text-gray-400">Showing data</div>
               </div>
-
               <div className="text-sm text-gray-500">
                 Legend:{" "}
                 <span className="ml-2 inline-block w-3 h-3 bg-indigo-500 rounded-full mr-1" />
@@ -258,9 +310,9 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Pie & Bars */}
+          {/* Pie + Bar Charts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Pie */}
+            {/* Pie Chart */}
             <div className="bg-white rounded-2xl border border-gray-200/60 p-5 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
@@ -281,9 +333,7 @@ export default function Dashboard() {
                     let cum = 0;
                     return PIE_DATA.map((s, i) => {
                       const start = (cum / pieTotal) * Math.PI * 2;
-                      // eslint-disable-next-line react-hooks/immutability
-                      cum += s.value;
-                      const end = (cum / pieTotal) * Math.PI * 2;
+                      const end = ((cum + s.value) / pieTotal) * Math.PI * 2;
                       return (
                         <path
                           key={i}
@@ -325,7 +375,6 @@ export default function Dashboard() {
                   ))}
                 </div>
               </div>
-
               <Tooltip x={pieHover.x} y={pieHover.y} text={pieHover.text} />
             </div>
 
@@ -355,25 +404,6 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
-
-          {/* Small 3 charts */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {[
-              "Checked Assembly",
-              "Errors Assembly",
-              "Assembly Line Checking",
-            ].map((t) => (
-              <div
-                key={t}
-                className="bg-white rounded-2xl border border-gray-200/60 p-5 shadow-sm"
-              >
-                <h5 className="text-sm font-semibold text-gray-700">{t}</h5>
-                <div className="h-28 flex items-center justify-center text-gray-400">
-                  Coming Soon
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* RIGHT SIDE */}
@@ -396,81 +426,131 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Table */}
-          <div className="bg-white rounded-2xl border border-gray-200/60 p-5 shadow-sm">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">
-              Assembly
-            </h4>
-
-            <div className="overflow-x-auto rounded-xl">
-              <table className="w-full text-sm">
-                <thead className="text-gray-500 text-xs bg-gray-50/50">
-                  <tr>
-                    <th className="py-2 text-left px-2">Process</th>
-                    <th className="py-2 text-left px-2">Name</th>
-                    <th className="py-2 text-left px-2">Method</th>
-                    <th className="py-2 text-left px-2">Check</th>
-                    <th className="py-2 text-left px-2">Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {TABLE_ROWS.map((r, idx) => (
-                    <tr
-                      key={idx}
-                      className="border-b border-gray-200/40 hover:bg-gray-100/50 transition"
-                    >
-                      <td className="py-2 px-2">{r.process}</td>
-                      <td className="py-2 px-2">{r.name}</td>
-                      <td className="py-2 px-2">{r.method}</td>
-                      <td className="py-2 px-2">{r.check}</td>
-                      <td className="py-2 px-2">
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                            r.status === "Complete"
-                              ? "bg-green-100 text-green-700"
-                              : r.status === "Pending"
-                              ? "bg-yellow-100 text-yellow-700"
-                              : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {r.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="mt-3 text-right">
-              <button className="text-sm text-indigo-600">View all</button>
-            </div>
-          </div>
-
           {/* Status Summary */}
-          <div className="bg-white rounded-2xl border border-gray-200/60 p-5 shadow-sm">
-            <h4 className="text-sm font-semibold text-gray-700">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-lg p-4 w-full flex flex-col justify-between">
+            <h4 className="text-xl font-semibold text-gray-800 mb-4">
               Status Summary
             </h4>
-            <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-              <div className="px-3 py-2 rounded-lg bg-green-50 text-green-700">
-                Complete — 5
+            <div className="grid grid-cols-2 gap-4">
+              {/* Complete */}
+              <div className="flex flex-col justify-between p-5 rounded-2xl bg-gradient-to-br from-green-50 to-green-100 shadow-md hover:shadow-xl transition-shadow duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="w-4 h-4 rounded-full bg-green-700 shadow-inner" />
+                  <span className="text-sm font-semibold text-green-800">
+                    Complete
+                  </span>
+                </div>
+                <span className="text-3xl font-bold text-green-900 mb-4">
+                  5
+                </span>
+                <div className="w-full h-3 bg-green-200 rounded-full overflow-hidden">
+                  <div className="h-3 bg-green-400 rounded-full w-5/6 transition-all duration-500"></div>
+                </div>
               </div>
-              <div className="px-3 py-2 rounded-lg bg-yellow-50 text-yellow-700">
-                Pending — 2
+
+              {/* Pending */}
+              <div className="flex flex-col justify-between p-5 rounded-2xl bg-gradient-to-br from-yellow-50 to-yellow-100 shadow-md hover:shadow-xl transition-shadow duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="w-4 h-4 rounded-full bg-yellow-700 shadow-inner" />
+                  <span className="text-sm font-semibold text-yellow-800">
+                    Pending
+                  </span>
+                </div>
+                <span className="text-3xl font-bold text-yellow-900 mb-4">
+                  2
+                </span>
+                <div className="w-full h-3 bg-yellow-200 rounded-full overflow-hidden">
+                  <div className="h-3 bg-yellow-400 rounded-full w-1/3 transition-all duration-500"></div>
+                </div>
               </div>
-              <div className="px-3 py-2 rounded-lg bg-red-50 text-red-700">
-                Error — 1
+
+              {/* Error */}
+              <div className="flex flex-col justify-between p-5 rounded-2xl bg-gradient-to-br from-red-50 to-red-100 shadow-md hover:shadow-xl transition-shadow duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="w-4 h-4 rounded-full bg-red-700 shadow-inner" />
+                  <span className="text-sm font-semibold text-red-800">
+                    Error
+                  </span>
+                </div>
+                <span className="text-3xl font-bold text-red-900 mb-4">1</span>
+                <div className="w-full h-3 bg-red-200 rounded-full overflow-hidden">
+                  <div className="h-3 bg-red-400 rounded-full w-1/6 transition-all duration-500"></div>
+                </div>
               </div>
-              <div className="px-3 py-2 rounded-lg bg-blue-50 text-blue-700">
-                In Progress — 3
+
+              {/* In Progress */}
+              <div className="flex flex-col justify-between p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 shadow-md hover:shadow-xl transition-shadow duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="w-4 h-4 rounded-full bg-blue-700 shadow-inner" />
+                  <span className="text-sm font-semibold text-blue-800">
+                    In Progress
+                  </span>
+                </div>
+                <span className="text-3xl font-bold text-blue-900 mb-4">3</span>
+                <div className="w-full h-3 bg-blue-200 rounded-full overflow-hidden">
+                  <div className="h-3 bg-blue-400 rounded-full w-1/2 transition-all duration-500"></div>
+                </div>
               </div>
             </div>
           </div>
         </aside>
       </section>
 
+      {/* Assembly graph Table */}
+      <section className="mt-6 w-full">
+        <div className="bg-white rounded-2xl border border-gray-200/60 p-5 shadow-sm w-full">
+          <div className="flex items-center justify-between mb-4">
+            <h4 className="text-lg font-semibold text-gray-700">
+              Assembly Table
+            </h4>
+            <button className="text-sm text-indigo-600 hover:underline">
+              View all
+            </button>
+          </div>
+
+          <div className="overflow-x-auto rounded-xl">
+            <table className="w-full text-sm border-collapse">
+              <thead className="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+                <tr>
+                  <th className="px-4 py-2 text-left">Process No.</th>
+                  <th className="px-4 py-2 text-left">Process Name</th>
+                  <th className="px-4 py-2 text-left">Check Method</th>
+                  <th className="px-4 py-2 text-left">Check Time</th>
+                  <th className="px-4 py-2 text-left">Status</th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-gray-100">
+                {TABLE_ROWS.map((r, i) => (
+                  <tr key={i} className="hover:bg-gray-50 transition">
+                    <td className="px-4 py-2 font-medium text-gray-700">
+                      {r.process}
+                    </td>
+                    <td className="px-4 py-2 text-gray-600">{r.name}</td>
+                    <td className="px-4 py-2 text-gray-600">{r.method}</td>
+                    <td className="px-4 py-2 text-gray-600">{r.check}</td>
+                    <td className="px-4 py-2">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          r.status === "Complete"
+                            ? "bg-green-100 text-green-700"
+                            : r.status === "Pending"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                      >
+                        {r.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
       <footer className="text-center text-xs text-gray-400 mt-6">
         © {new Date().getFullYear()} Check Item Management
       </footer>
