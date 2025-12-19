@@ -8,6 +8,7 @@ import { useUserRole } from "../../../hooks/useUserRole";
 import { RegisterEmployee } from "../../../hooks/useRegisterEmployee";
 import { Eye } from "lucide-react";
 import { EyeOff } from "lucide-react";
+import SearchableDropdown from "../../SearchableDropDown/SearchableDropDown";
 
 export default function AddEmployeeModal({
   open,
@@ -237,24 +238,23 @@ export default function AddEmployeeModal({
             {/* Company */}
             <Field label="Company">
               <span className="text-red-500">*</span>
-              <select
-                name="employee_company"
-                disabled={isView}
-                value={formik.values.employee_company}
-                onChange={(e) => {
-                  formik.setFieldValue("employee_company", e.target.value);
-                  formik.setFieldValue("Employee_plant", "");
-                }}
-                onBlur={formik.handleBlur}
-                className="input cursor-pointer"
-              >
-                <option value="">Select Company</option>
-                {(AllCompanyData?.data || []).map((c) => (
-                  <option key={c._id} value={c._id}>
-                    {c.company_name}
-                  </option>
-                ))}
-              </select>
+              <SearchableDropdown
+                  placeholder="Select Company"
+                  options={AllCompanyData?.data || []}
+                  value={formik.values.employee_company}
+                  onChange={(val) => {
+                  formik.setFieldValue("employee_company", val);
+                  formik.setFieldValue("Employee_plant", ""); 
+                  }}
+              error={
+                formik.touched.employee_company && formik.errors.employee_company
+                ? formik.errors.employee_company
+                : undefined
+                 }
+                  disabled={isView}
+                  getOptionLabel={(c) => c.company_name}
+                  getOptionValue={(c) => c._id}
+                />
               {formik.touched.employee_company &&
                 formik.errors.employee_company && (
                   <p className="text-red-500 text-sm mt-1">

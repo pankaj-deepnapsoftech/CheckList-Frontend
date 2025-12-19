@@ -1,8 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
-export const UsePart = (page,limit) => {
+export const UsePart = (page,limit,search) => {
   const qc = useQueryClient();
 
 
@@ -13,6 +13,18 @@ export const UsePart = (page,limit) => {
        return res?.data?.data;
      },
    });
+
+   const searchQuery = useQuery({
+      queryKey: ["parts", search],
+      queryFn: async () => {
+      const res = await axiosHandler.get(
+        `/parts/all-parts?search=${search}`
+       );
+       return res.data.data;
+       },
+      enabled: !!search,
+      placeholderData: keepPreviousData,
+    });
 
   const getAllPart = useQuery({
     queryKey: ["parts"],
@@ -67,5 +79,5 @@ export const UsePart = (page,limit) => {
     },
   });
 
-  return { getAllPart, createPart, updateParts, getPartData, removeParts };
+  return { getAllPart, createPart, updateParts, getPartData, removeParts ,searchQuery};
 };
