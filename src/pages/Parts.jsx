@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, RefreshCw, Search, Edit2, Trash2, Eye } from "lucide-react";
 import Pagination from "../Components/Pagination/Pagination.jsx";
 import AddPartsModal from "../components/modal/addModal/AddPartsModal.jsx";
+import { useDebounce } from "../hooks/useDebounce";
 import { UsePart } from "../hooks/usePart.js";
 import Refresh from "../components/Refresh/Refresh";
 
@@ -16,10 +17,13 @@ const Parts = () => {
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add");
   const [showRefresh, setShowRefresh] = useState(false);
+  const { debounce, value } = useDebounce(search);
+  const { getPartData, removeParts , searchQuery } = UsePart(page, limit, value);
 
-  const { getPartData, removeParts } = UsePart(page, limit);
-
-  const filteredParts = getPartData?.data || [];
+  const filteredParts =
+  debounce
+    ? searchQuery?.data ?? []
+    :  getPartData?.data || [];
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this part?")) {
@@ -71,7 +75,7 @@ const Parts = () => {
 
           <button
             onClick={handleRefresh}
-            className="px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-100"
+            className="px-4 py-2 border border-gray-200 rounded-lg flex items-center gap-2 hover:bg-gray-100"
           >
             <RefreshCw size={18} /> Refresh
           </button>
