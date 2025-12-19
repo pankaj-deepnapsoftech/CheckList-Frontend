@@ -64,6 +64,7 @@ const Company = () => {
               setEditTable(null);
               setOpenModal(true);
               setMode("add");
+              setViewModal(null)
             }}
             className="px-5 py-2 bg-blue-500 text-white rounded-lg w-full justify-center hover:bg-blue-600 flex items-center gap-2"
           >
