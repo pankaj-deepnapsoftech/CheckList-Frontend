@@ -224,40 +224,40 @@ const cards = Array.isArray(assemblies)
               <div className="border-b border-slate-200 p-5 flex justify-between items-center">
                 <div>
                   <p className="text-xs text-slate-500">
-                    {card.assemblyNumber} / {card.assemblyName}
+                    {card?.assemblyNumber} / {card?.assemblyName}
                   </p>
                   <h3 className="text-lg font-semibold text-slate-900">
-                    {card.processName}
+                    {card?.processName}
                     <span className="text-sm text-slate-400 ml-1">
-                      ({card.processNo})
+                      ({card?.processNo})
                     </span>
                   </h3>
                 </div>
 
                 <span
                   className={`px-3 py-1.5 rounded-xl text-sm font-semibold ${
-                    card.status === "Checked"
+                    card?.status === "Checked"
                       ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
                       : "bg-red-50 text-red-600 border border-red-200"
                   }`}
                 >
-                  {card.status}
+                  {card?.status}
                 </span>
               </div>
 
               {/* ================= COMPANY + PLANT ================= */}
               <div className="p-5 space-y-3 text-sm text-slate-700">
                 <p>
-                  <strong>Company:</strong> {card.companyName}
+                  <strong>Company:</strong> {card?.companyName}
                 </p>
                 <p>
-                  <strong>Company Address:</strong> {card.companyAddress}
+                  <strong>Company Address:</strong> {card?.companyAddress}
                 </p>
                 <p>
-                  <strong>Plant:</strong> {card.plantName}
+                  <strong>Plant:</strong> {card?.plantName}
                 </p>
                 <p>
-                  <strong>Plant Address:</strong> {card.plantAddress}
+                  <strong>Plant Address:</strong> {card?.plantAddress}
                 </p>
               </div>
 
@@ -269,15 +269,15 @@ const cards = Array.isArray(assemblies)
                     className="flex justify-between items-center text-sm
           bg-slate-50 border border-slate-200 rounded-xl px-4 py-2"
                   >
-                    <span className="text-slate-700">{item.label}</span>
+                    <span className="text-slate-700">{item?.label}</span>
                     <span
                       className={`font-semibold ${
-                        item.status === "fail"
+                        item?.status === "fail"
                           ? "text-red-600"
                           : "text-emerald-600"
                       }`}
                     >
-                      {item.value}
+                      {item?.value}
                     </span>
                   </div>
                 ))}
@@ -285,7 +285,7 @@ const cards = Array.isArray(assemblies)
 
               {/* ================= FOOTER ================= */}
               <div className="border-t border-slate-200 px-5 py-3 text-xs text-slate-500">
-                Checked by {card.responsible} ({card.responsibleId})
+                Checked by {card?.responsible} ({card?.responsibleId})
               </div>
             </div>
           ))}
