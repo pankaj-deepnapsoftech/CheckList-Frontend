@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2, Ban } from "lucide-react";
 import AddEmployeeModal from "../components/modal/addModal/AddEmployeeModal";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
@@ -13,34 +13,36 @@ const Employee = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
-  const [limit,setLimit]=useState(10);
+  const [limit, setLimit] = useState(10);
   const [modalMode, setModalMode] = useState("add");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
   const { debounce, value } = useDebounce(search);
-  
-  const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
-    RegisterEmployee(selectedCompany,
-      selectedPlant,
-      value,
-      page,limit); 
+  const searchValue = search ? value : "";
 
- const [showRefresh, setShowRefresh] = useState(false);
+  const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
+    RegisterEmployee(selectedCompany, selectedPlant, searchValue, page, limit);
+
+  const hasfilter = selectedPlant || selectedCompany || search;
+
+  const filteredEmployees = useMemo(() =>
+    hasfilter ? searchEmployee?.data ?? [] : getAllEmployee?.data ?? [],
+    [hasfilter, searchEmployee?.data, getAllEmployee?.data]
+  );
+
+  const [showRefresh, setShowRefresh] = useState(false);
 
 
   const handleRefresh = async () => {
     setPage(1);
     setSearch("");
-    setShowRefresh(true);  
-    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
-    await Promise.all([getAllEmployee.refetch(), minDelay]); 
-    setShowRefresh(false);  // Hide overlay
+    setShowRefresh(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all([getAllEmployee.refetch(), minDelay]);
+    setShowRefresh(false);
   };
 
-  const filteredEmployees = debounce
-    ? searchEmployee?.data ?? []
-    : getAllEmployee?.data ?? [];
 
 
   const handleTerminateToggle = (emp) => {
@@ -64,7 +66,7 @@ const Employee = () => {
       (getAllEmployee?.data || [])
         .map(emp => emp?.employee_plant)
         .filter(Boolean)
-        .map(plant => [plant._id, plant]) 
+        .map(plant => [plant._id, plant])
     ).values(),
   ];
 
@@ -79,12 +81,10 @@ const Employee = () => {
   ];
 
 
-
+  
   useEffect(() => {
     setPage(1);
   }, [search, selectedCompany, selectedPlant]);
-
-  console.log("ids",selectedCompany, selectedPlant)
   return (
     <div className="w-full relative">
       {/* HEADER */}
@@ -109,29 +109,26 @@ const Employee = () => {
             />
           </div>
 
-          {/* Filters */}
-          <div className="flex gap-3 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             {/* Company Filter */}
             <select
               value={selectedCompany}
               onChange={(e) => setSelectedCompany(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             >
               <option value="">All Companies</option>
-
               {companyOptions.map((company) => (
                 <option key={company._id} value={company._id}>
-                  {company.company_name}  
+                  {company.company_name}
                 </option>
               ))}
             </select>
-
 
             {/* Plant Filter */}
             <select
               value={selectedPlant}
               onChange={(e) => setSelectedPlant(e.target.value)}
-              className="border border-gray-200 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto"
+              className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             >
               <option value="">All Plants</option>
               {plantOptions.map((plant, i) => (
@@ -141,6 +138,7 @@ const Employee = () => {
               ))}
             </select>
           </div>
+
         </div>
 
         {/* Buttons */}
@@ -159,7 +157,7 @@ const Employee = () => {
           </div>
 
           <button className="border cursor-pointer border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
-           onClick={handleRefresh}
+            onClick={handleRefresh}
           >
             <RefreshCw size={18} /> Refresh
           </button>
@@ -180,9 +178,9 @@ const Employee = () => {
             <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0 "
               value={limit}
               onChange={(e) => {
-              setLimit(Number(e.target.value));
-              setPage(1); 
-            }}
+                setLimit(Number(e.target.value));
+                setPage(1);
+              }}
             >
               <option value={5}>5</option>
               <option value={10}>10</option>
@@ -194,129 +192,25 @@ const Employee = () => {
 
         {/* Mobile View (Card Layout) */}
         {showRefresh ? (
-                <Refresh />
-              ) : (
-        <div className="grid gap-4 sm:hidden mt-4">
-          {filteredEmployees.map((emp, i) => (
-            <div
-              key={i}
-              className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
-            >
-              {/* Header: Name + actions */}
-              <div className="flex items-center flex-wrap justify-between gap-3">
-                <span className="bg-blue-500 whitespace-nowrap text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {emp.user_id || "N/A"}
-                </span>
-
-                {/* ACTIONS */}
-                <div className="flex gap-4">
-                  <Eye
-                    size={20}
-                    className="text-blue-500 cursor-pointer"
-                    onClick={() => {
-                      setModalMode("view");
-                      setSelectedEmployee(emp);
-                      setModalOpen(true);
-                    }}
-                  />
-
-                  <Edit2
-                    size={20}
-                    className="text-green-500 cursor-pointer"
-                    onClick={() => {
-                      setModalMode("edit");
-                      setSelectedEmployee(emp);
-                      setModalOpen(true);
-                    }}
-                  />
-
-                  {emp.terminate ? (
-                    <Ban
-                      size={22}
-                      onClick={() => handleTerminateToggle(emp)}
-                      className="text-red-500 cursor-pointer hover:scale-125 transition"
-                      title="Re-Activate Employee"
-                    />
-                  ) : (
-                    <UserCheck
-                      size={22}
-                      onClick={() => handleTerminateToggle(emp)}
-                      className="text-purple-500 cursor-pointer hover:scale-125 transition"
-                      title="Terminate Employee"
-                    />
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-3 text-sm text-gray-600 space-y-1">
-                <p>
-                  <strong>Name:</strong> {emp.full_name || "N/A"}
-                </p>
-
-                <p>
-                  <strong>Plant:</strong>{" "}
-                  <span className="">
-                    {emp?.employee_plant?.plant_name || "N/A"}
-                  </span>
-                </p>
-
-                <p>
-                  <strong>Company:</strong>{" "}
-                  {emp?.employee_company?.company_name || "N/A"}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-        )}
-
-        {/* Table */}
-      {showRefresh ? (
-        <Refresh />
+          <Refresh />
         ) : (
-        <div className="overflow-x-auto hidden sm:block w-full rounded-xl border border-gray-200">
-          <table className="w-full  text-center">
-            {/* Table Header */}
-            <thead>
-              <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
-                <th className="px-5 py-3 font-semibold">User ID</th>
-                <th className="px-5 py-3 font-semibold">Name</th>
-                <th className="px-5 py-3 font-semibold">Plant</th>
-                <th className="px-5 py-3 font-semibold">Company</th>
-                <th className="px-5 py-3 font-semibold text-center">Actions</th>
-              </tr>
-            </thead>
-
-            {/* Table Body */}
-            <tbody className="text-gray-700">
-              {filteredEmployees.map((emp, i) => (
-                <tr
-                  key={i}
-                  className={`border-b border-gray-200 transition ${emp.terminate
-                      ? "opacity-50 bg-gray-50"
-                      : "hover:bg-blue-50/40"
-                    }`}
-                >
-                  <td className="px-5 py-4 whitespace-nowrap">
+          <div className="grid gap-4 sm:hidden mt-4">
+            {filteredEmployees.map((emp, i) => (
+              <div
+                key={i}
+                className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
+              >
+                {/* Header: Name + actions */}
+                <div className="flex items-center flex-wrap justify-between gap-3">
+                  <span className="bg-blue-500 whitespace-nowrap text-white px-3 py-1 rounded-full text-xs font-medium">
                     {emp.user_id || "N/A"}
-                  </td>
-                  <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
-                  <td className="px-5 py-4 whitespace-nowrap">
-                    <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow">
-                      {emp?.employee_plant?.plant_name || "N/A"}
-                    </span>
-                  </td>
+                  </span>
 
-                  <td className="px-5 py-4 ">
-                    {emp?.employee_company?.company_name || "N/A"}
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-5 py-4 flex justify-center gap-5">
-                    {/* VIEW */}
+                  {/* ACTIONS */}
+                  <div className="flex gap-4">
                     <Eye
                       size={20}
-                      className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
+                      className="text-blue-500 cursor-pointer"
                       onClick={() => {
                         setModalMode("view");
                         setSelectedEmployee(emp);
@@ -324,10 +218,9 @@ const Employee = () => {
                       }}
                     />
 
-                    {/* EDIT */}
                     <Edit2
                       size={20}
-                      className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition transform"
+                      className="text-green-500 cursor-pointer"
                       onClick={() => {
                         setModalMode("edit");
                         setSelectedEmployee(emp);
@@ -335,28 +228,133 @@ const Employee = () => {
                       }}
                     />
 
-                    {/* DELETE */}
                     {emp.terminate ? (
                       <Ban
                         size={22}
                         onClick={() => handleTerminateToggle(emp)}
-                        className="text-red-500 hover:scale-125 cursor-pointer transition"
+                        className="text-red-500 cursor-pointer hover:scale-125 transition"
                         title="Re-Activate Employee"
                       />
                     ) : (
                       <UserCheck
                         size={22}
                         onClick={() => handleTerminateToggle(emp)}
-                        className="text-purple-500 hover:scale-125 cursor-pointer transition"
+                        className="text-purple-500 cursor-pointer hover:scale-125 transition"
                         title="Terminate Employee"
                       />
                     )}
-                  </td>
+                  </div>
+                </div>
+
+                <div className="mt-3 text-sm text-gray-600 space-y-1">
+                  <p>
+                    <strong>Name:</strong> {emp.full_name || "N/A"}
+                  </p>
+
+                  <p>
+                    <strong>Plant:</strong>{" "}
+                    <span className="">
+                      {emp?.employee_plant?.plant_name || "N/A"}
+                    </span>
+                  </p>
+
+                  <p>
+                    <strong>Company:</strong>{" "}
+                    {emp?.employee_company?.company_name || "N/A"}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Table */}
+        {showRefresh ? (
+          <Refresh />
+        ) : (
+          <div className="overflow-x-auto hidden sm:block w-full rounded-xl border border-gray-200">
+            <table className="w-full  text-center">
+              {/* Table Header */}
+              <thead>
+                <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
+                  <th className="px-5 py-3 font-semibold">User ID</th>
+                  <th className="px-5 py-3 font-semibold">Name</th>
+                  <th className="px-5 py-3 font-semibold">Plant</th>
+                  <th className="px-5 py-3 font-semibold">Company</th>
+                  <th className="px-5 py-3 font-semibold text-center">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+
+              {/* Table Body */}
+              <tbody className="text-gray-700">
+                {filteredEmployees.map((emp, i) => (
+                  <tr
+                    key={i}
+                    className={`border-b border-gray-200 transition ${emp.terminate
+                      ? "opacity-50 bg-gray-50"
+                      : "hover:bg-blue-50/40"
+                      }`}
+                  >
+                    <td className="px-5 py-4 whitespace-nowrap">
+                      {emp.user_id || "N/A"}
+                    </td>
+                    <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
+                    <td className="px-5 py-4 whitespace-nowrap">
+                      <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow">
+                        {emp?.employee_plant?.plant_name || "N/A"}
+                      </span>
+                    </td>
+
+                    <td className="px-5 py-4 ">
+                      {emp?.employee_company?.company_name || "N/A"}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-5 py-4 flex justify-center gap-5">
+                      {/* VIEW */}
+                      <Eye
+                        size={20}
+                        className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
+                        onClick={() => {
+                          setModalMode("view");
+                          setSelectedEmployee(emp);
+                          setModalOpen(true);
+                        }}
+                      />
+
+                      {/* EDIT */}
+                      <Edit2
+                        size={20}
+                        className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition transform"
+                        onClick={() => {
+                          setModalMode("edit");
+                          setSelectedEmployee(emp);
+                          setModalOpen(true);
+                        }}
+                      />
+
+                      {/* DELETE */}
+                      {emp.terminate ? (
+                        <Ban
+                          size={22}
+                          onClick={() => handleTerminateToggle(emp)}
+                          className="text-red-500 hover:scale-125 cursor-pointer transition"
+                          title="Re-Activate Employee"
+                        />
+                      ) : (
+                        <UserCheck
+                          size={22}
+                          onClick={() => handleTerminateToggle(emp)}
+                          className="text-purple-500 hover:scale-125 cursor-pointer transition"
+                          title="Terminate Employee"
+                        />
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
@@ -375,7 +373,7 @@ const Employee = () => {
         hasNextpage={filteredEmployees?.length === limit}
       />
 
- 
+
 
     </div>
   );
