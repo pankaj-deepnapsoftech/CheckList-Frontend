@@ -24,6 +24,7 @@ export const useAssemblyLine = (search, page , limit) => {
 
   const createAssemblyLine = useMutation({
     mutationFn: async (data) => {
+      console.log(data)
       const res = await axiosHandler.post(`/assembly/create-assembly`, data);
       return res?.data;
     },
