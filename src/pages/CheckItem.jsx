@@ -2,30 +2,42 @@ import { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
 import AddCheckItemModal from "../components/modal/addModal/AddCheckItemModal";
 import { useCheckItem } from "../hooks/useCheckItem";
+import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../Components/Pagination/Pagination";
+import Refresh from "../components/Refresh/Refresh";
 
 
-const checkItem = Array(5).fill({
-  item: "Process 1",
-  description: "Description of checkItem",
-  check_list_method: "Lorem Ipsum",
-  check_list_time: "Lorem Ipsum",
-});
 
 const  CheckItem=()=>{
   const [search, setSearch] = useState("");
+  const [page , setPage] = useState(1);
+  const [limit , setLimit] = useState(10)
   const [openCheckItemModal, setOpenCheckItemModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [selectedCheckItem, setSelectedCheckItem] = useState(null);
-  const {getCheckItemData, removeItem} = useCheckItem()
+  const { debounce, value } = useDebounce(search);
+  const {getCheckItemData, removeItem , searchQuery} = useCheckItem(value,page,limit);
+  const [showRefresh, setShowRefresh] = useState(false);
 
 
-  const filteredCheckItem = getCheckItemData?.data ;
+  const filteredCheckItem = debounce
+  ? searchQuery?.data ?? []
+  : getCheckItemData?.data ;
 
     const handleDelete = (id) => {
       if (window.confirm("Are you sure you want to delete this Item?")) {
         removeItem.mutate(id);
       }
     };
+
+    const handleRefresh = async () => {
+     setPage(1);
+     setSearch("");
+     setShowRefresh(true);  
+     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
+     await Promise.all([getCheckItemData.refetch(), minDelay]); 
+     setShowRefresh(false);  
+   };
 
   return (
     <div className="w-full">
@@ -68,14 +80,16 @@ const  CheckItem=()=>{
             </button>
           </div>
 
-          <button className="border border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700">
+          <button className="border border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
+           onClick={handleRefresh}
+          >
             <RefreshCw size={18} /> Refresh
           </button>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
+      <div className="relative min-h-[300px] bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.06)] border border-gray-100 mt-6 p-5">
         {/* Header: Count + Show Dropdown */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
@@ -85,15 +99,25 @@ const  CheckItem=()=>{
           {/* Show Dropdown */}
           <div className="flex items-center gap-4 text-gray-600">
             <span>Show:</span>
-            <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer">
-              <option>5</option>
-              <option>10</option>
-              <option>15</option>
+            <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0"
+              value={limit}
+              onChange={(e) => {
+              setLimit(Number(e.target.value));
+              setPage(1); 
+            }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
             </select>
           </div>
         </div>
 
         {/* Mobile View (Card Layout) */}
+        {showRefresh ? (
+        <Refresh />
+      ) : (
         <div className="grid gap-4 sm:hidden mt-4">
           {filteredCheckItem?.map((cl, i) => (
             <div
@@ -150,8 +174,12 @@ const  CheckItem=()=>{
             </div>
           ))}
         </div>
+      )}
 
         {/* Table */}
+        {showRefresh ? (
+        <Refresh />
+      ) : (
         <div className="overflow-x-auto hidden sm:block w-full rounded-xl border border-gray-200">
           <table className="w-full  text-left">
             {/* Table Header */}
@@ -219,6 +247,7 @@ const  CheckItem=()=>{
             </tbody>
           </table>
         </div>
+      )}
       </div>
 
       <AddCheckItemModal
@@ -240,6 +269,13 @@ const  CheckItem=()=>{
           }
         }}
       />
+
+      <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={filteredCheckItem?.length === limit}
+      />
+
     </div>
   );
 }
