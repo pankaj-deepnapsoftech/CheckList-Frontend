@@ -16,9 +16,8 @@ export default function AddPartsModal({
   initialData = null,
 }) {
   const isView = mode === "view";
-  const { createPart, updateParts, getPartData } = UsePart();
+  const { createPart, updateParts } = UsePart();
 
-  console.log("This is my assembly number", getPartData?.data)
 
   const formik = useFormik({
     initialValues: {
