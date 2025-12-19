@@ -7,9 +7,9 @@ import Pagination from "../Components/Pagination/Pagination";
 import { UserCheck } from "lucide-react";
 import Refresh from "../components/Refresh/Refresh";
 import { UserX } from "lucide-react";
+import ViewEmployeeModal from "../components/modal/ViewModal/ViewEmployee";
 
 const Employee = () => {
-
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
@@ -19,6 +19,10 @@ const Employee = () => {
   const [selectedPlant, setSelectedPlant] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
   const { debounce, value } = useDebounce(search);
+  const [viewOpen, setViewOpen] = useState(false);
+
+  const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
+    RegisterEmployee(selectedCompany, selectedPlant, value, page, limit);
   const searchValue = search ? value : "";
 
   const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
@@ -33,6 +37,7 @@ const Employee = () => {
 
   const [showRefresh, setShowRefresh] = useState(false);
 
+  const [showRefresh, setShowRefresh] = useState(false);
 
   const handleRefresh = async () => {
     setPage(1);
@@ -42,7 +47,6 @@ const Employee = () => {
     await Promise.all([getAllEmployee.refetch(), minDelay]);
     setShowRefresh(false);
   };
-
 
 
   const handleTerminateToggle = (emp) => {
@@ -64,19 +68,18 @@ const Employee = () => {
   const plantOptions = [
     ...new Map(
       (getAllEmployee?.data || [])
-        .map(emp => emp?.employee_plant)
+        .map((emp) => emp?.employee_plant)
         .filter(Boolean)
         .map(plant => [plant._id, plant])
     ).values(),
   ];
 
-
   const companyOptions = [
     ...new Map(
       (getAllEmployee?.data || [])
-        .map(emp => emp?.employee_company)
+        .map((emp) => emp?.employee_company)
         .filter(Boolean)
-        .map(company => [company._id, company])
+        .map((company) => [company._id, company])
     ).values(),
   ];
 
@@ -175,7 +178,8 @@ const Employee = () => {
           {/* Show Dropdown */}
           <div className="flex items-center gap-4 text-gray-600">
             <span>Show:</span>
-            <select className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0 "
+            <select
+              className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0 "
               value={limit}
               onChange={(e) => {
                 setLimit(Number(e.target.value));
@@ -192,6 +196,7 @@ const Employee = () => {
 
         {/* Mobile View (Card Layout) */}
         {showRefresh ? (
+          <Refresh />
                 <Refresh />
               ) : (
         <div className="grid gap-4 sm:hidden mt-4">
@@ -347,9 +352,8 @@ const Employee = () => {
                         size={20}
                         className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
                         onClick={() => {
-                          setModalMode("view");
                           setSelectedEmployee(emp);
-                          setModalOpen(true);
+                          setViewOpen(true);
                         }}
                       />
 
@@ -404,10 +408,13 @@ const Employee = () => {
         hasNextpage={filteredEmployees?.length === limit}
       />
 
-
-
+      <ViewEmployeeModal
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        data={selectedEmployee}
+      />
     </div>
   );
-}
+};
 
-export default Employee
+export default Employee;
