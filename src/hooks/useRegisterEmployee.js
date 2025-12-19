@@ -37,23 +37,23 @@ export const RegisterEmployee = (cmId,plId,search, page,limit, enabled = true) =
     }
   });
   const searchEmployee = useQuery({
+    
     queryKey: ["search-employee", cmId, plId, search],
     queryFn: async () => {
-      const res = await axiosHandler.get(
-        `/users/search-employee`,
-        {
-          params: {
-            company: cmId,
-            plant: plId,
-            search: search,
-          },
-        }
-      );
+      console.log("api search",search)
+      const res = await axiosHandler.get("/users/search-employee", {
+        params: {
+          company: cmId || undefined,
+          plant: plId || undefined,
+          search,
+        },
+      });
       return res.data.data;
     },
-    enabled: !!search, 
+    enabled: !!search || !!cmId || !!plId,
     keepPreviousData: true,
   });
+
 
 
   const updateEmployee = useMutation({
