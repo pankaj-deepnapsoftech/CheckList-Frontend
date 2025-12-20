@@ -164,7 +164,7 @@ const CheckItem = () => {
                   </div>
                 </div>
 
-                {/* More Details */}
+                {/* More details */}
                 <div className="mt-3 text-sm text-gray-600 space-y-1">
                   <p>
                     <strong>Date:</strong>{" "}
@@ -218,7 +218,9 @@ const CheckItem = () => {
                     <td className="px-5 py-4 ">
                       {cl.process?.process_name} ({cl.process?.process_no})
                     </td>
-                    <td className="px-5 py-4 ">{cl.description || "N/A"}</td>
+                    <td className="px-5 py-4 max-w-[250px] truncate">
+                      {cl.description || "N/A"}
+                    </td>
                     {/* Actions */}
                     <td className="px-5 py-4 flex justify-center gap-5">
                       {/* VIEW */}

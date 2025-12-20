@@ -270,13 +270,13 @@ const cards = Array.isArray(assemblies)
                 <p>
                   <strong>Company:</strong> {card?.companyName}
                 </p>
-                <p>
+                <p className="max-w-[300px] truncate">
                   <strong>Company Address:</strong> {card?.companyAddress}
                 </p>
                 <p>
                   <strong>Plant:</strong> {card?.plantName}
                 </p>
-                <p>
+                <p className="max-w-[300px] truncate">
                   <strong>Plant Address:</strong> {card?.plantAddress}
                 </p>
               </div>
