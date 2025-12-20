@@ -49,7 +49,7 @@ export default function AssemblyLineModal({ openModal, setOpenModal, editTable, 
     validationSchema: mode !== "assign" ? assemblyValidationSchema : null,
     onSubmit: (values) => {
     
-      const payload = editTable
+      const payload = mode === "assign" 
         ? { ...values } 
         : {
           
