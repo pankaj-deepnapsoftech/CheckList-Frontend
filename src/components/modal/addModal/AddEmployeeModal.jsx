@@ -19,7 +19,7 @@ export default function AddEmployeeModal({
   onSubmit,
 }) {
   const isView = mode === "view";
-
+  
   const { AllCompanyData } = useCompanies(null, null, open);
   const { AllRolesData } = useUserRole();
   const { createEmployee, updateEmployee } = RegisterEmployee();
@@ -69,9 +69,10 @@ export default function AddEmployeeModal({
       if (mode === "add") {
         payload.password = values.password;
       }
-
+ 
       // UPDATE EMPLOYEE
-      if (mode === "edit") {
+      if (initialData) {
+        
         updateEmployee.mutate(
           {
             id: initialData?._id,
