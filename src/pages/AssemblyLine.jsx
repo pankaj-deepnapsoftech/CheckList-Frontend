@@ -21,7 +21,8 @@ export default function AssemblyLine() {
   const [mode, setMode] = useState("add");
   const { debounce, value } = useDebounce(search);
   const searchValue = search ? value : "";
-
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
   const { getAssemblyLineData, searchQuery, DeleteAssemblyLine } = useAssemblyLine(selectedCompany, selectedPlant, selectedProcess, selectedResponsible, searchValue, page, limit);
 
   const hasfilter = selectedPlant || selectedCompany || search || selectedProcess || selectedResponsible;
@@ -265,10 +266,24 @@ export default function AssemblyLine() {
                         >
                           Assign
                         </button>
-                        <Eye onClick={() => openModalHandler("view", item)} size={18} className="text-blue-500 cursor-pointer" />
-                        <Edit2 onClick={() => openModalHandler("edit", item)} size={18} className="text-green-600 cursor-pointer" />
-                        <Trash2 onClick={() => handleDelete(item._id)} size={18} className="text-red-500 cursor-pointer" />
-
+                        <Eye
+                          onClick={() => {
+                            setSelectedItem(item);
+                            setViewOpen(true);
+                          }}
+                          size={18}
+                          className="text-blue-500 cursor-pointer"
+                        />
+                        <Edit2
+                          onClick={() => openModalHandler("edit", item)}
+                          size={18}
+                          className="text-green-600 cursor-pointer"
+                        />
+                        <Trash2
+                          onClick={() => handleDelete(item._id)}
+                          size={18}
+                          className="text-red-500 cursor-pointer"
+                        />
                       </div>
                     </td>
                   </tr>
