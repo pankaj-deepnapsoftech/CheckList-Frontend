@@ -14,6 +14,7 @@ import {
   LaptopMinimalCheck,
   GitCompare,
   ChevronsLeftRightEllipsis,
+  Airplay
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -48,6 +49,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: "Inspection-Data",
       path: "/checkitem-data",
       icon: <ChevronsLeftRightEllipsis size={20} />,
+    },{
+      name: "Assigned Assembly Lines",
+      path: "/assigned-assembly-lines",
+      icon: <Airplay size={20} />
     },
     {
       name: "Inspection Status",

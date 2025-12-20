@@ -8,6 +8,7 @@ import { useProcess } from "../../../hooks/useProcess";
 import { RegisterEmployee } from "../../../hooks/useRegisterEmployee";
 import { UsePart } from "../../../hooks/usePart";
 import { assemblyValidationSchema } from "../../../Validation/AssemblyLineValidation";
+import SearchableDropdown from "../../SearchableDropDown/SearchableDropDown";
 
 const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode }) => {
   if (!openModal) return null;
@@ -133,44 +134,51 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
-                <select
-                  name="company_id"
+                <SearchableDropdown
+                  placeholder="Search Company"
+                  options={AllCompanyData?.data || []}
                   value={formik.values.company_id}
-                  onChange={formik.handleChange}
                   disabled={isView}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">Select</option>
-                  {AllCompanyData?.data?.map((c) => (
-                    <option key={c._id} value={c._id}>{c.company_name}</option>
-                  ))}
-                </select>
-                {formik.touched.company_id && formik.errors.company_id && (
-                  <p className="text-red-500 text-sm">
-                    {formik.errors.company_id}
-                  </p>
-                )}
+                  getOptionLabel={(c) => c.company_name}
+                  getOptionValue={(c) => c._id}
+                  onChange={(val) => {
+                    formik.setFieldValue("company_id", val);
+                    formik.setFieldValue("plant_id", "");
+                    formik.setFieldTouched("plant_id", false);
+                  }}
+                  onBlur={() => {
+                      formik.setFieldTouched("company_id", true);
+                    }}
+                  error={
+                  formik.touched.company_id &&
+                  formik.errors.company_id
+                  }
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Plant</label>
-                <select
-                  name="plant_id"
-                  value={formik.values.plant_id}
-                  onChange={formik.handleChange}
-                  disabled={isView || !formik.values.company_id}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">Select</option>
-                  {PlantData?.data?.map((p) => (
-                    <option key={p._id} value={p._id}>{p.plant_name}</option>
-                  ))}
-                </select>
-                {formik.touched.plant_id && formik.errors.plant_id && (
-                  <p className="text-red-500 text-sm">
-                    {formik.errors.plant_id}
-                  </p>
-                )}
+                <SearchableDropdown
+                  placeholder={
+                    formik.values.company_id
+                      ? "Search Plant"
+                      : "Select Company first"
+                     }
+                 options={PlantData?.data || []}
+                 value={formik.values.plant_id}
+                 getOptionLabel={(p) => p.plant_name}
+                 getOptionValue={(p) => p._id}
+                onChange={(val) => {
+                   formik.setFieldValue("plant_id", val);
+                  }}
+                 onBlur={() => {
+                formik.setFieldTouched("plant_id", true);
+                }}
+                error={
+                    formik.touched.plant_id &&
+                    formik.errors.plant_id
+                 }
+                />
               </div>
             </>
           )}

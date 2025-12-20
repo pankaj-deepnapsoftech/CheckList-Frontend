@@ -11,6 +11,7 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode, se
   const formik = useFormik({
     initialValues: {
       company_name: editTable?.company_name || viewModal?.company_name || "",
+      company_code: editTable?.company_code || viewModal?.company_code || "",
       company_address:
         editTable?.company_address || viewModal?.company_address || "",
       gst_no: editTable?.gst_no || viewModal?.gst_no || "",
@@ -96,6 +97,26 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode, se
 
             {formik.touched.company_name && formik.errors.company_name && (
               <p className="text-red-500">{formik.errors.company_name}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-sm text-gray-700 font-medium">
+              Company Code <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              className="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1"
+              value={formik.values.company_code}
+              name="company_code"
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              disabled={isView}
+              required
+            />
+
+            {formik.touched.company_code && formik.errors.company_code && (
+              <p className="text-red-500">{formik.errors.company_code}</p>
             )}
           </div>
 
