@@ -14,7 +14,8 @@ import {
 import CheckItemHistoryModal from "./CheckItemHistory";
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 import { useAssemblyLine } from "../hooks/useAssemblyLine";
-import Pagination from "../components/Pagination/Pagination";
+import Pagination from "../Components/Pagination/Pagination";
+
 
 export default function AssemblyLineStatus() {
   const [search, setSearch] = useState("");
@@ -25,7 +26,7 @@ const [dateFilter, setDateFilter] = useState("TODAY");
 const [statusFilter, setStatusFilter] = useState("ALL");
 const [resultFilter, setResultFilter] = useState("ALL");
   const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 7;
+  const ITEMS_PER_PAGE = 10;
 
   // Reset page when filters change
   useEffect(() => {
@@ -135,7 +136,7 @@ const cards = Array.isArray(assemblies)
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
