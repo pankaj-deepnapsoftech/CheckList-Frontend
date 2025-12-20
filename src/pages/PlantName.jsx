@@ -68,7 +68,7 @@ const PlantName = () => {
           <button
             onClick={() => {
               setMode("add");
-
+              setViewModal(null)
               setEditTable(null);
               setOpenModal(true);
             }}
