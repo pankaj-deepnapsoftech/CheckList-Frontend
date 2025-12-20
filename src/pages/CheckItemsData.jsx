@@ -41,7 +41,7 @@ const CheckItemsData = () => {
     initialValues: {
       data: [],
     },
-    onSubmit: (values) => {
+    onSubmit: (values, { resetForm }) => {
       const allFilled = PostCheckListForm?.data?.every(
         (assembly) =>
           assembly.checklist_item?.length ===
@@ -49,7 +49,14 @@ const CheckItemsData = () => {
       );
 
       if (allFilled) {
-        PostCheckListFormHistory.mutate(values);
+        PostCheckListFormHistory.mutate(values, {
+          onSuccess: () => {
+            resetForm();
+            setErrors({});
+            setAssembly_id("");
+            setProcess_id("");
+          },
+        });
       } else {
         toast.error("Please fill all checklist items before submitting.");
       }
@@ -71,7 +78,7 @@ const CheckItemsData = () => {
     if (exists) {
       updatedData = formik.values.data.map((i) =>
         i.checkList === checkListId
-          ? { ...i, result, is_error, description }
+          ? { ...i, result, is_error, description, status: "Checked" }
           : i
       );
     } else {
@@ -84,6 +91,7 @@ const CheckItemsData = () => {
           result,
           is_error,
           description,
+          status: "Checked",
         },
       ];
     }
