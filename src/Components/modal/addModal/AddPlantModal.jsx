@@ -22,9 +22,10 @@ const AddPlantModal = (
   const formik = useFormik({
     initialValues:{
       plant_name: viewModal?.plant_name || editTable?.plant_name || "",
-      plant_address: viewModal?.plant_name  || editTable?.plant_address ||"",
+      plant_code: viewModal?.plant_code || editTable?.plant_code || "",
+      plant_address: viewModal?.plant_address  || editTable?.plant_address ||"",
       company_id: viewModal?.company_id?._id || editTable?.company_id?._id|| "",
-      description: viewModal?.plant_name || editTable?.description|| "",
+      description: viewModal?.description || editTable?.description|| "",
     },
     enableReinitialize:true,
     validationSchema:plantValidationSchema ,
@@ -96,6 +97,27 @@ const AddPlantModal = (
             />
             {formik?.touched.plant_name && formik?.errors?.plant_name && (
               <p className="text-sm text-red-500">{formik?.errors?.plant_name}</p>
+            )}
+          </label>
+
+          <label className="block mb-4">
+            <span className="text-gray-700 font-medium">
+              Plant Code{" "}
+              {mode !== "view" && <span className="text-red-500">*</span>}
+            </span>
+            <input
+              type="text"
+              placeholder="Plant Name"
+              value={formik.values.plant_code}
+              readOnly={isView}
+              className={`mt-2 w-full px-4 py-3 border rounded-lg 
+                 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400
+                `}
+              onChange={formik.handleChange}
+              name="plant_code"
+            />
+            {formik?.touched.plant_code && formik?.errors?.plant_code && (
+              <p className="text-sm text-red-500">{formik?.errors?.plant_code}</p>
             )}
           </label>
 
