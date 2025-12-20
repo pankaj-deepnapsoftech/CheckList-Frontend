@@ -5,6 +5,7 @@ import { useAssemblyLine } from "../hooks/useAssemblyLine";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../components/Refresh/Refresh";
+import ViewAssemblyLine from "../components/modal/ViewModal/ViewAssemblyLine";
 
 export default function AssemblyLine() {
   const [page, setPage] = useState(1);
@@ -101,7 +102,9 @@ export default function AssemblyLine() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold">Assembly Line</h1>
-          <p className="text-gray-500 text-sm">Manage all assembly lines efficiently</p>
+          <p className="text-gray-500 text-sm">
+            Manage all assembly lines efficiently
+          </p>
         </div>
       </div>
 
@@ -190,13 +193,18 @@ export default function AssemblyLine() {
       {/* Table */}
       <div className="relative min-h-[300px] bg-white rounded-2xl shadow-md border border-gray-100 mt-6 p-5">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
-          <h2 className="font-semibold text-gray-800 text-lg">{data?.length} Records Found</h2>
+          <h2 className="font-semibold text-gray-800 text-lg">
+            {data?.length} Records Found
+          </h2>
           <div className="flex items-center gap-2 text-gray-500">
             <span className="text-sm font-medium">Show:</span>
             <select
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer transition focus:outline-none focus:ring-0"
               value={limit}
-              onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                setPage(1);
+              }}
             >
               <option>5</option>
               <option>10</option>
@@ -214,7 +222,9 @@ export default function AssemblyLine() {
               <thead>
                 <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
                   <th className="px-5 py-3 font-semibold">Assembly Line No.</th>
-                  <th className="px-5 py-3 font-semibold">Assembly Line Name</th>
+                  <th className="px-5 py-3 font-semibold">
+                    Assembly Line Name
+                  </th>
                   <th className="px-5 py-3 font-semibold">Processes</th>
                   <th className="px-5 py-3 font-semibold">Company</th>
                   <th className="px-5 py-3 font-semibold">Plant</th>
@@ -233,7 +243,9 @@ export default function AssemblyLine() {
                     </td>
                     <td className="px-5 py-4 text-sm">
                       {item?.process_id?.map((p) => (
-                        <p key={p._id}>{p.process_name} ({p.process_no})</p>
+                        <p key={p._id}>
+                          {p.process_name} ({p.process_no})
+                        </p>
                       ))}
                     </td>
                     <td className="px-5 py-4 text-sm">{item?.company_id?.company_name}</td>
@@ -275,7 +287,16 @@ export default function AssemblyLine() {
         viewModal={viewModal}
         mode={mode}
       />
-      <Pagination page={page} setPage={setPage} hasNextpage={data?.length === limit} />
+      <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={data?.length === limit}
+      />
+      <ViewAssemblyLine
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        data={selectedItem}
+      />
     </div>
   );
 }
