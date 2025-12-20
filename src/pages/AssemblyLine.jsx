@@ -36,7 +36,7 @@ export default function AssemblyLine() {
 
   const openModalHandler = (mode, item = null) => {
     setMode(mode);
-    setEditTable(item);       
+    setEditTable(item);
     setViewModal(mode === "view" ? item : null);
     setOpenModal(true);
   };
@@ -112,7 +112,7 @@ export default function AssemblyLine() {
                   <th className="px-5 py-3 font-semibold">Processes</th>
                   <th className="px-5 py-3 font-semibold">Company</th>
                   <th className="px-5 py-3 font-semibold">Plant</th>
-                    <th className="px-5 py-3 font-semibold">Responsible</th>
+                  <th className="px-5 py-3 font-semibold">Responsible</th>
                   <th className="px-5 py-3 font-semibold text-center">Actions</th>
                 </tr>
               </thead>
@@ -132,9 +132,15 @@ export default function AssemblyLine() {
                     </td>
                     <td className="px-5 py-4 text-sm">{item?.company_id?.company_name}</td>
                     <td className="px-5 py-4 text-sm">{item?.plant_id?.plant_name}</td>
-                    <td className="px-5 py-4 text-sm">{item?.responsibility?.full_name} ({item?.responsibility?.user_id})</td>
+                    <td className="px-5 py-4 text-sm">
+                      {item?.responsibility?.full_name}
+                      {item?.responsibility?.user_id && (
+                        <> ({item.responsibility.user_id})</>
+                      )}
+                    </td>
+
                     <td className="px-5 py-4">
-                      
+
                       <div className="flex gap-4 justify-center">
                         <button
                           onClick={() => openModalHandler("assign", item)}
@@ -145,7 +151,7 @@ export default function AssemblyLine() {
                         <Eye onClick={() => openModalHandler("view", item)} size={18} className="text-blue-500 cursor-pointer" />
                         <Edit2 onClick={() => openModalHandler("edit", item)} size={18} className="text-green-600 cursor-pointer" />
                         <Trash2 onClick={() => handleDelete(item._id)} size={18} className="text-red-500 cursor-pointer" />
-                        
+
                       </div>
                     </td>
                   </tr>
