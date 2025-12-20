@@ -1,26 +1,33 @@
 import React, { useState } from "react";
 import { Plus, RefreshCw, Search, Eye, Edit2, Trash2 } from "lucide-react";
-import UserRoleModal, { PERMISSION_MAP } from "../components/modal/addModal/AddUserRoleModal";
+import UserRoleModal, {
+  PERMISSION_MAP,
+} from "../components/modal/addModal/AddUserRoleModal";
 import { useUserRole } from "../hooks/useUserRole";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../components/Refresh/Refresh";
+import ViewUserRole from "../components/modal/ViewModal/ViewUserRole";
 
 const PATH_TO_KEY_MAP = Object.fromEntries(
   Object.entries(PERMISSION_MAP).map(([key, value]) => [value, key])
 );
-
- 
 
 export default function UserRoles() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
-  const [limit , setLimit] = useState(10);
+  const [limit, setLimit] = useState(10);
+  const [viewOpen, setViewOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
+
   const { debounce, value } = useDebounce(search);
-  const { UserlistQuery, removeUser, SearchUserList } = useUserRole(value,page,limit);
+  const { UserlistQuery, removeUser, SearchUserList } = useUserRole(
+    value,
+    page,
+    limit
+  );
   const [showRefresh, setShowRefresh] = useState(false);
 
   const filteredRoles = debounce
@@ -33,44 +40,42 @@ export default function UserRoles() {
     }
   };
 
-   const handleRefresh = async () => {
+  const handleRefresh = async () => {
     setPage(1);
     setSearch("");
-    setShowRefresh(true);  
-    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
-    await Promise.all([UserlistQuery.refetch(), minDelay]); 
-    setShowRefresh(false);  
+    setShowRefresh(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all([UserlistQuery.refetch(), minDelay]);
+    setShowRefresh(false);
   };
 
- const formatPermissions = (permissions) => {
-   if (!permissions) return [];
+  const formatPermissions = (permissions) => {
+    if (!permissions) return [];
 
-   if (Array.isArray(permissions)) {
-     return permissions
-       .map((p) => (typeof p === "string" ? p : p?.name))
-       .filter(Boolean);
-   }
+    if (Array.isArray(permissions)) {
+      return permissions
+        .map((p) => (typeof p === "string" ? p : p?.name))
+        .filter(Boolean);
+    }
 
-   if (typeof permissions === "string") {
-     return permissions
-       .replace(/([A-Z])/g, " $1")
-       .trim()
-       .split(" ")
-       .reduce((acc, word) => {
-         const last = acc[acc.length - 1];
-         if (last && last.length < 14) {
-           acc[acc.length - 1] = `${last} ${word}`;
-         } else {
-           acc.push(word);
-         }
-         return acc;
-       }, []);
-   }
+    if (typeof permissions === "string") {
+      return permissions
+        .replace(/([A-Z])/g, " $1")
+        .trim()
+        .split(" ")
+        .reduce((acc, word) => {
+          const last = acc[acc.length - 1];
+          if (last && last.length < 14) {
+            acc[acc.length - 1] = `${last} ${word}`;
+          } else {
+            acc.push(word);
+          }
+          return acc;
+        }, []);
+    }
 
-   return [];
- };
-
-
+    return [];
+  };
 
   return (
     <div>
@@ -105,8 +110,9 @@ export default function UserRoles() {
             <Plus size={18} /> Add New Role
           </button>
 
-          <button className="border cursor-pointer border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
-          onClick={handleRefresh}
+          <button
+            className="border cursor-pointer border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
+            onClick={handleRefresh}
           >
             <RefreshCw size={18} /> Refresh
           </button>
@@ -121,12 +127,13 @@ export default function UserRoles() {
 
           <div className="flex items-center gap-2 text-gray-500 ml-auto">
             <span className="text-sm font-medium">Show:</span>
-            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-0 "
-            value={limit}
+            <select
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-0 "
+              value={limit}
               onChange={(e) => {
-              setLimit(Number(e.target.value));
-              setPage(1); 
-            }}
+                setLimit(Number(e.target.value));
+                setPage(1);
+              }}
             >
               <option>5</option>
               <option>10</option>
@@ -135,107 +142,25 @@ export default function UserRoles() {
             </select>
           </div>
         </div>
-        
-      {showRefresh ? (
-              <Refresh />
-            ) : (
-        <div className="grid gap-4 sm:hidden">
-          {filteredRoles?.map((item) => (
-            <div
-              key={item._id}
-              className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
-            >
-              <div className="flex items-center justify-between">
-                <span className=" py-1 text-md text-gray-800 font-medium">
-                  {item.name}
-                </span>
 
-                <div className="flex gap-4">
-                  <Eye
-                    size={20}
-                    className="text-blue-500 cursor-pointer"
-                    onClick={() => {
-                      setSelectedRole(item);
-                      setModalMode("view");
-                      setModalOpen(true);
-                    }}
-                  />
+        {showRefresh ? (
+          <Refresh />
+        ) : (
+          <div className="grid gap-4 sm:hidden">
+            {filteredRoles?.map((item) => (
+              <div
+                key={item._id}
+                className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
+              >
+                <div className="flex items-center justify-between">
+                  <span className=" py-1 text-md text-gray-800 font-medium">
+                    {item.name}
+                  </span>
 
-                  <Edit2
-                    size={20}
-                    className="text-green-600 cursor-pointer"
-                    onClick={() => {
-                      setSelectedRole(item);
-                      setModalMode("edit");
-                      setModalOpen(true);
-                    }}
-                  />
-
-                  <Trash2
-                    size={20}
-                    className="text-red-500 cursor-pointer"
-                    onClick={() => handleDelete(item._id)}
-                  />
-                </div>
-              </div>
-
-              <div className="mt-3 text-sm text-gray-600">
-                <div className="mt-2 flex flex-wrap gap-2">
-                  {formatPermissions(item?.permissions).map((perm, idx) => (
-                    <span
-                      key={idx}
-                      className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs"
-                    >
-                      {perm}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        )}
-
-
-      {showRefresh ? (
-              <Refresh />
-            ) : (
-        <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
-          <table className="w-full  min-w-[700px] text-left">
-            <thead>
-              <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
-                <th className="px-5 py-3 font-semibold">Role Name</th>
-                <th className="px-5 py-3 font-semibold">Permissions</th>
-                <th className="px-5 py-3 font-semibold">Description</th>
-                <th className="px-5 py-3 font-semibold text-center">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody className="text-gray-700">
-              {filteredRoles?.map((item) => (
-                <tr
-                  key={item._id}
-                  className="border-b border-gray-200 hover:bg-blue-50 transition"
-                >
-                  <td className="px-5 py-4">{item?.name}</td>
-                  <td className="px-5 py-4">
-                    <div className="flex flex-wrap gap-2 max-w-[280px]">
-                      {formatPermissions(item?.permissions).map((perm, idx) => (
-                        <span
-                          key={idx}
-                          className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
-                        >
-                          {PATH_TO_KEY_MAP[perm]}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-
-                  <td className="px-5 py-4">{item.description}</td>
-                  <td className="px-5 py-4 flex justify-center gap-5">
+                  <div className="flex gap-4">
                     <Eye
                       size={20}
-                      className="text-blue-500 cursor-pointer hover:scale-125"
+                      className="text-blue-500 cursor-pointer"
                       onClick={() => {
                         setSelectedRole(item);
                         setModalMode("view");
@@ -245,7 +170,7 @@ export default function UserRoles() {
 
                     <Edit2
                       size={20}
-                      className="text-green-600 cursor-pointer hover:scale-125"
+                      className="text-green-600 cursor-pointer"
                       onClick={() => {
                         setSelectedRole(item);
                         setModalMode("edit");
@@ -255,24 +180,107 @@ export default function UserRoles() {
 
                     <Trash2
                       size={20}
-                      className="text-red-500 cursor-pointer hover:scale-125"
+                      className="text-red-500 cursor-pointer"
                       onClick={() => handleDelete(item._id)}
                     />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 text-sm text-gray-600">
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {formatPermissions(item?.permissions).map((perm, idx) => (
+                      <span
+                        key={idx}
+                        className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs"
+                      >
+                        {perm}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-        
+
+        {showRefresh ? (
+          <Refresh />
+        ) : (
+          <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
+            <table className="w-full  min-w-[700px] text-left">
+              <thead>
+                <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
+                  <th className="px-5 py-3 font-semibold">Role Name</th>
+                  <th className="px-5 py-3 font-semibold">Permissions</th>
+                  <th className="px-5 py-3 font-semibold">Description</th>
+                  <th className="px-5 py-3 font-semibold text-center">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody className="text-gray-700">
+                {filteredRoles?.map((item) => (
+                  <tr
+                    key={item._id}
+                    className="border-b border-gray-200 hover:bg-blue-50 transition"
+                  >
+                    <td className="px-5 py-4">{item?.name}</td>
+                    <td className="px-5 py-4">
+                      <div className="flex flex-wrap gap-2 max-w-[280px]">
+                        {formatPermissions(item?.permissions).map(
+                          (perm, idx) => (
+                            <span
+                              key={idx}
+                              className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                            >
+                              {PATH_TO_KEY_MAP[perm]}
+                            </span>
+                          )
+                        )}
+                      </div>
+                    </td>
+
+                    <td className="px-5 py-4">{item.description}</td>
+                    <td className="px-5 py-4 flex justify-center gap-5">
+                      <Eye
+                        size={20}
+                        className="text-blue-500 cursor-pointer hover:scale-125"
+                        onClick={() => {
+                          setSelectedRole(item);
+                          setViewOpen(true);
+                        }}
+                      />
+
+                      <Edit2
+                        size={20}
+                        className="text-green-600 cursor-pointer hover:scale-125"
+                        onClick={() => {
+                          setSelectedRole(item);
+                          setModalMode("edit");
+                          setModalOpen(true);
+                        }}
+                      />
+
+                      <Trash2
+                        size={20}
+                        className="text-red-500 cursor-pointer hover:scale-125"
+                        onClick={() => handleDelete(item._id)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <Pagination
-          page={page}
-          setPage={setPage}
-          hasNextpage={UserlistQuery?.data?.length === limit}
-        />
+        page={page}
+        setPage={setPage}
+        hasNextpage={UserlistQuery?.data?.length === limit}
+      />
 
       <UserRoleModal
         open={modalOpen}
@@ -281,7 +289,11 @@ export default function UserRoles() {
         initialData={selectedRole}
       />
 
-      
+      <ViewUserRole
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        data={selectedRole}
+      />
     </div>
   );
 }

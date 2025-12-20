@@ -129,22 +129,40 @@ export default function AddCheckItemModal({
               onChange={formik.handleChange}
               className="input"
             >
-              <option value="" disabled>Select method</option>
+              <option value="" disabled>
+                Select method
+              </option>
               <option value="Visual">Visual</option>
               <option value="Visual and manual">Visual and manual</option>
               <option value="Visual by ESD meter">Visual by ESD meter</option>
               <option value="Visual check in PID">Visual check in PID</option>
-              <option value="Visual check in timer">Visual check in timer</option>
-              <option value="Visual check in FR unit">Visual check in FR unit</option>
-              <option value="Visual and greasing sample">Visual and greasing sample</option>
-              <option value="Visual check in pressure gauge">Visual check in pressure gauge</option>
-              <option value="Visual check in temperature meter">Visual check in temperature meter</option>
-              <option value="Visual by limit sample and attention sheet">Visual by limit sample and attention sheet</option>
-              <option value="Visual check grease name / part no.">Visual check grease name / part no.</option>
+              <option value="Visual check in timer">
+                Visual check in timer
+              </option>
+              <option value="Visual check in FR unit">
+                Visual check in FR unit
+              </option>
+              <option value="Visual and greasing sample">
+                Visual and greasing sample
+              </option>
+              <option value="Visual check in pressure gauge">
+                Visual check in pressure gauge
+              </option>
+              <option value="Visual check in temperature meter">
+                Visual check in temperature meter
+              </option>
+              <option value="Visual by limit sample and attention sheet">
+                Visual by limit sample and attention sheet
+              </option>
+              <option value="Visual check grease name / part no.">
+                Visual check grease name / part no.
+              </option>
               <option value="Weighing machine">Weighing machine</option>
               <option value="Lot management plan">Lot management plan</option>
-              <option value="As per checker validation sheet">As per checker validation sheet</option>
-              </select>
+              <option value="As per checker validation sheet">
+                As per checker validation sheet
+              </option>
+            </select>
           </Field>
 
           {/* Check Item Time */}
@@ -156,19 +174,25 @@ export default function AddCheckItemModal({
               onChange={formik.handleChange}
               className="input"
             >
-              <option value="" disabled>Select time</option>
+              <option value="" disabled>
+                Select time
+              </option>
               <option value="SOP">SOP</option>
               <option value="When bit change">When bit change</option>
               <option value="when roll change">When roll change</option>
-              <option value="At the time of grease filling">At the time of grease filling</option>
-              <option value="As per checker validation sheet">As per checker validation sheet</option>
-              </select>
+              <option value="At the time of grease filling">
+                At the time of grease filling
+              </option>
+              <option value="As per checker validation sheet">
+                As per checker validation sheet
+              </option>
+            </select>
           </Field>
 
           {/* Result Type */}
-          <Field label="Result Type">
+          <Field label="Evaluation Type">
             <div className="flex gap-4 mt-1">
-              <label className="flex items-center gap-2">
+              <label className="flex text-[15px] items-center gap-2">
                 <input
                   type="radio"
                   name="result_type"
@@ -177,7 +201,7 @@ export default function AddCheckItemModal({
                   checked={formik.values.result_type === "yesno"}
                   onChange={formik.handleChange}
                 />
-                Yes / No
+                Condition Check
               </label>
 
               <label className="flex items-center gap-2">
@@ -189,7 +213,7 @@ export default function AddCheckItemModal({
                   checked={formik.values.result_type === "measurement"}
                   onChange={formik.handleChange}
                 />
-                Measurement
+                Numeric Check
               </label>
             </div>
           </Field>

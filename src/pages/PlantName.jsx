@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Search, Plus, RefreshCw, Eye, Edit2, Trash2 } from "lucide-react";
 import AddPlantModal from "../components/modal/addModal/AddPlantModal";
 import { UsePlantName } from "../hooks/UsePlantName";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../components/Refresh/Refresh";
+import ViewPlant from "../components/modal/ViewModal/ViewPlant";
 
 const PlantName = () => {
   const [page, setPage] = useState(1);
@@ -12,27 +13,36 @@ const PlantName = () => {
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [viewModal, setViewModal] = useState(null);
-  const [limit , setLimit]=useState(10);
-  const [mode, setMode] = useState("add")
-  const { debounce, value } = useDebounce(search)
-  const { getPlantName, DeletePlantData, searchQuery } = UsePlantName(value,page,limit);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedPlant, setSelectedPlant] = useState(null);
+
+  const [limit, setLimit] = useState(10);
+  const [mode, setMode] = useState("add");
+  const { debounce, value } = useDebounce(search);
+  const { getPlantName, DeletePlantData, searchQuery } = UsePlantName(
+    value,
+    page,
+    limit
+  );
   const [showRefresh, setShowRefresh] = useState(false);
-  const handleDeletePlant  = (id)=>{
-    if(window.confirm("Are you sure you want to delete Plant Data")){
-      DeletePlantData.mutate(id)
+  const handleDeletePlant = (id) => {
+    if (window.confirm("Are you sure you want to delete Plant Data")) {
+      DeletePlantData.mutate(id);
     }
   };
 
-   const handleRefresh = async () => {
+  const handleRefresh = async () => {
     setPage(1);
     setSearch("");
-    setShowRefresh(true);  
-    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
-    await Promise.all([getPlantName.refetch(), minDelay]); 
-    setShowRefresh(false);  // Hide overlay
+    setShowRefresh(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all([getPlantName.refetch(), minDelay]);
+    setShowRefresh(false); // Hide overlay
   };
 
-  const filetredData = debounce ? searchQuery?.data ?? [] : getPlantName?.data ?? [] ;
+  const filetredData = debounce
+    ? searchQuery?.data ?? []
+    : getPlantName?.data ?? [];
 
   console.log(editTable);
   return (
@@ -67,8 +77,9 @@ const PlantName = () => {
             <Plus size={18} /> Add New Plant
           </button>
 
-          <button className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
-          onClick={handleRefresh}
+          <button
+            className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
+            onClick={handleRefresh}
           >
             <RefreshCw size={18} /> Refresh
           </button>
@@ -83,12 +94,13 @@ const PlantName = () => {
 
           <div className="flex items-center gap-2 text-gray-500">
             <span className="text-sm font-medium">Show:</span>
-            <select className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-0 "
+            <select
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 hover:border-gray-400 cursor-pointer focus:outline-none focus:ring-0 "
               value={limit}
               onChange={(e) => {
-              setLimit(Number(e.target.value));
-              setPage(1); 
-            }}
+                setLimit(Number(e.target.value));
+                setPage(1);
+              }}
             >
               <option>5</option>
               <option>10</option>
@@ -98,124 +110,125 @@ const PlantName = () => {
           </div>
         </div>
 
-     {showRefresh ? (
-        <Refresh />
-      ) : (
-        <div className="grid gap-4 sm:hidden">
-          {filetredData?.map((p, i) => (
-            <div
-              key={i}
-              className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
-            >
-              <div className="flex items-center justify-between">
-                <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                  {p.plant_name}
-                </span>
+        {showRefresh ? (
+          <Refresh />
+        ) : (
+          <div className="grid gap-4 sm:hidden">
+            {filetredData?.map((p, i) => (
+              <div
+                key={i}
+                className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    {p.plant_name}
+                  </span>
 
-                <div className="flex gap-4">
-                  <Eye
-                    onClick={() => {
-                      setMode("view");
-                      setViewModal(p);
-                      setEditTable(p);
-                      setOpenModal(true);
-                    }}
-                    size={20}
-                    className="text-blue-500 cursor-pointer"
-                  />
-                  <Edit2
-                    size={20}
-                    className="text-green-600 cursor-pointer hover:scale-125 transition"
-                    onClick={() => {
-                      setMode("edit");
-                      setOpenModal(true);
-                      setEditTable(p);
-                    }}
-                  />
-
-                  <Trash2
-                    size={20}
-                    className="text-red-500 cursor-pointer"
-                    onClick={() => handleDeletePlant(p?._id)}
-                  />
-                </div>
-              </div>
-
-              <div className="mt-3 text-sm text-gray-600">
-                <p>
-                  <strong>Address:</strong> {p.company_id?.company_address}
-                </p>
-                <p>
-                  <strong>Company:</strong> {p.company_id?.company_name}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-        )}
-
-
-      {showRefresh ? (
-                <Refresh />
-              ) : (
-        <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
-          <table className="w-full min-w-[700px] text-left">
-            <thead>
-              <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
-                <th className="px-5 py-3 font-semibold">Plant Name</th>
-                <th className="px-5 py-3 font-semibold">Address</th>
-                <th className="px-5 py-3 font-semibold">Company</th>
-                <th className="px-5 py-3 font-semibold text-center">Actions</th>
-              </tr>
-            </thead>
-
-            <tbody className="text-gray-700">
-              {filetredData?.map((p, i) => (
-                <tr
-                  key={i}
-                  className="border-b border-gray-200 hover:bg-blue-50 transition"
-                >
-                  <td className="px-5 py-4">{p.plant_name}</td>
-                  <td className="px-5 py-4">{p.company_id?.company_address}</td>
-                  <td className="px-5 py-4">
-                    <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
-                      {p.company_id?.company_name}
-                    </span>
-                  </td>
-
-                  <td className="px-5 py-4 flex justify-center gap-5">
+                  <div className="flex gap-4">
                     <Eye
                       onClick={() => {
                         setMode("view");
-                        setEditTable(null);
-                        setOpenModal(true);
                         setViewModal(p);
+                        setEditTable(p);
+                        setOpenModal(true);
                       }}
                       size={20}
-                      className="text-blue-500 cursor-pointer hover:scale-125 transition"
+                      className="text-blue-500 cursor-pointer"
                     />
                     <Edit2
                       size={20}
                       className="text-green-600 cursor-pointer hover:scale-125 transition"
                       onClick={() => {
                         setMode("edit");
-                        setEditTable(p);
                         setOpenModal(true);
+                        setEditTable(p);
                       }}
                     />
 
                     <Trash2
-                      onClick={() => handleDeletePlant(p?._id)}
                       size={20}
-                      className="text-red-500 cursor-pointer hover:scale-125 transition"
+                      className="text-red-500 cursor-pointer"
+                      onClick={() => handleDeletePlant(p?._id)}
                     />
-                  </td>
+                  </div>
+                </div>
+
+                <div className="mt-3 text-sm text-gray-600">
+                  <p>
+                    <strong>Address:</strong> {p.company_id?.company_address}
+                  </p>
+                  <p>
+                    <strong>Company:</strong> {p.company_id?.company_name}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {showRefresh ? (
+          <Refresh />
+        ) : (
+          <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
+            <table className="w-full min-w-[700px] text-left">
+              <thead>
+                <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
+                  <th className="px-5 py-3 font-semibold">Plant Name</th>
+                  <th className="px-5 py-3 font-semibold">Address</th>
+                  <th className="px-5 py-3 font-semibold">Company</th>
+                  <th className="px-5 py-3 font-semibold text-center">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-              )}
+              </thead>
+
+              <tbody className="text-gray-700">
+                {filetredData?.map((p, i) => (
+                  <tr
+                    key={i}
+                    className="border-b border-gray-200 hover:bg-blue-50 transition"
+                  >
+                    <td className="px-5 py-4">{p.plant_name}</td>
+                    <td className="px-5 py-4">
+                      {p.company_id?.company_address}
+                    </td>
+                    <td className="px-5 py-4">
+                      <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+                        {p.company_id?.company_name}
+                      </span>
+                    </td>
+
+                    <td className="px-5 py-4 flex justify-center gap-5">
+                      <Eye
+                        onClick={() => {
+                          setSelectedPlant(p);
+                          setViewOpen(true);
+                        }}
+                        size={20}
+                        className="text-blue-500 cursor-pointer hover:scale-125 transition"
+                      />
+                      <Edit2
+                        size={20}
+                        className="text-green-600 cursor-pointer hover:scale-125 transition"
+                        onClick={() => {
+                          setMode("edit");
+                          setEditTable(p);
+                          setOpenModal(true);
+                        }}
+                      />
+
+                      <Trash2
+                        onClick={() => handleDeletePlant(p?._id)}
+                        size={20}
+                        className="text-red-500 cursor-pointer hover:scale-125 transition"
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <AddPlantModal
@@ -225,9 +238,17 @@ const PlantName = () => {
         mode={mode}
         viewModal={viewModal}
       />
-      <Pagination page={page} setPage={setPage} hasNextpage={filetredData?.length === limit} />
+      <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={filetredData?.length === limit}
+      />
 
-
+      <ViewPlant
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        data={selectedPlant}
+      />
     </div>
   );
 };

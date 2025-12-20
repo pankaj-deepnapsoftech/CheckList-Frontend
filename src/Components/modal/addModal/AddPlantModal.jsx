@@ -4,6 +4,7 @@ import { UsePlantName } from "../../../hooks/UsePlantName";
 import { useFormik } from "formik";
 import { useCompanies } from "../../../hooks/useCompanies";
 import { plantValidationSchema } from "../../../Validation/PlantValidation";
+import SearchableDropdown from "../../SearchableDropDown/SearchableDropDown";
 
 const AddPlantModal = (
   { openModal, setOpenModal, editTable, viewModal, mode }
@@ -117,25 +118,16 @@ const AddPlantModal = (
 
           <label className="block mb-4">
             <span className="text-gray-700 font-medium">Company <span className="text-red-500">*</span></span>
-            <select
-              type="text"
-              placeholder="Company"
+            <SearchableDropdown
+              placeholder="Search Company"
+              options={AllCompanyData?.data || []}
               value={formik.values.company_id}
-              readOnly={isView}
-              className={`mt-2 w-full px-4 py-3 border rounded-lg 
-                 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400
-                `}
-              onChange={formik.handleChange}
-              name="company_id"
-            >
-              <option> Select Company</option>
-              {AllCompanyData?.data?.map((c)=> ( 
-                <option key={c?._id} value={c?._id}>{c?.company_name}</option>
-              ))}
-            </select>
-            {formik?.touched.company_id && formik?.errors?.company_id && (
-              <p className="text-sm text-red-500">{formik?.errors?.company_id}</p>
-            )}
+              onChange={(val) => formik.setFieldValue("company_id", val)}
+              error={formik.touched.company_id && formik.errors.company_id}
+              disabled={isView}
+              getOptionLabel={(c) => c.company_name}
+              getOptionValue={(c) => c._id}
+            />
           </label>
 
           <label className="block mb-6">
