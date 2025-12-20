@@ -68,7 +68,7 @@ const PlantName = () => {
           <button
             onClick={() => {
               setMode("add");
-              setViewModal(null)
+              setViewModal(null);
               setEditTable(null);
               setOpenModal(true);
             }}
@@ -154,7 +154,7 @@ const PlantName = () => {
                 </div>
 
                 <div className="mt-3 text-sm text-gray-600">
-                  <p>
+                  <p className="max-w-[300px] truncate">
                     <strong>Address:</strong> {p?.plant_address}
                   </p>
                   <p>
@@ -189,7 +189,7 @@ const PlantName = () => {
                     className="border-b border-gray-200 hover:bg-blue-50 transition"
                   >
                     <td className="px-5 py-4">{p.plant_name}</td>
-                    <td className="px-5 py-4">
+                    <td className="px-5 py-4 max-w-[250px] truncate">
                       {p?.plant_address}
                     </td>
                     <td className="px-5 py-4">
