@@ -138,7 +138,7 @@ export default function AssemblyLine() {
                         <> ({item.responsibility.user_id})</>
                       )}
                     </td>
-
+     
                     <td className="px-5 py-4">
 
                       <div className="flex gap-4 justify-center">
