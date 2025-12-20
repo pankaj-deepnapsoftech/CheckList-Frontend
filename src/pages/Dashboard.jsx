@@ -1,6 +1,7 @@
 import { Search } from "lucide-react";
 import React, { useState, useMemo } from "react";
 import { useDashboardCards } from "../hooks/useDashboard";
+import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 
 const LINE_DATA = [
   { label: "500", running: 18, fault: 8 },
@@ -152,6 +153,7 @@ export default function Dashboard() {
 
   // Top cards data
   const { data: cardData, isLoading } = useDashboardCards();
+  const {getAssemblyCardsData} = useCheckItemHistory();
   const summaryCards = [
     {
       title: "Total Assembly",
@@ -437,11 +439,11 @@ export default function Dashboard() {
                 <div className="flex items-center gap-3 mb-4">
                   <span className="w-4 h-4 rounded-full bg-green-700 shadow-inner" />
                   <span className="text-sm font-semibold text-green-800">
-                    Complete
+                    Checked
                   </span>
                 </div>
                 <span className="text-3xl font-bold text-green-900 mb-4">
-                  5
+                  {getAssemblyCardsData?.data?.total_checked || 0}
                 </span>
                 <div className="w-full h-3 bg-green-200 rounded-full overflow-hidden">
                   <div className="h-3 bg-green-400 rounded-full w-5/6 transition-all duration-500"></div>
@@ -453,14 +455,30 @@ export default function Dashboard() {
                 <div className="flex items-center gap-3 mb-4">
                   <span className="w-4 h-4 rounded-full bg-yellow-700 shadow-inner" />
                   <span className="text-sm font-semibold text-yellow-800">
-                    Pending
+                    Unchecked
                   </span>
                 </div>
                 <span className="text-3xl font-bold text-yellow-900 mb-4">
-                  2
+                  {getAssemblyCardsData?.data?.total_unchecked || 0}
                 </span>
                 <div className="w-full h-3 bg-yellow-200 rounded-full overflow-hidden">
                   <div className="h-3 bg-yellow-400 rounded-full w-1/3 transition-all duration-500"></div>
+                </div>
+              </div>
+
+              {/* In Progress */}
+              <div className="flex flex-col justify-between p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 shadow-md hover:shadow-xl transition-shadow duration-300">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="w-4 h-4 rounded-full bg-blue-700 shadow-inner" />
+                  <span className="text-sm font-semibold text-blue-800">
+                    Resolved
+                  </span>
+                </div>
+                <span className="text-3xl font-bold text-blue-900 mb-4">
+                  {getAssemblyCardsData?.data?.total_resolved || 0}
+                </span>
+                <div className="w-full h-3 bg-blue-200 rounded-full overflow-hidden">
+                  <div className="h-3 bg-blue-400 rounded-full w-1/2 transition-all duration-500"></div>
                 </div>
               </div>
 
@@ -472,23 +490,11 @@ export default function Dashboard() {
                     Error
                   </span>
                 </div>
-                <span className="text-3xl font-bold text-red-900 mb-4">1</span>
+                <span className="text-3xl font-bold text-red-900 mb-4">
+                  {getAssemblyCardsData?.data?.total_errors || 0}
+                </span>
                 <div className="w-full h-3 bg-red-200 rounded-full overflow-hidden">
                   <div className="h-3 bg-red-400 rounded-full w-1/6 transition-all duration-500"></div>
-                </div>
-              </div>
-
-              {/* In Progress */}
-              <div className="flex flex-col justify-between p-5 rounded-2xl bg-gradient-to-br from-blue-50 to-blue-100 shadow-md hover:shadow-xl transition-shadow duration-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <span className="w-4 h-4 rounded-full bg-blue-700 shadow-inner" />
-                  <span className="text-sm font-semibold text-blue-800">
-                    In Progress
-                  </span>
-                </div>
-                <span className="text-3xl font-bold text-blue-900 mb-4">3</span>
-                <div className="w-full h-3 bg-blue-200 rounded-full overflow-hidden">
-                  <div className="h-3 bg-blue-400 rounded-full w-1/2 transition-all duration-500"></div>
                 </div>
               </div>
             </div>
