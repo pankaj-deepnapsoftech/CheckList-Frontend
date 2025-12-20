@@ -1,5 +1,5 @@
 import { X, ShieldCheck, Calendar, Layers } from "lucide-react";
-import AddUserRoleModal from "../addModal/AddUserRoleModal.jsx";
+import { PERMISSION_MAP } from "../addModal/AddUserRoleModal";
 
 const ViewUserRole = ({ open, onClose, data }) => {
   if (!open || !data) return null;
@@ -45,10 +45,10 @@ const ViewUserRole = ({ open, onClose, data }) => {
         <div className="px-8 py-6 flex justify-between items-center bg-white sticky top-0 z-10">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900">
-              Company Details
+              User role Details
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Read-only company information
+              Read-only user-role information
             </p>
           </div>
 

@@ -5,39 +5,43 @@ import { useCheckItem } from "../hooks/useCheckItem";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../components/Refresh/Refresh";
+import ViewCheckItem from "../components/modal/ViewModal/ViewCheckItem";
 
-
-
-const  CheckItem=()=>{
+const CheckItem = () => {
   const [search, setSearch] = useState("");
-  const [page , setPage] = useState(1);
-  const [limit , setLimit] = useState(10)
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [openCheckItemModal, setOpenCheckItemModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [selectedCheckItem, setSelectedCheckItem] = useState(null);
   const { debounce, value } = useDebounce(search);
-  const {getCheckItemData, removeItem , searchQuery} = useCheckItem(value,page,limit);
+  const { getCheckItemData, removeItem, searchQuery } = useCheckItem(
+    value,
+    page,
+    limit
+  );
   const [showRefresh, setShowRefresh] = useState(false);
-
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const filteredCheckItem = debounce
-  ? searchQuery?.data ?? []
-  : getCheckItemData?.data ;
+    ? searchQuery?.data ?? []
+    : getCheckItemData?.data;
 
-    const handleDelete = (id) => {
-      if (window.confirm("Are you sure you want to delete this Item?")) {
-        removeItem.mutate(id);
-      }
-    };
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this Item?")) {
+      removeItem.mutate(id);
+    }
+  };
 
-    const handleRefresh = async () => {
-     setPage(1);
-     setSearch("");
-     setShowRefresh(true);  
-     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
-     await Promise.all([getCheckItemData.refetch(), minDelay]); 
-     setShowRefresh(false);  
-   };
+  const handleRefresh = async () => {
+    setPage(1);
+    setSearch("");
+    setShowRefresh(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all([getCheckItemData.refetch(), minDelay]);
+    setShowRefresh(false);
+  };
 
   return (
     <div className="w-full">
@@ -224,9 +228,8 @@ const  CheckItem=()=>{
                         size={20}
                         className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
                         onClick={() => {
-                          setModalMode("view");
-                          setSelectedCheckItem(cl);
-                          setOpenCheckItemModal(true);
+                          setSelectedItem(cl);
+                          setViewOpen(true);
                         }}
                       />
 
@@ -281,8 +284,14 @@ const  CheckItem=()=>{
         setPage={setPage}
         hasNextpage={filteredCheckItem?.length === limit}
       />
+
+      <ViewCheckItem
+        open={viewOpen}
+        onClose={() => setViewOpen(false)}
+        data={selectedItem}
+      />
     </div>
   );
-}
+};
 
-export default CheckItem
+export default CheckItem;

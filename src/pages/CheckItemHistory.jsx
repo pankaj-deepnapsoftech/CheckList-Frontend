@@ -11,7 +11,6 @@ import {
 import Refresh from "../components/Refresh/Refresh";
 import Pagination from "../Components/Pagination/Pagination";
 import {useCheckItemHistory} from "../hooks/useCheckItemHistory";
-import AddCheckItemHistoryModal from "../components/modal/addModal/AddCheckItemHistoryModal";
 import ViewCheckItemHistoryModal from "../components/modal/addModal/ViewCheckItemHistoryModal";
 import EditCheckItemHistoryModal from "../components/modal/addModal/EditCheckItemHistoryModal";
 
@@ -21,15 +20,17 @@ export default function CheckItemHistory({ open, onClose }) {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [showRefresh, setShowRefresh] = useState(false);
-  const { getCheckItemHistory } = useCheckItemHistory();
-  const [openModal, setOpenModal] = useState(false);
-  const [mode, setMode] = useState("view");
+  const { getCheckItemHistory, getAssemblyReportToday } = useCheckItemHistory();
   const [selected, setSelected] = useState(null);
   const [viewOpen, setViewOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
+console.log(
+  "This is my Today=====>>>>",
+  getAssemblyReportToday?.data
+);
 
-  const filteredData = getCheckItemHistory?.data;
+  const filteredData = getAssemblyReportToday?.data;
 
   return (
     <div
@@ -102,10 +103,12 @@ export default function CheckItemHistory({ open, onClose }) {
                   key={h?._id}
                   className="group bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
                 >
+                  {console.log("This is my h", h?.process_id?.process_name)}
+                  "This is my filter", h?.process_id?.process_name )
                   <div className="border-b border-slate-200 p-5 flex justify-between items-center">
                     <div>
                       <p className="text-xs text-slate-500">
-                        {h?.assembly?.assembly_name} /{" "}
+                        {/* {h?.assembly?.assembly_name} /{" "} */}
                         {h?.process_id?.process_name}
                       </p>
                       <h3 className="text-lg font-semibold text-slate-900">
@@ -128,9 +131,8 @@ export default function CheckItemHistory({ open, onClose }) {
                       {h.result}
                     </span>
                   </div>
-
                   <div className="p-5 space-y-4 text-sm text-slate-700">
-                    <p>
+                    {/* <p>
                       <strong>Method:</strong> {h?.checkList?.check_list_method}
                     </p>
                     <p>
@@ -139,13 +141,12 @@ export default function CheckItemHistory({ open, onClose }) {
                     <p>
                       <strong>Checked By:</strong> {h.user_id.full_name} (
                       {h.user_id.user_id})
-                    </p>
+                    </p> */}
                     <p>
                       <strong>Date:</strong>{" "}
                       {new Date(h.createdAt).toLocaleString()}
                     </p>
                   </div>
-
                   <div className="px-5 pb-5 flex justify-end gap-3">
                     <button
                       onClick={() => {
