@@ -113,6 +113,39 @@ export default function AddPartsModal({
             )}
           </div>
 
+          <div>
+            <label className="text-sm font-medium">
+              Material Code <span className="text-red-500">*</span>
+            </label>
+            <input
+              name="material_code"
+              disabled={isView}
+              value={formik.values.material_code}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className="mt-1 w-full px-4 py-3 rounded-lg border"
+            />
+            {formik.touched.material_code && formik.errors.material_code && (
+              <p className="text-red-500 text-sm">{formik.errors.material_code}</p>
+            )}
+          </div>
+
+          <label className="block mb-6">
+            <span className="text-gray-700 font-medium">Description <span className="font-light">(optional)</span></span>
+            <textarea
+              placeholder="Description"
+              value={formik.values.description}
+              name="description"
+              readOnly={isView}
+              className={`mt-2 w-full px-4 py-3 border rounded-lg h-24 resize-none   
+                `}
+              onChange={formik.handleChange}
+            />
+            {formik?.touched.description && formik?.errors?.description && (
+              <p>{formik?.errors?.description}</p>
+            )}
+          </label>
+
           {/* TOTAL ASSEMBLIES (VIEW ONLY) */}
           {isView && (
             <div>

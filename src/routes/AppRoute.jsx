@@ -17,6 +17,7 @@ import CheckItem from "../pages/CheckItem";
 import Parts from "../pages/Parts";
 import CheckItemsData from "../pages/CheckItemsData";
 import CheckItemHistory from "../pages/CheckItemHistory";
+import AssignedAssemblyLines from "../pages/AssignedAssemblyLines";
 
 
 
@@ -56,6 +57,9 @@ export const AppRoute = () => {
       {
         path: "/check-item-history",
         element: withProtection(CheckItemHistory),
+      },{
+        path:"assigned-assembly-lines",
+        element: withProtection(AssignedAssemblyLines)
       },
       { path: "/*", element: <PageNotFound /> },
     ]);

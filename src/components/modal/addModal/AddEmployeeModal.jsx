@@ -214,79 +214,66 @@ export default function AddEmployeeModal({
             {/* Role */}
             <Field label="Role">
               <span className="text-red-500">*</span>
-              <select
-                name="role"
-                disabled={isView}
+              <SearchableDropdown
+                placeholder="Search Role"
+                options={AllRolesData?.data || []}
                 value={formik.values.role}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="input cursor-pointer"
-              >
-                <option value="">Select Role</option>
-                {(AllRolesData?.data || []).map((r) => (
-                  <option key={r._id} value={r._id}>
-                    {r.name}
-                  </option>
-                ))}
-              </select>
-              {formik.touched.role && formik.errors.role && (
-                <p className="text-red-500 text-sm mt-1">
-                  {formik.errors.role}
-                </p>
-              )}
+                disabled={isView}
+                getOptionLabel={(r) => r.name}
+                getOptionValue={(r) => r._id}
+                  onChange={(val) => {
+                  formik.setFieldValue("role", val);
+                  }}
+                  onBlur={() => {
+                  formik.setFieldTouched("role", true);
+                  }}
+                  error={formik.touched.role && formik.errors.role}
+              />
             </Field>
 
             {/* Company */}
             <Field label="Company">
               <span className="text-red-500">*</span>
               <SearchableDropdown
-                  placeholder="Select Company"
-                  options={AllCompanyData?.data || []}
-                  value={formik.values.employee_company}
-                  onChange={(val) => {
-                  formik.setFieldValue("employee_company", val);
-                  formik.setFieldValue("Employee_plant", ""); 
-                  }}
-              error={
-                formik.touched.employee_company && formik.errors.employee_company
-                ? formik.errors.employee_company
-                : undefined
-                 }
-                  disabled={isView}
-                  getOptionLabel={(c) => c.company_name}
-                  getOptionValue={(c) => c._id}
-                />
-              {formik.touched.employee_company &&
-                formik.errors.employee_company && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formik.errors.employee_company}
-                  </p>
-                )}
+                placeholder="Search Company"
+                options={AllCompanyData?.data || []}
+                value={formik.values.employee_company}
+                onChange={(val) => {
+                formik.setFieldValue("employee_company", val);
+                formik.setFieldValue("company_id", val?._id); // store id if needed
+
+                formik.setFieldValue("Employee_plant", "");
+                formik.setFieldTouched("Employee_plant", false);
+              }}
+             error={
+               formik.touched.employee_company &&
+               formik.errors.employee_company
+              }
+             disabled={isView}
+             getOptionLabel={(c) => c.company_name}
+            getOptionValue={(c) => c._id}
+          />
             </Field>
 
             <Field label="Plant">
               <span className="text-red-500">*</span>
-              <select
-                name="Employee_plant"
-                disabled={isView}
+              <SearchableDropdown
+                options={plantsQuery?.data || []}
                 value={formik.values.Employee_plant}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className="input cursor-pointer"
-              >
-                <option value="">Select Plant</option>
-                {(plantsQuery?.data || []).map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.plant_name}
-                  </option>
-                ))}
-              </select>
-              {formik.touched.Employee_plant &&
-                formik.errors.Employee_plant && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {formik.errors.Employee_plant}
-                  </p>
-                )}
+                disabled={isView}
+                getOptionLabel={(p) => p.plant_name}
+                getOptionValue={(p) => p._id}
+                  onChange={(val) => {
+                    formik.setFieldValue("Employee_plant", val);
+                    }}
+                  onBlur={() => {
+                  formik.setFieldTouched("Employee_plant", true);
+                   }}
+                error={
+                  formik.touched.Employee_plant &&
+                  formik.errors.Employee_plant
+                  }
+                />
             </Field>
 
             {/* Assembly Line Dropdown */}
