@@ -121,7 +121,7 @@ const PlantName = () => {
               >
                 <div className="flex items-center justify-between">
                   <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    {p.plant_name}
+                    {p?.plant_name}
                   </span>
 
                   <div className="flex gap-4">
@@ -155,10 +155,10 @@ const PlantName = () => {
 
                 <div className="mt-3 text-sm text-gray-600">
                   <p>
-                    <strong>Address:</strong> {p.company_id?.company_address}
+                    <strong>Address:</strong> {p?.plant_address}
                   </p>
                   <p>
-                    <strong>Company:</strong> {p.company_id?.company_name}
+                    <strong>Company:</strong> {p?.company_id?.company_name}
                   </p>
                 </div>
               </div>
@@ -190,11 +190,11 @@ const PlantName = () => {
                   >
                     <td className="px-5 py-4">{p.plant_name}</td>
                     <td className="px-5 py-4">
-                      {p.company_id?.company_address}
+                      {p?.plant_address}
                     </td>
                     <td className="px-5 py-4">
                       <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
-                        {p.company_id?.company_name}
+                        {p?.company_id?.company_name}
                       </span>
                     </td>
 
