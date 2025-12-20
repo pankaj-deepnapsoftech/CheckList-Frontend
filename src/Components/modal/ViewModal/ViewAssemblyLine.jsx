@@ -6,20 +6,25 @@ export default function ViewAssemblyLine({ open, onClose, data }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
-      <div className="bg-white h-full w-full sm:w-[560px] shadow-xl animate-slideLeft overflow-y-auto">
+      {/* PANEL */}
+      <div className="bg-white h-screen w-full sm:w-[720px] xl:w-[820px] shadow-2xl animate-slideLeft flex flex-col">
+        
         {/* HEADER */}
-        <div className="px-6 py-5 flex justify-between items-center">
+        <div className="px-8 py-6 flex justify-between items-center bg-white sticky top-0 z-10">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-2xl font-semibold text-gray-900">
               Assembly Line Details
             </h2>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 mt-1">
               Read-only assembly line information
             </p>
           </div>
 
-          <button onClick={onClose}>
-            <X size={22} className="text-gray-600 hover:text-black" />
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-gray-100 transition"
+          >
+            <X size={22} />
           </button>
         </div>
 

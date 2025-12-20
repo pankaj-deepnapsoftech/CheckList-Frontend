@@ -45,7 +45,7 @@ const ViewUserRole = ({ open, onClose, data }) => {
         <div className="px-8 py-6 flex justify-between items-center bg-white sticky top-0 z-10">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900">
-              User role details
+              User role Details
             </h2>
             <p className="text-sm text-gray-500 mt-1">
               Read-only user-role information

@@ -8,20 +8,24 @@ export default function ViewCheckItem({ open, onClose, data }) {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
-      <div className="bg-white h-full w-full sm:w-[520px] shadow-xl animate-slideLeft overflow-y-auto">
+      {/* PANEL */}
+      <div className="bg-white h-screen w-full sm:w-[720px] xl:w-[820px] shadow-2xl animate-slideLeft flex flex-col">
         {/* HEADER */}
-        <div className="px-6 py-5 flex justify-between items-center">
+        <div className="px-8 py-6 flex justify-between items-center bg-white sticky top-0 z-10">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">
-              Check Item Details
+            <h2 className="text-2xl font-semibold text-gray-900">
+              Check-Item Details
             </h2>
-            <p className="text-sm text-gray-500">
-              Read-only check item information
+            <p className="text-sm text-gray-500 mt-1">
+              Read-only check-item information
             </p>
           </div>
 
-          <button onClick={onClose}>
-            <X size={22} className="text-gray-600 hover:text-black" />
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full hover:bg-gray-100 transition"
+          >
+            <X size={22} />
           </button>
         </div>
 
@@ -41,9 +45,7 @@ export default function ViewCheckItem({ open, onClose, data }) {
 
             <Row label="Item">{data?.item || "—"}</Row>
 
-            <Row label="Description">
-              {data?.description || "—"}
-            </Row>
+            <Row label="Description">{data?.description || "—"}</Row>
           </Section>
 
           {/* CHECK CONFIG */}
@@ -52,13 +54,9 @@ export default function ViewCheckItem({ open, onClose, data }) {
             icon={<ClipboardCheck size={16} />}
             color="green"
           >
-            <Row label="Check Method">
-              {data?.check_list_method || "—"}
-            </Row>
+            <Row label="Check Method">{data?.check_list_method || "—"}</Row>
 
-            <Row label="Checking Time">
-              {data?.check_list_time || "—"}
-            </Row>
+            <Row label="Checking Time">{data?.check_list_time || "—"}</Row>
 
             <Row label="Evaluation Type">
               {data?.result_type === "yesno"
@@ -76,18 +74,10 @@ export default function ViewCheckItem({ open, onClose, data }) {
           </Section>
 
           {/* META */}
-          <Section
-            title="Metadata"
-            icon={<Clock size={16} />}
-            color="red"
-          >
-            <Row label="Created On">
-              {formatDate(data?.createdAt)}
-            </Row>
+          <Section title="Metadata" icon={<Clock size={16} />} color="red">
+            <Row label="Created On">{formatDate(data?.createdAt)}</Row>
 
-            <Row label="Last Updated">
-              {formatDate(data?.updatedAt)}
-            </Row>
+            <Row label="Last Updated">{formatDate(data?.updatedAt)}</Row>
           </Section>
         </div>
       </div>

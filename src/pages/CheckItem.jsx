@@ -164,7 +164,7 @@ const CheckItem = () => {
                   </div>
                 </div>
 
-                {/* More details */}
+                {/* More Details */}
                 <div className="mt-3 text-sm text-gray-600 space-y-1">
                   <p>
                     <strong>Date:</strong>{" "}
