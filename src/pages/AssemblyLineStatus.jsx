@@ -256,7 +256,7 @@ const cards = Array.isArray(assemblies)
 
                 <span
                   className={`px-3 py-1.5 rounded-xl text-sm font-semibold ${
-                    card?.status === "Checked"
+                    card?.status === "Checked OK"
                       ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
                       : "bg-red-50 text-red-600 border border-red-200"
                   }`}
