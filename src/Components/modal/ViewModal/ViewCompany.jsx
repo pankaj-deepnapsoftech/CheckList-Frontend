@@ -10,7 +10,7 @@ const ViewCompanyDrawer = ({ open, onClose, data }) => {
       <div className="bg-white h-screen w-full sm:w-[720px] xl:w-[820px] shadow-2xl animate-slideLeft flex flex-col">
         
         {/* HEADER */}
-        <div className="px-8 py-6 border-b flex justify-between items-center bg-white sticky top-0 z-10">
+        <div className="px-8 py-6 flex justify-between items-center bg-white sticky top-0 z-10">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900">
               Company Details
