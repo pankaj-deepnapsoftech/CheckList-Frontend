@@ -265,24 +265,10 @@ export default function AssemblyLine() {
                         >
                           Assign
                         </button>
-                        <Eye
-                          onClick={() => {
-                            setSelectedItem(item);
-                            setViewOpen(true);
-                          }}
-                          size={18}
-                          className="text-blue-500 cursor-pointer"
-                        />
-                        <Edit2
-                          onClick={() => openModalHandler("edit", item)}
-                          size={18}
-                          className="text-green-600 cursor-pointer"
-                        />
-                        <Trash2
-                          onClick={() => handleDelete(item._id)}
-                          size={18}
-                          className="text-red-500 cursor-pointer"
-                        />
+                        <Eye onClick={() => openModalHandler("view", item)} size={18} className="text-blue-500 cursor-pointer" />
+                        <Edit2 onClick={() => openModalHandler("edit", item)} size={18} className="text-green-600 cursor-pointer" />
+                        <Trash2 onClick={() => handleDelete(item._id)} size={18} className="text-red-500 cursor-pointer" />
+
                       </div>
                     </td>
                   </tr>
