@@ -43,9 +43,18 @@ export const useCheckItemHistory = (page = 1, limit = 10) => {
     },
   });
 
+  const getAssemblyCardsData = useQuery({
+    queryKey: ["AssemblyCardsData"],
+    queryFn: async () => {
+      const res = await axiosHandler.get(`/assembly/assembly-cards-data`);
+      return res?.data?.data;
+    },
+  });
+
   return {
     getCheckItemHistory,
     updateCheckItemHistory,
     getAssemblyReportToday,
+    getAssemblyCardsData,
   };
 };

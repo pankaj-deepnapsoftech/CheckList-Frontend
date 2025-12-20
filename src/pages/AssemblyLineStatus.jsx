@@ -18,58 +18,62 @@ export default function AssemblyLineStatus() {
   const [search, setSearch] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [openHistory, setOpenHistory] = useState(false);
-  const { getAssemblyReportToday } = useCheckItemHistory();
+  const { getAssemblyReportToday, getAssemblyCardsData } = useCheckItemHistory();
 
   console.log("this is my assembly today", getAssemblyReportToday?.data);
 
+  console.log(
+    "This is Assembly cards data",
+    getAssemblyCardsData?.data?.total_assemblies
+  );
 const assemblies = getAssemblyReportToday?.data
 
 console.log("This is my all data======>>>>>", assemblies)
 
 const cards = Array.isArray(assemblies)
   ? assemblies.map((item) => {
-      const assembly = item;
+    const assembly = item;
 
-      // console.log("this is item",item)
+    console.log("this is item",item)
 
-      const process =
-        Array.isArray(assembly?.process_id) && assembly.process_id.length > 0
-          ? assembly.process_id[0]
-          : {};
+    const process =
+      Array.isArray(assembly?.process_id) && assembly.process_id.length > 0
+        ? assembly.process_id[0]
+        : {};
 
-      return {
-        assemblyName: assembly?.assembly_name || "—",
-        assemblyNumber: assembly?.assembly_number || "—",
+    return {
+      assemblyName: assembly?.assembly_name || "—",
+      assemblyNumber: assembly?.assembly_number || "—",
 
-        //  COMPANY
-        companyName: assembly?.company_id?.company_name || "—",
-        companyAddress: assembly?.company_id?.company_address || "—",
+      //  COMPANY
+      companyName: assembly?.company_id?.company_name || "—",
+      companyAddress: assembly?.company_id?.company_address || "—",
 
-        // PLANT
-        plantName: assembly?.plant_id?.plant_name || "—",
-        plantAddress: assembly?.plant_id?.plant_address || "—",
+      // PLANT
+      plantName: assembly?.plant_id?.plant_name || "—",
+      plantAddress: assembly?.plant_id?.plant_address || "—",
 
-        //  PROCESS
-        processName: process?.process_name || "—",
-        processNo: process?.process_no || "—",
+      //  PROCESS
+      processName: process?.process_name || "—",
+      processNo: process?.process_no || "—",
 
-        //  STATUS
-        status: item?.is_error ? "Issue Found" : "Checked OK",
-        compliance: item?.is_error ? 0 : 100,
+      //  STATUS
+      status: item?.is_error ? "Issue Found" : "Checked OK",
+      compliance: item?.is_error ? 0 : 100,
 
-        //  CHECKED BY
-        responsible: assembly?.responsibility?.full_name || "—",
-        responsibleId: assembly?.responsibility?.user_id || "—",
+      //  CHECKED BY
+      responsible: assembly?.responsibility?.full_name || "—",
+      responsibleId: assembly?.responsibility?.user_id || "—",
 
-        items: [
-          {
-            label: item?.checkList?.item || "Checked OK",
-            value: item?.result || "OK",
-            status: item?.is_error ? "fail" : "pass",
-          },
-        ],
-      };
-    })
+      items: [
+        {
+          label: item?.checkList?.item || "Checked OK",
+          value: item?.result || "OK",
+          status: item?.is_error ? "fail" : "pass",
+        },
+      ],
+    };
+  })
   : [];
 
 
@@ -176,10 +180,10 @@ const cards = Array.isArray(assemblies)
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-900">
-                  Total Lines
+                  Total Assemblies
                 </p>
                 <p className="text-3xl font-bold bg-linear-to-r from-emerald-600 to-emerald-700 bg-clip-text text-transparent mt-1">
-                  4
+                  {getAssemblyCardsData?.data?.total_assemblies || 0}
                 </p>
               </div>
               <div className="w-10 h-10 bg-emerald-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -192,7 +196,7 @@ const cards = Array.isArray(assemblies)
               <div>
                 <p className="text-sm font-medium text-slate-900">Checked</p>
                 <p className="text-3xl font-bold bg-linear-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mt-1">
-                  2
+                  {getAssemblyCardsData?.data?.total_checked || 0}
                 </p>
               </div>
               <div className="w-10 h-10 bg-blue-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -204,25 +208,25 @@ const cards = Array.isArray(assemblies)
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-900">Unchecked</p>
-                <p className="text-3xl font-bold bg-linear-to-r from-red-600 to-red-700 bg-clip-text text-transparent mt-1">
-                  2
+                <p className="text-3xl font-bold bg-linear-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1">
+                  {getAssemblyCardsData?.data?.total_unchecked}
                 </p>
               </div>
-              <div className="w-10 h-10 bg-red-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <XCircle className="w-6 h-6 text-red-600" />
+              <div className="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <AlertCircle className="w-6 h-6 text-amber-600" />
               </div>
             </div>
           </div>
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Compliance</p>
-                <p className="text-3xl font-bold bg-linear-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1">
-                  76%
+                <p className="text-sm font-medium text-slate-900">Errors</p>
+                <p className="text-3xl font-bold bg-linear-to-r from-red-600 to-red-700 bg-clip-text text-transparent mt-1">
+                  {getAssemblyCardsData?.data?.total_errors || 0}
                 </p>
               </div>
-              <div className="w-10 h-10 bg-amber-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <AlertCircle className="w-6 h-6 text-amber-600" />
+              <div className="w-10 h-10 bg-red-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <XCircle className="w-6 h-6 text-red-600" />
               </div>
             </div>
           </div>
