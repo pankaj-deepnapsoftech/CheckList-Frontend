@@ -24,38 +24,54 @@ export default function AssemblyLineStatus() {
 
 const assemblies = getAssemblyReportToday?.data
 
-console.log("abdgdu======>>>>>", assemblies)
+console.log("This is my all data======>>>>>", assemblies)
 
 const cards = Array.isArray(assemblies)
   ? assemblies.map((item) => {
-      const assembly = item.assembly || {};
-      const process = item.process_id || {};
+      const assembly = item;
+
+      // console.log("this is item",item)
+
+      const process =
+        Array.isArray(assembly?.process_id) && assembly.process_id.length > 0
+          ? assembly.process_id[0]
+          : {};
 
       return {
         assemblyName: assembly?.assembly_name || "—",
         assemblyNumber: assembly?.assembly_number || "—",
 
+        //  COMPANY
         companyName: assembly?.company_id?.company_name || "—",
-        plantName: assembly?.plant_id?.plant_name || "—",
+        companyAddress: assembly?.company_id?.company_address || "—",
 
+        // PLANT
+        plantName: assembly?.plant_id?.plant_name || "—",
+        plantAddress: assembly?.plant_id?.plant_address || "—",
+
+        //  PROCESS
         processName: process?.process_name || "—",
         processNo: process?.process_no || "—",
 
-        status: item?.is_error ? "Issue Found" : "Check OK",
+        //  STATUS
+        status: item?.is_error ? "Issue Found" : "Checked OK",
         compliance: item?.is_error ? 0 : 100,
 
+        //  CHECKED BY
         responsible: assembly?.responsibility?.full_name || "—",
+        responsibleId: assembly?.responsibility?.user_id || "—",
 
         items: [
           {
             label: item?.checkList?.item || "Checked OK",
-            value: item?.result,
-            status: item?.is_error ? "Issue Found" : "Checked OK",
+            value: item?.result || "OK",
+            status: item?.is_error ? "fail" : "pass",
           },
         ],
       };
     })
   : [];
+
 
 
 
