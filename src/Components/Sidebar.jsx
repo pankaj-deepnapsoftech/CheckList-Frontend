@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -32,6 +31,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       path: "/",
       icon: <LayoutDashboard size={20} />,
     },
+
     { name: "Company", path: "/company", icon: <Building size={20} /> },
     { name: "Plant Name", path: "/plant-name", icon: <Package size={20} /> },
     { name: "Assembly Line", path: "/assembly-line", icon: <Key size={20} /> },
