@@ -66,10 +66,10 @@ export const RegisterEmployee = (cmId,plId,search, page,limit, enabled = true) =
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employees"] });
-      toast.success(data?.message);
+      toast.success(data?.message || "Employee updated successfully");
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to update employee");
+      toast.error(error?.response?.data?.message);
     },
   });
 

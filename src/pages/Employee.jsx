@@ -20,13 +20,12 @@ const Employee = () => {
   const [selectedCompany, setSelectedCompany] = useState("");
   const { debounce, value } = useDebounce(search);
   const [viewOpen, setViewOpen] = useState(false);
-
-  const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
-    RegisterEmployee(selectedCompany, selectedPlant, value, page, limit);
   const searchValue = search ? value : "";
 
   const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
     RegisterEmployee(selectedCompany, selectedPlant, searchValue, page, limit);
+
+  
 
   const hasfilter = selectedPlant || selectedCompany || search;
 
@@ -37,7 +36,7 @@ const Employee = () => {
 
   const [showRefresh, setShowRefresh] = useState(false);
 
-  const [showRefresh, setShowRefresh] = useState(false);
+
 
   const handleRefresh = async () => {
     setPage(1);
@@ -194,11 +193,10 @@ const Employee = () => {
           </div>
         </div>
 
-        {/* Mobile View (Card Layout) */}
-        {showRefresh ? (
-          <Refresh />
-                <Refresh />
-              ) : (
+      {/* Mobile View (Card Layout) */}
+      {showRefresh ? (
+        <Refresh />
+      ) : (
         <div className="grid gap-4 sm:hidden mt-4">
           {filteredEmployees.map((emp, i) => (
             <div
@@ -234,14 +232,13 @@ const Employee = () => {
                   />
 
                   <label className="inline-flex items-center cursor-pointer">
-                      <input
+                    <input
                       type="checkbox"
                       checked={!emp.terminate}
                       onChange={() => handleTerminateToggle(emp)}
                       className="sr-only peer"
-                        />
-                      <div className="relative w-11 h-6 bg-red-500 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                                    after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                    />
+                    <div className="relative w-11 h-6 bg-red-500 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
                   </label>
                 </div>
               </div>
@@ -266,63 +263,26 @@ const Employee = () => {
             </div>
           ))}
         </div>
-        )}
+      )}
 
-        {/* Table */}
+      {/* Desktop Table */}
       {showRefresh ? (
         <Refresh />
-        ) : (
-          <div className="grid gap-4 sm:hidden mt-4">
-            {filteredEmployees.map((emp, i) => (
-              <div
-                key={i}
-                className="border border-gray-200 rounded-xl p-4 shadow-sm bg-white"
-              >
-                {/* Header: Name + actions */}
-                <div className="flex items-center flex-wrap justify-between gap-3">
-                  <span className="bg-blue-500 whitespace-nowrap text-white px-3 py-1 rounded-full text-xs font-medium">
-                    {emp.user_id || "N/A"}
-                  </span>
+      ) : (
+        <div className="hidden sm:block overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 border-b border-gray-200">
+              <tr>
+                <th className="px-5 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
+                <th className="px-5 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
+                <th className="px-5 py-3 text-left text-sm font-semibold text-gray-700">Plant</th>
+                <th className="px-5 py-3 text-left text-sm font-semibold text-gray-700">Company</th>
+                <th className="px-5 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
+              </tr>
+            </thead>
 
-                  {/* ACTIONS */}
-                  <div className="flex gap-4">
-                    <Eye
-                      size={20}
-                      className="text-blue-500 cursor-pointer"
-                      onClick={() => {
-                        setModalMode("view");
-                        setSelectedEmployee(emp);
-                        setModalOpen(true);
-                      }}
-                    />
-
-                    <Edit2
-                      size={20}
-                      className="text-green-500 cursor-pointer"
-                      onClick={() => {
-                        setModalMode("edit");
-                        setSelectedEmployee(emp);
-                        setModalOpen(true);
-                      }}
-                    />
-
-                    {/* DELETE */}
-                    <label className="inline-flex items-center cursor-pointer">
-                      <input
-                      type="checkbox"
-                      checked={!emp.terminate}
-                      onChange={() => handleTerminateToggle(emp)}
-                      className="sr-only peer"
-                        />
-                      <div className="relative w-11 h-6 bg-red-500 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px]
-                                    after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
-                      </label>
-                  </td>
-                </tr>
-              </thead>
-
-              {/* Table Body */}
-              <tbody className="text-gray-700">
+            {/* Table Body */}
+            <tbody className="text-gray-700">
                 {filteredEmployees.map((emp, i) => (
                   <tr
                     key={i}
