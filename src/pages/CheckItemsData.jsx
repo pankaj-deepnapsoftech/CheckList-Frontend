@@ -49,7 +49,13 @@ const CheckItemsData = () => {
       );
 
       if (allFilled) {
-        PostCheckListFormHistory.mutate(values);
+        PostCheckListFormHistory.mutate(values,{
+          onSuccess:()=>{
+            window.location.reload() ;
+            formik.resetForm()
+             formik.setFieldValue("data", "");
+          }
+        });
       } else {
         toast.error("Please fill all checklist items before submitting.");
       }
