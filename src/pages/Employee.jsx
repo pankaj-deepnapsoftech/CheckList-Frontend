@@ -329,21 +329,16 @@ const Employee = () => {
                       />
 
                       {/* DELETE */}
-                      {emp.terminate ? (
-                        <Ban
-                          size={22}
-                          onClick={() => handleTerminateToggle(emp)}
-                          className="text-red-500 hover:scale-125 cursor-pointer transition"
-                          title="Re-Activate Employee"
+                      <label className="inline-flex items-center cursor-pointer">
+                      <input
+                      type="checkbox"
+                      checked={!emp.terminate}
+                      onChange={() => handleTerminateToggle(emp)}
+                      className="sr-only peer"
                         />
-                      ) : (
-                        <UserCheck
-                          size={22}
-                          onClick={() => handleTerminateToggle(emp)}
-                          className="text-purple-500 hover:scale-125 cursor-pointer transition"
-                          title="Terminate Employee"
-                        />
-                      )}
+                      <div className="relative w-11 h-6 bg-red-500 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                                    after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full"></div>
+                      </label>
                     </td>
                   </tr>
                 ))}
