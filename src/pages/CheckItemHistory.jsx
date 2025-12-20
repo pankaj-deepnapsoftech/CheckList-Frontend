@@ -30,7 +30,46 @@ console.log(
   getAssemblyReportToday?.data
 );
 
-  const filteredData = getAssemblyReportToday?.data;
+const flattenedData = Array?.isArray(getAssemblyReportToday?.data)
+  ? getAssemblyReportToday?.data?.flatMap((assembly) =>
+      (assembly?.process_id || [])?.flatMap((process) =>
+        (process?.today || [])?.flatMap((today) =>
+          (today?.checkList || [])?.map((check) => ({
+            // PROCESS
+            processId: process?._id,
+            processName: process?.process_name,
+            processNo: process?.process_no,
+
+            // CHECKLIST
+            checklistId: check?._id,
+            item: check?.item,
+            check_list_method: check?.check_list_method,
+            check_list_time: check?.check_list_time,
+            result_type: check?.result_type,
+            min: check?.min,
+            max: check?.max,
+            uom: check?.uom,
+
+            // RESULT
+            result: today?.result,
+            is_error: today?.is_error,
+
+            // EXTRA (modal ke liye)
+            fullChecklist: check,
+            assembly,
+            process,
+            today,
+          }))
+        )
+      )
+    )
+  : [];
+
+
+  const filteredData = flattenedData;
+
+
+  
 
   return (
     <div
@@ -104,31 +143,30 @@ console.log(
                   className="group bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300"
                 >
                   {console.log("This is my h", h?.process_id?.process_name)}
-                  "This is my filter", h?.process_id?.process_name )
                   <div className="border-b border-slate-200 p-5 flex justify-between items-center">
                     <div>
                       <p className="text-xs text-slate-500">
                         {/* {h?.assembly?.assembly_name} /{" "} */}
-                        {h?.process_id?.process_name}
+                        {h.processName} ({h.processNo})
                       </p>
                       <h3 className="text-lg font-semibold text-slate-900">
-                        {h?.checkList?.item}
+                        {h.item}
                       </h3>
                     </div>
 
                     <span
                       className={`px-3 py-1.5 rounded-xl text-sm font-semibold flex items-center gap-1 ${
-                        h.result === "Checked OK"
-                          ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                          : "bg-red-50 text-red-600 border border-red-200"
+                        h.is_error
+                          ? "bg-red-50 text-red-600 border border-red-200"
+                          : "bg-emerald-50 text-emerald-600 border border-emerald-200"
                       }`}
                     >
-                      {h.result === "Checked OK" ? (
-                        <CheckCircle2 size={16} />
-                      ) : (
+                      {h.is_error ? (
                         <AlertCircle size={16} />
+                      ) : (
+                        <CheckCircle2 size={16} />
                       )}
-                      {h.result}
+                      {h.is_error ? "Error" : "Checked OK"}
                     </span>
                   </div>
                   <div className="p-5 space-y-4 text-sm text-slate-700">
