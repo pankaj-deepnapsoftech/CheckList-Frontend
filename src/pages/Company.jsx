@@ -67,7 +67,7 @@ const Company = () => {
               setEditTable(null);
               setOpenModal(true);
               setMode("add");
-              setViewModal(null)
+              setViewModal(null);
             }}
             className="px-5 py-2 bg-blue-500 text-white rounded-lg w-full justify-center hover:bg-blue-600 flex items-center gap-2"
           >
@@ -154,13 +154,13 @@ const Company = () => {
                 </div>
 
                 <div className="mt-3 text-sm text-gray-600 space-y-1">
-                  <p>
+                  <p className="max-w-[300px] truncate">
                     <strong>Address:</strong> {com.company_address}
                   </p>
                   <p>
                     <strong>GST:</strong> {com.gst_no || "N/A"}
                   </p>
-                  <p>
+                  <p className="max-w-[300px] truncate">
                     <strong>Description:</strong> {com.description || "N/A"}
                   </p>
                 </div>
@@ -200,7 +200,7 @@ const Company = () => {
                     </td>
 
                     {/* ADDRESS */}
-                    <td className="px-6 py-4 text-gray-600 max-w-[260px] truncate">
+                    <td className="px-6 py-4 text-gray-600 max-w-[250px] truncate">
                       {com.company_address}
                     </td>
 
@@ -212,7 +212,7 @@ const Company = () => {
                     </td>
 
                     {/* DESCRIPTION */}
-                    <td className="px-6 py-4 text-gray-600">
+                    <td className="px-6 py-4 text-gray-600 max-w-[250px] truncate">
                       {com.description || "N/A"}
                     </td>
 
