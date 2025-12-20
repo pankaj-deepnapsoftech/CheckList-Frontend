@@ -241,7 +241,9 @@ export default function UserRoles() {
                       </div>
                     </td>
 
-                    <td className="px-5 py-4">{item.description}</td>
+                    <td className="px-5 py-4 max-w-[250px] truncate">
+                      {item.description}
+                    </td>
                     <td className="px-5 py-4 flex justify-center gap-5">
                       <Eye
                         size={20}

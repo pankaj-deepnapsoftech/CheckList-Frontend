@@ -33,7 +33,7 @@ export default function AssemblyLineModal({ openModal, setOpenModal, editTable, 
       company_id: editTable?.company_id?._id || viewModal?.company_id?._id || "",
       plant_id: editTable?.plant_id?._id || viewModal?.plant_id?._id || "",
       responsibility: editTable?.responsibility?._id || viewModal?.responsibility?._id || "",
-      part_id: editTable?.part_id || viewModal?.part_id || "",
+      part_id: editTable?.part_id?._id || viewModal?.part_id?._id || "",
 
       process_id:
         existingProcesses?.length

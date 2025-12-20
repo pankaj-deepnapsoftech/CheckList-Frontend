@@ -8,7 +8,6 @@ import { validationSchema } from "../../../Validation/CheckItemValidation";
 import { useCheckItem } from "../../../hooks/useCheckItem";
 import SearchableDropdown from "../../SearchableDropDown/SearchableDropDown";
 
-
 export default function AddCheckItemModal({
   open,
   onClose,
@@ -19,7 +18,7 @@ export default function AddCheckItemModal({
 }) {
   const isView = mode === "view";
 
-  const {getProcessData} = useProcess()
+  const { getProcessData } = useProcess();
   const { CreateCheckItem, updateCheckItem } = useCheckItem();
 
    const [checklistMethods, setChecklistMethods] = useState([
@@ -76,20 +75,10 @@ export default function AddCheckItemModal({
             onClose();
             formik.resetForm();
           },
-        }
-      );
-    } else {
-      CreateCheckItem.mutate(values, {
-        onSuccess: () => {
-          onClose();
-          formik.resetForm();
-        },
-      });
-    }
-  },
-});
-
-
+        });
+      }
+    },
+  });
 
   if (!open) return null;
 
@@ -286,7 +275,7 @@ export default function AddCheckItemModal({
                   checked={formik.values.result_type === "yesno"}
                   onChange={formik.handleChange}
                 />
-                Condition Check
+                Simple Check
               </label>
 
               <label className="flex items-center gap-2">
@@ -298,7 +287,7 @@ export default function AddCheckItemModal({
                   checked={formik.values.result_type === "measurement"}
                   onChange={formik.handleChange}
                 />
-                Numeric Check
+                Value Based Check
               </label>
             </div>
           </Field>
@@ -329,13 +318,26 @@ export default function AddCheckItemModal({
               </Field>
 
               <Field label="UOM">
-                <input
+                <select
                   name="uom"
                   disabled={isView}
                   value={formik.values.uom}
                   onChange={formik.handleChange}
                   className="input"
-                />
+                >
+                  <option value="" disabled>
+                    Select UOM
+                  </option>
+                  <option value="kg/cm²">kg/cm² (Pressure)</option>
+                  <option value="Psi">Psi (Pressure)</option>
+                  <option value="BAR">BAR (Pressure)</option>
+                  <option value="°C">°C (Temperature)</option>
+                  <option value="gm">gm (Weight)</option>
+                  <option value="sec">sec (Time)</option>
+                  <option value="Sample">Sample (Quantity)</option>
+                  <option value="Visual">Visual (Quantity)</option>
+                  <option value="ESD Meter">ESD Meter (Electrical)</option>
+                </select>
               </Field>
             </>
           )}
