@@ -112,12 +112,13 @@ export default function AssemblyLine() {
                   <th className="px-5 py-3 font-semibold">Processes</th>
                   <th className="px-5 py-3 font-semibold">Company</th>
                   <th className="px-5 py-3 font-semibold">Plant</th>
+                    <th className="px-5 py-3 font-semibold">Responsible</th>
                   <th className="px-5 py-3 font-semibold text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="text-gray-700">
                 {data?.map((item) => (
-                  <tr key={item._id} className="border-b border-gray-200 hover:bg-blue-50/40 transition">
+                  <tr key={item._id} className="border-b  border-gray-200 hover:bg-blue-50/40 transition">
                     <td className="px-5 py-4 text-sm">{item?.assembly_number}</td>
                     <td className="px-5 py-4 text-sm">
                       <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
@@ -131,6 +132,7 @@ export default function AssemblyLine() {
                     </td>
                     <td className="px-5 py-4 text-sm">{item?.company_id?.company_name}</td>
                     <td className="px-5 py-4 text-sm">{item?.plant_id?.plant_name}</td>
+                    <td className="px-5 py-4 text-sm">{item?.responsibility?.full_name} ({item?.responsibility?.user_id})</td>
                     <td className="px-5 py-4">
                       
                       <div className="flex gap-4 justify-center">
