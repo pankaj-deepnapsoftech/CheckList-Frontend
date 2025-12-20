@@ -6,7 +6,6 @@ import { useProcess } from "../../../hooks/useProcess";
 import { validationSchema } from "../../../Validation/CheckItemValidation";
 import { useCheckItem } from "../../../hooks/useCheckItem";
 
-
 export default function AddCheckItemModal({
   open,
   onClose,
@@ -17,47 +16,44 @@ export default function AddCheckItemModal({
 }) {
   const isView = mode === "view";
 
-  const {getProcessData} = useProcess()
+  const { getProcessData } = useProcess();
   const { CreateCheckItem, updateCheckItem } = useCheckItem();
 
- const formik = useFormik({
-  initialValues: {
-    process:
-      initialData?.process?._id || initialData?.process || "",
-    item: initialData?.item || "",
-    description: initialData?.description || "",
-    check_list_method: initialData?.check_list_method || "",
-    check_list_time: initialData?.check_list_time || "",
-    result_type: initialData?.result_type || "",
-    min: initialData?.min || "0",
-    max: initialData?.max || "0",
-    uom: initialData?.uom || "0",
-  },
-  enableReinitialize: true,
-  validationSchema,
-  onSubmit: (values) => {
-    if (mode === "edit") {
-      updateCheckItem.mutate(
-        { id: initialData?._id, data: values },
-        {
+  const formik = useFormik({
+    initialValues: {
+      process: initialData?.process?._id || initialData?.process || "",
+      item: initialData?.item || "",
+      description: initialData?.description || "",
+      check_list_method: initialData?.check_list_method || "",
+      check_list_time: initialData?.check_list_time || "",
+      result_type: initialData?.result_type || "",
+      min: initialData?.min || "0",
+      max: initialData?.max || "0",
+      uom: initialData?.uom || "",
+    },
+    enableReinitialize: true,
+    validationSchema,
+    onSubmit: (values) => {
+      if (mode === "edit") {
+        updateCheckItem.mutate(
+          { id: initialData?._id, data: values },
+          {
+            onSuccess: () => {
+              onClose();
+              formik.resetForm();
+            },
+          }
+        );
+      } else {
+        CreateCheckItem.mutate(values, {
           onSuccess: () => {
             onClose();
             formik.resetForm();
           },
-        }
-      );
-    } else {
-      CreateCheckItem.mutate(values, {
-        onSuccess: () => {
-          onClose();
-          formik.resetForm();
-        },
-      });
-    }
-  },
-});
-
-
+        });
+      }
+    },
+  });
 
   if (!open) return null;
 
@@ -201,7 +197,7 @@ export default function AddCheckItemModal({
                   checked={formik.values.result_type === "yesno"}
                   onChange={formik.handleChange}
                 />
-                Condition Check
+                Simple Check
               </label>
 
               <label className="flex items-center gap-2">
@@ -213,7 +209,7 @@ export default function AddCheckItemModal({
                   checked={formik.values.result_type === "measurement"}
                   onChange={formik.handleChange}
                 />
-                Numeric Check
+                Value Based Check
               </label>
             </div>
           </Field>
@@ -244,13 +240,26 @@ export default function AddCheckItemModal({
               </Field>
 
               <Field label="UOM">
-                <input
+                <select
                   name="uom"
                   disabled={isView}
                   value={formik.values.uom}
                   onChange={formik.handleChange}
                   className="input"
-                />
+                >
+                  <option value="" disabled>
+                    Select UOM
+                  </option>
+                  <option value="kg/cm²">kg/cm² (Pressure)</option>
+                  <option value="Psi">Psi (Pressure)</option>
+                  <option value="BAR">BAR (Pressure)</option>
+                  <option value="°C">°C (Temperature)</option>
+                  <option value="gm">gm (Weight)</option>
+                  <option value="sec">sec (Time)</option>
+                  <option value="Sample">Sample (Quantity)</option>
+                  <option value="Visual">Visual (Quantity)</option>
+                  <option value="ESD Meter">ESD Meter (Electrical)</option>
+                </select>
               </Field>
             </>
           )}
