@@ -10,6 +10,7 @@ import {
   XCircle,
   AlertCircle,
   History,
+  HistoryIcon,
 } from "lucide-react";
 import CheckItemHistoryModal from "./CheckItemHistory";
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
@@ -20,7 +21,10 @@ export default function AssemblyLineStatus() {
   const [openHistory, setOpenHistory] = useState(false);
   const { getAssemblyReportToday, getAssemblyCardsData } = useCheckItemHistory();
 
-  console.log("this is my assembly today", getAssemblyReportToday?.data);
+  console.log(
+    "this is my assembly today",
+    getAssemblyReportToday?.data?.process_id
+  );
 
   console.log(
     "This is Assembly cards data",
@@ -41,6 +45,8 @@ const cards = Array.isArray(assemblies)
         ? assembly.process_id[0]
         : {};
 
+        {console.log("sdhgueq==========>>>>",assembly.process_id.length);}
+
     return {
       assemblyName: assembly?.assembly_name || "—",
       assemblyNumber: assembly?.assembly_number || "—",
@@ -58,7 +64,7 @@ const cards = Array.isArray(assemblies)
       processNo: process?.process_no || "—",
 
       //  STATUS
-      status: item?.is_error ? "Issue Found" : "Checked OK",
+      status: item?.is_error ? "Issue Found" : "In-Progress",
       compliance: item?.is_error ? 0 : 100,
 
       //  CHECKED BY
@@ -67,8 +73,8 @@ const cards = Array.isArray(assemblies)
 
       items: [
         {
-          label: item?.checkList?.item || "Checked OK",
-          value: item?.result || "OK",
+          label: item?.checkList?.item || "History",
+          value: item?.result || <HistoryIcon size={18}/>,
           status: item?.is_error ? "fail" : "pass",
         },
       ],
@@ -240,14 +246,16 @@ const cards = Array.isArray(assemblies)
               className="group bg-white border border-slate-200 rounded-2xl shadow-sm
     hover:shadow-lg transition-all duration-300"
             >
+              {console.log("This is my card", card)}
               {/* ================= HEADER ================= */}
               <div className="border-b border-slate-200 p-5 flex justify-between items-center">
                 <div>
-                  <p className="text-xs text-slate-500">
+                  {/* <p className="text-xs text-slate-500">
                     {card?.assemblyNumber} / {card?.assemblyName}
-                  </p>
+                  </p> */}
                   <h3 className="text-lg font-semibold text-slate-900">
-                    {card?.processName}
+                    {card?.assemblyNumber} / {card?.assemblyName}
+                    {/* {card?.processName} */}
                     <span className="text-sm text-slate-400 ml-1">
                       ({card?.processNo})
                     </span>
@@ -258,7 +266,7 @@ const cards = Array.isArray(assemblies)
                   className={`px-3 py-1.5 rounded-xl text-sm font-semibold ${
                     card?.status === "Checked OK"
                       ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                      : "bg-red-50 text-red-600 border border-red-200"
+                      : "bg-red-50 text-yellow-600 border border-yellow-200"
                   }`}
                 >
                   {card?.status}
@@ -270,15 +278,24 @@ const cards = Array.isArray(assemblies)
                 <p>
                   <strong>Company:</strong> {card?.companyName}
                 </p>
-                <p>
+                {/* <p>
                   <strong>Company Address:</strong> {card?.companyAddress}
-                </p>
+                </p> */}
                 <p>
                   <strong>Plant:</strong> {card?.plantName}
                 </p>
                 <p>
-                  <strong>Plant Address:</strong> {card?.plantAddress}
+                  <strong>Total Process:</strong> 6
                 </p>
+                <p>
+                  <strong>Total Checked:</strong> 2
+                </p>
+                <p>
+                  <strong>Total Un-Checked:</strong> 4
+                </p>
+                {/* <p>
+                  <strong>Plant Address:</strong> {card?.plantAddress}
+                </p> */}
               </div>
 
               {/* ================= CHECKLIST PREVIEW ================= */}
