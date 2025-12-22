@@ -50,16 +50,24 @@ export const useCheckItem = (search, page, limit) => {
   })
 
   const AddCategroy = useMutation({
-    mutationFn: async () => {
-      const res = await axiosHandler.post(`/types/create-types`)
+    mutationFn: async (data) => {
+
+      const body = {};
+      if (data.newMethod) body.checking_method = data.newMethod;
+      if (data.newUom) body.uom = data.newUom;
+      if (data.newTime) body.checking_time = data.newTime;
+       
+      const res = await axiosHandler.post(`types/create-types`, body);
       return res?.data;
     },
     onSuccess: (data) => {
-      toast.success(data?.message)
-      qc.invalidateQueries({ queryKey: ["types"] })
-
-    }
-  })
+      toast.success(data?.message);
+      qc.invalidateQueries({ queryKey: ["types"] });
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message);
+    },
+  });
 
 
 

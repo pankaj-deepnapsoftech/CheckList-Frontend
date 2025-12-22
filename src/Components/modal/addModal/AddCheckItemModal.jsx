@@ -19,32 +19,21 @@ export default function AddCheckItemModal({
   const { getProcessData } = useProcess();
   const { CreateCheckItem, updateCheckItem, AddCategroy, GetCategory } = useCheckItem();
 
-  const [checklistMethods, setChecklistMethods] = useState([
-    "Visual",
-    "Visual and manual",
-    "Visual by ESD meter",
-    "Visual check in PID",
-    "Visual check in timer",
-    "Visual check in FR unit",
-    "Visual and greasing sample",
-    "Visual check in pressure gauge",
-    "Visual check in temperature meter",
-    "Visual by limit sample and attention sheet",
-    "Visual check grease name / part no.",
-    "Weighing machine",
-    "Lot management plan",
-    "As per checker validation sheet",
-  ]);
-
-  const [checklistTimes, setChecklistTimes] = useState([
-    "SOP",
-    "When bit change",
-    "When roll change",
-    "At the time of grease filling",
-    "As per checker validation sheet",
-  ]);
+ 
 
 
+
+  
+  const [showMethodInput, setShowMethodInput] = useState(false);
+  const [showTimeInput, setShowTimeInput] = useState(false);
+  const [showUomInput, setShowUomInput] = useState(false);
+  const [methodList, setMethodList] = useState([]); 
+  const [newMethod, setNewMethod] = useState("");
+
+  const [newTime, setNewTime] = useState("");
+  const [checklistTimes, setChecklistTimes] = useState("");
+
+  const [newUom, setNewUom] = useState("");
   const [uom, setUom] = useState([]);
 
   useEffect(() => {
@@ -54,17 +43,21 @@ export default function AddCheckItemModal({
         .map(item => item.uom);
 
       setUom(UomData);
+      const MethodData = GetCategory.data
+        .filter(item => item?.checking_method)
+        .map(item => item.checking_method);
+
+      setMethodList(MethodData);
+      const ListData = GetCategory.data
+        .filter(item => item?.checking_time)
+        .map(item => item.checking_time);
+
+      setChecklistTimes(ListData);
     }
   }, [GetCategory?.data]);
 
-
-  const [showMethodInput, setShowMethodInput] = useState(false);
-  const [showTimeInput, setShowTimeInput] = useState(false);
-  const [showUomInput,setShowUomInput] = useState(false);
-  const [newMethod, setNewMethod] = useState("");
-  const [newTime, setNewTime] = useState("");
-  const [newUom,setNewUom]= useState("");
-
+  
+  
   const formik = useFormik({
     initialValues: {
       process:
@@ -74,8 +67,8 @@ export default function AddCheckItemModal({
       check_list_method: initialData?.check_list_method || "",
       check_list_time: initialData?.check_list_time || "",
       result_type: initialData?.result_type || "",
-      min: initialData?.min ,
-      max: initialData?.max ,
+      min: initialData?.min,
+      max: initialData?.max,
       uom: initialData?.uom,
     },
     enableReinitialize: true,
@@ -100,6 +93,8 @@ export default function AddCheckItemModal({
       }
     },
   });
+  
+
 
   if (!open) return null;
 
@@ -169,7 +164,7 @@ export default function AddCheckItemModal({
               <div className="flex-1">
                 <SearchableDropdown
                   placeholder="Select Checklist Method"
-                  options={checklistMethods.map((m) => ({
+                  options={methodList.map(m => ({
                     label: m,
                     value: m,
                   }))}
@@ -212,7 +207,8 @@ export default function AddCheckItemModal({
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded"
                   onClick={() => {
                     if (!newMethod.trim()) return;
-                    setChecklistMethods([...checklistMethods, newMethod]);
+                  
+                    AddCategroy.mutate({ newMethod: newMethod })
                     setNewMethod("");
                     setShowMethodInput(false);
                   }}
@@ -286,7 +282,7 @@ export default function AddCheckItemModal({
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded"
                   onClick={() => {
                     if (!newTime.trim()) return;
-                    setChecklistTimes([...checklistTimes, newTime]);
+                    AddCategroy.mutate({ newTime: newTime })
                     setNewTime("");
                     setShowTimeInput(false);
                   }}
@@ -364,49 +360,9 @@ export default function AddCheckItemModal({
               </Field>
 
               <Field label="UOM">
-                {!showUomInput && !isView && (
-              <button
-                type="button"
-                className="text-blue-600 text-sm mb-2 ml-4"
-                onClick={() => setShowUomInput(true)}
-              >
-                + Add Uom
-              </button>
-            )}
 
-            {showUomInput && (
-              <div className="flex gap-2 mb-2">
-                <input
-                  className="input"
-                  placeholder="Enter Uom"
-                  value={newUom}
-                  onChange={(e) => setNewUom(e.target.value)}
-                />
-                <button
-                  type="button"
-                  className="bg-blue-600 text-white px-3 rounded"
-                  onClick={() => {
-                    if (!newUom.trim()) return;
-                    setUom([...uom, newUom]);
-                    setNewUom("");
-                    setShowUomInput(false);
-                  }}
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  className="text-gray-500"
-                  onClick={() => {
-                    setShowUomInput(false);
-                    setUomTime("");
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-            )}
-               
+
+
                 <SearchableDropdown
                   placeholder="Select UOM"
                   options={uom.map((t) => ({
@@ -420,6 +376,60 @@ export default function AddCheckItemModal({
                     formik.setFieldValue("uom", val)
                   }
                 />
+
+
+                <div className="w-full flex justify-end pt-2">
+                  {!showUomInput && !isView && (
+                    <button
+                      type="button"
+                      className="
+        text-blue-600 text-sm font-medium whitespace-nowrap
+        bg-blue-50 border border-blue-300
+        px-3 py-1.5 rounded-md
+        hover:bg-blue-100 hover:border-blue-400
+        transition-colors"
+                      onClick={() => setShowUomInput(true)}
+                    >
+                      + Add Uom
+                    </button>
+                  )}
+                </div>
+
+
+                {showUomInput && (
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      className="input"
+                      placeholder="Enter Uom"
+                      value={newUom}
+                      onChange={(e) => setNewUom(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className="bg-blue-600 text-white px-3 rounded"
+                      onClick={() => {
+                        if (!newUom.trim()) return;
+                        setNewUom("");
+                        setShowUomInput(false);
+                        AddCategroy.mutate({ newUom: newUom })
+                      }}
+                    >
+                      Save
+                    </button>
+                    <button
+                      type="button"
+                      className="text-gray-500"
+                      onClick={() => {
+                        setShowUomInput(false);
+                        setUomTime("");
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+
+
               </Field>
             </>
           )}
