@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Search, Plus, RefreshCw, Edit2, Trash2, Eye } from "lucide-react";
 import AssemblyLineModal from "../components/modal/addModal/AddNewAssembly";
 import { useAssemblyLine } from "../hooks/useAssemblyLine";
@@ -13,17 +13,24 @@ export default function AssemblyLine() {
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [viewModal, setViewModal] = useState(null);
+  const [selectedPlant, setSelectedPlant] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedResponsible, setSelectedResponsible] = useState("");
+  const [selectedProcess, setSelectedProcess] = useState("");
   const [limit, setLimit] = useState(10);
   const [mode, setMode] = useState("add");
   const { debounce, value } = useDebounce(search);
-  const { getAssemblyLineData, searchQuery, DeleteAssemblyLine } =
-    useAssemblyLine(value, page, limit);
-  const data = debounce
-    ? searchQuery?.data ?? []
-    : getAssemblyLineData?.data ?? [];
-  const [showRefresh, setShowRefresh] = useState(false);
+  const searchValue = search ? value : "";
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const { getAssemblyLineData, searchQuery, DeleteAssemblyLine } = useAssemblyLine(selectedCompany, selectedPlant, selectedProcess, selectedResponsible, searchValue, page, limit);
+
+  const hasfilter = selectedPlant || selectedCompany || search || selectedProcess || selectedResponsible;
+
+  const data = useMemo(() =>
+    hasfilter ? searchQuery?.data ?? [] : getAssemblyLineData?.data ?? [],
+    [hasfilter, searchQuery?.data, getAssemblyLineData?.data]
+  );
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this Assembly Line?")) {
@@ -31,6 +38,8 @@ export default function AssemblyLine() {
     }
   };
 
+
+  const [showRefresh, setShowRefresh] = useState(false);
   const handleRefresh = async () => {
     setPage(1);
     setSearch("");
@@ -46,7 +55,49 @@ export default function AssemblyLine() {
     setViewModal(mode === "view" ? item : null);
     setOpenModal(true);
   };
+  const plantOptions = [
+    ...new Map(
+      (getAssemblyLineData?.data || [])
+        .map((assem) => assem?.plant_id)
+        .filter(Boolean)
+        .map(plant => [plant._id, plant])
+    ).values(),
+  ];
 
+  const companyOptions = [
+    ...new Map(
+      (getAssemblyLineData?.data || [])
+        .map((assem) => assem?.company_id)
+        .filter(Boolean)
+        .map((company) => [company?._id, company])
+    ).values(),
+  ];
+
+  const responsibleOptions = [
+    ...new Map(
+      (getAssemblyLineData?.data || [])
+        .map((assem) => assem?.responsibility)
+        .filter(Boolean)
+        .map((responsibility) => [responsibility?._id, responsibility])
+    ).values(),
+  ];
+
+
+  const processOptions = [
+    ...new Map(
+      (getAssemblyLineData?.data || [])
+        .map((assem) => assem?.process_id)
+        .filter(Boolean)
+        .flatMap((process) => process)
+        .map((p) => [p?._id, p])
+    ).values(),
+  ];
+
+  useEffect(() => {
+    setPage(1);
+  }, [search, selectedCompany, selectedPlant, selectedProcess]);
+
+  console.log("selectedCompany", selectedCompany)
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -70,7 +121,59 @@ export default function AssemblyLine() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
 
+
+          <select
+            value={selectedCompany}
+            onChange={(e) => setSelectedCompany(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          >
+            <option value="">All Companies</option>
+            {companyOptions.map((company) => (
+              <option key={company._id} value={company._id}>
+                {company.company_name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedPlant}
+            onChange={(e) => setSelectedPlant(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          >
+            <option value="">All Plants</option>
+            {plantOptions.map((plant, i) => (
+              <option key={i} value={plant?._id}>
+                {plant?.plant_name}
+              </option>
+            ))}
+          </select>
+          <select
+            value={selectedResponsible}
+            onChange={(e) => setSelectedResponsible(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          >
+            <option value="">All Responsible</option>
+            {responsibleOptions.map((responsible) => (
+              <option key={responsible?._id} value={responsible?._id}>
+                {responsible.full_name}
+              </option>
+            ))}
+          </select>
+          {/* Process Filter */}
+          <select
+            value={selectedProcess}
+            onChange={(e) => setSelectedProcess(e.target.value)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+          >
+            <option value="">All Processes</option>
+            {processOptions.map((process) => (
+              <option key={process._id} value={process._id}>
+                {process.process_name}
+              </option>
+            ))}
+          </select>
+        </div>
         <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
           <button
             onClick={() => openModalHandler("add")}
@@ -126,7 +229,7 @@ export default function AssemblyLine() {
                   <th className="px-5 py-3 font-semibold">Processes</th>
                   <th className="px-5 py-3 font-semibold">Company</th>
                   <th className="px-5 py-3 font-semibold">Plant</th>
-                    <th className="px-5 py-3 font-semibold">Responsible</th>
+                  <th className="px-5 py-3 font-semibold">Responsible</th>
                   <th className="px-5 py-3 font-semibold text-center">Actions</th>
                 </tr>
               </thead>
@@ -148,7 +251,13 @@ export default function AssemblyLine() {
                     </td>
                     <td className="px-5 py-4 text-sm">{item?.company_id?.company_name}</td>
                     <td className="px-5 py-4 text-sm">{item?.plant_id?.plant_name}</td>
-                    <td className="px-5 py-4 text-sm">{item?.responsibility?.full_name} ({item?.responsibility?.user_id})</td>
+                    <td className="px-5 py-4 text-sm">
+                      {item?.responsibility?.full_name}
+                      {item?.responsibility?.user_id && (
+                        <> ({item.responsibility.user_id})</>
+                      )}
+                    </td>
+
                     <td className="px-5 py-4">
                       <div className="flex gap-4 justify-center">
                         <button

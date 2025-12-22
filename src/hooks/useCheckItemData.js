@@ -17,10 +17,9 @@ export const useCheckItemData = () => {
 
     const PostCheckListForm = useMutation({
         mutationFn: async ({ assembly_id,
-            process_id },) => {
+             },) => {
             const res = await axiosHandler.post(`/assembly/checklist-form`,{
                 assembly_id: assembly_id,
-                process_id: process_id,
             });
             return res?.data?.data;
         },
@@ -39,8 +38,8 @@ export const useCheckItemData = () => {
             return res?.data;
         },
         onSuccess: (data) => {
-            qc.invalidateQueries({ queryKey: ["checkitem-history"] })
             toast.success(data?.message)
+            qc.invalidateQueries({ queryKey: ["checkitem-history"] })
         },
         onError: (error) => {
             toast.error(error?.response?.data?.message);

@@ -21,7 +21,7 @@ export default function AddCheckItemModal({
   const { getProcessData } = useProcess();
   const { CreateCheckItem, updateCheckItem } = useCheckItem();
 
-   const [checklistMethods, setChecklistMethods] = useState([
+  const [checklistMethods, setChecklistMethods] = useState([
     "Visual",
     "Visual and manual",
     "Visual by ESD meter",
@@ -65,26 +65,33 @@ export default function AddCheckItemModal({
   const [newTime, setNewTime] = useState("");
   const [newUom,setNewUom]= useState("");
 
- const formik = useFormik({
-  initialValues: {
-    process:
-      initialData?.process?._id || initialData?.process || "",
-    item: initialData?.item || "",
-    description: initialData?.description || "",
-    check_list_method: initialData?.check_list_method || "",
-    check_list_time: initialData?.check_list_time || "",
-    result_type: initialData?.result_type || "",
-    min: initialData?.min || "0",
-    max: initialData?.max || "0",
-    uom: initialData?.uom || "",
-  },
-  enableReinitialize: true,
-  validationSchema,
-  onSubmit: (values) => {
-    if (mode === "edit") {
-      updateCheckItem.mutate(
-        { id: initialData?._id, data: values },
-        {
+  const formik = useFormik({
+    initialValues: {
+      process:
+        initialData?.process?._id || initialData?.process || "",
+      item: initialData?.item || "",
+      description: initialData?.description || "",
+      check_list_method: initialData?.check_list_method || "",
+      check_list_time: initialData?.check_list_time || "",
+      result_type: initialData?.result_type || "",
+      min: initialData?.min ,
+      max: initialData?.max ,
+      uom: initialData?.uom,
+    },
+    enableReinitialize: true,
+    validationSchema,
+    onSubmit: (values) => {
+      if (mode === "edit") {
+        updateCheckItem.mutate(
+          { id: initialData?._id, data: values },
+          {
+            onSuccess: () => {
+              onClose();
+              formik.resetForm();
+            },
+          });
+      } else {
+        CreateCheckItem.mutate(values, {
           onSuccess: () => {
             onClose();
             formik.resetForm();
@@ -105,8 +112,8 @@ export default function AddCheckItemModal({
             {mode === "add"
               ? "Add Check Item"
               : mode === "edit"
-              ? "Edit Check Item"
-              : "View Check Item"}
+                ? "Edit Check Item"
+                : "View Check Item"}
           </h2>
           <button onClick={onClose}>
             <X size={22} />
@@ -120,7 +127,7 @@ export default function AddCheckItemModal({
             <SearchableDropdown
               placeholder="Select Process"
               options={(getProcessData?.data || []).map((p) => ({
-              label: `${p.process_name} (${p.process_no})`,
+                label: `${p.process_name} (${p.process_no})`,
                 value: p._id,
               }))}
               value={formik.values.process}

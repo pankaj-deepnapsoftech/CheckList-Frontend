@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search,
   Plus,
@@ -13,22 +13,63 @@ import {
 } from "lucide-react";
 import CheckItemHistoryModal from "./CheckItemHistory";
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
+import { useAssemblyLine } from "../hooks/useAssemblyLine";
+import Pagination from "../Components/Pagination/Pagination";
+
 
 export default function AssemblyLineStatus() {
   const [search, setSearch] = useState("");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [openHistory, setOpenHistory] = useState(false);
-  const { getAssemblyReportToday, getAssemblyCardsData } = useCheckItemHistory();
+const [assemblyLine, setAssemblyLine] = useState("ALL");
+const [dateFilter, setDateFilter] = useState("TODAY");
+const [statusFilter, setStatusFilter] = useState("ALL");
+const [resultFilter, setResultFilter] = useState("ALL");
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
 
-  console.log("this is my assembly today", getAssemblyReportToday?.data);
+  // Reset page when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [assemblyLine, dateFilter, statusFilter, resultFilter]);
+
+  const DATE_OPTIONS = ["TODAY", "YESTERDAY", "THIS_WEEK", "THIS_MONTH"];
+  const STATUS_OPTIONS = ["ALL", "CHECKED", "UN-CHECKED"];
+  const RESULT_OPTIONS = ["ALL", "ERROR", "RESOLVED"];
+
+  const {getAssemblyLineData} = useAssemblyLine();
+
+
+  const { getAssemblyCardsData } = useCheckItemHistory();
 
   console.log(
-    "This is Assembly cards data",
-    getAssemblyCardsData?.data?.total_assemblies
+    "this is my assembly",
+    getAssemblyLineData?.data
   );
-const assemblies = getAssemblyReportToday?.data
 
-console.log("This is my all data======>>>>>", assemblies)
+ 
+const assemblies = getAssemblyLineData?.data;
+
+  const tableData = Array.isArray(assemblies)
+    ? assemblies.map((item) => ({
+        id: item?._id,
+        assemblyNumber: item?.assembly_number || "—",
+        assemblyName: item?.assembly_name || "—",
+        companyName: item?.company_id?.company_name || "—",
+        plantName: item?.plant_id?.plant_name || "—",
+
+        // ❗ TEMP STATUS (API not ready yet)
+        // TODO: replace this when backend provides status
+        status: "UN-CHECKED",
+      }))
+    : [];
+
+  const startIndex = (page - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentTableData = tableData.slice(startIndex, endIndex);
+  const hasNextPage = endIndex < tableData.length;
+
+
 
 const cards = Array.isArray(assemblies)
   ? assemblies.map((item) => {
@@ -40,6 +81,8 @@ const cards = Array.isArray(assemblies)
       Array.isArray(assembly?.process_id) && assembly.process_id.length > 0
         ? assembly.process_id[0]
         : {};
+
+        {console.log("sdhgueq==========>>>>",assembly.process_id.length);}
 
     return {
       assemblyName: assembly?.assembly_name || "—",
@@ -93,7 +136,7 @@ const cards = Array.isArray(assemblies)
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
@@ -125,52 +168,64 @@ const cards = Array.isArray(assemblies)
         </div>
 
         {/* Controls */}
-        <div className="bg-white/80 backdrop-blur-xl border border-white/50 rounded-3xl shadow-2xl p-6 lg:p-8 mb-8">
-          <div className="flex flex-col lg:flex-row items-center gap-4 lg:gap-6">
-            {/* Assembly Line Select */}
-            <div className="relative group">
-              <select className="appearance-none bg-linear-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-2xl px-5 py-3 text-lg font-semibold text-slate-800 w-full lg:w-72 shadow-sm hover:shadow-md transition-all duration-200 focus:ring-4 focus:ring-blue-200 focus:border-blue-400">
-                <option>001 / ASS1</option>
-                <option>002 / ASS2</option>
-                <option>003 / ASS3</option>
-                <option>004 / ASS4</option>
-              </select>
-              <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-hover:text-slate-600 transition-colors w-4 h-4 pointer-events-none" />
-            </div>
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 mb-6">
+          <div className="flex flex-wrap items-end gap-4">
+            {/* Assembly Line */}
+            <FilterSelect
+              label="Assembly Line"
+              value={assemblyLine}
+              onChange={setAssemblyLine}
+              options={[
+                "ALL",
+                "001 / ASS1",
+                "002 / ASS2",
+                "003 / ASS3",
+                "004 / ASS4",
+              ]}
+              width="min-w-[220px]"
+            />
 
-            {/* Enhanced Search */}
-            <div className="relative flex-1 max-w-md group">
-              <Search
-                className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-slate-600 transition-colors w-5 h-5"
-                size={20}
-              />
-              <input
-                className="w-full pl-14 pr-5 py-3 bg-linear-to-r from-slate-50 to-slate-100 border border-slate-200 rounded-2xl text-lg font-medium text-slate-800 shadow-sm hover:shadow-md focus:ring-4 focus:ring-blue-200 focus:border-blue-400 transition-all duration-200 placeholder-slate-400"
-                placeholder="Search processes, parameters..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
+            {/* Date */}
+            <FilterSelect
+              label="Date"
+              value={dateFilter}
+              onChange={setDateFilter}
+              options={["TODAY", "YESTERDAY", "THIS_WEEK", "THIS_MONTH"]}
+              width="min-w-[180px]"
+            />
 
-            {/* Action Buttons */}
-            <div className="flex items-center gap-2 lg:gap-3">
-              <button className="p-3 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-2xl transition-all duration-200 hover:scale-105">
-                <RefreshCw size={20} className="animate-spin-slow" />
-              </button>
-              <div className="relative">
-                <button
-                  onClick={() => setIsFiltersOpen(!isFiltersOpen)}
-                  className="p-3 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-2xl transition-all duration-200 hover:scale-105 flex items-center gap-1"
-                >
-                  <SlidersHorizontal size={20} />
-                  {isFiltersOpen && (
-                    <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
-                      3
-                    </div>
-                  )}
-                </button>
-              </div>
-            </div>
+            {/* Status */}
+            <FilterSelect
+              label="Status"
+              value={statusFilter}
+              onChange={setStatusFilter}
+              options={["ALL", "CHECKED", "UN-CHECKED"]}
+              width="min-w-[180px]"
+            />
+
+            {/* Result */}
+            <FilterSelect
+              label="Result"
+              value={resultFilter}
+              onChange={setResultFilter}
+              options={["ALL", "ERROR", "RESOLVED"]}
+              width="min-w-[180px]"
+            />
+
+            {/* Reset */}
+            <button
+              onClick={() => {
+                setAssemblyLine("ALL");
+                setDateFilter("TODAY");
+                setStatusFilter("ALL");
+                setResultFilter("ALL");
+                setPage(1);
+              }}
+              className="h-[42px] px-5 rounded-xl border border-slate-300 text-sm font-semibold
+      text-slate-600 hover:bg-slate-100 transition"
+            >
+              Reset
+            </button>
           </div>
         </div>
 
@@ -233,83 +288,93 @@ const cards = Array.isArray(assemblies)
         </div>
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-6">
-          {cards.map((card, index) => (
-            <div
-              key={index}
-              className="group bg-white border border-slate-200 rounded-2xl shadow-sm
-    hover:shadow-lg transition-all duration-300"
-            >
-              {/* ================= HEADER ================= */}
-              <div className="border-b border-slate-200 p-5 flex justify-between items-center">
-                <div>
-                  <p className="text-xs text-slate-500">
-                    {card?.assemblyNumber} / {card?.assemblyName}
-                  </p>
-                  <h3 className="text-lg font-semibold text-slate-900">
-                    {card?.processName}
-                    <span className="text-sm text-slate-400 ml-1">
-                      ({card?.processNo})
-                    </span>
-                  </h3>
-                </div>
+        <div className="bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden">
+          {/* Table Header */}
+          <div className="px-6 py-4 border-b border-slate-200">
+            <h3 className="text-lg font-semibold text-slate-900">
+              Assembly Line Overview
+            </h3>
+            <p className="text-sm text-slate-500">
+              Assembly, company, plant & current inspection status
+            </p>
+          </div>
 
-                <span
-                  className={`px-3 py-1.5 rounded-xl text-sm font-semibold ${
-                    card?.status === "Unchecked"
-                      ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                      : "bg-red-50 text-red-600 border border-red-200"
-                  }`}
-                >
-                  {card?.status}
-                </span>
-              </div>
-
-              {/* ================= COMPANY + PLANT ================= */}
-              <div className="p-5 space-y-3 text-sm text-slate-700">
-                <p>
-                  <strong>Company:</strong> {card?.companyName}
-                </p>
-                <p className="max-w-[300px] truncate">
-                  <strong>Company Address:</strong> {card?.companyAddress}
-                </p>
-                <p>
-                  <strong>Plant:</strong> {card?.plantName}
-                </p>
-                <p className="max-w-[300px] truncate">
-                  <strong>Plant Address:</strong> {card?.plantAddress}
-                </p>
-              </div>
-
-              {/* ================= CHECKLIST PREVIEW ================= */}
-              <div className="px-5 pb-4 space-y-2">
-                {card.items?.slice(0, 3).map((item, i) => (
-                  <div
-                    key={i}
-                    className="flex justify-between items-center text-sm
-          bg-slate-50 border border-slate-200 rounded-xl px-4 py-2"
-                  >
-                    <span className="text-slate-700">{item?.label}</span>
-                    <span
-                      className={`font-semibold ${
-                        item?.status === "fail"
-                          ? "text-red-600"
-                          : "text-emerald-600"
-                      }`}
-                    >
-                      {item?.value}
-                    </span>
-                  </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
+                <tr>
+                  <th className="px-6 py-4 text-left font-semibold text-slate-700 tracking-wide">Assembly</th>
+                  <th className="px-6 py-4 text-left font-semibold text-slate-700 tracking-wide">Company</th>
+                  <th className="px-6 py-4 text-left font-semibold text-slate-700 tracking-wide hidden md:table-cell">Plant</th>
+                  <th className="px-6 py-4 text-left font-semibold text-slate-700 tracking-wide">Status</th>
+                  <th className="px-6 py-4 text-left font-semibold text-slate-700 tracking-wide">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {currentTableData.map((row) => (
+                  <tr key={row.id} className="hover:bg-blue-50/50 transition duration-200 group">
+                    <td className="px-6 py-4">
+                      <div className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                        {row.assemblyNumber} / {row.assemblyName}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="text-slate-900">{row.companyName}</div>
+                    </td>
+                    <td className="px-6 py-4 hidden md:table-cell">
+                      <div className="text-slate-900">{row.plantName}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-sm ${
+                          row.status === "CHECKED"
+                            ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                            : "bg-amber-50 text-amber-600 border-amber-200"
+                        }`}
+                      >
+                        {row.status === "CHECKED" ? (
+                          <CheckCircle2 size={14} />
+                        ) : (
+                          <AlertCircle size={14} />
+                        )}
+                        {row.status}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => setOpenHistory(true)}
+                        className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+                      >
+                        <History size={14} />
+                        History
+                      </button>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-
-              {/* ================= FOOTER ================= */}
-              <div className="border-t border-slate-200 px-5 py-3 text-xs text-slate-500">
-                Checked by {card?.responsible} ({card?.responsibleId})
-              </div>
-            </div>
-          ))}
+                {tableData.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="text-center py-16 text-slate-500">
+                      <div className="flex flex-col items-center justify-center gap-3">
+                         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-2">
+                            <Search className="w-8 h-8 text-slate-400" />
+                         </div>
+                         <p className="text-lg font-medium text-slate-600">No assembly data found</p>
+                         <p className="text-sm text-slate-400">Try adjusting your filters or search query</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
+        
+        {/* Pagination */}
+        {tableData.length > 0 && (
+          <div >
+            <Pagination page={page} setPage={setPage} hasNextpage={hasNextPage} />
+          </div>
+        )}
       </div>
       <CheckItemHistoryModal
         open={openHistory}
@@ -344,6 +409,30 @@ function Metric({ label, value, danger }) {
       >
         {value}
       </p>
+    </div>
+  );
+}
+
+
+
+function FilterSelect({ label, value, onChange, options, width }) {
+  return (
+    <div className={`flex flex-col gap-1 ${width}`}>
+      <label className="text-xs font-medium text-slate-500">{label}</label>
+
+      <select
+        value={value}
+        onChange={(e) => onChange(e?.target?.value)}
+        className="h-[42px] px-4 rounded-xl border border-slate-300 bg-white
+        text-sm font-medium text-slate-800
+        focus:ring-2 focus:ring-blue-200 focus:border-blue-400"
+      >
+        {options?.map((opt) => (
+          <option key={opt} value={opt}>
+            {opt?.replace("_", " ")}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
