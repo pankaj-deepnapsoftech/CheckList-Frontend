@@ -7,11 +7,11 @@ import {
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
-export const useAssemblyLine = (search, page , limit) => {
+export const useAssemblyLine = (company, plant, process, user,search, page, limit) => {
   const qc = useQueryClient();
 
   const getAssemblyLineData = useQuery({
-    queryKey: ["assembly", page ,limit],
+    queryKey: ["assembly", page, limit],
     queryFn: async () => {
       const res = await axiosHandler.get(
         `/assembly/get-assembly?page=${page}&&limit=${limit}`
@@ -21,6 +21,7 @@ export const useAssemblyLine = (search, page , limit) => {
     enabled: !search,
     placeholderData: keepPreviousData,
   });
+
 
   const createAssemblyLine = useMutation({
     mutationFn: async (data) => {
@@ -68,20 +69,28 @@ export const useAssemblyLine = (search, page , limit) => {
     },
   });
   const searchQuery = useQuery({
-    queryKey: ["search-assembly-line", search],
+    queryKey: ["search-assembly-line", company, plant, process, user,search],
     queryFn: async () => {
-      const res = await axiosHandler.get(
-        `/assembly/search-assembly-line?search=${search}`
-      );
+      console.log(company)
+      const res = await axiosHandler.get("/assembly/search-assembly-line", {
+        params: {
+          company: company || undefined,
+          plant: plant || undefined,
+          process: process || undefined,
+          user: user || undefined,
+          search:search,
+        }
+      })
       return res.data.data;
     },
-    enabled: !!search,
+    enabled: !!(company || plant || process || user || search),
     placeholderData: keepPreviousData,
   });
 
   return {
     createAssemblyLine,
     getAssemblyLineData,
+    getAssignedAssemblyLines,
     searchQuery,
     UpdateAssemblyLine,
     DeleteAssemblyLine,
