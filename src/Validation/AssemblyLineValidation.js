@@ -23,23 +23,5 @@ export const assemblyValidationSchema = yup.object({
         .matches(objectIdRegex, "Invalid plant ID")
         .required("Plant is required"),
 
-    responsibility: yup
-        .string()
-        .matches(objectIdRegex, "Invalid user ID"),
-      
-
-    process_id: yup
-        .array()
-        .of(
-            yup
-                .string()
-                .matches(objectIdRegex, "Invalid process ID")
-               
-        )
-        .min(1, "At least one process ID is required"),
-       
-    part_id: yup
-        .string()
-        .matches(objectIdRegex, "Invalid plant ID")
         
 });

@@ -22,47 +22,45 @@ import AssignedAssemblyLines from "../pages/AssignedAssemblyLines";
 
 
 export const AppRoute = () => {
-    const { logedinUser } = useLogin();
+  const { logedinUser } = useLogin();
 
-    const user = logedinUser.data;
-    const isLoading = logedinUser.isLoading;
-   
+  const user = logedinUser.data;
+  const isLoading = logedinUser.isLoading;
 
-    
-    const withProtection = (Component) => (
-        <ProtectedRoute user={user} isLoading={isLoading}>
-            <MainLayout>
-                <Component />
-            </MainLayout>
-        </ProtectedRoute>
-    );
 
-    return useRoutes([
-      { path: "/login", element: <Login /> },
-      { path: "/forgot-password", element: <ForgetPassword /> },
-      { path: "/", element: withProtection(Dashboard) },
-      { path: "/user-role", element: withProtection(UserRoles) },
-      { path: "/process", element: withProtection(Process) },
-      { path: "/parts", element: withProtection(Parts) },
-      { path: "/plant-name", element: withProtection(PlantName) },
-      { path: "/employee", element: withProtection(Employee) },
-      { path: "/company", element: withProtection(Company) },
-      { path: "/assembly-line", element: withProtection(AssemblyLine) },
-      {
-        path: "/assembly-line-status",
-        element: withProtection(AssemblyLineStatus),
-      },
-      { path: "/checkitem", element: withProtection(CheckItem) },
-      { path: "/checkitem-data", element: withProtection(CheckItemsData) },
-      {
-        path: "/check-item-history",
-        element: withProtection(CheckItemHistory),
-      },{
-        path:"assigned-assembly-lines",
-        element: withProtection(AssignedAssemblyLines)
-      },
-      { path: "/*", element: <PageNotFound /> },
-    ]);
+
+  const withProtection = (Component) => (
+    <ProtectedRoute user={user} isLoading={isLoading}>
+      <MainLayout>
+        <Component />
+      </MainLayout>
+    </ProtectedRoute>
+  );
+
+  return useRoutes([
+    { path: "/login", element: <Login /> },
+    { path: "/forgot-password", element: <ForgetPassword /> },
+    { path: "/", element: withProtection(Dashboard) },
+    { path: "/user-role", element: withProtection(UserRoles) },
+    { path: "/process", element: withProtection(Process) },
+    { path: "/parts", element: withProtection(Parts) },
+    { path: "/plant-name", element: withProtection(PlantName) },
+    { path: "/employee", element: withProtection(Employee) },
+    { path: "/company", element: withProtection(Company) },
+    { path: "/assembly-line", element: withProtection(AssemblyLine) },
+    {
+      path: "/assembly-line-status",
+      element: withProtection(AssemblyLineStatus),
+    },
+    { path: "/checkitem", element: withProtection(CheckItem) },
+    { path: "/checkitem-data", element: withProtection(CheckItemsData) },
+    {
+      path: "/check-item-history",
+      element: withProtection(CheckItemHistory),
+    }, {
+      path: "/assigned-assembly-lines",
+      element: withProtection(AssignedAssemblyLines)
+    },
+    { path: "/*", element: <PageNotFound /> },
+  ]);
 };
-
-

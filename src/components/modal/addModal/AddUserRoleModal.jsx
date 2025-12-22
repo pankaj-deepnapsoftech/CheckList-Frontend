@@ -18,6 +18,7 @@ import { useUserRole } from "../../../hooks/useUserRole";
    "Check Item": "/checkitem",
    "CheckItem Data": "/checkitem-data",
    "Assembly Line Status": "/assembly-line-status",
+   "Assigned Assembly Lines": "/assigned-assembly-lines"
  };
 
 const SIDEBAR_PAGES = Object.keys(PERMISSION_MAP);

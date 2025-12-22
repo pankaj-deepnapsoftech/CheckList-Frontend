@@ -10,7 +10,7 @@ import { UsePart } from "../../../hooks/usePart";
 import { assemblyValidationSchema } from "../../../Validation/AssemblyLineValidation";
 import SearchableDropdown from "../../SearchableDropDown/SearchableDropDown";
 
-export default function AssemblyLineModal({ openModal, setOpenModal, editTable, viewModal, mode }) {
+const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode }) => {
   if (!openModal) return null;
 
   const { createAssemblyLine, UpdateAssemblyLine } = useAssemblyLine();
@@ -34,32 +34,27 @@ export default function AssemblyLineModal({ openModal, setOpenModal, editTable, 
       plant_id: editTable?.plant_id?._id || viewModal?.plant_id?._id || "",
       responsibility: editTable?.responsibility?._id || viewModal?.responsibility?._id || "",
       part_id: editTable?.part_id?._id || viewModal?.part_id?._id || "",
+      process_id: existingProcesses || []
 
-      process_id:
-        existingProcesses?.length
-          ? existingProcesses
-          : AllProcessData?.data?.length
-            ? [AllProcessData.data?._id]   
-            : []
     };
   };
-
+ console.log(mode)
   const formik = useFormik({
-    enableReinitialize: true,
     initialValues: getInitialValues(),
+    enableReinitialize: true,
     validationSchema: mode !== "assign" ? assemblyValidationSchema : null,
     onSubmit: (values) => {
-    
-      const payload = editTable
-        ? { ...values } 
+      console.log("values", values)
+
+      const payload = mode === "assign"
+        ? { ...values }
         : {
-          
+
           assembly_name: values.assembly_name,
           assembly_number: values.assembly_number,
           company_id: values.company_id,
           plant_id: values.plant_id,
         };
-
       if (editTable) {
         UpdateAssemblyLine.mutate(
           { id: editTable._id, data: payload },
@@ -77,7 +72,7 @@ export default function AssemblyLineModal({ openModal, setOpenModal, editTable, 
     }
 
 
- 
+
   });
   const PlantData = usePlantsByCompany(formik.values.company_id || editTable?.company_id || viewModal?.company_id);
   const title = {
@@ -278,3 +273,4 @@ export default function AssemblyLineModal({ openModal, setOpenModal, editTable, 
     </div>
   );
 }
+export default AssemblyLineModal;
