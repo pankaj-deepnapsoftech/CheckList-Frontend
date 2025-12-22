@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { X } from "lucide-react";
 import { useState } from "react";
 import { useFormik } from "formik";
@@ -13,13 +13,11 @@ export default function AddCheckItemModal({
   onClose,
   mode = "add",
   initialData = null,
-  processes = [],
-  onSubmit,
 }) {
   const isView = mode === "view";
 
   const { getProcessData } = useProcess();
-  const { CreateCheckItem, updateCheckItem } = useCheckItem();
+  const { CreateCheckItem, updateCheckItem, AddCategroy, GetCategory } = useCheckItem();
 
   const [checklistMethods, setChecklistMethods] = useState([
     "Visual",
@@ -45,6 +43,20 @@ export default function AddCheckItemModal({
     "At the time of grease filling",
     "As per checker validation sheet",
   ]);
+
+
+  const [uom, setUom] = useState([]);
+
+  useEffect(() => {
+    if (GetCategory?.data) {
+      const UomData = GetCategory.data
+        .filter(item => item?.uom)
+        .map(item => item.uom);
+
+      setUom(UomData);
+    }
+  }, [GetCategory?.data]);
+
 
   const [showMethodInput, setShowMethodInput] = useState(false);
   const [showTimeInput, setShowTimeInput] = useState(false);
@@ -149,29 +161,53 @@ export default function AddCheckItemModal({
             />
           </Field>
 
-          {/* ✅ CHECKLIST METHOD (UPDATED UI) */}
+
           <Field label="Check Method">
-            {!showMethodInput && !isView && (
-              <button
-                type="button"
-                className="text-blue-600 text-sm mb-2 ml-4"
-                onClick={() => setShowMethodInput(true)}
-              >
-                + Add Checklist Method
-              </button>
-            )}
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <SearchableDropdown
+                  placeholder="Select Checklist Method"
+                  options={checklistMethods.map((m) => ({
+                    label: m,
+                    value: m,
+                  }))}
+                  value={formik.values.check_list_method}
+                  getOptionLabel={(o) => o.label}
+                  getOptionValue={(o) => o.value}
+                  onChange={(val) =>
+                    formik.setFieldValue("check_list_method", val)
+                  }
+                />
+              </div>
+            </div>
+
+            <div className=" w-full flex justify-end pt-2">
+              {!showMethodInput && !isView && (
+                <button
+                  type="button"
+                  className="text-blue-600 text-sm font-medium whitespace-nowrap
+        bg-blue-50 border border-blue-300
+        px-3 py-1.5 rounded-md
+        hover:bg-blue-100 hover:border-blue-400
+        transition-colors "
+                  onClick={() => setShowMethodInput(true)}
+                >
+                  + Add Method
+                </button>
+              )}
+            </div>
 
             {showMethodInput && (
-              <div className="flex gap-2 mb-2">
+              <div className="flex gap-2 mt-2">
                 <input
-                  className="input"
+                  className="input flex-1"
                   placeholder="Enter method"
                   value={newMethod}
                   onChange={(e) => setNewMethod(e.target.value)}
                 />
                 <button
                   type="button"
-                  className="bg-blue-600 text-white px-3 rounded"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded"
                   onClick={() => {
                     if (!newMethod.trim()) return;
                     setChecklistMethods([...checklistMethods, newMethod]);
@@ -183,7 +219,7 @@ export default function AddCheckItemModal({
                 </button>
                 <button
                   type="button"
-                  className="text-gray-500"
+                  className="text-gray-500 hover:text-gray-700"
                   onClick={() => {
                     setShowMethodInput(false);
                     setNewMethod("");
@@ -193,45 +229,59 @@ export default function AddCheckItemModal({
                 </button>
               </div>
             )}
-
-            <SearchableDropdown
-              placeholder="Select Checklist Method"
-              options={checklistMethods.map((m) => ({
-                label: m,
-                value: m,
-              }))}
-              value={formik.values.check_list_method}
-              getOptionLabel={(o) => o.label}
-              getOptionValue={(o) => o.value}
-              onChange={(val) =>
-                formik.setFieldValue("check_list_method", val)
-              }
-            />
           </Field>
 
-          {/* ✅ CHECKLIST TIME (UPDATED UI) */}
+
           <Field label="Checking Time">
-            {!showTimeInput && !isView && (
-              <button
-                type="button"
-                className="text-blue-600 text-sm mb-2 ml-4"
-                onClick={() => setShowTimeInput(true)}
-              >
-                + Add Checklist Time
-              </button>
-            )}
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex-1">
+                <SearchableDropdown
+                  placeholder="Select Checklist Time"
+                  options={checklistTimes.map((t) => ({
+                    label: t,
+                    value: t,
+                  }))}
+                  value={formik.values.check_list_time}
+                  getOptionLabel={(o) => o.label}
+                  getOptionValue={(o) => o.value}
+                  onChange={(val) =>
+                    formik.setFieldValue("check_list_time", val)
+                  }
+                />
+              </div>
+
+
+            </div>
+
+            <div className="w-full flex justify-end pt-2">
+              {!showTimeInput && !isView && (
+                <button
+                  type="button"
+                  className="
+        text-blue-600 text-sm font-medium whitespace-nowrap
+        bg-blue-50 border border-blue-300
+        px-3 py-1.5 rounded-md
+        hover:bg-blue-100 hover:border-blue-400
+        transition-colors
+      "
+                  onClick={() => setShowTimeInput(true)}
+                >
+                  + Add Time
+                </button>
+              )}
+            </div>
 
             {showTimeInput && (
-              <div className="flex gap-2 mb-2">
+              <div className="flex gap-2 mt-2">
                 <input
-                  className="input"
+                  className="input flex-1"
                   placeholder="Enter time"
                   value={newTime}
                   onChange={(e) => setNewTime(e.target.value)}
                 />
                 <button
                   type="button"
-                  className="bg-blue-600 text-white px-3 rounded"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded"
                   onClick={() => {
                     if (!newTime.trim()) return;
                     setChecklistTimes([...checklistTimes, newTime]);
@@ -243,7 +293,7 @@ export default function AddCheckItemModal({
                 </button>
                 <button
                   type="button"
-                  className="text-gray-500"
+                  className="text-gray-500 hover:text-gray-700"
                   onClick={() => {
                     setShowTimeInput(false);
                     setNewTime("");
@@ -253,21 +303,8 @@ export default function AddCheckItemModal({
                 </button>
               </div>
             )}
-
-            <SearchableDropdown
-              placeholder="Select Checklist Time"
-              options={checklistTimes.map((t) => ({
-                label: t,
-                value: t,
-              }))}
-              value={formik.values.check_list_time}
-              getOptionLabel={(o) => o.label}
-              getOptionValue={(o) => o.value}
-              onChange={(val) =>
-                formik.setFieldValue("check_list_time", val)
-              }
-            />
           </Field>
+
 
 
           {/* Result Type */}
@@ -335,7 +372,7 @@ export default function AddCheckItemModal({
                   <option value="">
                     Select UOM
                   </option>
-                  <option value="kg/cm²">kg/cm² (Pressure)</option>
+                  {/* <option value="kg/cm²">kg/cm² (Pressure)</option>
                   <option value="Psi">Psi (Pressure)</option>
                   <option value="BAR">BAR (Pressure)</option>
                   <option value="°C">°C (Temperature)</option>
@@ -343,7 +380,10 @@ export default function AddCheckItemModal({
                   <option value="sec">sec (Time)</option>
                   <option value="Sample">Sample (Quantity)</option>
                   <option value="Visual">Visual (Quantity)</option>
-                  <option value="ESD Meter">ESD Meter (Electrical)</option>
+                  <option value="ESD Meter">ESD Meter (Electrical)</option> */}
+                  {uom?.map((u,idx) => ( 
+                    <option key={idx} value={u}>{u}</option>
+                  ))}
                 </select>
               </Field>
             </>

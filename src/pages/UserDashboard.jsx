@@ -105,7 +105,7 @@ const recentAssemblies = [
 
 /* ===================== PAGE ===================== */
 
-export default function AssemblyDashboard() {
+export default function UserDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 p-6 space-y-6">
 
