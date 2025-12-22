@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react"; // ✅ import the icon
+import { ChevronDown } from "lucide-react"; // 
+
 
 const SearchableSelect = ({
   placeholder = "Select...",
@@ -15,7 +16,7 @@ const SearchableSelect = ({
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
 
-  // Close dropdown on outside click
+  
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
@@ -26,15 +27,21 @@ const SearchableSelect = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Sync selected value → display
+
   useEffect(() => {
-    if (value) {
-      const selected = options.find((opt) => getOptionValue(opt) === value);
-      if (selected) setSearchText(getOptionLabel(selected));
-    }
+  if (!value) {
+    setSearchText("");
+    return;
+  }
+  const selected = options.find(
+    (opt) => getOptionValue(opt) === value
+  );
+  if (selected) {
+    setSearchText(getOptionLabel(selected));
+  }
   }, [value, options]);
 
-  // Filter options (starts with)
+
   const filteredOptions =
     searchText.trim() === ""
       ? options
@@ -46,7 +53,7 @@ const SearchableSelect = ({
 
   return (
     <div className="relative w-full" ref={wrapperRef}>
-      {/* Select-like box */}
+     
       <div
         className={`flex items-center w-full px-4 py-3 border rounded-lg cursor-pointer ${
           disabled
@@ -66,10 +73,12 @@ const SearchableSelect = ({
           }}
           className="w-full outline-none cursor-pointer"
         />
-        <ChevronDown className="ml-2 w-5 h-5 text-gray-500" />
+        <ChevronDown
+        onClick={(open)=>setOpen(!open)}
+        className="ml-2 w-5 h-5 text-gray-500" />
       </div>
 
-      {/* Dropdown */}
+     
       {open && (
         <ul className="absolute z-20 w-full bg-white border border-gray-300 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-lg">
           {filteredOptions.length > 0 ? (

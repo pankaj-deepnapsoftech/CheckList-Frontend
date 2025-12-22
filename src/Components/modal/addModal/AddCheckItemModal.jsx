@@ -1,10 +1,12 @@
 import React from "react";
 import { X } from "lucide-react";
+import { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useProcess } from "../../../hooks/useProcess";
 import { validationSchema } from "../../../Validation/CheckItemValidation";
 import { useCheckItem } from "../../../hooks/useCheckItem";
+import SearchableDropdown from "../../SearchableDropDown/SearchableDropDown";
 
 export default function AddCheckItemModal({
   open,
@@ -19,33 +21,56 @@ export default function AddCheckItemModal({
   const { getProcessData } = useProcess();
   const { CreateCheckItem, updateCheckItem } = useCheckItem();
 
-  const formik = useFormik({
-    initialValues: {
-      process: initialData?.process?._id || initialData?.process || "",
-      item: initialData?.item || "",
-      description: initialData?.description || "",
-      check_list_method: initialData?.check_list_method || "",
-      check_list_time: initialData?.check_list_time || "",
-      result_type: initialData?.result_type || "",
-      min: initialData?.min || "0",
-      max: initialData?.max || "0",
-      uom: initialData?.uom || "",
-    },
-    enableReinitialize: true,
-    validationSchema,
-    onSubmit: (values) => {
-      if (mode === "edit") {
-        updateCheckItem.mutate(
-          { id: initialData?._id, data: values },
-          {
-            onSuccess: () => {
-              onClose();
-              formik.resetForm();
-            },
-          }
-        );
-      } else {
-        CreateCheckItem.mutate(values, {
+   const [checklistMethods, setChecklistMethods] = useState([
+    "Visual",
+    "Visual and manual",
+    "Visual by ESD meter",
+    "Visual check in PID",
+    "Visual check in timer",
+    "Visual check in FR unit",
+    "Visual and greasing sample",
+    "Visual check in pressure gauge",
+    "Visual check in temperature meter",
+    "Visual by limit sample and attention sheet",
+    "Visual check grease name / part no.",
+    "Weighing machine",
+    "Lot management plan",
+    "As per checker validation sheet",
+  ]);
+
+  const [checklistTimes, setChecklistTimes] = useState([
+    "SOP",
+    "When bit change",
+    "When roll change",
+    "At the time of grease filling",
+    "As per checker validation sheet",
+  ]);
+
+  const [showMethodInput, setShowMethodInput] = useState(false);
+  const [showTimeInput, setShowTimeInput] = useState(false);
+  const [newMethod, setNewMethod] = useState("");
+  const [newTime, setNewTime] = useState("");
+
+ const formik = useFormik({
+  initialValues: {
+    process:
+      initialData?.process?._id || initialData?.process || "",
+    item: initialData?.item || "",
+    description: initialData?.description || "",
+    check_list_method: initialData?.check_list_method || "",
+    check_list_time: initialData?.check_list_time || "",
+    result_type: initialData?.result_type || "",
+    min: initialData?.min || "0",
+    max: initialData?.max || "0",
+    uom: initialData?.uom || "0",
+  },
+  enableReinitialize: true,
+  validationSchema,
+  onSubmit: (values) => {
+    if (mode === "edit") {
+      updateCheckItem.mutate(
+        { id: initialData?._id, data: values },
+        {
           onSuccess: () => {
             onClose();
             formik.resetForm();
@@ -78,20 +103,21 @@ export default function AddCheckItemModal({
         <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4">
           {/* Process */}
           <Field label="Process">
-            <select
-              name="process"
-              disabled={isView}
+            <SearchableDropdown
+              placeholder="Select Process"
+              options={(getProcessData?.data || []).map((p) => ({
+              label: `${p.process_name} (${p.process_no})`,
+                value: p._id,
+              }))}
               value={formik.values.process}
-              onChange={formik.handleChange}
-              className="input"
-            >
-              <option value="">Select Process</option>
-              {getProcessData?.data?.map((p) => (
-                <option key={p?._id} value={p?._id}>
-                  {p?.process_name}({p?.process_no})
-                </option>
-              ))}
-            </select>
+              getOptionLabel={(opt) => opt.label}
+              getOptionValue={(opt) => opt.value}
+              onChange={(val) => formik.setFieldValue("process", val)}
+              onBlur={() => formik.setFieldTouched("process", true)}
+              disabled={isView}
+              error={formik.touched.process && formik.errors.process}
+            />
+
           </Field>
 
           {/* Item */}
@@ -116,74 +142,126 @@ export default function AddCheckItemModal({
             />
           </Field>
 
-          {/* Check Item Method */}
-          <Field label="Check  Method">
-            <select
-              name="check_list_method"
-              disabled={isView}
+          {/* ✅ CHECKLIST METHOD (UPDATED UI) */}
+          <Field label="Check Method">
+            {!showMethodInput && !isView && (
+              <button
+                type="button"
+                className="text-blue-600 text-sm mb-2 ml-4"
+                onClick={() => setShowMethodInput(true)}
+              >
+                + Add Checklist Method
+              </button>
+            )}
+
+            {showMethodInput && (
+              <div className="flex gap-2 mb-2">
+                <input
+                  className="input"
+                  placeholder="Enter method"
+                  value={newMethod}
+                  onChange={(e) => setNewMethod(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="bg-blue-600 text-white px-3 rounded"
+                  onClick={() => {
+                    if (!newMethod.trim()) return;
+                    setChecklistMethods([...checklistMethods, newMethod]);
+                    setNewMethod("");
+                    setShowMethodInput(false);
+                  }}
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="text-gray-500"
+                  onClick={() => {
+                    setShowMethodInput(false);
+                    setNewMethod("");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+
+            <SearchableDropdown
+              placeholder="Select Checklist Method"
+              options={checklistMethods.map((m) => ({
+                label: m,
+                value: m,
+              }))}
               value={formik.values.check_list_method}
-              onChange={formik.handleChange}
-              className="input"
-            >
-              <option value="" disabled>
-                Select method
-              </option>
-              <option value="Visual">Visual</option>
-              <option value="Visual and manual">Visual and manual</option>
-              <option value="Visual by ESD meter">Visual by ESD meter</option>
-              <option value="Visual check in PID">Visual check in PID</option>
-              <option value="Visual check in timer">
-                Visual check in timer
-              </option>
-              <option value="Visual check in FR unit">
-                Visual check in FR unit
-              </option>
-              <option value="Visual and greasing sample">
-                Visual and greasing sample
-              </option>
-              <option value="Visual check in pressure gauge">
-                Visual check in pressure gauge
-              </option>
-              <option value="Visual check in temperature meter">
-                Visual check in temperature meter
-              </option>
-              <option value="Visual by limit sample and attention sheet">
-                Visual by limit sample and attention sheet
-              </option>
-              <option value="Visual check grease name / part no.">
-                Visual check grease name / part no.
-              </option>
-              <option value="Weighing machine">Weighing machine</option>
-              <option value="Lot management plan">Lot management plan</option>
-              <option value="As per checker validation sheet">
-                As per checker validation sheet
-              </option>
-            </select>
+              getOptionLabel={(o) => o.label}
+              getOptionValue={(o) => o.value}
+              onChange={(val) =>
+                formik.setFieldValue("check_list_method", val)
+              }
+            />
           </Field>
 
-          {/* Check Item Time */}
+          {/* ✅ CHECKLIST TIME (UPDATED UI) */}
           <Field label="Checking Time">
-            <select
-              name="check_list_time"
-              disabled={isView}
+            {!showTimeInput && !isView && (
+              <button
+                type="button"
+                className="text-blue-600 text-sm mb-2 ml-4"
+                onClick={() => setShowTimeInput(true)}
+              >
+                + Add Checklist Time
+              </button>
+            )}
+
+            {showTimeInput && (
+              <div className="flex gap-2 mb-2">
+                <input
+                  className="input"
+                  placeholder="Enter time"
+                  value={newTime}
+                  onChange={(e) => setNewTime(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="bg-blue-600 text-white px-3 rounded"
+                  onClick={() => {
+                    if (!newTime.trim()) return;
+                    setChecklistTimes([...checklistTimes, newTime]);
+                    setNewTime("");
+                    setShowTimeInput(false);
+                  }}
+                >
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="text-gray-500"
+                  onClick={() => {
+                    setShowTimeInput(false);
+                    setNewTime("");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+
+            <SearchableDropdown
+              placeholder="Select Checklist Time"
+              options={checklistTimes.map((t) => ({
+                label: t,
+                value: t,
+              }))}
               value={formik.values.check_list_time}
-              onChange={formik.handleChange}
-              className="input"
-            >
-              <option value="" disabled>
-                Select time
-              </option>
-              <option value="SOP">SOP</option>
-              <option value="When bit change">When bit change</option>
-              <option value="when roll change">When roll change</option>
-              <option value="At the time of grease filling">
-                At the time of grease filling
-              </option>
-              <option value="As per checker validation sheet">
-                As per checker validation sheet
-              </option>
-            </select>
+              getOptionLabel={(o) => o.label}
+              getOptionValue={(o) => o.value}
+              onChange={(val) =>
+                formik.setFieldValue("check_list_time", val)
+              }
+            />
           </Field>
+
 
           {/* Result Type */}
           <Field label="Evaluation Type">
