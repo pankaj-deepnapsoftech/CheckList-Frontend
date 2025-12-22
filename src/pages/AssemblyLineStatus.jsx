@@ -188,7 +188,7 @@ const assemblies = Array.isArray(assembliesRaw)
                 </p>
               </div>
               <div className="w-10 h-10 bg-blue-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <CheckCircle2 className="w-6 h-6 text-blue-600" />.
+                <CheckCircle2 className="w-6 h-6 text-blue-600" />
               </div>
             </div>
           </div>
