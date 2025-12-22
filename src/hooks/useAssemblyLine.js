@@ -22,6 +22,7 @@ export const useAssemblyLine = (company, plant, process, user,search, page, limi
     placeholderData: keepPreviousData,
   });
 
+
   const createAssemblyLine = useMutation({
     mutationFn: async (data) => {
       console.log(data)
@@ -89,6 +90,7 @@ export const useAssemblyLine = (company, plant, process, user,search, page, limi
   return {
     createAssemblyLine,
     getAssemblyLineData,
+    getAssignedAssemblyLines,
     searchQuery,
     UpdateAssemblyLine,
     DeleteAssemblyLine,

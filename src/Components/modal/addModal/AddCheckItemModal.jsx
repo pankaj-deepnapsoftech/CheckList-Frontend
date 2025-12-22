@@ -60,8 +60,10 @@ export default function AddCheckItemModal({
 
   const [showMethodInput, setShowMethodInput] = useState(false);
   const [showTimeInput, setShowTimeInput] = useState(false);
+  const [showUomInput,setShowUomInput] = useState(false);
   const [newMethod, setNewMethod] = useState("");
   const [newTime, setNewTime] = useState("");
+  const [newUom,setNewUom]= useState("");
 
   const formik = useFormik({
     initialValues: {
@@ -72,9 +74,9 @@ export default function AddCheckItemModal({
       check_list_method: initialData?.check_list_method || "",
       check_list_time: initialData?.check_list_time || "",
       result_type: initialData?.result_type || "",
-      min: initialData?.min || "0",
-      max: initialData?.max || "0",
-      uom: initialData?.uom || "0",
+      min: initialData?.min ,
+      max: initialData?.max ,
+      uom: initialData?.uom,
     },
     enableReinitialize: true,
     validationSchema,
@@ -362,29 +364,62 @@ export default function AddCheckItemModal({
               </Field>
 
               <Field label="UOM">
-                <select
-                  name="uom"
-                  disabled={isView}
-                  value={formik.values.uom}
-                  onChange={formik.handleChange}
+                {!showUomInput && !isView && (
+              <button
+                type="button"
+                className="text-blue-600 text-sm mb-2 ml-4"
+                onClick={() => setShowUomInput(true)}
+              >
+                + Add Uom
+              </button>
+            )}
+
+            {showUomInput && (
+              <div className="flex gap-2 mb-2">
+                <input
                   className="input"
+                  placeholder="Enter Uom"
+                  value={newUom}
+                  onChange={(e) => setNewUom(e.target.value)}
+                />
+                <button
+                  type="button"
+                  className="bg-blue-600 text-white px-3 rounded"
+                  onClick={() => {
+                    if (!newUom.trim()) return;
+                    setUom([...uom, newUom]);
+                    setNewUom("");
+                    setShowUomInput(false);
+                  }}
                 >
-                  <option value="">
-                    Select UOM
-                  </option>
-                  {/* <option value="kg/cm²">kg/cm² (Pressure)</option>
-                  <option value="Psi">Psi (Pressure)</option>
-                  <option value="BAR">BAR (Pressure)</option>
-                  <option value="°C">°C (Temperature)</option>
-                  <option value="gm">gm (Weight)</option>
-                  <option value="sec">sec (Time)</option>
-                  <option value="Sample">Sample (Quantity)</option>
-                  <option value="Visual">Visual (Quantity)</option>
-                  <option value="ESD Meter">ESD Meter (Electrical)</option> */}
-                  {uom?.map((u,idx) => ( 
-                    <option key={idx} value={u}>{u}</option>
-                  ))}
-                </select>
+                  Save
+                </button>
+                <button
+                  type="button"
+                  className="text-gray-500"
+                  onClick={() => {
+                    setShowUomInput(false);
+                    setUomTime("");
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+               
+                <SearchableDropdown
+                  placeholder="Select UOM"
+                  options={uom.map((t) => ({
+                    label: t,
+                    value: t,
+                  }))}
+                  value={formik.values.uom}
+                  getOptionLabel={(o) => o.label}
+                  getOptionValue={(o) => o.value}
+                  onChange={(val) =>
+                    formik.setFieldValue("uom", val)
+                  }
+                />
               </Field>
             </>
           )}
