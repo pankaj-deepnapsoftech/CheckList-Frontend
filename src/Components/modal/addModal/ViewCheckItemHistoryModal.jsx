@@ -33,55 +33,67 @@ export default function ViewCheckItemHistoryModal({ open, onClose, data }) {
 
         {/* body */}
         <div className="p-6 space-y-5 overflow-y-auto h-[calc(100vh-120px)]">
+          {/* ================= CHECK INFO ================= */}
           <Section title="Check Information">
-            <Info label="Item" value={data.checkList.item} />
-            <Info label="Method" value={data.checkList.check_list_method} />
-            <Info label="Time" value={data.checkList.check_list_time} />
+            <Info label="Item" value={data.item} />
+            <Info label="Method" value={data.check_list_method} />
+            <Info label="Time" value={data.check_list_time} />
+            <Info label="Result Type" value={data.result_type} />
           </Section>
 
+          {/* ================= LIMITS ================= */}
+          <Section title="Specification">
+            <Info label="Min" value={data.min ?? "-"} />
+            <Info label="Max" value={data.max ?? "-"} />
+            <Info label="UOM" value={data.uom ?? "-"} />
+          </Section>
+
+          {/* ================= PRODUCTION ================= */}
           <Section title="Production Details">
             <Info
               label="Assembly"
-              value={`${data?.assembly?.assembly_name} (${data?.assembly?.assembly_number})`}
+              value={`${data.assembly?.assembly_name} (${data.assembly?.assembly_number})`}
             />
             <Info
               label="Process"
-              value={`${data?.process_id?.process_name} (${data?.process_id?.process_no})`}
+              value={`${data.processName} (${data.processNo})`}
             />
           </Section>
 
+          {/* ================= RESULT ================= */}
           <Section title="Result">
             <span
               className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold
               ${
-                data.result === "Pass"
-                  ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
-                  : "bg-red-50 text-red-600 border border-red-200"
+                data.is_error
+                  ? "bg-red-50 text-red-600 border border-red-200"
+                  : "bg-emerald-50 text-emerald-600 border border-emerald-200"
               }`}
             >
-              {data.result === "Pass" ? (
-                <CheckCircle2 size={18} />
-              ) : (
+              {data.is_error ? (
                 <AlertCircle size={18} />
+              ) : (
+                <CheckCircle2 size={18} />
               )}
-              {data.result}
+              {data.is_error ? "Error Found" : "Checked OK"}
             </span>
 
-            {data.remark && (
-              <p className="mt-2 text-sm text-slate-600">
-                <strong>Remark:</strong> {data.remark}
-              </p>
-            )}
+            <Info label="Result Value" value={data.result} />
           </Section>
 
+          {/* ================= AUDIT ================= */}
           <Section title="Audit">
             <Info
               label="Checked By"
-              value={`${data.user_id.full_name} (${data.user_id.user_id})`}
+              value={`${data.assembly?.responsibility?.full_name} (${data.assembly?.responsibility?.user_id})`}
             />
             <Info
               label="Checked On"
-              value={new Date(data.createdAt).toLocaleString()}
+              value={
+                data.today?.createdAt
+                  ? new Date(data.today.createdAt).toLocaleString()
+                  : "-"
+              }
             />
           </Section>
         </div>
@@ -105,7 +117,7 @@ function Info({ label, value }) {
   return (
     <div className="flex justify-between gap-4 text-sm">
       <span className="font-medium text-slate-700">{label}</span>
-      <span className="text-slate-600 text-right">{value}</span>
+      <span className="text-slate-600 text-right">{value ?? "-"}</span>
     </div>
   );
 }
