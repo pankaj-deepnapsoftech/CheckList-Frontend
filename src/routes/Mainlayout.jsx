@@ -8,7 +8,7 @@ export default function Layout({ children }) {
  
    
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen overflow-x-hidden">
       <Sidebar isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
       <div className="flex flex-col flex-1 h-full">
         <div className="fixed top-0 left-0 md:left-64 right-0 z-50">

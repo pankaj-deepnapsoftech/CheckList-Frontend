@@ -264,19 +264,6 @@ const CheckItem = () => {
         onClose={() => setOpenCheckItemModal(false)}
         mode={modalMode}
         initialData={selectedCheckItem}
-        processes={[
-          { _id: "1", process_name: "Process 1" },
-          { _id: "2", process_name: "Process 2" },
-        ]}
-        onSubmit={(data) => {
-          if (modalMode === "add") {
-            console.log("ADD", data);
-            // createCheckItem.mutate(data)
-          } else if (modalMode === "edit") {
-            console.log("UPDATE", selectedCheckItem._id, data);
-            // updateCheckItem.mutate({ id: selectedCheckItem._id, data })
-          }
-        }}
       />
 
       <Pagination

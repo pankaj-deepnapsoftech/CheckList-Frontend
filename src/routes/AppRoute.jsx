@@ -18,6 +18,7 @@ import Parts from "../pages/Parts";
 import CheckItemsData from "../pages/CheckItemsData";
 import CheckItemHistory from "../pages/CheckItemHistory";
 import AssignedAssemblyLines from "../pages/AssignedAssemblyLines";
+import UserDashboard from "../pages/UserDashboard";
 
 
 
@@ -40,7 +41,7 @@ export const AppRoute = () => {
   return useRoutes([
     { path: "/login", element: <Login /> },
     { path: "/forgot-password", element: <ForgetPassword /> },
-    { path: "/", element: withProtection(Dashboard) },
+    { path: "/", element: withProtection(user?.is_admin ? Dashboard : UserDashboard) },
     { path: "/user-role", element: withProtection(UserRoles) },
     { path: "/process", element: withProtection(Process) },
     { path: "/parts", element: withProtection(Parts) },
@@ -64,5 +65,3 @@ export const AppRoute = () => {
     { path: "/*", element: <PageNotFound /> },
   ]);
 };
-
-
