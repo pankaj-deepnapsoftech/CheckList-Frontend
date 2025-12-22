@@ -33,11 +33,11 @@ export const useCheckItemHistory = (page = 1, limit = 10) => {
     },
   });
 
-  const getAssemblyReportToday = useQuery({
-    queryKey: ["AssemblyReport-Today", page, limit],
+  const getAssemblyReportData = useQuery({
+    queryKey: ["AssemblyReport-Data", page, limit],
     queryFn: async () => {
       const res = await axiosHandler.get(
-        `/assembly/assembly-report-today?page=${page}&&limit=${limit}`
+        `/assembly/assembly-checked-data?page=${page}&&limit=${limit}`
       );
       return res?.data?.data;
     },
@@ -55,7 +55,7 @@ export const useCheckItemHistory = (page = 1, limit = 10) => {
   return {
     getCheckItemHistory,
     updateCheckItemHistory,
-    getAssemblyReportToday,
+    getAssemblyReportData,
     getAssemblyCardsData,
   };
 };

@@ -222,7 +222,7 @@ const CheckItemsData = () => {
               </h3>
 
               <div className="space-y-4">
-                {assembly.checklist_item.map((item, index) => (
+                {assembly?.checklist_item?.map((item, index) => (
                   <div
                     key={item._id}
                     className="grid grid-cols-1 sm:grid-cols-6 gap-4 items-center
