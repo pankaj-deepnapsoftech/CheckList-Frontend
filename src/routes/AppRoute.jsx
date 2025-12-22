@@ -64,5 +64,3 @@ export const AppRoute = () => {
     { path: "/*", element: <PageNotFound /> },
   ]);
 };
-
-
