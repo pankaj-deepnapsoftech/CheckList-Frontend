@@ -71,32 +71,21 @@ export default function AddEmployeeModal({
       }
  
       // UPDATE EMPLOYEE
-      if (initialData) {
-        
-        updateEmployee.mutate(
-          {
-            id: initialData?._id,
-            data: payload,
-          },
-          {
-            onSuccess: () => {
-              formik.resetForm();
-              onClose();
-            },
-          }
-        );
-        return;
-      }
+      if (mode === "edit") {
+  updateEmployee.mutate({
+      id: initialData._id,
+      data: payload,
+    });
+  }else{
+    createEmployee.mutate(payload);
+  }
+    
+        formik.resetForm();
+        onClose();
+      },
+    })
 
-      // CREATE EMPLOYEE
-      createEmployee.mutate(payload, {
-        onSuccess: () => {
-          formik.resetForm();
-          onClose();
-        },
-      });
-    },
-  });
+
 
   const plantsQuery = usePlantsByCompany(formik.values.employee_company);
 

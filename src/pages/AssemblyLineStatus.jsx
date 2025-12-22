@@ -13,14 +13,12 @@ import {
 } from "lucide-react";
 import CheckItemHistoryModal from "./CheckItemHistory";
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
-import { useAssemblyLine } from "../hooks/useAssemblyLine";
 import Pagination from "../Components/Pagination/Pagination";
 
 
 export default function AssemblyLineStatus() {
-  const [search, setSearch] = useState("");
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [openHistory, setOpenHistory] = useState(false);
+const [openHistory, setOpenHistory] = useState(false);
+const [selectedAssembly, setSelectedAssembly] = useState(null);
 const [assemblyLine, setAssemblyLine] = useState("ALL");
 const [dateFilter, setDateFilter] = useState("TODAY");
 const [statusFilter, setStatusFilter] = useState("ALL");
@@ -28,27 +26,22 @@ const [resultFilter, setResultFilter] = useState("ALL");
   const [page, setPage] = useState(1);
   const ITEMS_PER_PAGE = 10;
 
-  // Reset page when filters change
   useEffect(() => {
     setPage(1);
   }, [assemblyLine, dateFilter, statusFilter, resultFilter]);
 
-  const DATE_OPTIONS = ["TODAY", "YESTERDAY", "THIS_WEEK", "THIS_MONTH"];
-  const STATUS_OPTIONS = ["ALL", "CHECKED", "UN-CHECKED"];
-  const RESULT_OPTIONS = ["ALL", "ERROR", "RESOLVED"];
 
-  const {getAssemblyLineData} = useAssemblyLine();
+  const { getAssemblyCardsData, getAssemblyReportData } = useCheckItemHistory(page, ITEMS_PER_PAGE);
 
-
-  const { getAssemblyCardsData } = useCheckItemHistory();
-
-  console.log(
-    "this is my assembly",
-    getAssemblyLineData?.data
-  );
+  console.log("this is my assembly", getAssemblyReportData?.data);
 
  
-const assemblies = getAssemblyLineData?.data;
+const assembliesRaw = getAssemblyReportData?.data;
+const assemblies = Array.isArray(assembliesRaw)
+  ? assembliesRaw
+  : assembliesRaw
+  ? [assembliesRaw]
+  : [];
 
   const tableData = Array.isArray(assemblies)
     ? assemblies.map((item) => ({
@@ -57,86 +50,33 @@ const assemblies = getAssemblyLineData?.data;
         assemblyName: item?.assembly_name || "—",
         companyName: item?.company_id?.company_name || "—",
         plantName: item?.plant_id?.plant_name || "—",
+        raw: item,
 
-        // ❗ TEMP STATUS (API not ready yet)
-        // TODO: replace this when backend provides status
-        status: "UN-CHECKED",
+        status:
+          Array?.isArray(item?.process_id) &&
+          item?.process_id?.length > 0 &&
+          item?.process_id?.every(
+            (proc) =>
+              Array?.isArray(proc?.check_list_items) &&
+              proc.check_list_items.length > 0 &&
+              proc.check_list_items.every(
+                (cli) =>
+                  Array.isArray(cli?.check_items_history) &&
+                  cli.check_items_history.length > 0
+              )
+          )
+            ? "CHECKED"
+            : "UN-CHECKED",
       }))
     : [];
 
-  const startIndex = (page - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentTableData = tableData.slice(startIndex, endIndex);
-  const hasNextPage = endIndex < tableData.length;
+  const currentTableData = tableData;
+  const hasNextPage = currentTableData.length === ITEMS_PER_PAGE;
 
 
-
-const cards = Array.isArray(assemblies)
-  ? assemblies.map((item) => {
-    const assembly = item;
-
-    console.log("this is item",item)
-
-    const process =
-      Array.isArray(assembly?.process_id) && assembly.process_id.length > 0
-        ? assembly.process_id[0]
-        : {};
-
-        {console.log("sdhgueq==========>>>>",assembly.process_id.length);}
-
-    return {
-      assemblyName: assembly?.assembly_name || "—",
-      assemblyNumber: assembly?.assembly_number || "—",
-
-      //  COMPANY
-      companyName: assembly?.company_id?.company_name || "—",
-      companyAddress: assembly?.company_id?.company_address || "—",
-
-      // PLANT
-      plantName: assembly?.plant_id?.plant_name || "—",
-      plantAddress: assembly?.plant_id?.plant_address || "—",
-
-      //  PROCESS
-      processName: process?.process_name || "—",
-      processNo: process?.process_no || "—",
-
-      //  STATUS
-      status: item?.is_error ? "Issue Found" : "Un-Checked",
-      compliance: item?.is_error ? 0 : 100,
-
-      //  CHECKED BY
-      responsible: assembly?.responsibility?.full_name || "—",
-      responsibleId: assembly?.responsibility?.user_id || "—",
-
-      items: [
-        {
-          label: item?.checkList?.item || "Un-Checked",
-          value: item?.result || "OK",
-          status: item?.is_error ? "fail" : "pass",
-        },
-      ],
-    };
-  })
-  : [];
-
-
-
-
-
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "pass":
-        return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
-      case "fail":
-        return <XCircle className="w-4 h-4 text-red-500" />;
-      default:
-        return <AlertCircle className="w-4 h-4 text-amber-500" />;
-    }
-  };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen pt-4 bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
@@ -148,7 +88,7 @@ const cards = Array.isArray(assemblies)
               Real-time production line monitoring & compliance
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
+          {/* <div className="flex flex-wrap gap-3">
             <button className="px-6 py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center cursor-pointer gap-2">
               <Plus size={20} />
               New Check
@@ -157,14 +97,7 @@ const cards = Array.isArray(assemblies)
               <Download size={20} />
               Export
             </button>
-            <button
-              onClick={() => setOpenHistory(true)}
-              className="px-6 py-3 bg-linear-to-r from-red-400 to-red-500 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl cursor-pointer transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2"
-            >
-              <History size={20} />
-              History
-            </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Controls */}
@@ -221,7 +154,7 @@ const cards = Array.isArray(assemblies)
                 setResultFilter("ALL");
                 setPage(1);
               }}
-              className="h-[42px] px-5 rounded-xl border border-slate-300 text-sm font-semibold
+              className="h-[42px] px-5 cursor-pointer rounded-xl border border-slate-300 text-sm font-semibold
       text-slate-600 hover:bg-slate-100 transition"
             >
               Reset
@@ -249,7 +182,7 @@ const cards = Array.isArray(assemblies)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Checked</p>
+                <p className="text-sm font-medium text-slate-900">Item Checked</p>
                 <p className="text-3xl font-bold bg-linear-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_checked || 0}
                 </p>
@@ -262,7 +195,7 @@ const cards = Array.isArray(assemblies)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Unchecked</p>
+                <p className="text-sm font-medium text-slate-900">Item Unchecked</p>
                 <p className="text-3xl font-bold bg-linear-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_unchecked}
                 </p>
@@ -275,7 +208,7 @@ const cards = Array.isArray(assemblies)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Errors</p>
+                <p className="text-sm font-medium text-slate-900">Item Errors</p>
                 <p className="text-3xl font-bold bg-linear-to-r from-red-600 to-red-700 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_errors || 0}
                 </p>
@@ -342,8 +275,11 @@ const cards = Array.isArray(assemblies)
                     </td>
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => setOpenHistory(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+                        onClick={() => {
+                          setSelectedAssembly(row.raw);
+                          setOpenHistory(true);
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 cursor-pointer rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
                       >
                         <History size={14} />
                         History
@@ -379,6 +315,7 @@ const cards = Array.isArray(assemblies)
       <CheckItemHistoryModal
         open={openHistory}
         onClose={() => setOpenHistory(false)}
+        data={selectedAssembly}
       />
 
       <style jsx>{`
