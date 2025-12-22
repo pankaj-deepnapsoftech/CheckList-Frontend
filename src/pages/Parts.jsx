@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Plus, RefreshCw, Search, Edit2, Trash2, Eye } from "lucide-react";
 import Pagination from "../Components/Pagination/Pagination.jsx";
-import AddPartsModal from "../components/modal/addModal/AddPartsModal.jsx";
 import { useDebounce } from "../hooks/useDebounce";
 import { UsePart } from "../hooks/usePart.js";
 import Refresh from "../components/Refresh/Refresh";
+import AddPartsModal from "../Components/modal/addModal/AddPartsModal.jsx";
 
 const actionBtn =
   "p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:shadow-md";
@@ -18,12 +18,12 @@ const Parts = () => {
   const [mode, setMode] = useState("add");
   const [showRefresh, setShowRefresh] = useState(false);
   const { debounce, value } = useDebounce(search);
-  const { getPartData, removeParts , searchQuery } = UsePart(page, limit, value);
+  const { getPartData, removeParts, searchQuery } = UsePart(page, limit, value);
 
   const filteredParts =
-  debounce
-    ? searchQuery?.data ?? []
-    :  getPartData?.data || [];
+    debounce
+      ? searchQuery?.data ?? []
+      : getPartData?.data || [];
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this part?")) {
@@ -174,6 +174,7 @@ const Parts = () => {
                 <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
                   <th className="px-5 py-3 font-semibold">Parts No.</th>
                   <th className="px-5 py-3 font-semibold">Parts Name</th>
+                  <th className="px-5 py-3 font-semibold">Material Code</th>
                   <th className="px-5 py-3 font-semibold">Total Assembly</th>
 
                   <th className="px-5 py-3 font-semibold text-center">
@@ -196,6 +197,7 @@ const Parts = () => {
                       </span>
                     </td>
 
+                    <td className="px-5 py-4"> {pro.material_code|| "N/A"}</td>
                     <td className="px-5 py-4"> {pro.total_assemblies}</td>
                     <td className="px-5 py-4">
                       <div className="flex justify-center gap-2">

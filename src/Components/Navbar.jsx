@@ -1,36 +1,30 @@
 import { Menu, X, Bell } from "lucide-react";
-import { useState , useRef , useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import ProfileDropDown from "../Components/DropDown/ProfileDropDown";
 import NotificationDropdown from "../Components/DropDown/NotificationDropDown";
-import {useLogin} from "../hooks/useLogin"
+import { useLogin } from "../hooks/useLogin";
 
 export default function Navbar({ onMenuClick, isMobileOpen }) {
-
-  const {logedinUser} = useLogin();
+  const { logedinUser } = useLogin();
 
   const [open, setOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
-
   const notifRef = useRef(null);
   const notifButtonRef = useRef(null);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-
     if (hour < 12) return "Good Morning";
     if (hour < 17) return "Good Afternoon";
     if (hour < 21) return "Good Evening";
     return "Good Night";
   };
 
-
-  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      // Profile dropdown
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(e.target) &&
@@ -40,7 +34,6 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
         setOpen(false);
       }
 
-      // Notification dropdown
       if (
         notifRef.current &&
         !notifRef.current.contains(e.target) &&
@@ -55,11 +48,20 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-
   return (
     <div className="w-full bg-white sticky top-0 z-50 shadow-sm">
-      <div className="max-w-7xl mx-auto flex items-center justify-between py-3 px-4 sm:px-6">
-        <div className="flex items-center gap-3 shrink-0">
+      <div
+        className="
+        max-w-screen-xl 
+        2xl:max-w-[1800px] 
+        mx-auto 
+        flex items-center justify-between 
+        py-3 sm:py-4 
+        px-4 sm:px-6 lg:px-10
+      "
+      >
+        {/* Left Section */}
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             className="md:hidden p-2 rounded-lg hover:bg-gray-100"
             onClick={onMenuClick}
@@ -67,7 +69,13 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
             {isMobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
-          <h2 className="hidden md:block text-xl font-semibold">
+          <h2
+            className="
+            hidden md:block 
+            text-lg lg:text-xl xl:text-2xl 
+            font-semibold
+          "
+          >
             {getGreeting()},{" "}
             <span className="text-blue-600 font-bold">
               {logedinUser?.data?.full_name
@@ -77,15 +85,25 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
           </h2>
         </div>
 
-        <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+        {/* Right Section */}
+        <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
+          {/* Notifications */}
           <div className="relative cursor-pointer">
             <Bell
-              size={22}
-              className="text-gray-700"
               ref={notifButtonRef}
+              size={22}
+              className="text-gray-700 sm:w-6 sm:h-6"
               onClick={() => setNotificationsOpen(!notificationsOpen)}
             />
-            <span className="absolute -top-1 -right-1 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-red-500 rounded-full"></span>
+
+            <span
+              className="
+              absolute -top-1 -right-1 
+              w-2 h-2 sm:w-2.5 sm:h-2.5 
+              bg-red-500 rounded-full
+            "
+            />
+
             {notificationsOpen && (
               <NotificationDropdown
                 innerRef={notifRef}
@@ -94,16 +112,26 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
             )}
           </div>
 
-          {/* Profile */}
+          {/* Profile Avatar */}
           <div
             ref={buttonRef}
             onClick={() => setOpen(!open)}
-            className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center rounded-full bg-blue-300 text-gray-800 font-semibold cursor-pointer"
+            className="
+              w-9 h-9 sm:w-10 sm:h-10 lg:w-11 lg:h-11
+              flex items-center justify-center
+              rounded-full
+              bg-blue-300
+              text-gray-800
+              font-semibold
+              text-sm sm:text-base
+              cursor-pointer
+            "
           >
             {logedinUser?.data?.full_name
               ? logedinUser.data.full_name.charAt(0).toUpperCase()
               : ""}
           </div>
+
           {open && (
             <ProfileDropDown ref={dropdownRef} onClose={() => setOpen(false)} />
           )}

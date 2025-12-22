@@ -90,7 +90,6 @@ export const useAssemblyLine = (company, plant, process, user,search, page, limi
   return {
     createAssemblyLine,
     getAssemblyLineData,
-    getAssignedAssemblyLines,
     searchQuery,
     UpdateAssemblyLine,
     DeleteAssemblyLine,
