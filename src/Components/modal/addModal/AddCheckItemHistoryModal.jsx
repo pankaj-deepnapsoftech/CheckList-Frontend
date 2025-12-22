@@ -55,7 +55,7 @@ export default function AddCheckItemHistoryModal({
               {isView ? "View Check Item History" : "Edit Check Item History"}
             </h3>
             <p className="text-sm text-slate-500">
-              Quality check record details
+              Quality check record Details
             </p>
           </div>
           <button

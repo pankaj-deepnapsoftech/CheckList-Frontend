@@ -5,18 +5,21 @@ import { toast } from "react-toastify";
 import { History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
-
 const CheckItemsData = () => {
   const [assembly_id, setAssembly_id] = useState("");
   const [process_id, setProcess_id] = useState("");
-  const { getAssemblyAndProcessData, PostCheckListForm, PostCheckListFormHistory } = useCheckItemData();
+  const {
+    getAssemblyAndProcessData,
+    PostCheckListForm,
+    PostCheckListFormHistory,
+  } = useCheckItemData();
   const [errors, setErrors] = useState({});
 
   const selectedAssembly = getAssemblyAndProcessData?.data?.find(
     (a) => a._id === assembly_id
   );
 
-  console.log("heyy", PostCheckListForm?.data)
+  console.log("heyy", PostCheckListForm?.data);
   const handleMeasurementChange = (itemId, value, min, max) => {
     if (value === "") {
       setErrors((prev) => ({ ...prev, [itemId]: "" }));
@@ -34,38 +37,48 @@ const CheckItemsData = () => {
     }
   };
 
-  
   const formik = useFormik({
     initialValues: {
-      data: []
+      data: [],
     },
     onSubmit: (values) => {
       const allFilled = PostCheckListForm?.data?.every(
-        (assembly) => assembly.checklist_item?.length === values.data.filter(
-          (d) => d.assembly === assembly._id
-        ).length
+        (assembly) =>
+          assembly.checklist_item?.length ===
+          values.data.filter((d) => d.assembly === assembly._id).length
       );
 
       if (allFilled) {
-        PostCheckListFormHistory.mutate(values);
+        PostCheckListFormHistory.mutate(values,{
+          onSuccess:()=>{
+            window.location.reload() ;
+            formik.resetForm()
+             formik.setFieldValue("data", "");
+          }
+        });
       } else {
         toast.error("Please fill all checklist items before submitting.");
       }
-    }
+    },
   });
 
-
-
-  const setResult = (checkListId, result, assemblyId, processId) => {
-    const exists = formik.values.data.find(
-      (i) => i.checkList === checkListId
-    );
+  const setResult = (
+    checkListId,
+    result,
+    assemblyId,
+    processId,
+    is_error = false,
+    description = ""
+  ) => {
+    const exists = formik.values.data.find((i) => i.checkList === checkListId);
 
     let updatedData;
 
     if (exists) {
       updatedData = formik.values.data.map((i) =>
-        i.checkList === checkListId ? { ...i, result } : i
+        i.checkList === checkListId
+          ? { ...i, result, is_error, description }
+          : i
       );
     } else {
       updatedData = [
@@ -74,11 +87,20 @@ const CheckItemsData = () => {
           checkList: checkListId,
           process_id: processId,
           assembly: assemblyId,
-          result
-        }
+          result,
+          is_error,
+          description,
+        },
       ];
     }
 
+    formik.setFieldValue("data", updatedData);
+  };
+
+  const setDescription = (checkListId, description) => {
+    const updatedData = formik.values.data.map((i) =>
+      i.checkList === checkListId ? { ...i, description } : i
+    );
     formik.setFieldValue("data", updatedData);
   };
 
@@ -229,57 +251,85 @@ const CheckItemsData = () => {
                       ⏱ {item.check_list_time}
                     </div>
 
-                    <div>
+                    <div className="sm:col-span-2">
                       {item.result_type === "yesno" ? (
-                        <select
-                          onChange={(e) =>
-                            setResult(
-                              item._id,
-                              e.target.value,
-                              assembly._id,
-                              assembly.process_id._id
-                            )
-                          }
-                          required
-                          className=" w-full rounded-lg  border  border-gray-300  px-3  py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 hover:border-gray-400"
-                        >
-                          <option value="">Select</option>
-                          <option value="yes">Yes</option>
-                          <option value="no">No</option>
-                        </select>
-                      ) : (
-                        <>
-                          <input
-                            type="text"
-                            required
-                            min={item.min}
-                            max={item.max}
+                        <div className="flex justify-center items-center gap-8">
+                          <select
                             onChange={(e) => {
-                              handleMeasurementChange(
-                                item._id,
-                                e.target.value,
-                                item.min,
-                                item.max
-                              );
+                              const value = e.target.value;
+                              const isError = value === "Issue Found";
                               setResult(
                                 item._id,
-                                e.target.value,
+                                value,
                                 assembly._id,
-                                assembly.process_id._id
+                                assembly.process_id._id,
+                                isError
                               );
                             }}
-                            className={`w-full rounded-lg border px-3 py-2 text-sm
+                            required
+                            className=" w-full rounded-lg  border  border-gray-300  px-3  py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-200 hover:border-gray-400"
+                          >
+                            <option value="">Select</option>
+                            <option value="Checked OK">Checked OK</option>
+                            <option value="Issue Found">Issue Found</option>
+                          </select>
+
+                          {formik.values.data.find(
+                            (d) => d.checkList === item._id
+                          )?.is_error && (
+                            <textarea
+                              placeholder="Enter reason for issue found..."
+                              onChange={(e) =>
+                                setDescription(item._id, e.target.value)
+                              }
+                              className="w-full mt-2 rounded-lg border border-red-300 px-3 py-2 text-sm
+                                focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                              rows={2}
+                            />
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex gap-8 justify-center items-center w-full">
+                          <div>
+                            <input
+                              type="text"
+                              required
+                              min={item.min}
+                              max={item.max}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                const numValue = Number(value);
+                                const isOutOfRange =
+                                  value !== "" &&
+                                  (numValue < item.min || numValue > item.max);
+
+                                handleMeasurementChange(
+                                  item._id,
+                                  value,
+                                  item.min,
+                                  item.max
+                                );
+                                setResult(
+                                  item._id,
+                                  value,
+                                  assembly._id,
+                                  assembly.process_id._id,
+                                  isOutOfRange
+                                );
+                              }}
+                              className={`w-full rounded-lg border px-3 py-2 text-sm
                 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                 ${errors[item._id] ? "border-red-400" : "border-gray-300"}`}
-                            placeholder="Enter value"
-                          />
+                              placeholder="Enter value"
+                            />
 
-                          {errors[item._id] && (
-                            <p className="text-xs text-red-500 mt-1">
-                              {errors[item._id]}
-                            </p>
-                          )}
-                        </>
+                            {errors[item._id] && (
+                              <p className="text-xs text-red-500 mt-1">
+                                {errors[item._id]}
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       )}
                     </div>
                   </div>

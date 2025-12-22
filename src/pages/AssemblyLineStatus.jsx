@@ -101,7 +101,7 @@ const cards = Array.isArray(assemblies)
       processNo: process?.process_no || "—",
 
       //  STATUS
-      status: item?.is_error ? "Issue Found" : "Checked OK",
+      status: item?.is_error ? "Issue Found" : "Un-Checked",
       compliance: item?.is_error ? 0 : 100,
 
       //  CHECKED BY
@@ -110,7 +110,7 @@ const cards = Array.isArray(assemblies)
 
       items: [
         {
-          label: item?.checkList?.item || "Checked OK",
+          label: item?.checkList?.item || "Un-Checked",
           value: item?.result || "OK",
           status: item?.is_error ? "fail" : "pass",
         },
