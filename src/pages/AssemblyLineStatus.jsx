@@ -154,7 +154,7 @@ const assemblies = Array.isArray(assembliesRaw)
                 setResultFilter("ALL");
                 setPage(1);
               }}
-              className="h-[42px] px-5 rounded-xl border border-slate-300 text-sm font-semibold
+              className="h-[42px] px-5 cursor-pointer rounded-xl border border-slate-300 text-sm font-semibold
       text-slate-600 hover:bg-slate-100 transition"
             >
               Reset
@@ -182,7 +182,7 @@ const assemblies = Array.isArray(assembliesRaw)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Checked</p>
+                <p className="text-sm font-medium text-slate-900">Item Checked</p>
                 <p className="text-3xl font-bold bg-linear-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_checked || 0}
                 </p>
@@ -195,7 +195,7 @@ const assemblies = Array.isArray(assembliesRaw)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Unchecked</p>
+                <p className="text-sm font-medium text-slate-900">Item Unchecked</p>
                 <p className="text-3xl font-bold bg-linear-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_unchecked}
                 </p>
@@ -208,7 +208,7 @@ const assemblies = Array.isArray(assembliesRaw)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Errors</p>
+                <p className="text-sm font-medium text-slate-900">Item Errors</p>
                 <p className="text-3xl font-bold bg-linear-to-r from-red-600 to-red-700 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_errors || 0}
                 </p>
@@ -279,7 +279,7 @@ const assemblies = Array.isArray(assembliesRaw)
                           setSelectedAssembly(row.raw);
                           setOpenHistory(true);
                         }}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+                        className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 cursor-pointer rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
                       >
                         <History size={14} />
                         History
