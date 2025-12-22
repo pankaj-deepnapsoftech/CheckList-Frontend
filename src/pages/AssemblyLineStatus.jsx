@@ -75,72 +75,8 @@ const assemblies = Array.isArray(assembliesRaw)
 
 
 
-// const cards = Array.isArray(assemblies)
-//   ? assemblies.map((item) => {
-//     const assembly = item;
-
-//     console.log("this is item",item)
-
-//     const process =
-//       Array.isArray(assembly?.process_id) && assembly.process_id.length > 0
-//         ? assembly.process_id[0]
-//         : {};
-
-//         {console.log("sdhgueq==========>>>>",assembly.process_id.length);}
-
-//     return {
-//       assemblyName: assembly?.assembly_name || "—",
-//       assemblyNumber: assembly?.assembly_number || "—",
-
-//       //  COMPANY
-//       companyName: assembly?.company_id?.company_name || "—",
-//       companyAddress: assembly?.company_id?.company_address || "—",
-
-//       // PLANT
-//       plantName: assembly?.plant_id?.plant_name || "—",
-//       plantAddress: assembly?.plant_id?.plant_address || "—",
-
-//       //  PROCESS
-//       processName: process?.process_name || "—",
-//       processNo: process?.process_no || "—",
-
-//       //  STATUS
-//       status: item?.is_error ? "Issue Found" : "Un-Checked",
-//       compliance: item?.is_error ? 0 : 100,
-
-//       //  CHECKED BY
-//       responsible: assembly?.responsibility?.full_name || "—",
-//       responsibleId: assembly?.responsibility?.user_id || "—",
-
-//       items: [
-//         {
-//           label: item?.checkList?.item || "Un-Checked",
-//           value: item?.result || "OK",
-//           status: item?.is_error ? "fail" : "pass",
-//         },
-//       ],
-//     };
-//   })
-//   : [];
-
-
-
-
-
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "pass":
-        return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
-      case "fail":
-        return <XCircle className="w-4 h-4 text-red-500" />;
-      default:
-        return <AlertCircle className="w-4 h-4 text-amber-500" />;
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen pt-4 bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
@@ -152,7 +88,7 @@ const assemblies = Array.isArray(assembliesRaw)
               Real-time production line monitoring & compliance
             </p>
           </div>
-          <div className="flex flex-wrap gap-3">
+          {/* <div className="flex flex-wrap gap-3">
             <button className="px-6 py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center cursor-pointer gap-2">
               <Plus size={20} />
               New Check
@@ -161,7 +97,7 @@ const assemblies = Array.isArray(assembliesRaw)
               <Download size={20} />
               Export
             </button>
-          </div>
+          </div> */}
         </div>
 
         {/* Controls */}
