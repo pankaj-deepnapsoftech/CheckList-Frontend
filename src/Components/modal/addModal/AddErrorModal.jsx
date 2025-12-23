@@ -1,12 +1,13 @@
 import React, { useEffect } from "react";
-import { X, AlertCircle } from "lucide-react";
+import { X, AlertCircle, CheckCircle2, AlertOctagon } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useAssemblyLineError } from "../../../hooks/useAssemblyLineError";
 
 // Validation schema
 const validationSchema = Yup.object({
-  is_error: Yup.string().required("Result is required"),
+  is_error: Yup.boolean().required("Status is required"),
+  description: Yup.string().nullable(),
 });
 
 export default function AddErrorModal({
@@ -18,16 +19,27 @@ export default function AddErrorModal({
 
   const formik = useFormik({
     initialValues: {
-      is_error: data?.is_error || "",
+      is_error: data?.is_error ?? true, // Default to error if undefined
+      description: data?.description || "",
+      result: data?.result || "",
     },
     enableReinitialize: true,
     validationSchema,
     onSubmit: (values) => {
+      // If is_error is toggled, we might want to sync result for consistency
+      // For yesno: Error -> "no", Resolved -> "yes"
+      let resultValue = values.result;
+      if (data?.checkList?.result_type === "yesno") {
+        resultValue = values.is_error ? "no" : "yes";
+      }
+
       const payload = {
         checkList: data?.checkList?._id,
         process_id: data?.process_id?._id,
         assembly: data?.assembly?._id,
         is_error: values.is_error,
+        description: values.description,
+        result: resultValue,
       };
 
       updateAssemblyLineError.mutate(
@@ -53,18 +65,17 @@ export default function AddErrorModal({
 
   if (!open || !data) return null;
 
-  const isYesNo = data?.checkList?.result_type === "yesno";
-
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity"
+      <div 
+        className="absolute inset-0 bg-black/30 backdrop-blur-sm transition-opacity" 
         onClick={onClose}
       />
 
       {/* Slide-in Panel */}
       <div className="relative w-full max-w-md bg-white h-full shadow-2xl p-6 overflow-y-auto animate-slideLeft flex flex-col">
+        
         {/* Header */}
         <div className="flex items-center justify-between mb-8 pb-4 border-b border-slate-100">
           <div>
@@ -73,10 +84,10 @@ export default function AddErrorModal({
               Update Error
             </h2>
             <p className="text-sm text-slate-500 mt-1">
-              Review and update inspection error
+              Review and update inspection status
             </p>
           </div>
-          <button
+          <button 
             onClick={onClose}
             className="p-2 hover:bg-slate-100 rounded-full transition-colors text-slate-400 hover:text-slate-600"
           >
@@ -89,104 +100,89 @@ export default function AddErrorModal({
           {/* Item Info Card */}
           <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 space-y-4">
             <InfoRow label="Item" value={data?.checkList?.item} />
-            <InfoRow
-              label="Method"
-              value={data?.checkList?.check_list_method}
-            />
+            <InfoRow label="Method" value={data?.checkList?.check_list_method} />
             <InfoRow label="Time" value={data?.checkList?.check_list_time} />
           </div>
 
           {/* Context Info Card */}
           <div className="bg-white rounded-2xl p-5 border border-slate-200 space-y-4 shadow-sm">
-            <InfoRow
-              label="Assembly"
-              value={`${data?.assembly?.assembly_name} (${data?.assembly?.assembly_number})`}
+            <InfoRow 
+              label="Assembly" 
+              value={`${data?.assembly?.assembly_name} (${data?.assembly?.assembly_number})`} 
             />
-            <InfoRow
-              label="Process"
-              value={`${data?.process_id?.process_name} (${data?.process_id?.process_no})`}
+            <InfoRow 
+              label="Process" 
+              value={`${data?.process_id?.process_name} (${data?.process_id?.process_no})`} 
             />
-            <InfoRow
-              label="Current Result"
-              value={data?.is_error}
+             <InfoRow 
+              label="Current Result" 
+              value={data?.result}
               isError={data?.is_error}
             />
           </div>
 
           {/* Form */}
           <form onSubmit={formik.handleSubmit} className="space-y-6 pt-4">
+            
+            {/* Status Selection */}
+            <div className="space-y-3">
+              <label className="text-sm font-semibold text-slate-700">
+                Update Status <span className="text-red-500">*</span>
+              </label>
+              <div className="grid grid-cols-2 gap-4">
+                <button
+                  type="button"
+                  onClick={() => formik.setFieldValue("is_error", true)}
+                  className={`
+                    relative flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
+                    ${formik.values.is_error === true
+                      ? "border-red-500 bg-red-50 text-red-700" 
+                      : "border-slate-200 hover:border-red-200 hover:bg-slate-50 text-slate-600"}
+                  `}
+                >
+                  <AlertOctagon size={24} />
+                  <span className="font-semibold">Error</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => formik.setFieldValue("is_error", false)}
+                  className={`
+                    relative flex flex-col items-center justify-center gap-2 p-4 rounded-xl border-2 transition-all
+                    ${formik.values.is_error === false
+                      ? "border-emerald-500 bg-emerald-50 text-emerald-700" 
+                      : "border-slate-200 hover:border-emerald-200 hover:bg-slate-50 text-slate-600"}
+                  `}
+                >
+                  <CheckCircle2 size={24} />
+                  <span className="font-semibold">Resolve</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Description Field */}
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">
-                New Result <span className="text-red-500">*</span>
+                Description
               </label>
-
-              {isYesNo ? (
-                <div className="grid grid-cols-2 gap-4">
-                  <label
-                    className={`
-                    relative flex items-center justify-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
-                    ${
-                      formik.values.is_error === "true"
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                        : "border-slate-200 hover:border-emerald-200 hover:bg-slate-50"
-                    }
-                  `}
-                  >
-                    <input
-                      type="radio"
-                      name="is_error"
-                      value="yes"
-                      checked={formik.values.is_error === "true"}
-                      onChange={formik.handleChange}
-                      className="sr-only"
-                    />
-                    <span className="font-semibold">Yes (Pass)</span>
-                  </label>
-
-                  <label
-                    className={`
-                    relative flex items-center justify-center gap-2 p-4 rounded-xl border-2 cursor-pointer transition-all
-                    ${
-                      formik.values.is_error === "false"
-                        ? "border-red-500 bg-red-50 text-red-700"
-                        : "border-slate-200 hover:border-red-200 hover:bg-slate-50"
-                    }
-                  `}
-                  >
-                    <input
-                      type="radio"
-                      name="is_error"
-                      value="no"
-                      checked={formik.values.is_error === "false"}
-                      onChange={formik.handleChange}
-                      className="sr-only"
-                    />
-                    <span className="font-semibold">No (Fail)</span>
-                  </label>
-                </div>
-              ) : (
-                <input
-                  name="is_error"
-                  type="text"
-                  placeholder="Enter error value"
-                  value={formik.values.is_error}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  className={`
-                    w-full px-4 py-3 rounded-xl border bg-white
-                    focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all
-                    ${
-                      formik.errors.is_error && formik.touched.is_error
-                        ? "border-red-300 focus:border-red-400"
-                        : "border-slate-200 focus:border-blue-400"
-                    }
-                  `}
-                />
-              )}
-
-              {formik.touched.is_error && formik.errors.is_error && (
+              <textarea
+                name="description"
+                rows="4"
+                placeholder="Add details about the error or resolution..."
+                value={formik.values.description}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={`
+                  w-full px-4 py-3 rounded-xl border bg-white resize-none
+                  focus:outline-none focus:ring-4 focus:ring-blue-100 transition-all
+                  ${formik.errors.description && formik.touched.description 
+                    ? "border-red-300 focus:border-red-400" 
+                    : "border-slate-200 focus:border-blue-400"}
+                `}
+              />
+              {formik.touched.description && formik.errors.description && (
                 <p className="text-red-500 text-sm font-medium animate-pulse">
-                  {formik.errors.is_error}
+                  {formik.errors.description}
                 </p>
               )}
             </div>
@@ -197,16 +193,12 @@ export default function AddErrorModal({
               className={`
                 w-full py-4 rounded-xl font-bold text-white shadow-lg shadow-blue-200
                 transition-all duration-200 transform active:scale-[0.98]
-                ${
-                  updateAssemblyLineError.isPending
-                    ? "bg-slate-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700 hover:shadow-xl"
-                }
+                ${updateAssemblyLineError.isPending 
+                  ? "bg-slate-400 cursor-not-allowed" 
+                  : "bg-blue-600 hover:bg-blue-700 hover:shadow-xl"}
               `}
             >
-              {updateAssemblyLineError.isPending
-                ? "Updating..."
-                : "Update Result"}
+              {updateAssemblyLineError.isPending ? "Updating..." : "Update Status"}
             </button>
           </form>
         </div>

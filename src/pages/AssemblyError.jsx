@@ -56,12 +56,7 @@ export default function AssemblyError() {
               {errors.filter((e) => e?.is_error).length}
             </p>
           </div>
-          <div className="bg-white rounded-2xl border border-emerald-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-emerald-600">Resolved</p>
-            <p className="text-3xl font-bold text-emerald-600 mt-1">
-              {errors.filter((e) => !e?.is_error).length}
-            </p>
-          </div>
+          
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <p className="text-xs font-medium text-slate-600">Total Records</p>
             <p className="text-3xl font-bold text-slate-900 mt-1">
@@ -86,40 +81,57 @@ export default function AssemblyError() {
                 No error records found
               </div>
             )}
-                {errors.map((item) => (
-                  <div key={item._id} className="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                    <div className="flex justify-between items-start mb-3">
-                      <div>
-                        <h3 className="font-semibold text-slate-900">{item.checkList?.item}</h3>
-                        <p className="text-xs text-slate-500 mt-1">{formatDateShort(item.createdAt)}</p>
-                      </div>
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.is_error ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"}`}>
-                        {item.is_error ? "Error" : "Resolved"}
-                      </span>
-                    </div>
-                    <div className="space-y-2 text-sm text-slate-600">
-                      <div className="flex justify-between">
-                        <span>Assembly:</span>
-                        <span className="font-medium">{item.assembly?.assembly_number}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Process:</span>
-                        <span className="font-medium">{item.process_id?.process_name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Result:</span>
-                        <span className="font-medium">{item.result}</span>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => handleUpdateClick(item)}
-                      className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors"
-                    >
-                      <Pencil size={16} />
-                      Update Result
-                    </button>
+            {errors.map((item) => (
+              <div
+                key={item._id}
+                className="bg-white p-4 rounded-xl shadow-sm border border-slate-200"
+              >
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <h3 className="font-semibold text-slate-900">
+                      {item.checkList?.item}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {formatDateShort(item.createdAt)}
+                    </p>
                   </div>
-                ))}
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      item.is_error
+                        ? "bg-red-100 text-red-700"
+                        : "bg-green-100 text-green-700"
+                    }`}
+                  >
+                    {item.is_error ? "Error" : "Resolved"}
+                  </span>
+                </div>
+                <div className="space-y-2 text-sm text-slate-600">
+                  <div className="flex justify-between">
+                    <span>Assembly:</span>
+                    <span className="font-medium">
+                      {item.assembly?.assembly_number}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Process:</span>
+                    <span className="font-medium">
+                      {item.process_id?.process_name}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Result:</span>
+                    <span className="font-medium">{item.result}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleUpdateClick(item)}
+                  className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors"
+                >
+                  <Pencil size={16} />
+                  Update Result
+                </button>
+              </div>
+            ))}
           </div>
 
           <div className="overflow-x-auto hidden sm:block">
@@ -219,8 +231,14 @@ export default function AssemblyError() {
                         row?.is_error ? "text-red-700" : "text-slate-600"
                       }`}
                     >
-                      {row?.description || "—"}
+                      <div
+                        className="max-w-[250px] truncate"
+                        title={row?.description}
+                      >
+                        {row?.description || "—"}
+                      </div>
                     </td>
+
                     <td className="px-4 py-3 sm:px-6 sm:py-4">
                       <span
                         className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-semibold ${
@@ -270,9 +288,9 @@ export default function AssemblyError() {
         </div>
       </div>
 
-      <AddErrorModal 
-        open={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <AddErrorModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         data={selectedError}
       />
     </div>
