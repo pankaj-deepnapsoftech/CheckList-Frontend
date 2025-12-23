@@ -2,14 +2,12 @@ import React from "react";
 import { Clock } from "lucide-react";
 import { OctagonAlert, CircleCheckBig } from "lucide-react";
 
-
-
 const AssemblyLineCards = ({ AssemblyLines = [] }) => {
   const getStatusClass = (isError) => {
-    if(isError){
-      return "text-red-500 bg-red-100 p-4 border rounded-xl"
-    }else{
-      return "text-green-500 bg-green-100 p-3 border rounded-xl"
+    if (isError) {
+      return "text-red-500 bg-red-100 p-4 border rounded-xl";
+    } else {
+      return "text-green-500 bg-green-100 p-3 border rounded-xl";
     }
   };
 
@@ -50,7 +48,8 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
               content={
                 <div>
                   <span className="font-semibold text-blue-400 cursor-pointer hover:underline">
-                    {asl.responsibility?.full_name} ({asl.responsibility?.user_id})
+                    {asl.responsibility?.full_name} (
+                    {asl.responsibility?.user_id})
                   </span>
                   <br />
                   <span className="text-gray-500 text-sm">
@@ -95,17 +94,16 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
 
 const InfoCard = ({ title, content }) => (
   <div className="bg-white rounded-md shadow-sm p-4 w-64 min-w-[250px]">
-    <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">{title}</p>
+    <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">
+      {title}
+    </p>
     <div className="text-lg font-semibold text-gray-600">{content}</div>
   </div>
 );
 
 const ChecklistItem = ({ index, check, getStatusClass }) => {
   return (
-    <div
-      className="bg-blue-50 rounded-md p-3 mb-3"
-      key={check._id}
-    >
+    <div className="bg-blue-50 rounded-md p-3 mb-3" key={check._id}>
       <div className="flex justify-between items-center">
         <div>
           <p className="font-semibold text-gray-600">
@@ -114,15 +112,17 @@ const ChecklistItem = ({ index, check, getStatusClass }) => {
           <p className="text-blue-400 text-sm">
             Method: {check.check_list_method}
           </p>
-          {(check.min !== undefined || check.max !== undefined || check.uom) && (
+          {(check.min !== undefined ||
+            check.max !== undefined ||
+            check.uom) && (
             <p className="text-blue-400 text-sm ">
-            {check.min !== undefined && (
+              {check.min !== undefined && (
                 <span className="mr-4">Min: {check.min}</span>
-                 )}
-                 {check.max !== undefined && (
+              )}
+              {check.max !== undefined && (
                 <span className="mr-4">Max: {check.max}</span>
-                )}
-                {check.uom && <span>UOM: {check.uom}</span>}
+              )}
+              {check.uom && <span>UOM: {check.uom}</span>}
             </p>
           )}
         </div>
@@ -147,23 +147,25 @@ const ChecklistItem = ({ index, check, getStatusClass }) => {
                 >
                   {hist.is_error ? (
                     <span className="flex items-center gap-1 text-xs text-red-600 font-medium">
-                    <OctagonAlert size={14} />
+                      <OctagonAlert size={14} />
                       Error Found
                     </span>
-                      ) : (
-                         <span className="flex items-center gap-1 text-green-600 font-medium">
-                           <CircleCheckBig size={14} />
-                             Checked
-                        </span>
-                      )}
+                  ) : (
+                    <span className="flex items-center gap-1 text-green-600 font-medium">
+                      <CircleCheckBig size={14} />
+                      Checked
+                    </span>
+                  )}
                 </span>
                 <span
                   className={`${
-                    hist.is_error ? "text-red-600 text-xs font-semibold" : "text-blue-400 font-semibold "
+                    hist.is_error
+                      ? "text-red-600 text-xs font-semibold"
+                      : "text-blue-400 font-semibold "
                   }`}
                 >
                   {" "}
-                   {hist.description}
+                  {hist.description}
                 </span>
               </li>
             ))}

@@ -35,26 +35,27 @@ const CheckItemsData = () => {
       data: [],
     },
     onSubmit: (values) => {
-      const allFilled = PostCheckListForm?.data?.every(
-        (assembly) =>
-          assembly?.process_id?.map((p)=> (
-            p?.checklist_item?.length ===
-            values.data.filter((d) => d.assembly === assembly._id).length
-          ))
+      const allFilled = PostCheckListForm?.data?.every((assembly) =>
+        assembly?.process_id?.every((p) =>
+          p?.checklist_item?.every((item) =>
+            values.data.some((dataItem) => dataItem.checkList === item._id)
+          )
+        )
       );
-      console.log("allfilled",allFilled)
+
+    
+      console.log("allfilled", allFilled);
       if (allFilled) {
         PostCheckListFormHistory.mutate(values, {
           onSuccess: () => {
-            formik.resetForm()
+            formik.resetForm();
             formik.setFieldValue("data", "");
             window.location.reload();
-          }
+          },
         });
       } else {
         toast.error("Please fill all checklist items before submitting.");
       }
-
     },
   });
 
@@ -86,7 +87,7 @@ const CheckItemsData = () => {
           result,
           is_error,
           description,
-          status:"Checked"
+          status: "Checked",
         },
       ];
     }
@@ -130,7 +131,6 @@ const CheckItemsData = () => {
               value={assembly_id}
               onChange={(e) => {
                 setAssembly_id(e.target.value);
-               
               }}
               className="rounded-lg border border-gray-300 px-4 py-2 text-sm
                          focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
@@ -142,8 +142,6 @@ const CheckItemsData = () => {
                 </option>
               ))}
             </select>
-
-           
           </div>
         </div>
 
@@ -174,7 +172,6 @@ const CheckItemsData = () => {
                 </span>
               </p>
             </div>
-
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-6 bg-slate-50">
               <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
@@ -214,15 +211,18 @@ const CheckItemsData = () => {
 
               <div className="space-y-8">
                 {assembly?.process_id?.map((p, pIndex) => (
-                  <div key={p._id} className="  rounded-xl p-4 bg-white shadow-sm">
-
-
+                  <div
+                    key={p._id}
+                    className="  rounded-xl p-4 bg-white shadow-sm"
+                  >
                     <h4 className="text-lg font-bold text-indigo-600 mb-4">
                       {pIndex + 1}. {p.process_name} ({p.process_no})
                     </h4>
 
                     {p?.checklist_item?.length === 0 ? (
-                      <p className="text-sm text-slate-400">No checklist items</p>
+                      <p className="text-sm text-slate-400">
+                        No checklist items
+                      </p>
                     ) : (
                       <div className="space-y-4">
                         {p.checklist_item.map((item, index) => (
@@ -232,7 +232,6 @@ const CheckItemsData = () => {
               rounded-xl border border-gray-200 bg-slate-50
               p-4 hover:shadow-md transition"
                           >
-
                             <div className="sm:col-span-2">
                               <p className="font-semibold text-slate-800">
                                 {index + 1}. {item.item}
@@ -243,18 +242,25 @@ const CheckItemsData = () => {
 
                               {item.result_type === "measurement" && (
                                 <p className="text-xs text-slate-500 mt-1">
-                                  Min: <span className="font-semibold">{item.min}</span> |
-                                  Max: <span className="font-semibold">{item.max}</span> |
-                                  UOM: <span className="font-semibold">{item.uom}</span>
+                                  Min:{" "}
+                                  <span className="font-semibold">
+                                    {item.min}
+                                  </span>{" "}
+                                  | Max:{" "}
+                                  <span className="font-semibold">
+                                    {item.max}
+                                  </span>{" "}
+                                  | UOM:{" "}
+                                  <span className="font-semibold">
+                                    {item.uom}
+                                  </span>
                                 </p>
                               )}
                             </div>
 
-
                             <div className="text-sm font-medium text-slate-600">
                               ⏱ {item?.check_list_time}
                             </div>
-
 
                             <div className="sm:col-span-2">
                               {item?.result_type === "yesno" ? (
@@ -276,22 +282,29 @@ const CheckItemsData = () => {
                                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
                                   >
                                     <option value="">Select</option>
-                                    <option value="Checked OK">Checked OK</option>
-                                    <option value="Issue Found">Issue Found</option>
+                                    <option value="Checked OK">
+                                      Checked OK
+                                    </option>
+                                    <option value="Issue Found">
+                                      Issue Found
+                                    </option>
                                   </select>
 
                                   {formik.values.data.find(
                                     (d) => d?.checkList === item?._id
                                   )?.is_error && (
-                                      <textarea
-                                        placeholder="Enter reason for issue found..."
-                                        onChange={(e) =>
-                                          setDescription(item?._id, e.target.value)
-                                        }
-                                        className="w-full rounded-lg border border-red-300 px-3 py-2 text-sm"
-                                        rows={2}
-                                      />
-                                    )}
+                                    <textarea
+                                      placeholder="Enter reason for issue found..."
+                                      onChange={(e) =>
+                                        setDescription(
+                                          item?._id,
+                                          e.target.value
+                                        )
+                                      }
+                                      className="w-full rounded-lg border border-red-300 px-3 py-2 text-sm"
+                                      rows={2}
+                                    />
+                                  )}
                                 </div>
                               ) : (
                                 <div>
@@ -305,7 +318,8 @@ const CheckItemsData = () => {
                                       const numValue = Number(value);
                                       const isOutOfRange =
                                         value !== "" &&
-                                        (numValue < item?.min || numValue > item?.max);
+                                        (numValue < item?.min ||
+                                          numValue > item?.max);
 
                                       handleMeasurementChange(
                                         item?._id,
@@ -323,7 +337,11 @@ const CheckItemsData = () => {
                                       );
                                     }}
                                     className={`w-full rounded-lg border px-3 py-2 text-sm
-                        ${errors[item?._id] ? "border-red-400" : "border-gray-300"}`}
+                        ${
+                          errors[item?._id]
+                            ? "border-red-400"
+                            : "border-gray-300"
+                        }`}
                                     placeholder="Enter value"
                                   />
 
@@ -342,7 +360,6 @@ const CheckItemsData = () => {
                   </div>
                 ))}
               </div>
-
             </div>
           </div>
         ))}
