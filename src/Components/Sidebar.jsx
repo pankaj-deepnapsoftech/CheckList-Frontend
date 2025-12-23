@@ -131,7 +131,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
 
       {/* ---------- MOBILE SIDEBAR ---------- */}
       {isMobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50 pt-[50px] flex">
+        <div className="md:hidden fixed inset-0 z-[50] pt-[50px] flex">
           {/* Background overlay */}
           <div className="fixed inset-0 bg-black/40" onClick={closeMobile} />
 
