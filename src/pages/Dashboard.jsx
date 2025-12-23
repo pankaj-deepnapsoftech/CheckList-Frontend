@@ -19,6 +19,7 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
+import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 
 /* ---------------- Mock / Static Data ---------------- */
 
@@ -514,20 +515,15 @@ export default function ChecklistDashboard() {
 
   const donutTotal = DONUT_DATA.reduce((s, d) => s + d.value, 0);
 
-  const getAssemblyCardsData = {
-    data: {
-      total_checked: 140,
-      total_unchecked: 35,
-      total_resolved: 90,
-      total_errors: 20,
-    },
-  };
+
 
   const {
     data: cardData,
     isLoading: cardsLoading,
     isError: cardsError,
   } = useDashboardCards();
+
+  const { getAssemblyCardsData } = useCheckItemHistory();
 
   console.log("HJGDSKH", cardData);
 
