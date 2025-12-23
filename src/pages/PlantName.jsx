@@ -46,7 +46,7 @@ const PlantName = () => {
 
   console.log(editTable);
   return (
-    <div>
+    <div className="p-4">
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">Plants</h1>
         <p className="text-gray-500 text-sm">Manage plant information</p>

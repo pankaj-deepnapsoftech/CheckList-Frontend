@@ -99,7 +99,7 @@ export default function AssemblyLine() {
 
   console.log("selectedCompany", selectedCompany)
   return (
-    <div>
+    <div className="p-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-semibold">Assembly Line</h1>
@@ -122,8 +122,6 @@ export default function AssemblyLine() {
           />
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-
-
           <select
             value={selectedCompany}
             onChange={(e) => setSelectedCompany(e.target.value)}
@@ -230,7 +228,6 @@ export default function AssemblyLine() {
                   </span>
 
                   <div className="flex gap-4 justify-center">
-
                     <Eye
                       onClick={() => {
                         setSelectedItem(asl);
@@ -289,20 +286,26 @@ export default function AssemblyLine() {
                   <th className="px-5 py-3 font-semibold">Company</th>
                   <th className="px-5 py-3 font-semibold">Plant</th>
                   <th className="px-5 py-3 font-semibold">Responsible</th>
-                  <th className="px-5 py-3 font-semibold text-center">Actions</th>
+                  <th className="px-5 py-3 font-semibold text-center">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="text-gray-700 ">
                 {data?.map((item) => (
-                  <tr key={item._id} className="border-b  border-gray-200 hover:bg-blue-50/40 transition">
-                    <td className="px-5 py-4 text-sm">{item?.assembly_number}</td>
+                  <tr
+                    key={item._id}
+                    className="border-b  border-gray-200 hover:bg-blue-50/40 transition"
+                  >
+                    <td className="px-5 py-4 text-sm">
+                      {item?.assembly_number}
+                    </td>
                     <td className="px-5 py-4 text-sm ">
                       <span className="inline-flex items-center justify-center bg-blue-500 px-3 py-1 rounded-full text-nowrap text-white">
                         {item?.assembly_name}
                       </span>
                     </td>
                     <td className="px-5 py-4 text-sm text-nowrap">
-
                       <div className="space-y-1">
                         {item?.process_id?.map((p) => (
                           <p key={p._id}>
@@ -313,10 +316,13 @@ export default function AssemblyLine() {
                           </p>
                         ))}
                       </div>
-
                     </td>
-                    <td className="px-5 py-4 text-sm">{item?.company_id?.company_name}</td>
-                    <td className="px-5 py-4 text-sm">{item?.plant_id?.plant_name}</td>
+                    <td className="px-5 py-4 text-sm">
+                      {item?.company_id?.company_name}
+                    </td>
+                    <td className="px-5 py-4 text-sm">
+                      {item?.plant_id?.plant_name}
+                    </td>
                     <td className="px-5 py-4 text-sm">
                       {item?.responsibility?.full_name}
                       {item?.responsibility?.user_id && (
@@ -326,7 +332,6 @@ export default function AssemblyLine() {
 
                     <td className="px-5 py-4 flex flex-col gap-3 h- justify-center ">
                       <div className="flex gap-4 justify-center">
-
                         <Eye
                           onClick={() => {
                             setSelectedItem(item);
