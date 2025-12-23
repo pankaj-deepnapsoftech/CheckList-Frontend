@@ -76,7 +76,7 @@ const assemblies = Array.isArray(assembliesRaw)
 
 
   return (
-    <div className="min-h-screen pt-4 bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
@@ -101,7 +101,7 @@ const assemblies = Array.isArray(assembliesRaw)
         </div>
 
         {/* Controls */}
-        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5 mb-6">
+        <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 sm:p-5 mb-6">
           <div className="flex flex-wrap items-end gap-4">
             {/* Assembly Line */}
             <FilterSelect
@@ -115,7 +115,7 @@ const assemblies = Array.isArray(assembliesRaw)
                 "003 / ASS3",
                 "004 / ASS4",
               ]}
-              width="min-w-[220px]"
+              width="w-full sm:w-[220px]"
             />
 
             {/* Date */}
@@ -124,7 +124,7 @@ const assemblies = Array.isArray(assembliesRaw)
               value={dateFilter}
               onChange={setDateFilter}
               options={["TODAY", "YESTERDAY", "THIS_WEEK", "THIS_MONTH"]}
-              width="min-w-[180px]"
+              width="w-full sm:w-[180px]"
             />
 
             {/* Status */}
@@ -133,7 +133,7 @@ const assemblies = Array.isArray(assembliesRaw)
               value={statusFilter}
               onChange={setStatusFilter}
               options={["ALL", "CHECKED", "UN-CHECKED"]}
-              width="min-w-[180px]"
+              width="w-full sm:w-[180px]"
             />
 
             {/* Result */}
@@ -142,7 +142,7 @@ const assemblies = Array.isArray(assembliesRaw)
               value={resultFilter}
               onChange={setResultFilter}
               options={["ALL", "ERROR", "RESOLVED"]}
-              width="min-w-[180px]"
+              width="w-full sm:w-[180px]"
             />
 
             {/* Reset */}
@@ -154,7 +154,7 @@ const assemblies = Array.isArray(assembliesRaw)
                 setResultFilter("ALL");
                 setPage(1);
               }}
-              className="h-[42px] px-5 cursor-pointer rounded-xl border border-slate-300 text-sm font-semibold
+              className="h-[42px] px-5 w-full sm:w-auto cursor-pointer rounded-xl border border-slate-300 text-sm font-semibold
       text-slate-600 hover:bg-slate-100 transition"
             >
               Reset
@@ -164,7 +164,7 @@ const assemblies = Array.isArray(assembliesRaw)
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+          <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-900">
@@ -179,7 +179,7 @@ const assemblies = Array.isArray(assembliesRaw)
               </div>
             </div>
           </div>
-          <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+          <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-900">Item Checked</p>
@@ -192,7 +192,7 @@ const assemblies = Array.isArray(assembliesRaw)
               </div>
             </div>
           </div>
-          <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+          <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-900">Item Unchecked</p>
@@ -205,7 +205,7 @@ const assemblies = Array.isArray(assembliesRaw)
               </div>
             </div>
           </div>
-          <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+          <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-slate-900">Item Errors</p>
@@ -223,7 +223,7 @@ const assemblies = Array.isArray(assembliesRaw)
         {/* Main Grid */}
         <div className="bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden">
           {/* Table Header */}
-          <div className="px-6 py-4 border-b border-slate-200">
+          <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200">
             <h3 className="text-lg font-semibold text-slate-900">
               Assembly Line Overview
             </h3>
@@ -236,28 +236,28 @@ const assemblies = Array.isArray(assembliesRaw)
             <table className="min-w-full text-sm">
               <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
                 <tr>
-                  <th className="px-6 py-4 text-left font-semibold text-slate-700 tracking-wide">Assembly</th>
-                  <th className="px-6 py-4 text-left font-semibold text-slate-700 tracking-wide">Company</th>
-                  <th className="px-6 py-4 text-left font-semibold text-slate-700 tracking-wide hidden md:table-cell">Plant</th>
-                  <th className="px-6 py-4 text-left font-semibold text-slate-700 tracking-wide">Status</th>
-                  <th className="px-6 py-4 text-left font-semibold text-slate-700 tracking-wide">Actions</th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Assembly</th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Company</th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide hidden md:table-cell">Plant</th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Status</th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {currentTableData.map((row) => (
                   <tr key={row.id} className="hover:bg-blue-50/50 transition duration-200 group">
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3 sm:px-6 sm:py-4">
                       <div className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
                         {row.assemblyNumber} / {row.assemblyName}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3 sm:px-6 sm:py-4">
                       <div className="text-slate-900">{row.companyName}</div>
                     </td>
-                    <td className="px-6 py-4 hidden md:table-cell">
+                    <td className="px-4 py-3 sm:px-6 sm:py-4 hidden md:table-cell">
                       <div className="text-slate-900">{row.plantName}</div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3 sm:px-6 sm:py-4">
                       <span
                         className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-sm ${
                           row.status === "CHECKED"
@@ -273,7 +273,7 @@ const assemblies = Array.isArray(assembliesRaw)
                         {row.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3 sm:px-6 sm:py-4">
                       <button
                         onClick={() => {
                           setSelectedAssembly(row.raw);
