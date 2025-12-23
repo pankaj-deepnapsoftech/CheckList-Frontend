@@ -219,7 +219,7 @@ export default function AssemblyLine() {
           <Refresh />
         ) : (
           <div className="overflow-x-auto rounded-xl border border-gray-200">
-            <table className="w-full min-w-[800px] text-left">
+            <table className="w-full min-w-[800px] text-left whitespace-nowrap">
               <thead>
                 <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
                   <th className="px-5 py-3 font-semibold">Assembly Line No.</th>
