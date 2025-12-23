@@ -126,7 +126,7 @@ export default function AssemblyError() {
           </div>
 
           <div className="overflow-x-auto hidden sm:block">
-            <table className="min-w-full text-sm">
+            <table className="min-w-full text-sm whitespace-nowrap">
               <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
                 <tr>
                   <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Severity</th>
