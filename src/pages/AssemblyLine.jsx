@@ -230,43 +230,43 @@ export default function AssemblyLine() {
                   </span>
 
                   <div className="flex gap-4 justify-center">
-                        
-                        <Eye
-                          onClick={() => {
-                            setSelectedItem(asl);
-                            setViewOpen(true);
-                          }}
-                          size={18}
-                          className="text-blue-500 cursor-pointer"
-                        />
-                        <Edit2
-                          onClick={() => openModalHandler("edit", asl)}
-                          size={18}
-                          className="text-green-600 cursor-pointer"
-                        />
-                        <Trash2
-                          onClick={() => handleDelete(asl._id)}
-                          size={18}
-                          className="text-red-500 cursor-pointer"
-                        />
-                      </div>
+
+                    <Eye
+                      onClick={() => {
+                        setSelectedItem(asl);
+                        setViewOpen(true);
+                      }}
+                      size={18}
+                      className="text-blue-500 cursor-pointer"
+                    />
+                    <Edit2
+                      onClick={() => openModalHandler("edit", asl)}
+                      size={18}
+                      className="text-green-600 cursor-pointer"
+                    />
+                    <Trash2
+                      onClick={() => handleDelete(asl._id)}
+                      size={18}
+                      className="text-red-500 cursor-pointer"
+                    />
+                  </div>
                 </div>
 
                 <div className="mt-3 text-sm flex flex-col text-gray-600 space-y-1">
                   <p className="max-w-[300px] truncate">
-                    <strong>Company:</strong> {asl?.company_id?.company_name} 
+                    <strong>Company:</strong> {asl?.company_id?.company_name}
                   </p>
                   <p>
-                    <strong>Plant:</strong> { asl?.plant_id?.plant_name}
+                    <strong>Plant:</strong> {asl?.plant_id?.plant_name}
                   </p>
                   <p className="max-w-[300px] truncate">
-                    <strong>Process Count:</strong> { asl.process_id.length}
+                    <strong>Process Count:</strong> {asl.process_id.length}
                   </p>
                   <button
-                          onClick={() => openModalHandler("assign", asl)}
-                          className="px-3 py-1 bg-blue-600 text-white text-[13px] font-semibold rounded-lg shadow hover:bg-blue-700 transition max-w-16 self-end"
-                        >
-                          Assign
+                    onClick={() => openModalHandler("assign", asl)}
+                    className="px-3 py-1 bg-blue-600 text-white text-[13px] font-semibold rounded-lg shadow hover:bg-blue-700 transition max-w-16 self-end"
+                  >
+                    Assign
                   </button>
                 </div>
               </div>
@@ -302,34 +302,17 @@ export default function AssemblyLine() {
                       </span>
                     </td>
                     <td className="px-5 py-4 text-sm text-nowrap">
-                    
-            {item?.process_id?.length > 3 ? (
-               <span
-                title={item.process_id
-                  .map(p => `${p.process_name} (${p.process_no})`)
-                  .join(', ')}
-                  className="break-all"
-                  >
-            {item.process_id
-              .slice(0, 3)
-              .map(p =>
-               p.process_name.length > 12
-               ? p.process_name.slice(0, 12) + "..."
-              : p.process_name
-               )
-            .join(', ')}{" "}
-            + {item.process_id.length - 3} more
-          </span>
-        ) : (
-    item.process_id.map(p => (
-      <p key={p._id}>
-        {p.process_name.length > 10
-          ? p.process_name.slice(0, 12) + "..."
-          : p.process_name}{" "}
-        ({p.process_no})
-      </p>
-    ))
-  )}
+
+                      <div className="space-y-1">
+                        {item?.process_id?.map((p) => (
+                          <p key={p._id}>
+                            {p.process_name.length > 12
+                              ? p.process_name.slice(0, 12) + "..."
+                              : p.process_name}{" "}
+                            ({p.process_no})
+                          </p>
+                        ))}
+                      </div>
 
                     </td>
                     <td className="px-5 py-4 text-sm">{item?.company_id?.company_name}</td>
@@ -343,7 +326,7 @@ export default function AssemblyLine() {
 
                     <td className="px-5 py-4 flex flex-col gap-3 h- justify-center ">
                       <div className="flex gap-4 justify-center">
-                        
+
                         <Eye
                           onClick={() => {
                             setSelectedItem(item);
@@ -364,11 +347,11 @@ export default function AssemblyLine() {
                         />
                       </div>
                       <button
-                          onClick={() => openModalHandler("assign", item)}
-                          className="px-3 py-1 bg-blue-600 text-white text-[13px] font-semibold rounded-lg shadow hover:bg-blue-700 transition"
-                        >
-                          Assign
-                        </button>
+                        onClick={() => openModalHandler("assign", item)}
+                        className="px-3 py-1 bg-blue-600 text-white text-[13px] font-semibold rounded-lg shadow hover:bg-blue-700 transition"
+                      >
+                        Assign
+                      </button>
                     </td>
                   </tr>
                 ))}

@@ -6,22 +6,22 @@ export default function Layout({ children }) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen w-full bg-gray-50">
-     
+    <div className="flex h-screen w-full bg-gray-50 ">
+   
       <Sidebar
         isMobileOpen={isMobileOpen}
         setIsMobileOpen={setIsMobileOpen}
       />
-
-    
+      
       <div className="flex flex-col flex-1 min-w-0">
-    
-        <Navbar
-          isMobileOpen={isMobileOpen}
-          onMenuClick={() => setIsMobileOpen(!isMobileOpen)}
-        />
-
-        <main className="flex-1  overflow-y-auto p-4">
+        <div className="sticky top-0 z-50">
+          <Navbar
+            isMobileOpen={isMobileOpen}
+            onMenuClick={() => setIsMobileOpen(!isMobileOpen)}
+          />
+        </div>
+      
+        <main className="flex-1 overflow-y-auto p-4">
           {children}
         </main>
       </div>
