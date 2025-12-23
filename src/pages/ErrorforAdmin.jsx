@@ -1,10 +1,15 @@
 import React, { useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, Pencil, X, OctagonAlert } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Pencil,
+  X,
+  OctagonAlert,
+} from "lucide-react";
 import { useAssemblyLineError } from "../hooks/useAssemblyLineError";
 import AddErrorModal from "../components/modal/addModal/AddErrorModal";
 
 export default function AssemblyError() {
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedError, setSelectedError] = useState(null);
 
@@ -56,7 +61,7 @@ export default function AssemblyError() {
               {errors.filter((e) => e?.is_error).length}
             </p>
           </div>
-          
+
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <p className="text-xs font-medium text-slate-600">Total Records</p>
             <p className="text-3xl font-bold text-slate-900 mt-1">
@@ -171,9 +176,6 @@ export default function AssemblyError() {
                   <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
                     Updated
                   </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -261,15 +263,7 @@ export default function AssemblyError() {
                     <td className="px-4 py-3 sm:px-6 sm:py-4">
                       {formatDateShort(row?.updatedAt)}
                     </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      <button
-                        onClick={() => handleUpdateClick(row)}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 cursor-pointer rounded-xl transition-all duration-200 shadow-sm"
-                      >
-                        <Pencil size={14} />
-                        Update
-                      </button>
-                    </td>
+                   
                   </tr>
                 ))}
                 {errors.length === 0 && (
@@ -296,8 +290,6 @@ export default function AssemblyError() {
     </div>
   );
 }
-
-
 
 function Info({ label, value }) {
   return (

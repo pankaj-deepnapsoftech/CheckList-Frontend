@@ -18,7 +18,8 @@ import { useUserRole } from "../../../hooks/useUserRole";
    "Check Item": "/checkitem",
    "CheckItem Data": "/checkitem-data",
    "Assembly Line Status": "/assembly-line-status",
-   "Assigned Assembly Lines": "/assigned-assembly-lines"
+   "Assigned Assembly Lines": "/assigned-assembly-lines",
+   "Assembly Line Error": "/assembly-line/error",
  };
 
 const SIDEBAR_PAGES = Object.keys(PERMISSION_MAP);
