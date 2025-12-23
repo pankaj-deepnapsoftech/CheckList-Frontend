@@ -49,7 +49,8 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: "Inspection-Data",
       path: "/checkitem-data",
       icon: <ChevronsLeftRightEllipsis size={20} />,
-    },{
+    },
+    !IsSuper && {
       name: "Assigned Assembly Lines",
       path: "/assigned-assembly-lines",
       icon: <Airplay size={20} />
@@ -59,7 +60,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       path: "/assembly-line-status",
       icon: <ChartNoAxesCombined size={20} />,
     },
-  ];
+  ].filter(Boolean);
 
   const allowedMenu = IsSuper
     ? allMenu
@@ -99,7 +100,8 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 to={item.path}
                 end
                 className={({ isActive }) =>
-                  `flex items-center gap-3 p-2 rounded-lg transition-all                   ${
+                  `flex items-center gap-3 p-2 rounded-lg transition-all whitespace-nowrap
+                  ${
                     isActive
                       ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
                       : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
