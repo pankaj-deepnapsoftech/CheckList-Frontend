@@ -1,15 +1,15 @@
 import React from "react";
 import { Clock } from "lucide-react";
+import { OctagonAlert, CircleCheckBig } from "lucide-react";
+
+
 
 const AssemblyLineCards = ({ AssemblyLines = [] }) => {
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "Checked":
-        return "bg-green-500 text-white";
-      case "Unchecked":
-        return "bg-red-500 text-white";
-      default:
-        return "bg-gray-400 text-white";
+  const getStatusClass = (isError) => {
+    if(isError){
+      return "text-red-500 bg-red-100 p-4 border rounded-xl"
+    }else{
+      return "text-green-500 bg-green-100 p-3 border rounded-xl"
     }
   };
 
@@ -136,24 +136,34 @@ const ChecklistItem = ({ index, check, getStatusClass }) => {
       {/* Checklist History */}
       {check.check_items_history?.length > 0 ? (
         <div className="mt-2">
-          <span className="text-blue-400 font-semibold text-sm">History:</span>
-          <ul className="list-disc list-inside text-gray-700 text-sm mt-1 space-y-1">
+          <span className="text-blue-400 font-semibold text-sm ">History:</span>
+          <ul className="list-disc list-inside text-gray-700 text-sm mt-3 space-y-2">
             {check.check_items_history.map((hist) => (
               <li key={hist._id} className="flex flex-wrap items-center gap-2">
                 <span
                   className={`px-2 py-0.5 rounded text-xs font-semibold ${getStatusClass(
-                    hist.status || hist.result
+                    hist.is_error
                   )}`}
                 >
-                  {hist.status || hist.result}
+                  {hist.is_error ? (
+                    <span className="flex items-center gap-1 text-xs text-red-600 font-medium">
+                    <OctagonAlert size={14} />
+                      Error Found
+                    </span>
+                      ) : (
+                         <span className="flex items-center gap-1 text-green-600 font-medium">
+                           <CircleCheckBig size={14} />
+                             Checked
+                        </span>
+                      )}
                 </span>
                 <span
                   className={`${
-                    hist.is_error ? "text-red-600 font-semibold" : "text-blue-400 font-semibold animate-pulse"
+                    hist.is_error ? "text-red-600 text-xs font-semibold" : "text-blue-400 font-semibold "
                   }`}
                 >
                   {" "}
-                  - {hist.result} {hist.description}
+                   {hist.description}
                 </span>
               </li>
             ))}
