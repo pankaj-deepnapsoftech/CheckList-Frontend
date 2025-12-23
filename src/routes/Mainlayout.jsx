@@ -16,7 +16,7 @@ export default function Layout({ children }) {
           onMenuClick={() => setIsMobileOpen(!isMobileOpen)}
         />
         
-        <main className="flex-1 p-2 overflow-y-auto bg-gray-50">
+        <main className="flex-1 p-3 overflow-y-auto bg-gray-50">
          {children}
         </main>
       </div>
