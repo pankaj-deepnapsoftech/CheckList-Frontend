@@ -49,7 +49,8 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: "Inspection-Data",
       path: "/checkitem-data",
       icon: <ChevronsLeftRightEllipsis size={20} />,
-    },{
+    },
+    !IsSuper && {
       name: "Assigned Assembly Lines",
       path: "/assigned-assembly-lines",
       icon: <Airplay size={20} />
@@ -59,7 +60,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       path: "/assembly-line-status",
       icon: <ChartNoAxesCombined size={20} />,
     },
-  ];
+  ].filter(Boolean);
 
   const allowedMenu = IsSuper
     ? allMenu

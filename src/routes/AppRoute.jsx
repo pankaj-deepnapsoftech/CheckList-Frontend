@@ -60,7 +60,7 @@ export const AppRoute = () => {
       element: withProtection(CheckItemHistory),
     }, {
       path: "/assigned-assembly-lines",
-      element: withProtection(AssignedAssemblyLines)
+      element: withProtection(!user?.is_admin && AssignedAssemblyLines)
     },
     { path: "/*", element: <PageNotFound /> },
   ]);

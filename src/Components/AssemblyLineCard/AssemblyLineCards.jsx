@@ -33,7 +33,7 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
               {asl.process_id?.map((proc) => (
                 <span
                   key={proc._id}
-                  className="inline-block bg-white text-blue-400 text-sm rounded-full px-3 py-1 mr-2 cursor-default select-none"
+                  className="inline-block bg-white text-blue-400 text-sm rounded-full px-3 py-1 m-2 cursor-default select-none"
                 >
                   {proc.process_name} ({proc.process_no})
                 </span>
