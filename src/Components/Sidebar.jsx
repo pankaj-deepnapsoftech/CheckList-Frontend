@@ -99,8 +99,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 to={item.path}
                 end
                 className={({ isActive }) =>
-                  `flex items-center gap-3 p-2 rounded-lg transition-all whitespace-nowrap
-                  ${
+                  `flex items-center gap-3 p-2 rounded-lg transition-all                   ${
                     isActive
                       ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
                       : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
