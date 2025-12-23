@@ -110,86 +110,98 @@ export default function AssemblyLine() {
       </div>
 
       {/* Search and Buttons */}
-      <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
-          <Search size={20} className="text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search assembly line..."
-            className="w-full outline-none text-gray-700"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+      <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col gap-4">
 
+  {/* MAIN ROW */}
+  <div className="flex flex-wrap items-center gap-4">
 
-          <select
-            value={selectedCompany}
-            onChange={(e) => setSelectedCompany(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          >
-            <option value="">All Companies</option>
-            {companyOptions.map((company) => (
-              <option key={company._id} value={company._id}>
-                {company.company_name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={selectedPlant}
-            onChange={(e) => setSelectedPlant(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          >
-            <option value="">All Plants</option>
-            {plantOptions.map((plant, i) => (
-              <option key={i} value={plant?._id}>
-                {plant?.plant_name}
-              </option>
-            ))}
-          </select>
-          <select
-            value={selectedResponsible}
-            onChange={(e) => setSelectedResponsible(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          >
-            <option value="">All Responsible</option>
-            {responsibleOptions.map((responsible) => (
-              <option key={responsible?._id} value={responsible?._id}>
-                {responsible.full_name}
-              </option>
-            ))}
-          </select>
-          {/* Process Filter */}
-          <select
-            value={selectedProcess}
-            onChange={(e) => setSelectedProcess(e.target.value)}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-          >
-            <option value="">All Processes</option>
-            {processOptions.map((process) => (
-              <option key={process._id} value={process._id}>
-                {process.process_name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3">
-          <button
-            onClick={() => openModalHandler("add")}
-            className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
-          >
-            <Plus size={18} /> Add New Assembly
-          </button>
+    {/* Search */}
+    <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2 min-w-0">
+      <Search size={20} className="text-gray-500 shrink-0" />
+      <input
+        type="text"
+        placeholder="Search assembly line..."
+        className="w-full outline-none text-gray-700 min-w-0"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+    </div>
 
-          <button
-            onClick={handleRefresh}
-            className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
-          >
-            <RefreshCw size={18} /> Refresh
-          </button>
-        </div>
-      </div>
+    {/* Filters */}
+    <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+      <select
+        value={selectedCompany}
+        onChange={(e) => setSelectedCompany(e.target.value)}
+        className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-[180px]"
+      >
+        <option value="">All Companies</option>
+        {companyOptions.map((company) => (
+          <option key={company._id} value={company._id}>
+            {company.company_name}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={selectedPlant}
+        onChange={(e) => setSelectedPlant(e.target.value)}
+        className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-[180px]"
+      >
+        <option value="">All Plants</option>
+        {plantOptions.map((plant, i) => (
+          <option key={i} value={plant?._id}>
+            {plant?.plant_name}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={selectedResponsible}
+        onChange={(e) => setSelectedResponsible(e.target.value)}
+        className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-[180px]"
+      >
+        <option value="">All Responsible</option>
+        {responsibleOptions.map((responsible) => (
+          <option key={responsible?._id} value={responsible?._id}>
+            {responsible.full_name}
+          </option>
+        ))}
+      </select>
+
+      <select
+        value={selectedProcess}
+        onChange={(e) => setSelectedProcess(e.target.value)}
+        className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-[180px]"
+      >
+        <option value="">All Processes</option>
+        {processOptions.map((process) => (
+          <option key={process._id} value={process._id}>
+            {process.process_name}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* Buttons */}
+    <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+      <button
+        onClick={() => openModalHandler("add")}
+        className="bg-blue-500 text-white px-4 py-2 w-full sm:w-auto rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600"
+      >
+        <Plus size={18} /> Add New Assembly
+      </button>
+
+      <button
+        onClick={handleRefresh}
+        className="border border-gray-300 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
+      >
+        <RefreshCw size={18} /> Refresh
+      </button>
+    </div>
+
+  </div>
+</div>
+
 
       {/* Table */}
       <div className="relative min-h-[300px] bg-white rounded-2xl shadow-md border border-gray-100 mt-6 p-5">
