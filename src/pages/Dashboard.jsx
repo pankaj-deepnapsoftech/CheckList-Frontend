@@ -32,7 +32,6 @@ const LINE_TREND = [
 const DONUT_DATA = [
   { label: "Checked", value: 120, color: "#22c55e" },
   { label: "Unchecked", value: 40, color: "#eab308" },
-  { label: "In Progress", value: 25, color: "#3b82f6" },
 ];
 
 const ASSEMBLY_BAR = [
@@ -559,7 +558,7 @@ export default function ChecklistDashboard() {
     },
   ];
 
-  const defectLines = [  
+  const defectLines = [
     { label: "Line 1000B", faults: 12 },
     { label: "Line 5000", faults: 10 },
     { label: "Line 1000A", faults: 9 },
@@ -986,8 +985,9 @@ export default function ChecklistDashboard() {
               </div>
             </div>
 
-            {/* Donut + Error KPIs + only Top Defect Lines */}
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
+            {/* Donut + Error KPIs + Top Defect Lines */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-6 min-h-[450px]">
+              {/* Header */}
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-800">
@@ -1004,13 +1004,15 @@ export default function ChecklistDashboard() {
                 </select>
               </div>
 
-              <div className="flex items-center gap-4">
+              {/* Donut */}
+              <div className="flex flex-col items-center gap-4">
                 <div className="relative">
                   <Tooltip
                     x={donutHover.x}
                     y={donutHover.y}
                     text={donutHover.text}
                   />
+
                   <svg width="140" height="140" viewBox="0 0 32 32">
                     {(() => {
                       let cum = 0;
@@ -1022,7 +1024,7 @@ export default function ChecklistDashboard() {
                         return (
                           <path
                             key={i}
-                            d={describeArc(16, 16, 13, start, end)}
+                            d={describeArc(16, 16, 14, start, end)}
                             fill={s.color}
                             onMouseMove={(ev) => {
                               const rect =
@@ -1034,13 +1036,7 @@ export default function ChecklistDashboard() {
                               setDonutHover({
                                 x: rect.left + rect.width / 2,
                                 y: rect.top,
-                                text:
-                                  s.label +
-                                  ": " +
-                                  s.value +
-                                  " (" +
-                                  percent +
-                                  "%)",
+                                text: `${s.label}: ${s.value} (${percent}%)`,
                               });
                             }}
                             onMouseLeave={() =>
@@ -1050,23 +1046,36 @@ export default function ChecklistDashboard() {
                         );
                       });
                     })()}
-                    <circle cx="16" cy="16" r="7" fill="white" />
+
+                    {/* Inner cut */}
+                    <circle cx="16" cy="16" r="9" fill="white" />
+
+                    {/* Center text */}
                     <text
                       x="16"
-                      y="16"
+                      y="14.8"
                       textAnchor="middle"
-                      dominantBaseline="central"
-                      className="fill-slate-800 text-[6px]"
+                      className="fill-slate-900 text-[6.5px] font-semibold"
                     >
                       {donutTotal}
                     </text>
+                    <text
+                      x="16"
+                      y="18.6"
+                      textAnchor="middle"
+                      className="fill-slate-400 text-[2px]"
+                    >
+                      Total Inspections
+                    </text>
                   </svg>
                 </div>
-                <div className="flex-1 space-y-2">
+
+                {/* Checked / Unchecked cards */}
+                <div className="w-full space-y-2">
                   {DONUT_DATA.map((s) => (
                     <div
                       key={s.label}
-                      className="flex items-center justify-between"
+                      className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
                     >
                       <div className="flex items-center gap-2">
                         <span
@@ -1077,15 +1086,23 @@ export default function ChecklistDashboard() {
                           {s.label}
                         </span>
                       </div>
-                      <span className="text-xs text-slate-500">
-                        {s.value} items
-                      </span>
+
+                      <div className="text-right">
+                        <div
+                          className="text-sm font-semibold"
+                          style={{ color: s.color }}
+                        >
+                          {s.value}
+                        </div>
+                        <div className="text-[10px] text-slate-400">items</div>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-xs">
+              {/* Error KPIs */}
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
                 <MiniKPI
                   label="Total Errors"
                   value="32"
@@ -1098,24 +1115,21 @@ export default function ChecklistDashboard() {
                     <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
                   }
                 />
+                <MiniKPI label="Resolved" value="23" icon={<CheckIcon />} />
                 <MiniKPI
-                  label="Resolved Errors"
-                  value="23"
-                  icon={<CheckIcon />}
-                />
-                <MiniKPI
-                  label="Avg Resolution Time"
+                  label="Avg Resolution"
                   value="2.4h"
                   icon={<Clock3 className="w-3.5 h-3.5 text-sky-500" />}
                 />
               </div>
 
-              <div className="pt-1 border-t border-slate-100">
+              {/* Top Defect Lines */}
+              <div className="pt-3 border-t border-slate-100">
                 <p className="mb-2 text-[11px] font-semibold text-slate-700">
                   Top Defect Lines
                 </p>
                 <div className="space-y-2">
-                  {defectLines.map((d) => (
+                  {defectLines.slice(0, 4).map((d) => (
                     <MiniBar
                       key={d.label}
                       label={d.label}
