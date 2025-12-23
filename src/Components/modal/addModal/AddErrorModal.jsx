@@ -19,15 +19,14 @@ export default function AddErrorModal({
 
   const formik = useFormik({
     initialValues: {
-      is_error: data?.is_error ?? true, // Default to error if undefined
+      is_error: data?.is_error ?? true, 
       description: data?.description || "",
       result: data?.result || "",
     },
     enableReinitialize: true,
     validationSchema,
     onSubmit: (values) => {
-      // If is_error is toggled, we might want to sync result for consistency
-      // For yesno: Error -> "no", Resolved -> "yes"
+    
       let resultValue = values.result;
       if (data?.checkList?.result_type === "yesno") {
         resultValue = values.is_error ? "no" : "yes";
