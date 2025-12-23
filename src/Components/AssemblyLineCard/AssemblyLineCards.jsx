@@ -1,15 +1,13 @@
 import React from "react";
 import { Clock } from "lucide-react";
+import { OctagonAlert, CircleCheckBig } from "lucide-react";
 
 const AssemblyLineCards = ({ AssemblyLines = [] }) => {
-  const getStatusClass = (status) => {
-    switch (status) {
-      case "Checked":
-        return "bg-green-500 text-white";
-      case "Unchecked":
-        return "bg-red-500 text-white";
-      default:
-        return "bg-gray-400 text-white";
+  const getStatusClass = (isError) => {
+    if (isError) {
+      return "text-red-500 bg-red-100 p-4 border rounded-xl";
+    } else {
+      return "text-green-500 bg-green-100 p-3 border rounded-xl";
     }
   };
 
@@ -33,7 +31,7 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
               {asl.process_id?.map((proc) => (
                 <span
                   key={proc._id}
-                  className="inline-block bg-white text-blue-400 text-sm rounded-full px-3 py-1 mr-2 cursor-default select-none"
+                  className="inline-block bg-white text-blue-400 text-sm rounded-full px-3 py-1 m-2 cursor-default select-none"
                 >
                   {proc.process_name} ({proc.process_no})
                 </span>
@@ -50,7 +48,8 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
               content={
                 <div>
                   <span className="font-semibold text-blue-400 cursor-pointer hover:underline">
-                    {asl.responsibility?.full_name} ({asl.responsibility?.user_id})
+                    {asl.responsibility?.full_name} (
+                    {asl.responsibility?.user_id})
                   </span>
                   <br />
                   <span className="text-gray-500 text-sm">
@@ -95,17 +94,16 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
 
 const InfoCard = ({ title, content }) => (
   <div className="bg-white rounded-md shadow-sm p-4 w-64 min-w-[250px]">
-    <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">{title}</p>
+    <p className="text-gray-400 text-xs uppercase tracking-wide mb-1">
+      {title}
+    </p>
     <div className="text-lg font-semibold text-gray-600">{content}</div>
   </div>
 );
 
 const ChecklistItem = ({ index, check, getStatusClass }) => {
   return (
-    <div
-      className="bg-blue-50 rounded-md p-3 mb-3"
-      key={check._id}
-    >
+    <div className="bg-blue-50 rounded-md p-3 mb-3" key={check._id}>
       <div className="flex justify-between items-center">
         <div>
           <p className="font-semibold text-gray-600">
@@ -114,15 +112,17 @@ const ChecklistItem = ({ index, check, getStatusClass }) => {
           <p className="text-blue-400 text-sm">
             Method: {check.check_list_method}
           </p>
-          {(check.min !== undefined || check.max !== undefined || check.uom) && (
+          {(check.min !== undefined ||
+            check.max !== undefined ||
+            check.uom) && (
             <p className="text-blue-400 text-sm ">
-            {check.min !== undefined && (
+              {check.min !== undefined && (
                 <span className="mr-4">Min: {check.min}</span>
-                 )}
-                 {check.max !== undefined && (
+              )}
+              {check.max !== undefined && (
                 <span className="mr-4">Max: {check.max}</span>
-                )}
-                {check.uom && <span>UOM: {check.uom}</span>}
+              )}
+              {check.uom && <span>UOM: {check.uom}</span>}
             </p>
           )}
         </div>
@@ -136,24 +136,36 @@ const ChecklistItem = ({ index, check, getStatusClass }) => {
       {/* Checklist History */}
       {check.check_items_history?.length > 0 ? (
         <div className="mt-2">
-          <span className="text-blue-400 font-semibold text-sm">History:</span>
-          <ul className="list-disc list-inside text-gray-700 text-sm mt-1 space-y-1">
+          <span className="text-blue-400 font-semibold text-sm ">History:</span>
+          <ul className="list-disc list-inside text-gray-700 text-sm mt-3 space-y-2">
             {check.check_items_history.map((hist) => (
               <li key={hist._id} className="flex flex-wrap items-center gap-2">
                 <span
                   className={`px-2 py-0.5 rounded text-xs font-semibold ${getStatusClass(
-                    hist.status || hist.result
+                    hist.is_error
                   )}`}
                 >
-                  {hist.status || hist.result}
+                  {hist.is_error ? (
+                    <span className="flex items-center gap-1 text-xs text-red-600 font-medium">
+                      <OctagonAlert size={14} />
+                      Error Found
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 text-green-600 font-medium">
+                      <CircleCheckBig size={14} />
+                      Checked
+                    </span>
+                  )}
                 </span>
                 <span
                   className={`${
-                    hist.is_error ? "text-red-600 font-semibold" : "text-blue-400 font-semibold animate-pulse"
+                    hist.is_error
+                      ? "text-red-600 text-xs font-semibold"
+                      : "text-blue-400 font-semibold "
                   }`}
                 >
                   {" "}
-                  - {hist.result} {hist.description}
+                  {hist.description}
                 </span>
               </li>
             ))}

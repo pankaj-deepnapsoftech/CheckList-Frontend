@@ -19,16 +19,14 @@ import CheckItemsData from "../pages/CheckItemsData";
 import CheckItemHistory from "../pages/CheckItemHistory";
 import AssignedAssemblyLines from "../pages/AssignedAssemblyLines";
 import UserDashboard from "../pages/UserDashboard";
-
-
+import AssemblyError from "../pages/AssemblyError";
+import ErrorforAdmin  from "../pages/ErrorforAdmin";
 
 export const AppRoute = () => {
   const { logedinUser } = useLogin();
 
   const user = logedinUser.data;
   const isLoading = logedinUser.isLoading;
-
-
 
   const withProtection = (Component) => (
     <ProtectedRoute user={user} isLoading={isLoading}>
@@ -41,7 +39,10 @@ export const AppRoute = () => {
   return useRoutes([
     { path: "/login", element: <Login /> },
     { path: "/forgot-password", element: <ForgetPassword /> },
-    { path: "/", element: withProtection(user?.is_admin ? Dashboard : UserDashboard) },
+    {
+      path: "/",
+      element: withProtection(user?.is_admin ? Dashboard : UserDashboard),
+    },
     { path: "/user-role", element: withProtection(UserRoles) },
     { path: "/process", element: withProtection(Process) },
     { path: "/parts", element: withProtection(Parts) },
@@ -53,14 +54,22 @@ export const AppRoute = () => {
       path: "/assembly-line-status",
       element: withProtection(AssemblyLineStatus),
     },
+    user?.is_admin === false && {
+      path: "/assembly-line/error",
+      element: withProtection(AssemblyError),
+    },
+
+    {path: "/assembly-line-admin/error", element: withProtection(ErrorforAdmin)},
+
     { path: "/checkitem", element: withProtection(CheckItem) },
     { path: "/checkitem-data", element: withProtection(CheckItemsData) },
     {
       path: "/check-item-history",
       element: withProtection(CheckItemHistory),
-    }, {
+    },
+    {
       path: "/assigned-assembly-lines",
-      element: withProtection(AssignedAssemblyLines)
+      element: withProtection(!user?.is_admin && AssignedAssemblyLines)
     },
     { path: "/*", element: <PageNotFound /> },
   ]);
