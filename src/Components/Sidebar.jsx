@@ -13,13 +13,14 @@ import {
   LaptopMinimalCheck,
   GitCompare,
   ChevronsLeftRightEllipsis,
-  Airplay
+  Airplay,
+  AlertOctagon,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const { logedinUser } = useLogin();
-
+  const user = logedinUser.data;
   const permissions = logedinUser?.data?.role?.permissions || [];
   const IsSuper = logedinUser?.data?.is_admin === true;
   const closeMobile = () => setIsMobileOpen(false);
@@ -49,17 +50,31 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: "Inspection-Data",
       path: "/checkitem-data",
       icon: <ChevronsLeftRightEllipsis size={20} />,
-    },{
+    },
+    {
       name: "Assigned Assembly Lines",
       path: "/assigned-assembly-lines",
-      icon: <Airplay size={20} />
+      icon: <Airplay size={20} />,
     },
     {
       name: "Inspection Status",
       path: "/assembly-line-status",
       icon: <ChartNoAxesCombined size={20} />,
     },
-  ];
+    {
+      name: "Assembly Line Error",
+      path: "/assembly-line-admin/error",
+      icon: <AlertOctagon size={20} />,
+    },
+    user?.is_admin === false
+      ? {
+          name: "Assembly Line Error",
+          path: "/assembly-line/error",
+          icon: <AlertOctagon size={20} />,
+        }
+      : null,
+  ].filter(Boolean);
+  ;
 
   const allowedMenu = IsSuper
     ? allMenu
