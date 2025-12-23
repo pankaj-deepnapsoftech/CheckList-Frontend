@@ -570,7 +570,7 @@ export default function ChecklistDashboard() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Sticky Header + Filters */}
-      <div className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/90 backdrop-blur">
+      <div className="border-b border-slate-200/70 bg-white/90 backdrop-blur">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8 flex flex-col gap-3">
           <header className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
