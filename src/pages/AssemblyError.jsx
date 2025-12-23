@@ -56,7 +56,7 @@ export default function AssemblyError() {
               {errors.filter((e) => e?.is_error).length}
             </p>
           </div>
-          
+
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <p className="text-xs font-medium text-slate-600">Total Records</p>
             <p className="text-3xl font-bold text-slate-900 mt-1">
@@ -134,7 +134,7 @@ export default function AssemblyError() {
             ))}
           </div>
 
-          <div className="overflow-x-auto hidden sm:block">
+          <div className="overflow-x-auto m-2 hidden border border-gray-100 rounded-xl sm:block">
             <table className="min-w-full text-sm whitespace-nowrap">
               <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
                 <tr>
