@@ -525,8 +525,6 @@ export default function ChecklistDashboard() {
 
   const { getAssemblyCardsData } = useCheckItemHistory();
 
-  console.log("HJGDSKH", cardData);
-
   const summaryCards = [
     {
       title: "Total Assemblies",
@@ -546,7 +544,7 @@ export default function ChecklistDashboard() {
       delta: cardData?.month_difference?.process ?? 0,
       icon: <Filter className="w-4 h-4" />,
     },
-    {
+    { 
       title: "Total Parts",
       value: cardData?.totals?.parts ?? 0,
       delta: cardData?.month_difference?.parts ?? 0,
@@ -951,7 +949,7 @@ export default function ChecklistDashboard() {
                   colorFrom="from-emerald-50"
                   colorTo="to-emerald-100"
                   dotColor="bg-emerald-600"
-                  count={getAssemblyCardsData.data.total_checked || 0}
+                  count={getAssemblyCardsData?.data?.total_checked || 0}
                   percentage={72}
                 />
                 <StatusSummaryCard
@@ -959,7 +957,7 @@ export default function ChecklistDashboard() {
                   colorFrom="from-amber-50"
                   colorTo="to-amber-100"
                   dotColor="bg-amber-500"
-                  count={getAssemblyCardsData.data.total_unchecked || 0}
+                  count={getAssemblyCardsData?.data?.total_unchecked || 0}
                   percentage={18}
                 />
                 <StatusSummaryCard
@@ -967,7 +965,7 @@ export default function ChecklistDashboard() {
                   colorFrom="from-sky-50"
                   colorTo="to-sky-100"
                   dotColor="bg-sky-500"
-                  count={getAssemblyCardsData.data.total_resolved || 0}
+                  count={getAssemblyCardsData?.data?.total_resolved || 0}
                   percentage={65}
                 />
                 <StatusSummaryCard
@@ -975,7 +973,7 @@ export default function ChecklistDashboard() {
                   colorFrom="from-rose-50"
                   colorTo="to-rose-100"
                   dotColor="bg-rose-500"
-                  count={getAssemblyCardsData.data.total_errors || 0}
+                  count={getAssemblyCardsData?.data?.total_errors || 0}
                   percentage={12}
                 />
               </div>
