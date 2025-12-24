@@ -129,7 +129,7 @@ export default function AddErrorModal({
                 Update Status <span className="text-red-500">*</span>
               </label>
               <div className="grid grid-cols-2 gap-4">
-                <button
+                {/* <button
                   type="button"
                   onClick={() => formik.setFieldValue("is_error", true)}
                   className={`
@@ -141,7 +141,7 @@ export default function AddErrorModal({
                 >
                   <AlertOctagon size={24} />
                   <span className="font-semibold">Error</span>
-                </button>
+                </button> */}
 
                 <button
                   type="button"
