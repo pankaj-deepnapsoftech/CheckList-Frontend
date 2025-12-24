@@ -73,3 +73,24 @@ export const useMonthlyInspectionTrend = () => {
     },
   });
 };
+
+export const useAssemblyStatus = () => {
+  return useQuery({
+    queryKey: ["assembly-status"],
+
+    queryFn: async () => {
+      const res = await axiosHandler.get("/dashboard/get-assembly-status");
+      return res?.data?.data || [];
+    },
+
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to load inspection data"
+      );
+    },
+  });
+};
