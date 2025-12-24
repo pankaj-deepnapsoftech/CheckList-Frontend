@@ -69,7 +69,7 @@ export const AppRoute = () => {
     },
     {
       path: "/assigned-assembly-lines",
-      element: withProtection(!user?.is_admin && AssignedAssemblyLines)
+      element: withProtection( AssignedAssemblyLines)
     },
     { path: "/*", element: <PageNotFound /> },
   ]);
