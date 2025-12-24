@@ -88,16 +88,6 @@ const assemblies = Array.isArray(assembliesRaw)
               Real-time production line monitoring & compliance
             </p>
           </div>
-          {/* <div className="flex flex-wrap gap-3">
-            <button className="px-6 py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center cursor-pointer gap-2">
-              <Plus size={20} />
-              New Check
-            </button>
-            <button className="px-6 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl cursor-pointer transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
-              <Download size={20} />
-              Export
-            </button>
-          </div> */}
         </div>
 
         {/* Controls */}
@@ -182,7 +172,9 @@ const assemblies = Array.isArray(assembliesRaw)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Item Checked</p>
+                <p className="text-sm font-medium text-slate-900">
+                  Item Checked
+                </p>
                 <p className="text-3xl font-bold bg-linear-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_checked || 0}
                 </p>
@@ -195,7 +187,9 @@ const assemblies = Array.isArray(assembliesRaw)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Item Unchecked</p>
+                <p className="text-sm font-medium text-slate-900">
+                  Item Unchecked
+                </p>
                 <p className="text-3xl font-bold bg-linear-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_unchecked}
                 </p>
@@ -208,7 +202,9 @@ const assemblies = Array.isArray(assembliesRaw)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Item Errors</p>
+                <p className="text-sm font-medium text-slate-900">
+                  Item Errors
+                </p>
                 <p className="text-3xl font-bold bg-linear-to-r from-red-600 to-red-700 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_errors || 0}
                 </p>
@@ -223,29 +219,56 @@ const assemblies = Array.isArray(assembliesRaw)
         {/* Main Grid */}
         <div className="bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden">
           {/* Table Header */}
-          <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-900">
-              Assembly Line Overview
-            </h3>
-            <p className="text-sm text-slate-500">
-              Assembly, company, plant & current inspection status
-            </p>
+          <div className="px-4 py-3 flex justify-between sm:px-6 sm:py-4 border-b border-slate-200">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900">
+                Assembly Line Overview
+              </h3>
+              <p className="text-sm text-slate-500">
+                Assembly, company, plant & current inspection status
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 text-gray-600">
+              <span>Show:</span>
+              <select
+                className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0"
+                onChange={() => {}}
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={50}>All</option>
+              </select>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
                 <tr>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Assembly</th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Company</th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide hidden md:table-cell">Plant</th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Status</th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Actions</th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                    Assembly
+                  </th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                    Company
+                  </th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide hidden md:table-cell">
+                    Plant
+                  </th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {currentTableData.map((row) => (
-                  <tr key={row.id} className="hover:bg-blue-50/50 transition duration-200 group">
+                  <tr
+                    key={row.id}
+                    className="hover:bg-blue-50/50 transition duration-200 group"
+                  >
                     <td className="px-4 py-3 sm:px-6 sm:py-4">
                       <div className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
                         {row.assemblyNumber} / {row.assemblyName}
@@ -289,13 +312,20 @@ const assemblies = Array.isArray(assembliesRaw)
                 ))}
                 {tableData.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="text-center py-16 text-slate-500">
+                    <td
+                      colSpan={5}
+                      className="text-center py-16 text-slate-500"
+                    >
                       <div className="flex flex-col items-center justify-center gap-3">
-                         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-2">
-                            <Search className="w-8 h-8 text-slate-400" />
-                         </div>
-                         <p className="text-lg font-medium text-slate-600">No assembly data found</p>
-                         <p className="text-sm text-slate-400">Try adjusting your filters or search query</p>
+                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-2">
+                          <Search className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <p className="text-lg font-medium text-slate-600">
+                          No assembly data found
+                        </p>
+                        <p className="text-sm text-slate-400">
+                          Try adjusting your filters or search query
+                        </p>
                       </div>
                     </td>
                   </tr>
@@ -304,11 +334,15 @@ const assemblies = Array.isArray(assembliesRaw)
             </table>
           </div>
         </div>
-        
+
         {/* Pagination */}
         {tableData.length > 0 && (
-          <div >
-            <Pagination page={page} setPage={setPage} hasNextpage={hasNextPage} />
+          <div>
+            <Pagination
+              page={page}
+              setPage={setPage}
+              hasNextpage={hasNextPage}
+            />
           </div>
         )}
       </div>
@@ -317,38 +351,10 @@ const assemblies = Array.isArray(assembliesRaw)
         onClose={() => setOpenHistory(false)}
         data={selectedAssembly}
       />
-
-      <style jsx>{`
-        @keyframes spin-slow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 3s linear infinite;
-        }
-      `}</style>
     </div>
   );
 }
 
-function Metric({ label, value, danger }) {
-  return (
-    <div>
-      <p className="text-xs text-slate-500">{label}</p>
-      <p
-        className={`text-lg font-bold ${
-          danger ? "text-red-600" : "text-slate-900"
-        }`}
-      >
-        {value}
-      </p>
-    </div>
-  );
-}
 
 
 

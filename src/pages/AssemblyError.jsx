@@ -264,10 +264,10 @@ export default function AssemblyError() {
                     <td className="px-4 py-3 sm:px-6 sm:py-4">
                       <button
                         onClick={() => handleUpdateClick(row)}
-                        className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 cursor-pointer rounded-xl transition-all duration-200 shadow-sm"
+                        className="inline-flex items-center gap-1 px-3 py-1 text-xs border border-amber-400 font-bold text-yellow-600 bg-yellow-100 hover:bg-yellow-200 cursor-pointer rounded-xl transition-all duration-200 shadow-sm"
                       >
                         <Pencil size={13} />
-                        Update
+                        Resolve
                       </button>
                     </td>
                   </tr>
