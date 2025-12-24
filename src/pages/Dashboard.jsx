@@ -1236,11 +1236,10 @@ export default function ChecklistDashboard() {
                   
                   <Th>Inspection Status</Th>
                   <Th>Issue Status</Th>
-                  {/* <Th>Resolution</Th> */}
+                  
                   <Th>Checked By</Th>
                   <Th>Time</Th>
-                  <Th>Remarks</Th>
-                  {/* <Th>Action</Th> */}
+                  
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
@@ -1259,26 +1258,18 @@ export default function ChecklistDashboard() {
                     <Td>
                       <IssuePill status={r.issueStatus} />
                     </Td>
-                    {/* <Td>
-                      <ResolutionPill status={r.resolutionStatus} />
-                    </Td> */}
+                    
                     <Td>{r.checkedBy}</Td>
                     <Td>{r.time}</Td>
-                    <Td className="max-w-[160px] truncate" title={r.remarks}>
-                      {r.remarks}
-                    </Td>
-                    {/* <Td>
-                      <button className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-700 hover:bg-slate-100">
-                        View
-                      </button>
-                    </Td> */}
+                    
+                   
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="mt-3 flex items-center justify-between text-[11px] text-slate-500">
+          {/* <div className="mt-3 flex items-center justify-between text-[11px] text-slate-500">
             <span>Showing 1–10 of 120 inspections</span>
             <div className="flex items-center gap-1">
               <button className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-50">
@@ -1294,7 +1285,7 @@ export default function ChecklistDashboard() {
                 Next
               </button>
             </div>
-          </div>
+          </div> */}
         </section>
 
         <footer className="pt-1 pb-3 text-center text-[11px] text-slate-400">
