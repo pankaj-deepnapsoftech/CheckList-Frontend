@@ -15,65 +15,125 @@ import CheckItemHistoryModal from "./CheckItemHistory";
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 import Pagination from "../Components/Pagination/Pagination";
 
-
 export default function AssemblyLineStatus() {
-const [openHistory, setOpenHistory] = useState(false);
-const [selectedAssembly, setSelectedAssembly] = useState(null);
-const [assemblyLine, setAssemblyLine] = useState("ALL");
-const [dateFilter, setDateFilter] = useState("TODAY");
-const [statusFilter, setStatusFilter] = useState("ALL");
-const [resultFilter, setResultFilter] = useState("ALL");
+  const [openHistory, setOpenHistory] = useState(false);
+  const [selectedAssembly, setSelectedAssembly] = useState(null);
+  const [assemblyLine, setAssemblyLine] = useState("ALL");
+  const [dateFilter, setDateFilter] = useState("TODAY");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [resultFilter, setResultFilter] = useState("ALL");
   const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
+  const [showLimit, setShowLimit] = useState(10);
+    const { getAssemblyCardsData, getAssemblyReportData } = useCheckItemHistory(
+      page
+    );
+
+    const assembliesRaw = getAssemblyReportData?.data;
+    const assemblies = Array.isArray(assembliesRaw)
+      ? assembliesRaw
+      : assembliesRaw
+      ? [assembliesRaw]
+      : [];
+
+
+    const tableData = Array.isArray(assemblies)
+      ? assemblies.map((item) => {
+          // 🔹 Detect ERROR / RESOLVED
+          const hasError =
+            Array.isArray(item?.process_id) &&
+            item.process_id.some(
+              (proc) =>
+                Array.isArray(proc?.check_list_items) &&
+                proc.check_list_items.some(
+                  (cli) =>
+                    Array.isArray(cli?.check_items_history) &&
+                    cli.check_items_history.some(
+                      (history) => history?.is_error === true
+                    )
+                )
+            );
+
+          return {
+            id: item?._id,
+            assemblyNumber: item?.assembly_number || "—",
+            assemblyName: item?.assembly_name || "—",
+            companyName: item?.company_id?.company_name || "—",
+            plantName: item?.plant_id?.plant_name || "—",
+            raw: item,
+
+            //  Status
+            status:
+              Array.isArray(item?.process_id) &&
+              item.process_id.length > 0 &&
+              item.process_id.every(
+                (proc) =>
+                  Array.isArray(proc?.check_list_items) &&
+                  proc.check_list_items.length > 0 &&
+                  proc.check_list_items.every(
+                    (cli) =>
+                      Array.isArray(cli?.check_items_history) &&
+                      cli.check_items_history.length > 0
+                  )
+              )
+                ? "CHECKED"
+                : "UN-CHECKED",
+
+            //  Result
+            result: hasError ? "ERROR" : "RESOLVED",
+          };
+        })
+      : [];
+
+  //  Apply Assembly + Status filters together
+  const currentTableData = tableData.filter((row) => {
+    // Assembly filter
+    const matchAssembly =
+      assemblyLine === "ALL" ||
+      `${row.assemblyNumber} / ${row.assemblyName}` === assemblyLine;
+
+    // Status filter
+    const matchStatus = statusFilter === "ALL" || row.status === statusFilter;
+
+    // Result filter
+    const matchResult = resultFilter === "ALL" || row.result === resultFilter;
+
+    return matchAssembly && matchStatus && matchResult;
+  });
+
+  const ITEMS_PER_PAGE =
+    showLimit === "ALL" ? currentTableData.length : Number(showLimit);
 
   useEffect(() => {
     setPage(1);
   }, [assemblyLine, dateFilter, statusFilter, resultFilter]);
 
 
-  const { getAssemblyCardsData, getAssemblyReportData } = useCheckItemHistory(page, ITEMS_PER_PAGE);
-
-  console.log("this is my assembly", getAssemblyReportData?.data);
-
- 
-const assembliesRaw = getAssemblyReportData?.data;
-const assemblies = Array.isArray(assembliesRaw)
-  ? assembliesRaw
-  : assembliesRaw
-  ? [assembliesRaw]
-  : [];
-
-  const tableData = Array.isArray(assemblies)
-    ? assemblies.map((item) => ({
-        id: item?._id,
-        assemblyNumber: item?.assembly_number || "—",
-        assemblyName: item?.assembly_name || "—",
-        companyName: item?.company_id?.company_name || "—",
-        plantName: item?.plant_id?.plant_name || "—",
-        raw: item,
-
-        status:
-          Array?.isArray(item?.process_id) &&
-          item?.process_id?.length > 0 &&
-          item?.process_id?.every(
-            (proc) =>
-              Array?.isArray(proc?.check_list_items) &&
-              proc.check_list_items.length > 0 &&
-              proc.check_list_items.every(
-                (cli) =>
-                  Array.isArray(cli?.check_items_history) &&
-                  cli.check_items_history.length > 0
-              )
-          )
-            ? "CHECKED"
-            : "UN-CHECKED",
-      }))
-    : [];
-
-  const currentTableData = tableData;
-  const hasNextPage = currentTableData.length === ITEMS_PER_PAGE;
 
 
+
+
+
+  // Pagination check
+  const hasNextPage =
+    showLimit !== "ALL" && page * showLimit < currentTableData.length;
+
+  const assemblyOptions = React.useMemo(() => {
+    const uniqueMap = new Map();
+
+    tableData.forEach((item) => {
+      if (item.assemblyNumber && item.assemblyName) {
+        const label = `${item.assemblyNumber} / ${item.assemblyName}`;
+        uniqueMap.set(label, label);
+      }
+    });
+
+    return ["ALL", ...Array.from(uniqueMap.values())];
+  }, [tableData]);
+
+  const paginatedTableData =
+    showLimit === "ALL"
+      ? currentTableData
+      : currentTableData.slice((page - 1) * showLimit, page * showLimit);
 
   return (
     <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -88,16 +148,6 @@ const assemblies = Array.isArray(assembliesRaw)
               Real-time production line monitoring & compliance
             </p>
           </div>
-          {/* <div className="flex flex-wrap gap-3">
-            <button className="px-6 py-3 bg-linear-to-r from-emerald-500 to-emerald-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center cursor-pointer gap-2">
-              <Plus size={20} />
-              New Check
-            </button>
-            <button className="px-6 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white font-semibold rounded-2xl shadow-lg hover:shadow-xl cursor-pointer transform hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2">
-              <Download size={20} />
-              Export
-            </button>
-          </div> */}
         </div>
 
         {/* Controls */}
@@ -108,24 +158,18 @@ const assemblies = Array.isArray(assembliesRaw)
               label="Assembly Line"
               value={assemblyLine}
               onChange={setAssemblyLine}
-              options={[
-                "ALL",
-                "001 / ASS1",
-                "002 / ASS2",
-                "003 / ASS3",
-                "004 / ASS4",
-              ]}
+              options={assemblyOptions}
               width="w-full sm:w-[220px]"
             />
 
             {/* Date */}
-            <FilterSelect
+            {/* <FilterSelect
               label="Date"
               value={dateFilter}
               onChange={setDateFilter}
               options={["TODAY", "YESTERDAY", "THIS_WEEK", "THIS_MONTH"]}
               width="w-full sm:w-[180px]"
-            />
+            /> */}
 
             {/* Status */}
             <FilterSelect
@@ -182,7 +226,9 @@ const assemblies = Array.isArray(assembliesRaw)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Item Checked</p>
+                <p className="text-sm font-medium text-slate-900">
+                  Item Checked
+                </p>
                 <p className="text-3xl font-bold bg-linear-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_checked || 0}
                 </p>
@@ -195,7 +241,9 @@ const assemblies = Array.isArray(assembliesRaw)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Item Unchecked</p>
+                <p className="text-sm font-medium text-slate-900">
+                  Item Unchecked
+                </p>
                 <p className="text-3xl font-bold bg-linear-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_unchecked}
                 </p>
@@ -208,7 +256,9 @@ const assemblies = Array.isArray(assembliesRaw)
           <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-900">Item Errors</p>
+                <p className="text-sm font-medium text-slate-900">
+                  Item Errors
+                </p>
                 <p className="text-3xl font-bold bg-linear-to-r from-red-600 to-red-700 bg-clip-text text-transparent mt-1">
                   {getAssemblyCardsData?.data?.total_errors || 0}
                 </p>
@@ -223,29 +273,62 @@ const assemblies = Array.isArray(assembliesRaw)
         {/* Main Grid */}
         <div className="bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden">
           {/* Table Header */}
-          <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200">
-            <h3 className="text-lg font-semibold text-slate-900">
-              Assembly Line Overview
-            </h3>
-            <p className="text-sm text-slate-500">
-              Assembly, company, plant & current inspection status
-            </p>
+          <div className="px-4 py-3 flex justify-between sm:px-6 sm:py-4 border-b border-slate-200">
+            <div>
+              <h3 className="text-lg font-semibold text-slate-900">
+                Assembly Line Overview
+              </h3>
+              <p className="text-sm text-slate-500">
+                Assembly, company, plant & current inspection status
+              </p>
+            </div>
+
+            <div className="flex items-center gap-4 text-gray-600">
+              <span>Show:</span>
+              <select
+                value={showLimit}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setShowLimit(value === "ALL" ? "ALL" : Number(value));
+                  setPage(1);
+                }}
+                className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0"
+              >
+                <option value={5}>5</option>
+                <option value={10}>10</option>
+                <option value={50}>50</option>
+                <option value="ALL">All</option>
+              </select>
+            </div>
           </div>
 
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
                 <tr>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Assembly</th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Company</th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide hidden md:table-cell">Plant</th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Status</th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">Actions</th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                    Assembly
+                  </th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                    Company
+                  </th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide hidden md:table-cell">
+                    Plant
+                  </th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {currentTableData.map((row) => (
-                  <tr key={row.id} className="hover:bg-blue-50/50 transition duration-200 group">
+                {paginatedTableData?.map((row) => (
+                  <tr
+                    key={row.id}
+                    className="hover:bg-blue-50/50 transition duration-200 group"
+                  >
                     <td className="px-4 py-3 sm:px-6 sm:py-4">
                       <div className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
                         {row.assemblyNumber} / {row.assemblyName}
@@ -289,13 +372,20 @@ const assemblies = Array.isArray(assembliesRaw)
                 ))}
                 {tableData.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="text-center py-16 text-slate-500">
+                    <td
+                      colSpan={5}
+                      className="text-center py-16 text-slate-500"
+                    >
                       <div className="flex flex-col items-center justify-center gap-3">
-                         <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-2">
-                            <Search className="w-8 h-8 text-slate-400" />
-                         </div>
-                         <p className="text-lg font-medium text-slate-600">No assembly data found</p>
-                         <p className="text-sm text-slate-400">Try adjusting your filters or search query</p>
+                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-2">
+                          <Search className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <p className="text-lg font-medium text-slate-600">
+                          No assembly data found
+                        </p>
+                        <p className="text-sm text-slate-400">
+                          Try adjusting your filters or search query
+                        </p>
                       </div>
                     </td>
                   </tr>
@@ -304,12 +394,10 @@ const assemblies = Array.isArray(assembliesRaw)
             </table>
           </div>
         </div>
-        
+
         {/* Pagination */}
-        {tableData.length > 0 && (
-          <div >
-            <Pagination page={page} setPage={setPage} hasNextpage={hasNextPage} />
-          </div>
+        {tableData.length > 0 && showLimit !== "ALL" && (
+          <Pagination page={page} setPage={setPage} hasNextpage={hasNextPage} />
         )}
       </div>
       <CheckItemHistoryModal
@@ -317,40 +405,9 @@ const assemblies = Array.isArray(assembliesRaw)
         onClose={() => setOpenHistory(false)}
         data={selectedAssembly}
       />
-
-      <style jsx>{`
-        @keyframes spin-slow {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 3s linear infinite;
-        }
-      `}</style>
     </div>
   );
 }
-
-function Metric({ label, value, danger }) {
-  return (
-    <div>
-      <p className="text-xs text-slate-500">{label}</p>
-      <p
-        className={`text-lg font-bold ${
-          danger ? "text-red-600" : "text-slate-900"
-        }`}
-      >
-        {value}
-      </p>
-    </div>
-  );
-}
-
-
 
 function FilterSelect({ label, value, onChange, options, width }) {
   return (

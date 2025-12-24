@@ -5,6 +5,7 @@ import {
   Pencil,
   X,
   OctagonAlert,
+  XCircle,
 } from "lucide-react";
 import { useAssemblyLineError } from "../hooks/useAssemblyLineError";
 import AddErrorModal from "../components/modal/addModal/AddErrorModal";
@@ -55,19 +56,28 @@ export default function AssemblyError() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-2xl border border-red-100 shadow-sm p-5">
-            <p className="text-xs font-medium text-red-600">Open Errors</p>
-            <p className="text-3xl font-bold text-red-600 mt-1">
-              {errors.filter((e) => e?.is_error).length}
-            </p>
+          <div className="bg-white/90 backdrop-blur-xl border border-white/60 rounded-3xl p-4 sm:p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-slate-900">
+                  Total Errors
+                </p>
+                <p className="text-3xl font-bold bg-linear-to-r from-red-600 to-red-700 bg-clip-text text-transparent mt-1">
+                  {errors.filter((e) => e?.is_error).length}
+                </p>
+              </div>
+              <div className="w-10 h-10 bg-red-100 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <XCircle className="w-6 h-6 text-red-600" />
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+          {/* <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <p className="text-xs font-medium text-slate-600">Total Records</p>
             <p className="text-3xl font-bold text-slate-900 mt-1">
               {errors.length}
             </p>
-          </div>
+          </div> */}
         </div>
 
         <div className="bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden">
@@ -128,13 +138,13 @@ export default function AssemblyError() {
                     <span className="font-medium">{item.result}</span>
                   </div>
                 </div>
-                <button
+                {/* <button
                   onClick={() => handleUpdateClick(item)}
                   className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors"
                 >
                   <Pencil size={16} />
                   Update Result
-                </button>
+                </button> */}
               </div>
             ))}
           </div>
