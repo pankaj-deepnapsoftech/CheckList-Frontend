@@ -1233,9 +1233,7 @@ export default function ChecklistDashboard() {
                   <Th>Company</Th>
                   <Th>Plant</Th>
                   <Th>Assembly Line</Th>
-                  <Th>Process</Th>
-                  <Th>Part</Th>
-                  <Th>Check Item</Th>
+                  
                   <Th>Inspection Status</Th>
                   <Th>Issue Status</Th>
                   {/* <Th>Resolution</Th> */}
@@ -1252,9 +1250,9 @@ export default function ChecklistDashboard() {
                     <Td>{r.company}</Td>
                     <Td>{r.plant}</Td>
                     <Td>{r.line}</Td>
-                    <Td>{r.process}</Td>
-                    <Td>{r.part}</Td>
-                    <Td>{r.checkItem}</Td>
+                    
+                   
+                    
                     <Td>
                       <StatusPill status={r.inspectionStatus} />
                     </Td>
