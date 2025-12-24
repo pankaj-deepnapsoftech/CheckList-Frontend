@@ -15,65 +15,125 @@ import CheckItemHistoryModal from "./CheckItemHistory";
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 import Pagination from "../Components/Pagination/Pagination";
 
-
 export default function AssemblyLineStatus() {
-const [openHistory, setOpenHistory] = useState(false);
-const [selectedAssembly, setSelectedAssembly] = useState(null);
-const [assemblyLine, setAssemblyLine] = useState("ALL");
-const [dateFilter, setDateFilter] = useState("TODAY");
-const [statusFilter, setStatusFilter] = useState("ALL");
-const [resultFilter, setResultFilter] = useState("ALL");
+  const [openHistory, setOpenHistory] = useState(false);
+  const [selectedAssembly, setSelectedAssembly] = useState(null);
+  const [assemblyLine, setAssemblyLine] = useState("ALL");
+  const [dateFilter, setDateFilter] = useState("TODAY");
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [resultFilter, setResultFilter] = useState("ALL");
   const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
+  const [showLimit, setShowLimit] = useState(10);
+    const { getAssemblyCardsData, getAssemblyReportData } = useCheckItemHistory(
+      page
+    );
+
+    const assembliesRaw = getAssemblyReportData?.data;
+    const assemblies = Array.isArray(assembliesRaw)
+      ? assembliesRaw
+      : assembliesRaw
+      ? [assembliesRaw]
+      : [];
+
+
+    const tableData = Array.isArray(assemblies)
+      ? assemblies.map((item) => {
+          // 🔹 Detect ERROR / RESOLVED
+          const hasError =
+            Array.isArray(item?.process_id) &&
+            item.process_id.some(
+              (proc) =>
+                Array.isArray(proc?.check_list_items) &&
+                proc.check_list_items.some(
+                  (cli) =>
+                    Array.isArray(cli?.check_items_history) &&
+                    cli.check_items_history.some(
+                      (history) => history?.is_error === true
+                    )
+                )
+            );
+
+          return {
+            id: item?._id,
+            assemblyNumber: item?.assembly_number || "—",
+            assemblyName: item?.assembly_name || "—",
+            companyName: item?.company_id?.company_name || "—",
+            plantName: item?.plant_id?.plant_name || "—",
+            raw: item,
+
+            //  Status
+            status:
+              Array.isArray(item?.process_id) &&
+              item.process_id.length > 0 &&
+              item.process_id.every(
+                (proc) =>
+                  Array.isArray(proc?.check_list_items) &&
+                  proc.check_list_items.length > 0 &&
+                  proc.check_list_items.every(
+                    (cli) =>
+                      Array.isArray(cli?.check_items_history) &&
+                      cli.check_items_history.length > 0
+                  )
+              )
+                ? "CHECKED"
+                : "UN-CHECKED",
+
+            //  Result
+            result: hasError ? "ERROR" : "RESOLVED",
+          };
+        })
+      : [];
+
+  //  Apply Assembly + Status filters together
+  const currentTableData = tableData.filter((row) => {
+    // Assembly filter
+    const matchAssembly =
+      assemblyLine === "ALL" ||
+      `${row.assemblyNumber} / ${row.assemblyName}` === assemblyLine;
+
+    // Status filter
+    const matchStatus = statusFilter === "ALL" || row.status === statusFilter;
+
+    // Result filter
+    const matchResult = resultFilter === "ALL" || row.result === resultFilter;
+
+    return matchAssembly && matchStatus && matchResult;
+  });
+
+  const ITEMS_PER_PAGE =
+    showLimit === "ALL" ? currentTableData.length : Number(showLimit);
 
   useEffect(() => {
     setPage(1);
   }, [assemblyLine, dateFilter, statusFilter, resultFilter]);
 
 
-  const { getAssemblyCardsData, getAssemblyReportData } = useCheckItemHistory(page, ITEMS_PER_PAGE);
-
-  console.log("this is my assembly", getAssemblyReportData?.data);
-
- 
-const assembliesRaw = getAssemblyReportData?.data;
-const assemblies = Array.isArray(assembliesRaw)
-  ? assembliesRaw
-  : assembliesRaw
-  ? [assembliesRaw]
-  : [];
-
-  const tableData = Array.isArray(assemblies)
-    ? assemblies.map((item) => ({
-        id: item?._id,
-        assemblyNumber: item?.assembly_number || "—",
-        assemblyName: item?.assembly_name || "—",
-        companyName: item?.company_id?.company_name || "—",
-        plantName: item?.plant_id?.plant_name || "—",
-        raw: item,
-
-        status:
-          Array?.isArray(item?.process_id) &&
-          item?.process_id?.length > 0 &&
-          item?.process_id?.every(
-            (proc) =>
-              Array?.isArray(proc?.check_list_items) &&
-              proc.check_list_items.length > 0 &&
-              proc.check_list_items.every(
-                (cli) =>
-                  Array.isArray(cli?.check_items_history) &&
-                  cli.check_items_history.length > 0
-              )
-          )
-            ? "CHECKED"
-            : "UN-CHECKED",
-      }))
-    : [];
-
-  const currentTableData = tableData;
-  const hasNextPage = currentTableData.length === ITEMS_PER_PAGE;
 
 
+
+
+
+  // Pagination check
+  const hasNextPage =
+    showLimit !== "ALL" && page * showLimit < currentTableData.length;
+
+  const assemblyOptions = React.useMemo(() => {
+    const uniqueMap = new Map();
+
+    tableData.forEach((item) => {
+      if (item.assemblyNumber && item.assemblyName) {
+        const label = `${item.assemblyNumber} / ${item.assemblyName}`;
+        uniqueMap.set(label, label);
+      }
+    });
+
+    return ["ALL", ...Array.from(uniqueMap.values())];
+  }, [tableData]);
+
+  const paginatedTableData =
+    showLimit === "ALL"
+      ? currentTableData
+      : currentTableData.slice((page - 1) * showLimit, page * showLimit);
 
   return (
     <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -98,24 +158,18 @@ const assemblies = Array.isArray(assembliesRaw)
               label="Assembly Line"
               value={assemblyLine}
               onChange={setAssemblyLine}
-              options={[
-                "ALL",
-                "001 / ASS1",
-                "002 / ASS2",
-                "003 / ASS3",
-                "004 / ASS4",
-              ]}
+              options={assemblyOptions}
               width="w-full sm:w-[220px]"
             />
 
             {/* Date */}
-            <FilterSelect
+            {/* <FilterSelect
               label="Date"
               value={dateFilter}
               onChange={setDateFilter}
               options={["TODAY", "YESTERDAY", "THIS_WEEK", "THIS_MONTH"]}
               width="w-full sm:w-[180px]"
-            />
+            /> */}
 
             {/* Status */}
             <FilterSelect
@@ -232,12 +286,18 @@ const assemblies = Array.isArray(assembliesRaw)
             <div className="flex items-center gap-4 text-gray-600">
               <span>Show:</span>
               <select
+                value={showLimit}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setShowLimit(value === "ALL" ? "ALL" : Number(value));
+                  setPage(1);
+                }}
                 className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0"
-                onChange={() => {}}
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
-                <option value={50}>All</option>
+                <option value={50}>50</option>
+                <option value="ALL">All</option>
               </select>
             </div>
           </div>
@@ -264,7 +324,7 @@ const assemblies = Array.isArray(assembliesRaw)
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {currentTableData.map((row) => (
+                {paginatedTableData?.map((row) => (
                   <tr
                     key={row.id}
                     className="hover:bg-blue-50/50 transition duration-200 group"
@@ -336,14 +396,8 @@ const assemblies = Array.isArray(assembliesRaw)
         </div>
 
         {/* Pagination */}
-        {tableData.length > 0 && (
-          <div>
-            <Pagination
-              page={page}
-              setPage={setPage}
-              hasNextpage={hasNextPage}
-            />
-          </div>
+        {tableData.length > 0 && showLimit !== "ALL" && (
+          <Pagination page={page} setPage={setPage} hasNextpage={hasNextPage} />
         )}
       </div>
       <CheckItemHistoryModal
@@ -354,9 +408,6 @@ const assemblies = Array.isArray(assembliesRaw)
     </div>
   );
 }
-
-
-
 
 function FilterSelect({ label, value, onChange, options, width }) {
   return (
