@@ -139,7 +139,7 @@ export default function AssemblyError() {
             ))}
           </div>
 
-          <div className="overflow-x-auto hidden sm:block">
+          <div className="overflow-x-auto m-2 hidden border border-gray-100 rounded-xl sm:block">
             <table className="min-w-full text-sm whitespace-nowrap">
               <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
                 <tr>
@@ -263,7 +263,6 @@ export default function AssemblyError() {
                     <td className="px-4 py-3 sm:px-6 sm:py-4">
                       {formatDateShort(row?.updatedAt)}
                     </td>
-                   
                   </tr>
                 ))}
                 {errors.length === 0 && (

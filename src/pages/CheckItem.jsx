@@ -44,7 +44,7 @@ const CheckItem = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full p-4">
       {/* HEADER */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">Check Item</h1>

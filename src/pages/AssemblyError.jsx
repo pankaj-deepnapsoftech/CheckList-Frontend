@@ -56,7 +56,7 @@ export default function AssemblyError() {
               {errors.filter((e) => e?.is_error).length}
             </p>
           </div>
-          
+
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
             <p className="text-xs font-medium text-slate-600">Total Records</p>
             <p className="text-3xl font-bold text-slate-900 mt-1">
@@ -134,7 +134,7 @@ export default function AssemblyError() {
             ))}
           </div>
 
-          <div className="overflow-x-auto hidden sm:block">
+          <div className="overflow-x-auto m-2 hidden border border-gray-100 rounded-xl sm:block">
             <table className="min-w-full text-sm whitespace-nowrap">
               <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
                 <tr>
@@ -264,9 +264,9 @@ export default function AssemblyError() {
                     <td className="px-4 py-3 sm:px-6 sm:py-4">
                       <button
                         onClick={() => handleUpdateClick(row)}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 cursor-pointer rounded-xl transition-all duration-200 shadow-sm"
+                        className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 cursor-pointer rounded-xl transition-all duration-200 shadow-sm"
                       >
-                        <Pencil size={14} />
+                        <Pencil size={13} />
                         Update
                       </button>
                     </td>
