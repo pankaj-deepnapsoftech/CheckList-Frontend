@@ -836,42 +836,56 @@ export default function ChecklistDashboard() {
             </div>
 
             {/* Active Assembly Performance */}
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="flex items-center justify-between">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-4">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-800">
-                    Active Assembly Performance
+                    Assembly Performance
                   </h3>
                   <p className="text-xs text-slate-400">
-                    Running vs fault count by assembly line
+                    Running vs Fault (Monthly)
                   </p>
                 </div>
-                <div className="flex items-center gap-3 text-xs text-slate-500">
-                  <LegendDot color="#1d4ed8" label="Running" />
+
+                <div className="flex items-center gap-3 text-xs">
+                  <LegendDot color="#4f46e5" label="Running" />
                   <LegendDot color="#fb7185" label="Fault" />
                 </div>
               </div>
-              <div className="mt-3 flex h-40 items-end gap-4 overflow-x-auto pb-1">
+
+              {/* Chart */}
+              <div className="flex items-end gap-4 h-44 overflow-x-auto">
                 {AssemblyData?.map((d, idx) => {
-                  const maxVal = Math.max(d.running, d.fault);
-                  const scale = 100 / Math.max(1, maxVal);
+                  const total = d.running + d.fault || 1;
+                  const runningPct = (d.running / total) * 100;
+                  const faultPct = (d.fault / total) * 100;
 
                   return (
                     <div
                       key={idx}
-                      className="flex flex-col items-center gap-1 min-w-[54px]"
+                      className="flex flex-col items-center gap-2 min-w-[48px]"
                     >
-                      <div className="flex w-7 flex-col justify-end gap-1">
+                      {/* Bar Track */}
+                      <div className="relative w-4 h-32 bg-slate-100 rounded-full overflow-hidden">
+                        {/* Running */}
                         <div
-                          className="w-full rounded-t bg-indigo-600"
-                          style={{ height: d.running * scale + "px" }}
+                          className="absolute bottom-0 w-full bg-indigo-500 rounded-full transition-all"
+                          style={{ height: `${runningPct}%` }}
                         />
+
+                        {/* Fault */}
                         <div
-                          className="w-full rounded-t bg-rose-400"
-                          style={{ height: d.fault * scale + "px" }}
+                          className="absolute bottom-[var(--running)] w-full bg-rose-400"
+                          style={{
+                            height: `${faultPct}%`,
+                            bottom: `${runningPct}%`,
+                          }}
                         />
                       </div>
-                      <span className="text-[11px] text-slate-500">
+
+                      {/* Label */}
+                      <span className="text-[11px] text-slate-500 font-medium">
                         {d.label}
                       </span>
                     </div>
