@@ -27,12 +27,7 @@ import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 
 /* ---------------- Mock / Static Data ---------------- */
 
-const LINE_TREND = [
-  { label: "Shift A", checked: 40, error: 5, unchecked: 10 },
-  { label: "Shift B", checked: 38, error: 7, unchecked: 12 },
-  { label: "Shift C", checked: 30, error: 10, unchecked: 15 },
-  { label: "General", checked: 45, error: 4, unchecked: 8 },
-];
+
 
 const DONUT_DATA = [
   { label: "Checked", value: 120, color: "#22c55e" },
@@ -47,83 +42,6 @@ const ASSEMBLY_BAR = [
   { label: "5000", running: 14, fault: 10 },
 ];
 
-const MONTHLY_DATA = [
-  { month: "Jan", checked: 820, unchecked: 120, error: 60 },
-  { month: "Feb", checked: 760, unchecked: 160, error: 70 },
-  { month: "Mar", checked: 910, unchecked: 90, error: 45 },
-  { month: "Apr", checked: 880, unchecked: 110, error: 55 },
-  { month: "May", checked: 1020, unchecked: 80, error: 40 },
-  { month: "Jun", checked: 980, unchecked: 100, error: 50 },
-  { month: "Jul", checked: 1100, unchecked: 70, error: 35 },
-  { month: "Aug", checked: 1060, unchecked: 95, error: 48 },
-  { month: "Sep", checked: 990, unchecked: 130, error: 65 },
-  { month: "Oct", checked: 1150, unchecked: 60, error: 30 },
-  { month: "Nov", checked: 1080, unchecked: 85, error: 42 },
-  { month: "Dec", checked: 1200, unchecked: 50, error: 25 },
-];
-
-const TABLE_ROWS = [
-  {
-    date: "2025-12-23",
-    company: "JP Minda",
-    plant: "Plant 1",
-    line: "500",
-    process: "PCB Depaneling",
-    part: "Main PCB",
-    checkItem: "ESD Check",
-    inspectionStatus: "Checked",
-    issueStatus: "OK",
-    resolutionStatus: "Resolved",
-    checkedBy: "Rohan Singh",
-    time: "10:12",
-    remarks: "Within range",
-  },
-  {
-    date: "2025-12-23",
-    company: "JP Minda",
-    plant: "Plant 1",
-    line: "1000A",
-    process: "Print Plate Soldering",
-    part: "Connector",
-    checkItem: "Solder Quality",
-    inspectionStatus: "Checked",
-    issueStatus: "Error",
-    resolutionStatus: "Pending",
-    checkedBy: "Priya Sharma",
-    time: "10:35",
-    remarks: "Bridging observed",
-  },
-  {
-    date: "2025-12-23",
-    company: "JP Minda",
-    plant: "Plant 2",
-    line: "2000",
-    process: "Case & Slider Greasing",
-    part: "Slider",
-    checkItem: "Grease Weight",
-    inspectionStatus: "Unchecked",
-    issueStatus: "Error",
-    resolutionStatus: "Open",
-    checkedBy: "-",
-    time: "-",
-    remarks: "Awaiting inspection",
-  },
-  {
-    date: "2025-12-23",
-    company: "JP Minda",
-    plant: "Plant 3",
-    line: "5000",
-    process: "Cover Assy",
-    part: "Top Cover",
-    checkItem: "Air Leak",
-    inspectionStatus: "Checked",
-    issueStatus: "Error",
-    resolutionStatus: "Resolved",
-    checkedBy: "Amit Patel",
-    time: "09:55",
-    remarks: "Leak fixed",
-  },
-];
 
 /* ---------------- Helpers ---------------- */
 
