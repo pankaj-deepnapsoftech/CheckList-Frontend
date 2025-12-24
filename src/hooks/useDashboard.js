@@ -88,9 +88,59 @@ export const useAssemblyStatus = () => {
 
     onError: (error) => {
       toast.error(
-        error?.response?.data?.message ||
-          "Failed to load inspection data"
+        error?.response?.data?.message || "Failed to load inspection data"
       );
     },
   });
 };
+
+/* ---------------- Assembly Monthly API ---------------- */
+export const useAssemblyMonthly = () => {
+  const MONTHS = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
+  return useQuery({
+    queryKey: ["assembly-monthly"],
+
+    queryFn: async () => {
+      const res = await axiosHandler.get("/dashboard/get-assembly-monthly");
+      const rawData = res?.data?.data || [];
+
+      // Normalize Jan–Dec
+      return MONTHS.map((label, index) => {
+        const found = rawData.find((item) => item.month === index + 1);
+
+        return {
+          label,
+          running: found?.running_count || 0,
+          fault: found?.fault_count || 0,
+        };
+      });
+    },
+
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to load assembly monthly data"
+      );
+    },
+  });
+};
+
+
+
+
