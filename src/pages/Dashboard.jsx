@@ -7,6 +7,7 @@ import {
   Clock3,
   Users,
   Activity,
+  Sparkles,
 } from "lucide-react";
 import {
   useDashboardCards,
@@ -23,7 +24,10 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  BarChart,
+  Bar,
 } from "recharts";
+
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 
 /* ---------------- Mock / Static Data ---------------- */
@@ -836,47 +840,75 @@ export default function ChecklistDashboard() {
             </div>
 
             {/* Active Assembly Performance */}
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="flex items-center justify-between">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              {/* Header */}
+              <div className="mb-4 flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-800">
-                    Active Assembly Performance
+                    Assembly Performance
                   </h3>
                   <p className="text-xs text-slate-400">
-                    Running vs fault count by assembly line
+                    Running vs Fault (Monthly)
                   </p>
                 </div>
-                <div className="flex items-center gap-3 text-xs text-slate-500">
-                  <LegendDot color="#1d4ed8" label="Running" />
+
+                <div className="flex items-center gap-3 text-xs">
+                  <LegendDot color="#4f46e5" label="Running" />
                   <LegendDot color="#fb7185" label="Fault" />
                 </div>
               </div>
-              <div className="mt-3 flex h-40 items-end gap-4 overflow-x-auto pb-1">
-                {AssemblyData?.map((d, idx) => {
-                  const maxVal = Math.max(d.running, d.fault);
-                  const scale = 100 / Math.max(1, maxVal);
 
-                  return (
-                    <div
-                      key={idx}
-                      className="flex flex-col items-center gap-1 min-w-[54px]"
-                    >
-                      <div className="flex w-7 flex-col justify-end gap-1">
-                        <div
-                          className="w-full rounded-t bg-indigo-600"
-                          style={{ height: d.running * scale + "px" }}
-                        />
-                        <div
-                          className="w-full rounded-t bg-rose-400"
-                          style={{ height: d.fault * scale + "px" }}
-                        />
-                      </div>
-                      <span className="text-[11px] text-slate-500">
-                        {d.label}
-                      </span>
-                    </div>
-                  );
-                })}
+              {/* Chart */}
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={AssemblyData}
+                    barSize={22}
+                    radius={[8, 8, 0, 0]}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="#e5e7eb"
+                    />
+
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+
+                    <YAxis
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      axisLine={false}
+                      tickLine={false}
+                      allowDecimals={false}
+                    />
+
+                    <Tooltip
+                      cursor={{ fill: "rgba(15, 23, 42, 0.04)" }}
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: "1px solid #e5e7eb",
+                        fontSize: 12,
+                      }}
+                    />
+
+                    <Bar
+                      dataKey="running"
+                      stackId="a"
+                      fill="#4f46e5"
+                      radius={[0, 0, 8, 8]}
+                    />
+                    <Bar
+                      dataKey="fault"
+                      stackId="a"
+                      fill="#fb7185"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
@@ -886,6 +918,11 @@ export default function ChecklistDashboard() {
                 <h3 className="text-sm font-semibold text-slate-800">
                   Smart Insights
                 </h3>
+
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                  <Sparkles size={12} />
+                  Coming Soon
+                </span>
               </div>
 
               <div className="grid gap-3 text-xs grid-cols-1 sm:grid-cols-2 flex-1">
