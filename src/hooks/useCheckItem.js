@@ -56,7 +56,7 @@ export const useCheckItem = (search, page, limit) => {
       if (data.newMethod) body.checking_method = data.newMethod;
       if (data.newUom) body.uom = data.newUom;
       if (data.newTime) body.checking_time = data.newTime;
-       
+
       const res = await axiosHandler.post(`types/create-types`, body);
       return res?.data;
     },
@@ -105,6 +105,22 @@ export const useCheckItem = (search, page, limit) => {
     },
   });
 
+  const removeLabel = useMutation({
+    mutationFn: ({ id, body }) =>
+      axiosHandler.delete(`/types/delete-types/${id}`, {
+        data: body,
+      }),
+    onSuccess: () => {
+      toast.success("Label removed successfully");
+      qc.invalidateQueries({ queryKey: ["types"] });
+    },
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message || "Failed to remove label"
+      );
+    },
+  });
+
   return {
     getCheckItemData,
     CreateCheckItem,
@@ -112,6 +128,7 @@ export const useCheckItem = (search, page, limit) => {
     removeItem,
     searchQuery,
     AddCategroy,
-    GetCategory
+    GetCategory,
+    removeLabel
   };
 }
