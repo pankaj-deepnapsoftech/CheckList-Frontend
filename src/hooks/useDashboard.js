@@ -118,16 +118,14 @@ export const useAssemblyMonthly = () => {
       const res = await axiosHandler.get("/dashboard/get-assembly-monthly");
       const rawData = res?.data?.data || [];
 
-      // Normalize Jan–Dec structure
-      return MONTHS.map((month, index) => {
+      // Normalize Jan–Dec
+      return MONTHS.map((label, index) => {
         const found = rawData.find((item) => item.month === index + 1);
 
         return {
-          month,
-          total: found?.total || 0,
-          checked: found?.checked || 0,
-          unchecked: found?.unchecked || 0,
-          error: found?.error || 0,
+          label,
+          running: found?.running_count || 0,
+          fault: found?.fault_count || 0,
         };
       });
     },
@@ -142,6 +140,7 @@ export const useAssemblyMonthly = () => {
     },
   });
 };
+
 
 
 

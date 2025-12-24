@@ -11,7 +11,8 @@ import {
 import {
   useDashboardCards,
   useMonthlyInspectionTrend,
-  useAssemblyStatus
+  useAssemblyStatus,
+  useAssemblyMonthly,
 } from "../hooks/useDashboard";
 import {
   ResponsiveContainer,
@@ -434,9 +435,13 @@ export default function ChecklistDashboard() {
 
     const Inspection = useAssemblyStatus();
 
+    const Assembly = useAssemblyMonthly();
+
+    const AssemblyData = Assembly?.data
+
     const InspectionData = Inspection?.data;
 
-    console.log("this is my ins datta", InspectionData);
+    console.log("this is my Assembly data", AssemblyData);
 
     const tableRows = Array.isArray(InspectionData)
       ? InspectionData.map((item) => {
@@ -847,12 +852,13 @@ export default function ChecklistDashboard() {
                 </div>
               </div>
               <div className="mt-3 flex h-40 items-end gap-4 overflow-x-auto pb-1">
-                {ASSEMBLY_BAR.map((d) => {
+                {AssemblyData?.map((d, idx) => {
                   const maxVal = Math.max(d.running, d.fault);
                   const scale = 100 / Math.max(1, maxVal);
+
                   return (
                     <div
-                      key={d.label}
+                      key={idx}
                       className="flex flex-col items-center gap-1 min-w-[54px]"
                     >
                       <div className="flex w-7 flex-col justify-end gap-1">
@@ -1146,13 +1152,12 @@ export default function ChecklistDashboard() {
                   <Th>Company</Th>
                   <Th>Plant</Th>
                   <Th>Assembly Line</Th>
-                  
+
                   <Th>Inspection Status</Th>
                   <Th>Issue Status</Th>
-                  
+
                   <Th>Checked By</Th>
                   <Th>Time</Th>
-                  
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
@@ -1162,18 +1167,16 @@ export default function ChecklistDashboard() {
                     <Td>{r.company}</Td>
                     <Td>{r.plant}</Td>
                     <Td>{r.line}</Td>
-                                    
+
                     <Td>
                       <StatusPill status={r.inspectionStatus} />
                     </Td>
-                    <Td >
+                    <Td>
                       <IssuePill status={r.issueStatus} />
                     </Td>
-                    
+
                     <Td>{r.checkedBy}</Td>
                     <Td>{r.time}</Td>
-                    
-                   
                   </tr>
                 ))}
               </tbody>
