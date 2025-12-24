@@ -78,7 +78,7 @@ export default function UserRoles() {
   };
 
   return (
-    <div>
+    <div className="p-4">
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">User Roles</h1>
         <p className="text-gray-500 text-sm">

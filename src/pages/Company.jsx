@@ -41,7 +41,7 @@ const Company = () => {
   };
 
   return (
-    <div>
+    <div className="p-4">
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">Companies</h1>
         <p className="text-gray-500 text-sm">Manage Company</p>

@@ -53,7 +53,7 @@ const Process = () => {
 
 
   return (
-    <div className="w-full">
+    <div className="w-full p-4">
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">Process</h1>
         <p className="text-gray-500 text-sm">Manage your Processes</p>

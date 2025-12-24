@@ -81,7 +81,7 @@ const Employee = () => {
     setPage(1);
   }, [search, selectedCompany, selectedPlant]);
   return (
-    <div className="w-full relative">
+    <div className="w-full p-4 relative">
       {/* HEADER */}
       <div>
         <h1 className="text-2xl sm:text-3xl font-semibold">Employees</h1>

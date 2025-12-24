@@ -38,7 +38,7 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
 
     };
   };
- console.log(mode)
+
   const formik = useFormik({
     initialValues: getInitialValues(),
     enableReinitialize: true,
