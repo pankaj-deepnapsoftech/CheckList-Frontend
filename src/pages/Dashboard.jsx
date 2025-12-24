@@ -519,6 +519,55 @@ export default function ChecklistDashboard() {
   const { data: monthlyTrendData = [], isLoading: monthlyTrendLoading } =
     useMonthlyInspectionTrend();
 
+    const Inspection = useAssemblyStatus();
+
+    const InspectionData = Inspection?.data;
+
+    console.log("this is my ins datta", InspectionData);
+
+    const tableRows = Array.isArray(InspectionData)
+      ? InspectionData.map((item) => {
+          const inspectionStatus = item.checked
+            ? "CHECKED"
+            : item.unchecked
+            ? "UN-CHECKED"
+            : "PENDING";
+
+          const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
+
+          const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
+
+          return {
+            id: item._id,
+            date: new Date(item.createdAt).toLocaleDateString(),
+
+            company: item.company_id?.company_name || "—",
+            plant: item.plant_id?.plant_name || "—",
+
+            line: `${item.assembly_number} / ${item.assembly_name}`,
+
+            process: Array.isArray(item.process_id)
+              ? item.process_id.length
+              : 0,
+
+            part: item.part_id?.part_name || "—",
+
+            checkItem: "Checklist", 
+
+            inspectionStatus,
+            issueStatus,
+            resolutionStatus,
+
+            checkedBy: item.responsibility?.full_name || "—",
+
+            time: new Date(item.updatedAt).toLocaleTimeString(),
+
+            remarks: item.error ? "Issue detected during inspection" : "—",
+          };
+        })
+      : [];
+
+
   const { getAssemblyCardsData } = useCheckItemHistory();
 
   const summaryCards = [
@@ -1158,7 +1207,7 @@ export default function ChecklistDashboard() {
                 Detailed record of inspections with filters and export
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            {/* <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                 <input
@@ -1173,7 +1222,7 @@ export default function ChecklistDashboard() {
               <button className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50">
                 Export
               </button>
-            </div>
+            </div> */}
           </div>
 
           <div className="overflow-x-auto rounded-lg border border-slate-100">
@@ -1189,15 +1238,15 @@ export default function ChecklistDashboard() {
                   <Th>Check Item</Th>
                   <Th>Inspection Status</Th>
                   <Th>Issue Status</Th>
-                  <Th>Resolution</Th>
+                  {/* <Th>Resolution</Th> */}
                   <Th>Checked By</Th>
                   <Th>Time</Th>
                   <Th>Remarks</Th>
-                  <Th>Action</Th>
+                  {/* <Th>Action</Th> */}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
-                {TABLE_ROWS.map((r, i) => (
+                {tableRows.map((r, i) => (
                   <tr key={i} className="hover:bg-slate-50/80 cursor-pointer">
                     <Td>{r.date}</Td>
                     <Td>{r.company}</Td>
@@ -1212,19 +1261,19 @@ export default function ChecklistDashboard() {
                     <Td>
                       <IssuePill status={r.issueStatus} />
                     </Td>
-                    <Td>
+                    {/* <Td>
                       <ResolutionPill status={r.resolutionStatus} />
-                    </Td>
+                    </Td> */}
                     <Td>{r.checkedBy}</Td>
                     <Td>{r.time}</Td>
                     <Td className="max-w-[160px] truncate" title={r.remarks}>
                       {r.remarks}
                     </Td>
-                    <Td>
+                    {/* <Td>
                       <button className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-700 hover:bg-slate-100">
                         View
                       </button>
-                    </Td>
+                    </Td> */}
                   </tr>
                 ))}
               </tbody>
