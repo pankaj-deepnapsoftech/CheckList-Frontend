@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 const NotificationDropdown = ({ innerRef, onClose }) => {
   const { getNotifications, MarkasRead, MarkAllasRead } = useNotifications();
   const notifications =
-  getNotifications.data?.pages.flatMap(page => page.data) || [];
-  
+    getNotifications.data?.pages.flatMap(page => page.data) || [];
+
   const reciverId = notifications?.[0]?.reciverId
   const handleScroll = (e) => {
     const { scrollTop, scrollHeight, clientHeight } = e.target;
@@ -81,7 +81,7 @@ const NotificationDropdown = ({ innerRef, onClose }) => {
         </button>
       </div>
 
-    
+
       <ul
         onScroll={handleScroll}
         className="p-3 space-y-6 max-h-[420px] overflow-y-auto"
@@ -135,7 +135,7 @@ const NotificationDropdown = ({ innerRef, onClose }) => {
               </div>
             </div>
           ))}
-
+        {getNotifications.isFetchingNextPage && (<div className="flex justify-center items-center py-2"> <svg className="w-5 h-5 text-gray-500 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" > <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /> <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 100 16v-4l-3 3 3 3v-4a8 8 0 01-8-8z" /> </svg> </div>)}
         {notifications?.length === 0 && !getNotifications.isLoading && (
           <p className="text-center text-sm text-gray-500 py-4">
             No Notifications
@@ -148,7 +148,7 @@ const NotificationDropdown = ({ innerRef, onClose }) => {
 
       <div className="sticky bottom-0 z-20 p-3 bg-gray-50 flex justify-center items-center
                   rounded-b-2xl border-t border-gray-300">
-                    
+
 
         <button
           disabled={!hasUnread}
