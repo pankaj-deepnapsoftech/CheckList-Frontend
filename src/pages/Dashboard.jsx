@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
   Filter,
@@ -8,7 +8,11 @@ import {
   Users,
   Activity,
 } from "lucide-react";
-import { useDashboardCards } from "../hooks/useDashboard";
+import {
+  useDashboardCards,
+  useMonthlyInspectionTrend,
+  useAssemblyStatus
+} from "../hooks/useDashboard";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -128,6 +132,7 @@ function getMinMax(arr, key) {
   return [Math.min(...vals), Math.max(...vals)];
 }
 
+// eslint-disable-next-line no-unused-vars
 function toPolylinePoints(data, key, width = 700, height = 150, pad = 24) {
   const count = data.length;
   const stepX = (width - pad * 2) / Math.max(1, count - 1);
@@ -373,7 +378,6 @@ function MiniBar({ label, value, max }) {
 /* MultiSelect (chips + dropdown) */
 
 function MultiSelect({
-  id,
   label,
   options,
   value,
@@ -475,6 +479,7 @@ function MultiSelect({
 /* ---------------- Main Dashboard ---------------- */
 
 export default function ChecklistDashboard() {
+  // eslint-disable-next-line no-unused-vars
   const [lineHover, setLineHover] = useState({
     x: null,
     y: null,
@@ -503,25 +508,16 @@ export default function ChecklistDashboard() {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
-  const trendChecked = useMemo(
-    () => toPolylinePoints(LINE_TREND, "checked"),
-    []
-  );
-  const trendError = useMemo(() => toPolylinePoints(LINE_TREND, "error"), []);
-  const trendUnchecked = useMemo(
-    () => toPolylinePoints(LINE_TREND, "unchecked"),
-    []
-  );
-
   const donutTotal = DONUT_DATA.reduce((s, d) => s + d.value, 0);
-
-
 
   const {
     data: cardData,
     isLoading: cardsLoading,
     isError: cardsError,
   } = useDashboardCards();
+
+  const { data: monthlyTrendData = [], isLoading: monthlyTrendLoading } =
+    useMonthlyInspectionTrend();
 
   const { getAssemblyCardsData } = useCheckItemHistory();
 
@@ -544,7 +540,7 @@ export default function ChecklistDashboard() {
       delta: cardData?.month_difference?.process ?? 0,
       icon: <Filter className="w-4 h-4" />,
     },
-    { 
+    {
       title: "Total Parts",
       value: cardData?.totals?.parts ?? 0,
       delta: cardData?.month_difference?.parts ?? 0,
@@ -726,137 +722,149 @@ export default function ChecklistDashboard() {
         <section className="grid gap-4 xl:grid-cols-12">
           {/* Left column */}
           <div className="space-y-4 xl:col-span-8">
-            {/* Line Trend */}
+            {/* Monthly Inspection Trend */}
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-semibold text-slate-800">
-                    Monthly Inspection Trend
-                  </h2>
-                  <p className="text-xs text-slate-400">
-                    Checked vs Unchecked assemblies (monthly)
-                  </p>
-                </div>
+              <div className="mb-4">
+                <h2 className="text-sm font-semibold text-slate-800">
+                  Monthly Inspection Trend
+                </h2>
+                <p className="text-xs text-slate-400">
+                  Checked vs Unchecked assemblies (monthly)
+                </p>
               </div>
 
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={MONTHLY_DATA}
-                    margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
-                  >
-                    <defs>
-                      <linearGradient
-                        id="checkedGradient"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="#22c55e"
-                          stopOpacity={0.35}
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="#22c55e"
-                          stopOpacity={0.05}
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="uncheckedGradient"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="#eab308"
-                          stopOpacity={0.3}
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="#eab308"
-                          stopOpacity={0.05}
-                        />
-                      </linearGradient>
-                      <linearGradient
-                        id="errorGradient"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="0%"
-                          stopColor="#ef4444"
-                          stopOpacity={0.3}
-                        />
-                        <stop
-                          offset="100%"
-                          stopColor="#ef4444"
-                          stopOpacity={0.05}
-                        />
-                      </linearGradient>
-                    </defs>
+              <div className="h-64 w-full relative">
+                {monthlyTrendLoading ? (
+                  <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400">
+                    Loading trend...
+                  </div>
+                ) : monthlyTrendData.length === 0 ? (
+                  <div className="absolute inset-0 flex items-center justify-center text-xs text-slate-400">
+                    No data available
+                  </div>
+                ) : (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                      data={monthlyTrendData}
+                      margin={{ top: 10, right: 20, left: 0, bottom: 0 }}
+                    >
+                      <defs>
+                        <linearGradient
+                          id="checkedGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0%"
+                            stopColor="#22c55e"
+                            stopOpacity={0.35}
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="#22c55e"
+                            stopOpacity={0.05}
+                          />
+                        </linearGradient>
 
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <linearGradient
+                          id="uncheckedGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0%"
+                            stopColor="#eab308"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="#eab308"
+                            stopOpacity={0.05}
+                          />
+                        </linearGradient>
 
-                    <XAxis
-                      dataKey="month"
-                      tick={{ fill: "#64748b", fontSize: 12 }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <YAxis
-                      tick={{ fill: "#64748b", fontSize: 12 }}
-                      axisLine={false}
-                      tickLine={false}
-                    />
+                        <linearGradient
+                          id="errorGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="0%"
+                            stopColor="#ef4444"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="#ef4444"
+                            stopOpacity={0.05}
+                          />
+                        </linearGradient>
+                      </defs>
 
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: 12,
-                        border: "1px solid #e5e7eb",
-                        fontSize: 12,
-                      }}
-                    />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
 
-                    <Legend
-                      verticalAlign="top"
-                      height={36}
-                      iconType="circle"
-                      wrapperStyle={{ fontSize: 12 }}
-                    />
+                      <XAxis
+                        dataKey="month"
+                        tick={{ fill: "#64748b", fontSize: 12 }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
 
-                    <Area
-                      type="monotone"
-                      dataKey="checked"
-                      stroke="#22c55e"
-                      strokeWidth={2.5}
-                      fill="url(#checkedGradient)"
-                      name="Checked"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="unchecked"
-                      stroke="#eab308"
-                      strokeWidth={2.5}
-                      fill="url(#uncheckedGradient)"
-                      name="Unchecked"
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="error"
-                      stroke="#ef4444"
-                      strokeWidth={2.5}
-                      fill="url(#errorGradient)"
-                      name="Error"
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                      <YAxis
+                        tick={{ fill: "#64748b", fontSize: 12 }}
+                        axisLine={false}
+                        tickLine={false}
+                        allowDecimals={false}
+                      />
+
+                      <Tooltip
+                        contentStyle={{
+                          borderRadius: 12,
+                          border: "1px solid #e5e7eb",
+                          fontSize: 12,
+                        }}
+                      />
+
+                      <Legend
+                        verticalAlign="top"
+                        height={36}
+                        iconType="circle"
+                        wrapperStyle={{ fontSize: 12 }}
+                      />
+
+                      <Area
+                        type="monotone"
+                        dataKey="checked"
+                        stroke="#22c55e"
+                        strokeWidth={2.5}
+                        fill="url(#checkedGradient)"
+                        name="Checked"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="unchecked"
+                        stroke="#eab308"
+                        strokeWidth={2.5}
+                        fill="url(#uncheckedGradient)"
+                        name="Unchecked"
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="error"
+                        stroke="#ef4444"
+                        strokeWidth={2.5}
+                        fill="url(#errorGradient)"
+                        name="Error"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                )}
               </div>
             </div>
 
@@ -905,13 +913,14 @@ export default function ChecklistDashboard() {
             </div>
 
             {/* Smart Insights under performance */}
-            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="flex items-center justify-between mb-2">
+            <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex flex-col h-auto md:h-[315px]">
+              <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-slate-800">
                   Smart Insights
                 </h3>
               </div>
-              <div className="grid gap-3 md:grid-cols-2 text-xs">
+
+              <div className="grid gap-3 text-xs grid-cols-1 sm:grid-cols-2 flex-1">
                 <InsightItem
                   title="Highest error rate"
                   value="Line 1000B"
@@ -1014,6 +1023,7 @@ export default function ChecklistDashboard() {
                         const start = (cum / donutTotal) * Math.PI * 2;
                         const end =
                           ((cum + s.value) / donutTotal) * Math.PI * 2;
+                        // eslint-disable-next-line react-hooks/immutability
                         cum += s.value;
                         return (
                           <path

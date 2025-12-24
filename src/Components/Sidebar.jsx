@@ -51,7 +51,8 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       path: "/checkitem-data",
       icon: <ChevronsLeftRightEllipsis size={20} />,
     },
-    {
+
+    !IsSuper && {
       name: "Assigned Assembly Lines",
       path: "/assigned-assembly-lines",
       icon: <Airplay size={20} />,
@@ -74,7 +75,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         }
       : null,
   ].filter(Boolean);
-  ;
+  
 
   const allowedMenu = IsSuper
     ? allMenu

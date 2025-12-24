@@ -7,6 +7,7 @@ import { useProcess } from "../../../hooks/useProcess";
 import { validationSchema } from "../../../Validation/CheckItemValidation";
 import { useCheckItem } from "../../../hooks/useCheckItem";
 import SearchableDropdown from "../../SearchableDropDown/SearchableDropDown";
+import SearchableDropdownwithRemove from "../../SearchableDropDown/SearchableDropDown2";
 
 export default function AddCheckItemModal({
   open,
@@ -19,15 +20,15 @@ export default function AddCheckItemModal({
   const { getProcessData } = useProcess();
   const { CreateCheckItem, updateCheckItem, AddCategroy, GetCategory } = useCheckItem();
 
- 
 
 
 
-  
+
+
   const [showMethodInput, setShowMethodInput] = useState(false);
   const [showTimeInput, setShowTimeInput] = useState(false);
   const [showUomInput, setShowUomInput] = useState(false);
-  const [methodList, setMethodList] = useState([]); 
+  const [methodList, setMethodList] = useState([]);
   const [newMethod, setNewMethod] = useState("");
 
   const [newTime, setNewTime] = useState("");
@@ -36,28 +37,38 @@ export default function AddCheckItemModal({
   const [newUom, setNewUom] = useState("");
   const [uom, setUom] = useState([]);
 
+
   useEffect(() => {
     if (GetCategory?.data) {
-      const UomData = GetCategory.data
-        .filter(item => item?.uom)
-        .map(item => item.uom);
+      const UomData = GetCategory?.data
+        ?.filter(item => item?.uom)
+        ?.map(item => ({
+          uom: item.uom,
+          id: item._id,
+        }));
 
       setUom(UomData);
       const MethodData = GetCategory.data
         .filter(item => item?.checking_method)
-        .map(item => item.checking_method);
+        .map(item => ({
+          checking_method: item.checking_method,
+          id: item._id,
+        }));
 
       setMethodList(MethodData);
       const ListData = GetCategory.data
         .filter(item => item?.checking_time)
-        .map(item => item.checking_time);
+        .map(item => ({
+          checking_time: item.checking_time,
+          id: item._id,
+        }));
 
       setChecklistTimes(ListData);
     }
   }, [GetCategory?.data]);
 
-  
-  
+
+
   const formik = useFormik({
     initialValues: {
       process:
@@ -93,7 +104,7 @@ export default function AddCheckItemModal({
       }
     },
   });
-  
+
 
 
   if (!open) return null;
@@ -132,6 +143,7 @@ export default function AddCheckItemModal({
               onBlur={() => formik.setFieldTouched("process", true)}
               disabled={isView}
               error={formik.touched.process && formik.errors.process}
+
             />
 
           </Field>
@@ -162,18 +174,21 @@ export default function AddCheckItemModal({
           <Field label="Check Method">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <SearchableDropdown
+                <SearchableDropdownwithRemove
                   placeholder="Select Checklist Method"
                   options={methodList.map(m => ({
-                    label: m,
-                    value: m,
+                    label: m.checking_method,
+                    value: m.checking_method,
+                    _id: m.id
                   }))}
                   value={formik.values.check_list_method}
                   getOptionLabel={(o) => o.label}
                   getOptionValue={(o) => o.value}
+                  getOptionId={(o) => o._id}
                   onChange={(val) =>
                     formik.setFieldValue("check_list_method", val)
                   }
+                  type="checking_method"
                 />
               </div>
             </div>
@@ -207,7 +222,7 @@ export default function AddCheckItemModal({
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded"
                   onClick={() => {
                     if (!newMethod.trim()) return;
-                  
+
                     AddCategroy.mutate({ newMethod: newMethod })
                     setNewMethod("");
                     setShowMethodInput(false);
@@ -233,18 +248,21 @@ export default function AddCheckItemModal({
           <Field label="Checking Time">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <SearchableDropdown
+                <SearchableDropdownwithRemove
                   placeholder="Select Checklist Time"
                   options={checklistTimes.map((t) => ({
-                    label: t,
-                    value: t,
+                    label: t.checking_time,
+                    value: t.checking_time,
+                    _id: t.id
                   }))}
                   value={formik.values.check_list_time}
                   getOptionLabel={(o) => o.label}
                   getOptionValue={(o) => o.value}
+                  getOptionId={(o) => o._id}
                   onChange={(val) =>
                     formik.setFieldValue("check_list_time", val)
                   }
+                  type="checking_time"
                 />
               </div>
 
@@ -256,12 +274,12 @@ export default function AddCheckItemModal({
                 <button
                   type="button"
                   className="
-        text-blue-600 text-sm font-medium whitespace-nowrap
-        bg-blue-50 border border-blue-300
-        px-3 py-1.5 rounded-md
-        hover:bg-blue-100 hover:border-blue-400
-        transition-colors
-      "
+                     text-blue-600 text-sm font-medium whitespace-nowrap
+                     bg-blue-50 border border-blue-300
+                        px-3 py-1.5 rounded-md
+                      hover:bg-blue-100 hover:border-blue-400
+                        transition-colors
+                        "
                   onClick={() => setShowTimeInput(true)}
                 >
                   + Add Time
@@ -361,20 +379,21 @@ export default function AddCheckItemModal({
 
               <Field label="UOM">
 
-
-
-                <SearchableDropdown
+                <SearchableDropdownwithRemove
                   placeholder="Select UOM"
                   options={uom.map((t) => ({
-                    label: t,
-                    value: t,
+                    label: t?.uom,
+                    value: t?.uom,
+                    _id: t.id
                   }))}
                   value={formik.values.uom}
                   getOptionLabel={(o) => o.label}
                   getOptionValue={(o) => o.value}
+                  getOptionId={(o) => o._id}
                   onChange={(val) =>
                     formik.setFieldValue("uom", val)
                   }
+                  type="uom"
                 />
 
 
