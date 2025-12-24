@@ -23,7 +23,10 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  BarChart,
+  Bar,
 } from "recharts";
+
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 
 /* ---------------- Mock / Static Data ---------------- */
@@ -838,7 +841,7 @@ export default function ChecklistDashboard() {
             {/* Active Assembly Performance */}
             <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               {/* Header */}
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4 flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-slate-800">
                     Assembly Performance
@@ -855,42 +858,56 @@ export default function ChecklistDashboard() {
               </div>
 
               {/* Chart */}
-              <div className="flex items-end gap-4 h-44 overflow-x-auto">
-                {AssemblyData?.map((d, idx) => {
-                  const total = d.running + d.fault || 1;
-                  const runningPct = (d.running / total) * 100;
-                  const faultPct = (d.fault / total) * 100;
+              <div className="h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={AssemblyData}
+                    barSize={22}
+                    radius={[8, 8, 0, 0]}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="#e5e7eb"
+                    />
 
-                  return (
-                    <div
-                      key={idx}
-                      className="flex flex-col items-center gap-2 min-w-[48px]"
-                    >
-                      {/* Bar Track */}
-                      <div className="relative w-4 h-32 bg-slate-100 rounded-full overflow-hidden">
-                        {/* Running */}
-                        <div
-                          className="absolute bottom-0 w-full bg-indigo-500 rounded-full transition-all"
-                          style={{ height: `${runningPct}%` }}
-                        />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
 
-                        {/* Fault */}
-                        <div
-                          className="absolute bottom-[var(--running)] w-full bg-rose-400"
-                          style={{
-                            height: `${faultPct}%`,
-                            bottom: `${runningPct}%`,
-                          }}
-                        />
-                      </div>
+                    <YAxis
+                      tick={{ fontSize: 11, fill: "#64748b" }}
+                      axisLine={false}
+                      tickLine={false}
+                      allowDecimals={false}
+                    />
 
-                      {/* Label */}
-                      <span className="text-[11px] text-slate-500 font-medium">
-                        {d.label}
-                      </span>
-                    </div>
-                  );
-                })}
+                    <Tooltip
+                      cursor={{ fill: "rgba(15, 23, 42, 0.04)" }}
+                      contentStyle={{
+                        borderRadius: 12,
+                        border: "1px solid #e5e7eb",
+                        fontSize: 12,
+                      }}
+                    />
+
+                    <Bar
+                      dataKey="running"
+                      stackId="a"
+                      fill="#4f46e5"
+                      radius={[0, 0, 8, 8]}
+                    />
+                    <Bar
+                      dataKey="fault"
+                      stackId="a"
+                      fill="#fb7185"
+                      radius={[8, 8, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
