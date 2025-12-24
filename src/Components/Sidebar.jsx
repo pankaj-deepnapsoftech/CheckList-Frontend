@@ -51,10 +51,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       path: "/checkitem-data",
       icon: <ChevronsLeftRightEllipsis size={20} />,
     },
+
     !IsSuper && {
       name: "Assigned Assembly Lines",
       path: "/assigned-assembly-lines",
-      icon: <Airplay size={20} />
+      icon: <Airplay size={20} />,
     },
     {
       name: "Inspection Status",
@@ -66,7 +67,13 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       path: "/assembly-line-admin/error",
       icon: <AlertOctagon size={20} />,
     },
-    
+    user?.is_admin === false
+      ? {
+          name: "Assembly Line Error",
+          path: "/assembly-line/error",
+          icon: <AlertOctagon size={20} />,
+        }
+      : null,
   ].filter(Boolean);
   
 
