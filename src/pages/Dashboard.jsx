@@ -221,18 +221,22 @@ function StatCard({ title, value, delta, icon, loading }) {
 function StatusPill({ status }) {
   const base =
     "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium";
-  if (status === "Checked")
+
+  const value = status?.toUpperCase();
+
+  if (value === "CHECKED")
     return (
-      <span className={base + " bg-emerald-50 text-emerald-700"}>Checked</span>
+      <span className={base + " bg-green-50 border border-green-300 text-green-700"}>Checked</span>
     );
-  if (status === "Unchecked")
-    return (
-      <span className={base + " bg-amber-50 text-amber-700"}>Unchecked</span>
-    );
-  if (status === "In Progress")
+
+  if (value === "UN-CHECKED" || value === "UNCHECKED")
+    return <span className={base + " bg-red-50 text-red-700"}>Unchecked</span>;
+
+  if (value === "IN PROGRESS" || value === "PENDING")
     return (
       <span className={base + " bg-sky-50 text-sky-700"}>In Progress</span>
     );
+
   return (
     <span className={base + " bg-slate-100 text-slate-700"}>{status}</span>
   );
@@ -241,30 +245,21 @@ function StatusPill({ status }) {
 function IssuePill({ status }) {
   const base =
     "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium";
-  if (status === "OK")
-    return <span className={base + " bg-emerald-50 text-emerald-700"}>OK</span>;
-  if (status === "Error")
-    return <span className={base + " bg-rose-50 text-rose-700"}>Error</span>;
-  return (
-    <span className={base + " bg-slate-100 text-slate-700"}>{status}</span>
-  );
+
+  const value = status?.toUpperCase();
+
+
+  if (value === "NO-ISSUE" || value === "NO ISSUE" || value === "OK")
+    return (
+      <span className={base + " bg-emerald-50 border border-green-300 text-emerald-700"}>No Issue</span>
+    );
+
+  
+  return <span className={base + " bg-rose-50 border border-red-300 text-rose-700"}>Issue</span>;
 }
 
-function ResolutionPill({ status }) {
-  const base =
-    "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium";
-  if (status === "Resolved")
-    return <span className={base + " bg-sky-50 text-sky-700"}>Resolved</span>;
-  if (status === "Open")
-    return <span className={base + " bg-rose-50 text-rose-700"}>Open</span>;
-  if (status === "Pending")
-    return (
-      <span className={base + " bg-amber-50 text-amber-700"}>Pending</span>
-    );
-  return (
-    <span className={base + " bg-slate-100 text-slate-700"}>{status}</span>
-  );
-}
+
+
 
 function LegendDot({ color, label }) {
   return (
@@ -518,6 +513,55 @@ export default function ChecklistDashboard() {
 
   const { data: monthlyTrendData = [], isLoading: monthlyTrendLoading } =
     useMonthlyInspectionTrend();
+
+    const Inspection = useAssemblyStatus();
+
+    const InspectionData = Inspection?.data;
+
+    console.log("this is my ins datta", InspectionData);
+
+    const tableRows = Array.isArray(InspectionData)
+      ? InspectionData.map((item) => {
+          const inspectionStatus = item.checked
+            ? "CHECKED"
+            : item.unchecked
+            ? "UN-CHECKED"
+            : "PENDING";
+
+          const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
+
+          const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
+
+          return {
+            id: item._id,
+            date: new Date(item.createdAt).toLocaleDateString(),
+
+            company: item.company_id?.company_name || "—",
+            plant: item.plant_id?.plant_name || "—",
+
+            line: `${item.assembly_number} / ${item.assembly_name}`,
+
+            process: Array.isArray(item.process_id)
+              ? item.process_id.length
+              : 0,
+
+            part: item.part_id?.part_name || "—",
+
+            checkItem: "Checklist", 
+
+            inspectionStatus,
+            issueStatus,
+            resolutionStatus,
+
+            checkedBy: item.responsibility?.full_name || "—",
+
+            time: new Date(item.updatedAt).toLocaleTimeString(),
+
+            remarks: item.error ? "Issue detected during inspection" : "—",
+          };
+        })
+      : [];
+
 
   const { getAssemblyCardsData } = useCheckItemHistory();
 
@@ -1158,7 +1202,7 @@ export default function ChecklistDashboard() {
                 Detailed record of inspections with filters and export
               </p>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
+            {/* <div className="flex flex-wrap items-center gap-2">
               <div className="relative">
                 <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
                 <input
@@ -1173,7 +1217,7 @@ export default function ChecklistDashboard() {
               <button className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-700 hover:bg-slate-50">
                 Export
               </button>
-            </div>
+            </div> */}
           </div>
 
           <div className="overflow-x-auto rounded-lg border border-slate-100">
@@ -1184,54 +1228,41 @@ export default function ChecklistDashboard() {
                   <Th>Company</Th>
                   <Th>Plant</Th>
                   <Th>Assembly Line</Th>
-                  <Th>Process</Th>
-                  <Th>Part</Th>
-                  <Th>Check Item</Th>
+                  
                   <Th>Inspection Status</Th>
                   <Th>Issue Status</Th>
-                  <Th>Resolution</Th>
+                  
                   <Th>Checked By</Th>
                   <Th>Time</Th>
-                  <Th>Remarks</Th>
-                  <Th>Action</Th>
+                  
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
-                {TABLE_ROWS.map((r, i) => (
+                {tableRows.map((r, i) => (
                   <tr key={i} className="hover:bg-slate-50/80 cursor-pointer">
                     <Td>{r.date}</Td>
                     <Td>{r.company}</Td>
                     <Td>{r.plant}</Td>
                     <Td>{r.line}</Td>
-                    <Td>{r.process}</Td>
-                    <Td>{r.part}</Td>
-                    <Td>{r.checkItem}</Td>
+                                    
                     <Td>
                       <StatusPill status={r.inspectionStatus} />
                     </Td>
-                    <Td>
+                    <Td >
                       <IssuePill status={r.issueStatus} />
                     </Td>
-                    <Td>
-                      <ResolutionPill status={r.resolutionStatus} />
-                    </Td>
+                    
                     <Td>{r.checkedBy}</Td>
                     <Td>{r.time}</Td>
-                    <Td className="max-w-[160px] truncate" title={r.remarks}>
-                      {r.remarks}
-                    </Td>
-                    <Td>
-                      <button className="rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] text-slate-700 hover:bg-slate-100">
-                        View
-                      </button>
-                    </Td>
+                    
+                   
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
 
-          <div className="mt-3 flex items-center justify-between text-[11px] text-slate-500">
+          {/* <div className="mt-3 flex items-center justify-between text-[11px] text-slate-500">
             <span>Showing 1–10 of 120 inspections</span>
             <div className="flex items-center gap-1">
               <button className="rounded border border-slate-200 px-2 py-1 hover:bg-slate-50">
@@ -1247,7 +1278,7 @@ export default function ChecklistDashboard() {
                 Next
               </button>
             </div>
-          </div>
+          </div> */}
         </section>
 
         <footer className="pt-1 pb-3 text-center text-[11px] text-slate-400">
