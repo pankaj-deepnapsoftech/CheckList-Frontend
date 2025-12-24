@@ -138,13 +138,13 @@ export default function AssemblyError() {
                     <span className="font-medium">{item.result}</span>
                   </div>
                 </div>
-                <button
+                {/* <button
                   onClick={() => handleUpdateClick(item)}
                   className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors"
                 >
                   <Pencil size={16} />
                   Update Result
-                </button>
+                </button> */}
               </div>
             ))}
           </div>
