@@ -11,7 +11,8 @@ import {
 import {
   useDashboardCards,
   useMonthlyInspectionTrend,
-  useAssemblyStatus
+  useAssemblyStatus,
+  useAssemblyMonthly,
 } from "../hooks/useDashboard";
 import {
   ResponsiveContainer,
@@ -27,12 +28,7 @@ import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 
 /* ---------------- Mock / Static Data ---------------- */
 
-const LINE_TREND = [
-  { label: "Shift A", checked: 40, error: 5, unchecked: 10 },
-  { label: "Shift B", checked: 38, error: 7, unchecked: 12 },
-  { label: "Shift C", checked: 30, error: 10, unchecked: 15 },
-  { label: "General", checked: 45, error: 4, unchecked: 8 },
-];
+
 
 const DONUT_DATA = [
   { label: "Checked", value: 120, color: "#22c55e" },
@@ -47,83 +43,6 @@ const ASSEMBLY_BAR = [
   { label: "5000", running: 14, fault: 10 },
 ];
 
-const MONTHLY_DATA = [
-  { month: "Jan", checked: 820, unchecked: 120, error: 60 },
-  { month: "Feb", checked: 760, unchecked: 160, error: 70 },
-  { month: "Mar", checked: 910, unchecked: 90, error: 45 },
-  { month: "Apr", checked: 880, unchecked: 110, error: 55 },
-  { month: "May", checked: 1020, unchecked: 80, error: 40 },
-  { month: "Jun", checked: 980, unchecked: 100, error: 50 },
-  { month: "Jul", checked: 1100, unchecked: 70, error: 35 },
-  { month: "Aug", checked: 1060, unchecked: 95, error: 48 },
-  { month: "Sep", checked: 990, unchecked: 130, error: 65 },
-  { month: "Oct", checked: 1150, unchecked: 60, error: 30 },
-  { month: "Nov", checked: 1080, unchecked: 85, error: 42 },
-  { month: "Dec", checked: 1200, unchecked: 50, error: 25 },
-];
-
-const TABLE_ROWS = [
-  {
-    date: "2025-12-23",
-    company: "JP Minda",
-    plant: "Plant 1",
-    line: "500",
-    process: "PCB Depaneling",
-    part: "Main PCB",
-    checkItem: "ESD Check",
-    inspectionStatus: "Checked",
-    issueStatus: "OK",
-    resolutionStatus: "Resolved",
-    checkedBy: "Rohan Singh",
-    time: "10:12",
-    remarks: "Within range",
-  },
-  {
-    date: "2025-12-23",
-    company: "JP Minda",
-    plant: "Plant 1",
-    line: "1000A",
-    process: "Print Plate Soldering",
-    part: "Connector",
-    checkItem: "Solder Quality",
-    inspectionStatus: "Checked",
-    issueStatus: "Error",
-    resolutionStatus: "Pending",
-    checkedBy: "Priya Sharma",
-    time: "10:35",
-    remarks: "Bridging observed",
-  },
-  {
-    date: "2025-12-23",
-    company: "JP Minda",
-    plant: "Plant 2",
-    line: "2000",
-    process: "Case & Slider Greasing",
-    part: "Slider",
-    checkItem: "Grease Weight",
-    inspectionStatus: "Unchecked",
-    issueStatus: "Error",
-    resolutionStatus: "Open",
-    checkedBy: "-",
-    time: "-",
-    remarks: "Awaiting inspection",
-  },
-  {
-    date: "2025-12-23",
-    company: "JP Minda",
-    plant: "Plant 3",
-    line: "5000",
-    process: "Cover Assy",
-    part: "Top Cover",
-    checkItem: "Air Leak",
-    inspectionStatus: "Checked",
-    issueStatus: "Error",
-    resolutionStatus: "Resolved",
-    checkedBy: "Amit Patel",
-    time: "09:55",
-    remarks: "Leak fixed",
-  },
-];
 
 /* ---------------- Helpers ---------------- */
 
@@ -516,9 +435,13 @@ export default function ChecklistDashboard() {
 
     const Inspection = useAssemblyStatus();
 
+    const Assembly = useAssemblyMonthly();
+
+    const AssemblyData = Assembly?.data
+
     const InspectionData = Inspection?.data;
 
-    console.log("this is my ins datta", InspectionData);
+    console.log("this is my Assembly data", AssemblyData);
 
     const tableRows = Array.isArray(InspectionData)
       ? InspectionData.map((item) => {
@@ -929,12 +852,13 @@ export default function ChecklistDashboard() {
                 </div>
               </div>
               <div className="mt-3 flex h-40 items-end gap-4 overflow-x-auto pb-1">
-                {ASSEMBLY_BAR.map((d) => {
+                {AssemblyData?.map((d, idx) => {
                   const maxVal = Math.max(d.running, d.fault);
                   const scale = 100 / Math.max(1, maxVal);
+
                   return (
                     <div
-                      key={d.label}
+                      key={idx}
                       className="flex flex-col items-center gap-1 min-w-[54px]"
                     >
                       <div className="flex w-7 flex-col justify-end gap-1">
@@ -1228,13 +1152,12 @@ export default function ChecklistDashboard() {
                   <Th>Company</Th>
                   <Th>Plant</Th>
                   <Th>Assembly Line</Th>
-                  
+
                   <Th>Inspection Status</Th>
                   <Th>Issue Status</Th>
-                  
+
                   <Th>Checked By</Th>
                   <Th>Time</Th>
-                  
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
@@ -1244,18 +1167,16 @@ export default function ChecklistDashboard() {
                     <Td>{r.company}</Td>
                     <Td>{r.plant}</Td>
                     <Td>{r.line}</Td>
-                                    
+
                     <Td>
                       <StatusPill status={r.inspectionStatus} />
                     </Td>
-                    <Td >
+                    <Td>
                       <IssuePill status={r.issueStatus} />
                     </Td>
-                    
+
                     <Td>{r.checkedBy}</Td>
                     <Td>{r.time}</Td>
-                    
-                   
                   </tr>
                 ))}
               </tbody>
