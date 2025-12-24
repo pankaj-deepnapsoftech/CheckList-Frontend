@@ -10,7 +10,7 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
 
   const [open, setOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const {getNotifications} = useNotifications()
+  const { getNotifications } = useNotifications()
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
   const notifRef = useRef(null);
@@ -92,12 +92,9 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
             </span>
           </h2>
         </div>
-
-        {/* Right Section */}
         <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
-          {/* Notifications */}
-          <div className="relative">
-            <Bell ref={notifButtonRef} onClick={() => setNotificationsOpen(!notificationsOpen)} size={22} />
+          <div className="relative cursor-pointer">
+            <Bell  ref={notifButtonRef} onClick={() => setNotificationsOpen(!notificationsOpen)} size={22} />
 
             {hasUnread && (
               <span
@@ -118,7 +115,7 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
               />
             )}
           </div>
-        
+
 
           {/* Profile Avatar */}
           <div
