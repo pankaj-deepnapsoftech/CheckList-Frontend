@@ -3,13 +3,14 @@ import { useState, useRef, useEffect } from "react";
 import ProfileDropDown from "../Components/DropDown/ProfileDropDown";
 import NotificationDropdown from "../Components/DropDown/NotificationDropDown";
 import { useLogin } from "../hooks/useLogin";
+import { useNotifications } from "../hooks/useNotifications";
 
 export default function Navbar({ onMenuClick, isMobileOpen }) {
   const { logedinUser } = useLogin();
 
   const [open, setOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-
+  const {getNotifications} = useNotifications()
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
   const notifRef = useRef(null);
@@ -47,6 +48,13 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+
+  const notifications =
+    getNotifications.data?.pages.flatMap(page => page.data) || [];
+  const hasUnread = notifications.some(
+    (item) => item?.status === "send"
+  );
 
   return (
     <div className="w-full bg-white sticky top-0 z-50 shadow-sm">
@@ -88,22 +96,21 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
         {/* Right Section */}
         <div className="flex items-center gap-4 sm:gap-6 lg:gap-8">
           {/* Notifications */}
-          <div className="relative cursor-pointer">
-            <Bell
-              ref={notifButtonRef}
-              size={22}
-              className="text-gray-700 sm:w-6 sm:h-6"
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-            />
+          <div className="relative">
+            <Bell ref={notifButtonRef} onClick={() => setNotificationsOpen(!notificationsOpen)} size={22} />
 
-            <span
-              className="
-              absolute -top-1 -right-1 
-              w-2 h-2 sm:w-2.5 sm:h-2.5 
-              bg-red-500 rounded-full
-            "
-            />
+            {hasUnread && (
+              <span
+                className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500
+                 animate-ping"
+              />
+            )}
 
+            {hasUnread && (
+              <span
+                className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500"
+              />
+            )}
             {notificationsOpen && (
               <NotificationDropdown
                 innerRef={notifRef}
@@ -111,6 +118,7 @@ export default function Navbar({ onMenuClick, isMobileOpen }) {
               />
             )}
           </div>
+        
 
           {/* Profile Avatar */}
           <div
