@@ -221,18 +221,22 @@ function StatCard({ title, value, delta, icon, loading }) {
 function StatusPill({ status }) {
   const base =
     "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium";
-  if (status === "Checked")
+
+  const value = status?.toUpperCase();
+
+  if (value === "CHECKED")
     return (
-      <span className={base + " bg-emerald-50 text-emerald-700"}>Checked</span>
+      <span className={base + " bg-green-50 border border-green-300 text-green-700"}>Checked</span>
     );
-  if (status === "Unchecked")
-    return (
-      <span className={base + " bg-amber-50 text-amber-700"}>Unchecked</span>
-    );
-  if (status === "In Progress")
+
+  if (value === "UN-CHECKED" || value === "UNCHECKED")
+    return <span className={base + " bg-red-50 text-red-700"}>Unchecked</span>;
+
+  if (value === "IN PROGRESS" || value === "PENDING")
     return (
       <span className={base + " bg-sky-50 text-sky-700"}>In Progress</span>
     );
+
   return (
     <span className={base + " bg-slate-100 text-slate-700"}>{status}</span>
   );
@@ -241,30 +245,21 @@ function StatusPill({ status }) {
 function IssuePill({ status }) {
   const base =
     "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium";
-  if (status === "OK")
-    return <span className={base + " bg-emerald-50 text-emerald-700"}>OK</span>;
-  if (status === "Error")
-    return <span className={base + " bg-rose-50 text-rose-700"}>Error</span>;
-  return (
-    <span className={base + " bg-slate-100 text-slate-700"}>{status}</span>
-  );
+
+  const value = status?.toUpperCase();
+
+
+  if (value === "NO-ISSUE" || value === "NO ISSUE" || value === "OK")
+    return (
+      <span className={base + " bg-emerald-50 border border-green-300 text-emerald-700"}>No Issue</span>
+    );
+
+  
+  return <span className={base + " bg-rose-50 border border-red-300 text-rose-700"}>Issue</span>;
 }
 
-function ResolutionPill({ status }) {
-  const base =
-    "inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium";
-  if (status === "Resolved")
-    return <span className={base + " bg-sky-50 text-sky-700"}>Resolved</span>;
-  if (status === "Open")
-    return <span className={base + " bg-rose-50 text-rose-700"}>Open</span>;
-  if (status === "Pending")
-    return (
-      <span className={base + " bg-amber-50 text-amber-700"}>Pending</span>
-    );
-  return (
-    <span className={base + " bg-slate-100 text-slate-700"}>{status}</span>
-  );
-}
+
+
 
 function LegendDot({ color, label }) {
   return (
@@ -1249,13 +1244,11 @@ export default function ChecklistDashboard() {
                     <Td>{r.company}</Td>
                     <Td>{r.plant}</Td>
                     <Td>{r.line}</Td>
-                    
-                   
-                    
+                                    
                     <Td>
                       <StatusPill status={r.inspectionStatus} />
                     </Td>
-                    <Td>
+                    <Td >
                       <IssuePill status={r.issueStatus} />
                     </Td>
                     
