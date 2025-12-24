@@ -7,6 +7,7 @@ import {
   Clock3,
   Users,
   Activity,
+  Sparkles,
 } from "lucide-react";
 import {
   useDashboardCards,
@@ -917,6 +918,11 @@ export default function ChecklistDashboard() {
                 <h3 className="text-sm font-semibold text-slate-800">
                   Smart Insights
                 </h3>
+
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-700">
+                  <Sparkles size={12} />
+                  Coming Soon
+                </span>
               </div>
 
               <div className="grid gap-3 text-xs grid-cols-1 sm:grid-cols-2 flex-1">
