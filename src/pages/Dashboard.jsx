@@ -456,7 +456,13 @@ export default function ChecklistDashboard() {
 
   const InspectionData = Inspection?.data;
 
-   
+  const tableRows = Array.isArray(InspectionData)
+    ? InspectionData.map((item) => {
+        const inspectionStatus = item.checked
+          ? "CHECKED"
+          : item.unchecked
+          ? "UN-CHECKED"
+          : "PENDING";
 
         const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
 
