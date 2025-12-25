@@ -8,7 +8,7 @@ import { useUserRole } from "../../../hooks/useUserRole";
 import { RegisterEmployee } from "../../../hooks/useRegisterEmployee";
 import { Eye } from "lucide-react";
 import { EyeOff } from "lucide-react";
-import SearchableDropdown from "../../SearchableDropDown/SearchableDropDown";
+import SearchableDropdown from "../../SearchableDropDown/SearchableDropdown";
 
 export default function AddEmployeeModal({
   open,
@@ -19,7 +19,7 @@ export default function AddEmployeeModal({
   onSubmit,
 }) {
   const isView = mode === "view";
-  
+
   const { AllCompanyData } = useCompanies(null, null, open);
   const { AllRolesData } = useUserRole();
   const { createEmployee, updateEmployee } = RegisterEmployee();
@@ -44,12 +44,12 @@ export default function AddEmployeeModal({
     initialValues: {
       full_name: initialData?.full_name || "",
       email: initialData?.email || "",
-      role: initialData?.role?._id || "",
+      role: initialData?.userRole?._id || "",
       designation: initialData?.designation || initialData?.desigination || "",
       user_id: initialData?.user_id || "",
       password: "",
-      employee_company: initialData?.employee_company?._id || "",
-      Employee_plant: initialData?.employee_plant?._id || "",
+      employee_company: initialData?.company?._id || "",
+      Employee_plant: initialData?.plant?._id || "",
       assambly_line: initialData?.assambly_line?.map((l) => l._id) || [],
     },
     enableReinitialize: true,
@@ -69,21 +69,21 @@ export default function AddEmployeeModal({
       if (mode === "add") {
         payload.password = values.password;
       }
- 
+
       // UPDATE EMPLOYEE
       if (mode === "edit") {
-  updateEmployee.mutate({
-      id: initialData._id,
-      data: payload,
-    });
-  }else{
-    createEmployee.mutate(payload);
-  }
-    
-        formik.resetForm();
-        onClose();
-      },
-    })
+        updateEmployee.mutate({
+          id: initialData._id,
+          data: payload,
+        });
+      } else {
+        createEmployee.mutate(payload);
+      }
+
+      formik.resetForm();
+      onClose();
+    },
+  })
 
 
 
@@ -99,8 +99,8 @@ export default function AddEmployeeModal({
             {mode === "add"
               ? "Add Employee"
               : mode === "edit"
-              ? "Edit Employee"
-              : "View Employee"}
+                ? "Edit Employee"
+                : "View Employee"}
           </h2>
 
           <button onClick={onClose} className="cursor-pointer">
@@ -210,13 +210,13 @@ export default function AddEmployeeModal({
                 disabled={isView}
                 getOptionLabel={(r) => r.name}
                 getOptionValue={(r) => r._id}
-                  onChange={(val) => {
+                onChange={(val) => {
                   formik.setFieldValue("role", val);
-                  }}
-                  onBlur={() => {
+                }}
+                onBlur={() => {
                   formik.setFieldTouched("role", true);
-                  }}
-                  error={formik.touched.role && formik.errors.role}
+                }}
+                error={formik.touched.role && formik.errors.role}
               />
             </Field>
 
@@ -228,20 +228,20 @@ export default function AddEmployeeModal({
                 options={AllCompanyData?.data || []}
                 value={formik.values.employee_company}
                 onChange={(val) => {
-                formik.setFieldValue("employee_company", val);
-                formik.setFieldValue("company_id", val?._id); // store id if needed
+                  formik.setFieldValue("employee_company", val);
+                  formik.setFieldValue("company_id", val?._id); // store id if needed
 
-                formik.setFieldValue("Employee_plant", "");
-                formik.setFieldTouched("Employee_plant", false);
-              }}
-             error={
-               formik.touched.employee_company &&
-               formik.errors.employee_company
-              }
-             disabled={isView}
-             getOptionLabel={(c) => c.company_name}
-            getOptionValue={(c) => c._id}
-          />
+                  formik.setFieldValue("Employee_plant", "");
+                  formik.setFieldTouched("Employee_plant", false);
+                }}
+                error={
+                  formik.touched.employee_company &&
+                  formik.errors.employee_company
+                }
+                disabled={isView}
+                getOptionLabel={(c) => c.company_name}
+                getOptionValue={(c) => c._id}
+              />
             </Field>
 
             <Field label="Plant">
@@ -252,17 +252,17 @@ export default function AddEmployeeModal({
                 disabled={isView}
                 getOptionLabel={(p) => p.plant_name}
                 getOptionValue={(p) => p._id}
-                  onChange={(val) => {
-                    formik.setFieldValue("Employee_plant", val);
-                    }}
-                  onBlur={() => {
+                onChange={(val) => {
+                  formik.setFieldValue("Employee_plant", val);
+                }}
+                onBlur={() => {
                   formik.setFieldTouched("Employee_plant", true);
-                   }}
+                }}
                 error={
                   formik.touched.Employee_plant &&
                   formik.errors.Employee_plant
-                  }
-                />
+                }
+              />
             </Field>
 
             {/* Assembly Line Dropdown */}
