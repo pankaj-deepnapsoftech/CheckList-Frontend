@@ -176,8 +176,8 @@ const PlantName = () => {
             <table className="w-full min-w-[700px] text-left">
               <thead>
                 <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
-                  <th className="px-5 py-3 font-semibold">Plant Code</th>
-                  <th className="px-5 py-3 font-semibold">Plant Name</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Plant Code</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Plant Name</th>
                   <th className="px-5 py-3 font-semibold">Address</th>
                   <th className="px-5 py-3 font-semibold">Company</th>
                   <th className="px-5 py-3 font-semibold text-center">
@@ -192,13 +192,13 @@ const PlantName = () => {
                     key={i}
                     className="border-b border-gray-200 hover:bg-blue-50 transition"
                   >
-                    <td className="px-5 py-4">{p?.plant_code || "N/A"}</td>
-                    <td className="px-5 py-4">{p.plant_name}</td>
+                    <td className="px-5 py-4 text-nowrap">{p?.plant_code || "N/A"}</td>
+                    <td className="px-5 py-4 text-nowrap">{p.plant_name}</td>
                     <td className="px-5 py-4 max-w-[250px] truncate">
                       {p?.plant_address}
                     </td>
                     <td className="px-5 py-4">
-                      <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+                      <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">
                         {p?.company_id?.company_name}
                       </span>
                     </td>

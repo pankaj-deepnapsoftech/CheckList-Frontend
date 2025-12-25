@@ -137,21 +137,21 @@ const ChecklistItem = ({ index, check, getStatusClass }) => {
       {check.check_items_history?.length > 0 ? (
         <div className="mt-2">
           <span className="text-blue-400 font-semibold text-sm ">History:</span>
-          <ul className="list-disc list-inside text-gray-700 text-sm mt-3 space-y-2">
+          <ul className="list-disc list-inside text-gray-700 text-sm mt-3 space-y-3">
             {check.check_items_history.map((hist) => (
-              <li key={hist._id} className="flex flex-wrap items-center gap-2">
+              <li key={hist._id} className="flex  items-center gap-3">
                 <span
                   className={`px-2 py-0.5 rounded text-xs font-semibold ${getStatusClass(
                     hist.is_error
                   )}`}
                 >
                   {hist.is_error ? (
-                    <span className="flex items-center gap-1 text-xs text-red-600 font-medium">
+                    <span className="flex items-center gap-1 text-nowrap text-xs text-red-600 font-medium">
                       <OctagonAlert size={14} />
                       Error Found
                     </span>
                   ) : (
-                    <span className="flex items-center gap-1 text-green-600 font-medium">
+                    <span className="flex items-center gap-1 text-nowrap text-green-600 font-medium px-2">
                       <CircleCheckBig size={14} />
                       Checked
                     </span>
@@ -160,8 +160,8 @@ const ChecklistItem = ({ index, check, getStatusClass }) => {
                 <span
                   className={`${
                     hist.is_error
-                      ? "text-red-600 text-xs font-semibold"
-                      : "text-blue-400 font-semibold "
+                      ? "text-red-600 text-xs font-semibold truncate"
+                      : "text-blue-400 font-semibold truncate"
                   }`}
                 >
                   {" "}
