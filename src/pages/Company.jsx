@@ -177,11 +177,11 @@ const Company = () => {
               {/* TABLE HEADER */}
               <thead>
                 <tr className="bg-gray-100/80 text-gray-700 text-sm border-b border-gray-200">
-                    <th className="px-6 py-4 font-semibold">Company Code</th>
-                  <th className="px-6 py-4 font-semibold">Company Name</th>
-                  <th className="px-6 py-4 font-semibold">Address</th>
-                  <th className="px-6 py-4 font-semibold text-center">GST</th>
-                  <th className="px-6 py-4 font-semibold">Description</th>
+                    <th className="px-6 py-4 font-semibold text-nowrap">Company Code</th>
+                  <th className="px-6 py-4 font-semibold text-nowrap">Company Name</th>
+                  <th className="px-6 py-4 font-semibold ">Address</th>
+                  <th className="px-6 py-4 font-semibold text-center ">GST</th>
+                  <th className="px-6 py-4 font-semibold ">Description</th>
                   <th className="px-6 py-4 font-semibold text-center">
                     Actions
                   </th>
@@ -195,11 +195,11 @@ const Company = () => {
                     key={com._id}
                     className="border-b border-gray-200 hover:bg-blue-50/50 transition-all duration-200"
                   >
-                    <td className="px-6 py-4 font-medium text-gray-800">
+                    <td className="px-6 py-4 font-medium text-gray-800 text-nowrap">
                       {com.company_code || "N/A"}
                     </td>
                     {/* COMPANY NAME */}
-                    <td className="px-6 py-4 font-medium text-gray-800">
+                    <td className="px-6 py-4 font-medium text-gray-800 text-nowrap">
                       {com.company_name}
                     </td>
 
