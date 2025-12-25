@@ -8,7 +8,7 @@ export const useNotifications = () => {
         queryKey: ["notification"],
         queryFn: async ({ pageParam = 1 }) => {
             const res = await axiosHandler.get(
-                `/notification/get-notifications?page=${pageParam}&limit=5`
+                `/notification/get-notifications?page=${pageParam}&limit=10`
             );
             return {
                 ...res.data,
