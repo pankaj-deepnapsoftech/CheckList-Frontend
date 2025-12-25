@@ -188,11 +188,11 @@ const CheckItem = () => {
             <table className="w-full  text-left">
               {/* Table Header */}
               <thead>
-                <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
-                  <th className="px-5 py-3 font-semibold">Check Item</th>
-                  <th className="px-5 py-3 font-semibold">Checking Method</th>
-                  <th className="px-5 py-3 font-semibold">Check Time</th>
-                  <th className="px-5 py-3 font-semibold">Process</th>
+                <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm ">
+                  <th className="px-5 py-3 font-semibold text-nowrap">Check Item</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Checking Method</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Check Time</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Process</th>
                   <th className="px-5 py-3 font-semibold">Description</th>
                   <th className="px-5 py-3 font-semibold text-center">
                     Actions
@@ -205,18 +205,18 @@ const CheckItem = () => {
                 {filteredCheckItem?.map((cl, i) => (
                   <tr
                     key={i}
-                    className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
+                    className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 "
                   >
-                    <td className="px-5 py-4">{cl.item || "N/A"}</td>
+                    <td className="px-5 py-4 text-nowrap">{cl.item || "N/A"}</td>
 
-                    <td className="px-5 py-4 ">
+                    <td className="px-5 py-4 text-nowrap">
                       {cl.check_list_method || "N/A"}
                     </td>
-                    <td className="px-5 py-4 ">
+                    <td className="px-5 py-4 text-nowrap">
                       {cl.check_list_time || "N/A"}
                     </td>
-                    <td className="px-5 py-4 ">
-                      {cl.process?.process_name} ({cl.process?.process_no})
+                    <td className="px-5 py-4 text-nowrap">
+                      <span className="truncate">{cl.process?.process_name}</span> ({cl.process?.process_no})
                     </td>
                     <td className="px-5 py-4 max-w-[250px] truncate">
                       {cl.description || "N/A"}

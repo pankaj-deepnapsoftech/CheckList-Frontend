@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from "react";
-import { AlertCircle, CheckCircle2, Pencil, X, OctagonAlert, XCircle } from "lucide-react";
+import {RefreshCw, AlertCircle, CheckCircle2, Pencil, X, OctagonAlert, XCircle } from "lucide-react";
 import { useAssemblyLineError } from "../hooks/useAssemblyLineError";
 import AddErrorModal from "../components/modal/addModal/AddErrorModal";
+import Refresh from "../components/Refresh/Refresh";
 
 export default function AssemblyError() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedError, setSelectedError] = useState(null);
+  const [showRefresh, setShowRefresh] = useState(false);
 
   const { getAssemblyLineError } = useAssemblyLineError();
 
@@ -28,6 +30,13 @@ export default function AssemblyError() {
     const mon = d.toLocaleString("en-GB", { month: "short" });
     const yr = d.getFullYear();
     return `${day}-${mon}-${yr}`;
+  };
+
+  const handleRefresh = async () => {
+    setShowRefresh(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all([getAssemblyLineError.refetch(), minDelay]);
+    setShowRefresh(false); // Hide overlay
   };
 
   return (
@@ -81,16 +90,26 @@ export default function AssemblyError() {
           </div> */}
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-3xl shadow-xl overflow-hidden">
-          <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200">
+        <div className="bg-white border relative min-h-[300px] border-slate-200 rounded-3xl shadow-xl overflow-hidden">
+          <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 flex flex-row justify-between w-full items-center gap-4">
+            <div className="flex flex-col ">
             <h3 className="text-lg font-semibold text-slate-900">
               Error History
             </h3>
             <p className="text-sm text-slate-500">
               Inspection items with error status and audit info
             </p>
+            </div>
+            <div className="p-2 hover:bg-gray-200 rounded-full"
+             onClick={handleRefresh}
+            >
+            <RefreshCw size={20} className="text-gray-600"/>
+            </div>
           </div>
 
+      {showRefresh ? (
+          <Refresh />
+        ) : (
           <div className="sm:hidden p-4 space-y-4">
             {errors.length === 0 && (
               <div className="text-center py-12 text-slate-500">
@@ -139,19 +158,21 @@ export default function AssemblyError() {
                     <span className="font-medium">{item.result}</span>
                   </div>
                 </div>
-
                 <button
                   onClick={() => handleUpdateClick(item)}
-                  className="w-full mt-4 flex items-center border border-amber-200 justify-center gap-2 py-2.5 bg-yellow-100 text-yellow-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors"
+                  className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors"
                 >
-                  <Pencil size={13} />
-                  Resolve
+                  <Pencil size={16} />
+                  Update Result
                 </button>
-
               </div>
             ))}
           </div>
+        )}
 
+        {showRefresh ? (
+          <Refresh />
+        ) : (
           <div className="overflow-x-auto m-2 hidden border border-gray-100 rounded-xl sm:block">
             <table className="min-w-full text-sm whitespace-nowrap">
               <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
@@ -303,6 +324,7 @@ export default function AssemblyError() {
               </tbody>
             </table>
           </div>
+        )}
         </div>
       </div>
 
