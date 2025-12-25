@@ -161,7 +161,7 @@ const PlantName = () => {
                     <strong>Address:</strong> {p?.plant_address}
                   </p>
                   <p>
-                    <strong>Company:</strong> {p?.company_id?.company_name}
+                    <strong>Company:</strong> {p?.company?.company_name}
                   </p>
                 </div>
               </div>
