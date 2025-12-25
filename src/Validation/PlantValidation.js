@@ -11,7 +11,10 @@ export const plantValidationSchema = Yup.object({
 
     company_id: Yup.string()
         .required("Company is required")
-        .matches(/^[0-9a-fA-F]{24}$/, "Invalid company ID (must be a valid MongoDB ObjectId)"),
+        .matches(
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/,
+            "Invalid company ID (must be a valid UUID)"
+        ),
 
     description: Yup.string()
         .nullable()
