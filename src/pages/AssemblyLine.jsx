@@ -280,8 +280,8 @@ export default function AssemblyLine() {
             <table className="w-full min-w-[800px] text-left">
               <thead>
                 <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
-                  <th className="px-5 py-3 font-semibold">Assembly Line No.</th>
-                  <th className="px-5 py-3 font-semibold">
+                  <th className="px-5 py-3 font-semibold text-nowrap">Assembly Line No.</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
                     Assembly Line Name
                   </th>
                   <th className="px-5 py-3 font-semibold">Processes</th>
@@ -299,18 +299,18 @@ export default function AssemblyLine() {
                     key={item._id}
                     className="border-b  border-gray-200 hover:bg-blue-50/40 transition"
                   >
-                    <td className="px-5 py-4 text-sm">
+                    <td className="px-5 py-4 text-sm text-nowrap">
                       {item?.assembly_number}
                     </td>
                     <td className="px-5 py-4 text-sm ">
-                      <span className="inline-flex items-center justify-center bg-blue-500 px-3 py-1 rounded-full text-nowrap text-white">
+                      <span className="inline-flex items-center justify-center bg-blue-500 px-3 py-1 rounded-full text-nowrap text-white text-nowrap">
                         {item?.assembly_name}
                       </span>
                     </td>
                     <td className="px-5 py-4 text-sm text-nowrap">
                       <div className="space-y-1">
                         {item?.process_id?.map((p) => (
-                          <p key={p._id}>
+                          <p key={p._id} className="text-nowrap">
                             {p.process_name.length > 12
                               ? p.process_name.slice(0, 12) + "..."
                               : p.process_name}{" "}
@@ -319,13 +319,13 @@ export default function AssemblyLine() {
                         ))}
                       </div>
                     </td>
-                    <td className="px-5 py-4 text-sm">
+                    <td className="px-5 py-4 text-sm text-nowrap">
                       {item?.company_id?.company_name}
                     </td>
-                    <td className="px-5 py-4 text-sm">
+                    <td className="px-5 py-4 text-sm text-nowrap">
                       {item?.plant_id?.plant_name}
                     </td>
-                    <td className="px-5 py-4 text-sm">
+                    <td className="px-5 py-4 text-sm text-nowrap">
                       {item?.responsibility?.full_name}
                       {item?.responsibility?.user_id && (
                         <> ({item.responsibility.user_id})</>

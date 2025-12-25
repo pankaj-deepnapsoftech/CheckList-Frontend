@@ -30,6 +30,7 @@ import {
 } from "recharts";
 
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
+import { useCompanies } from "../hooks/useCompanies";
 
 /* ---------------- Mock / Static Data ---------------- */
 
@@ -404,6 +405,10 @@ function MultiSelect({
 /* ---------------- Main Dashboard ---------------- */
 
 export default function ChecklistDashboard() {
+
+
+  const {listQuery} = useCompanies()
+  
   // eslint-disable-next-line no-unused-vars
   const [lineHover, setLineHover] = useState({
     x: null,
@@ -432,6 +437,7 @@ export default function ChecklistDashboard() {
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   };
+ 
 
   const {
     data: cardData,
@@ -450,13 +456,7 @@ export default function ChecklistDashboard() {
 
   const InspectionData = Inspection?.data;
 
-  const tableRows = Array.isArray(InspectionData)
-    ? InspectionData.map((item) => {
-        const inspectionStatus = item.checked
-          ? "CHECKED"
-          : item.unchecked
-          ? "UN-CHECKED"
-          : "PENDING";
+   
 
         const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
 
@@ -552,7 +552,7 @@ export default function ChecklistDashboard() {
             <MultiSelect
               id="company"
               label="Company"
-              options={["JP Minda", "Sub-company 1", "Sub-company 2"]}
+              options={listQuery?.data?.map((company) => company?.company_name)}
               value={filters.company}
               onChange={(v) => handleFilterChange("company", v)}
               placeholder="All Companies + Multi"
@@ -562,6 +562,7 @@ export default function ChecklistDashboard() {
               }
               onClose={() => openSelect === "company" && setOpenSelect(null)}
             />
+
             <MultiSelect
               id="plant"
               label="Plant"

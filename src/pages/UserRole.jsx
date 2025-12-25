@@ -210,9 +210,9 @@ export default function UserRoles() {
             <table className="w-full  min-w-[700px] text-left">
               <thead>
                 <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
-                  <th className="px-5 py-3 font-semibold">Role Name</th>
-                  <th className="px-5 py-3 font-semibold">Permissions</th>
-                  <th className="px-5 py-3 font-semibold">Description</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Role Name</th>
+                  <th className="px-5 py-3 font-semibold ">Permissions</th>
+                  <th className="px-5 py-3 font-semibold ">Description</th>
                   <th className="px-5 py-3 font-semibold text-center">
                     Actions
                   </th>
@@ -225,7 +225,7 @@ export default function UserRoles() {
                     key={item._id}
                     className="border-b border-gray-200 hover:bg-blue-50 transition"
                   >
-                    <td className="px-5 py-4">{item?.name}</td>
+                    <td className="px-5 py-4 text-nowrap">{item?.name}</td>
                     <td className="px-5 py-4">
                       <div className="flex flex-wrap gap-2 max-w-[280px]">
                         {formatPermissions(item?.permissions).map(

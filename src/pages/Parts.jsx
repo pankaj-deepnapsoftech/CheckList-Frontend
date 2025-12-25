@@ -172,10 +172,10 @@ const Parts = () => {
             <table className="w-full min-w-[700px] text-left">
               <thead>
                 <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
-                  <th className="px-5 py-3 font-semibold">Parts No.</th>
-                  <th className="px-5 py-3 font-semibold">Parts Name</th>
-                  <th className="px-5 py-3 font-semibold">Material Code</th>
-                  <th className="px-5 py-3 font-semibold">Total Assembly</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Parts No.</th>
+                  <th className="px-5 py-3 font-semibold ">Parts Name</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Material Code</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Total Assembly</th>
 
                   <th className="px-5 py-3 font-semibold text-center">
                     Actions
@@ -189,16 +189,16 @@ const Parts = () => {
                     key={pro._id}
                     className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
                   >
-                    <td className="px-5 py-4">{pro.part_number}</td>
+                    <td className="px-5 py-4 text-nowrap">{pro.part_number}</td>
 
                     <td className="px-5 py-4">
-                      <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+                      <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">
                         {pro.part_name}
                       </span>
                     </td>
 
-                    <td className="px-5 py-4"> {pro.material_code|| "N/A"}</td>
-                    <td className="px-5 py-4"> {pro.total_assemblies}</td>
+                    <td className="px-5 py-4 text-nowrap"> {pro.material_code|| "N/A"}</td>
+                    <td className="px-5 py-4 "> {pro.total_assemblies}</td>
                     <td className="px-5 py-4">
                       <div className="flex justify-center gap-2">
                         <button

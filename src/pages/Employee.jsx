@@ -300,12 +300,12 @@ const Employee = () => {
                     </td>
                     <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
                     <td className="px-5 py-4 whitespace-nowrap">
-                      <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow">
+                      <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow text-nowrap">
                         {emp?.employee_plant?.plant_name || "N/A"}
                       </span>
                     </td>
 
-                    <td className="px-5 py-4 ">
+                    <td className="px-5 py-4 text-nowrap">
                       {emp?.employee_company?.company_name || "N/A"}
                     </td>
 
