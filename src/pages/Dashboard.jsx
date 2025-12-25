@@ -14,6 +14,7 @@ import {
   useMonthlyInspectionTrend,
   useAssemblyStatus,
   useAssemblyMonthly,
+  useInspectionOverview,
 } from "../hooks/useDashboard";
 import {
   ResponsiveContainer,
@@ -33,8 +34,6 @@ import { useCompanies } from "../hooks/useCompanies";
 
 /* ---------------- Mock / Static Data ---------------- */
 
-
-
 const DONUT_DATA = [
   { label: "Checked", value: 120, color: "#22c55e" },
   { label: "Unchecked", value: 40, color: "#eab308" },
@@ -47,7 +46,6 @@ const ASSEMBLY_BAR = [
   { label: "2000", running: 26, fault: 4 },
   { label: "5000", running: 14, fault: 10 },
 ];
-
 
 /* ---------------- Helpers ---------------- */
 
@@ -150,7 +148,11 @@ function StatusPill({ status }) {
 
   if (value === "CHECKED")
     return (
-      <span className={base + " bg-green-50 border border-green-300 text-green-700"}>Checked</span>
+      <span
+        className={base + " bg-green-50 border border-green-300 text-green-700"}
+      >
+        Checked
+      </span>
     );
 
   if (value === "UN-CHECKED" || value === "UNCHECKED")
@@ -172,18 +174,23 @@ function IssuePill({ status }) {
 
   const value = status?.toUpperCase();
 
-
   if (value === "NO-ISSUE" || value === "NO ISSUE" || value === "OK")
     return (
-      <span className={base + " bg-emerald-50 border border-green-300 text-emerald-700"}>No Issue</span>
+      <span
+        className={
+          base + " bg-emerald-50 border border-green-300 text-emerald-700"
+        }
+      >
+        No Issue
+      </span>
     );
 
-  
-  return <span className={base + " bg-rose-50 border border-red-300 text-rose-700"}>Issue</span>;
+  return (
+    <span className={base + " bg-rose-50 border border-red-300 text-rose-700"}>
+      Issue
+    </span>
+  );
 }
-
-
-
 
 function LegendDot({ color, label }) {
   return (
@@ -432,8 +439,6 @@ export default function ChecklistDashboard() {
   };
  
 
-  const donutTotal = DONUT_DATA.reduce((s, d) => s + d.value, 0);
-
   const {
     data: cardData,
     isLoading: cardsLoading,
@@ -443,58 +448,53 @@ export default function ChecklistDashboard() {
   const { data: monthlyTrendData = [], isLoading: monthlyTrendLoading } =
     useMonthlyInspectionTrend();
 
-    const Inspection = useAssemblyStatus();
+  const Inspection = useAssemblyStatus();
 
-    const Assembly = useAssemblyMonthly();
+  const Assembly = useAssemblyMonthly();
 
-    const AssemblyData = Assembly?.data
+  const AssemblyData = Assembly?.data;
 
-    const InspectionData = Inspection?.data;
+  const InspectionData = Inspection?.data;
 
-   
+  const tableRows = Array.isArray(InspectionData)
+    ? InspectionData.map((item) => {
+        const inspectionStatus = item.checked
+          ? "CHECKED"
+          : item.unchecked
+          ? "UN-CHECKED"
+          : "PENDING";
 
-    const tableRows = Array.isArray(InspectionData)
-      ? InspectionData.map((item) => {
-          const inspectionStatus = item.checked
-            ? "CHECKED"
-            : item.unchecked
-            ? "UN-CHECKED"
-            : "PENDING";
+        const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
 
-          const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
+        const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
 
-          const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
+        return {
+          id: item._id,
+          date: new Date(item.createdAt).toLocaleDateString(),
 
-          return {
-            id: item._id,
-            date: new Date(item.createdAt).toLocaleDateString(),
+          company: item.company_id?.company_name || "—",
+          plant: item.plant_id?.plant_name || "—",
 
-            company: item.company_id?.company_name || "—",
-            plant: item.plant_id?.plant_name || "—",
+          line: `${item.assembly_number} / ${item.assembly_name}`,
 
-            line: `${item.assembly_number} / ${item.assembly_name}`,
+          process: Array.isArray(item.process_id) ? item.process_id.length : 0,
 
-            process: Array.isArray(item.process_id)
-              ? item.process_id.length
-              : 0,
+          part: item.part_id?.part_name || "—",
 
-            part: item.part_id?.part_name || "—",
+          checkItem: "Checklist",
 
-            checkItem: "Checklist", 
+          inspectionStatus,
+          issueStatus,
+          resolutionStatus,
 
-            inspectionStatus,
-            issueStatus,
-            resolutionStatus,
+          checkedBy: item.responsibility?.full_name || "—",
 
-            checkedBy: item.responsibility?.full_name || "—",
+          time: new Date(item.updatedAt).toLocaleTimeString(),
 
-            time: new Date(item.updatedAt).toLocaleTimeString(),
-
-            remarks: item.error ? "Issue detected during inspection" : "—",
-          };
-        })
-      : [];
-
+          remarks: item.error ? "Issue detected during inspection" : "—",
+        };
+      })
+    : [];
 
   const { getAssemblyCardsData } = useCheckItemHistory();
 
@@ -524,14 +524,12 @@ export default function ChecklistDashboard() {
       icon: <AlertTriangle className="w-4 h-4" />,
     },
   ];
-  console.log(listQuery?.data)
-  const defectLines = [
-    { label: "Line 1000B", faults: 12 },
-    { label: "Line 5000", faults: 10 },
-    { label: "Line 1000A", faults: 9 },
-    { label: "Line 2000", faults: 4 },
-  ];
-  const maxFault = Math.max(...defectLines.map((d) => d.faults));
+
+  const { data } = useInspectionOverview();
+
+  const openErrors = data?.summary?.stillErrorAssemblies || 0;
+  const resolvedErrors = data?.summary?.resolvedAssemblies || 0;
+  const totalErrors = openErrors + resolvedErrors;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -541,7 +539,7 @@ export default function ChecklistDashboard() {
           <header className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
-                Check Item Dashboard
+                CheckList Management
               </h1>
               <p className="text-xs text-slate-500 sm:text-sm">
                 Monitor assembly checks, errors & progress
@@ -555,7 +553,7 @@ export default function ChecklistDashboard() {
               Refresh
             </button>
           </header>
-
+ 
           <section className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-3 sm:flex-row sm:flex-wrap sm:items-end">
             <MultiSelect
               id="company"
@@ -1000,8 +998,8 @@ export default function ChecklistDashboard() {
               </div>
             </div>
 
-            {/* Donut + Error KPIs + Top Defect Lines */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-6 min-h-[450px]">
+            {/* Inspection overview  */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-6 min-h-[420px]">
               {/* Header */}
               <div className="flex items-center justify-between">
                 <div>
@@ -1009,10 +1007,11 @@ export default function ChecklistDashboard() {
                     Inspection Overview
                   </h3>
                   <p className="text-xs text-slate-400">
-                    Distribution of inspection status
+                    Error status distribution
                   </p>
                 </div>
-                <select className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700">
+
+                <select className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-600">
                   <option>Today</option>
                   <option>Week</option>
                   <option>Month</option>
@@ -1020,140 +1019,119 @@ export default function ChecklistDashboard() {
               </div>
 
               {/* Donut */}
-              <div className="flex flex-col items-center gap-4">
-                <div className="relative">
-                  <Tooltip
-                    x={donutHover.x}
-                    y={donutHover.y}
-                    text={donutHover.text}
-                  />
+              <div className="flex justify-center">
+                <div className="relative w-[160px] h-[160px]">
+                  <svg viewBox="0 0 32 32" className="w-full h-full">
+                    {totalErrors > 0 ? (
+                      (() => {
+                        let cum = 0;
+                        const parts = [
+                          { value: openErrors, color: "#f59e0b" },
+                          { value: resolvedErrors, color: "#22c55e" },
+                        ];
 
-                  <svg width="140" height="140" viewBox="0 0 32 32">
-                    {(() => {
-                      let cum = 0;
-                      return DONUT_DATA.map((s, i) => {
-                        const start = (cum / donutTotal) * Math.PI * 2;
-                        const end =
-                          ((cum + s.value) / donutTotal) * Math.PI * 2;
-                        // eslint-disable-next-line react-hooks/immutability
-                        cum += s.value;
-                        return (
-                          <path
-                            key={i}
-                            d={describeArc(16, 16, 14, start, end)}
-                            fill={s.color}
-                            onMouseMove={(ev) => {
-                              const rect =
-                                ev.currentTarget.getBoundingClientRect();
-                              const percent = (
-                                (s.value / donutTotal) *
-                                100
-                              ).toFixed(1);
-                              setDonutHover({
-                                x: rect.left + rect.width / 2,
-                                y: rect.top,
-                                text: `${s.label}: ${s.value} (${percent}%)`,
-                              });
-                            }}
-                            onMouseLeave={() =>
-                              setDonutHover({ x: null, y: null, text: null })
-                            }
-                          />
-                        );
-                      });
-                    })()}
+                        return parts.map((p, i) => {
+                          const start = (cum / totalErrors) * Math.PI * 2;
+                          const end =
+                            ((cum + p.value) / totalErrors) * Math.PI * 2;
+                          cum += p.value;
+
+                          return (
+                            <path
+                              key={i}
+                              d={describeArc(16, 16, 14, start, end)}
+                              fill={p.color}
+                            />
+                          );
+                        });
+                      })()
+                    ) : (
+                      <circle cx="16" cy="16" r="14" fill="#e5e7eb" />
+                    )}
 
                     {/* Inner cut */}
-                    <circle cx="16" cy="16" r="9" fill="white" />
+                    <circle cx="16" cy="16" r="9.8" fill="white" />
 
                     {/* Center text */}
                     <text
                       x="16"
-                      y="14.8"
+                      y="14.2"
                       textAnchor="middle"
                       className="fill-slate-900 text-[6.5px] font-semibold"
                     >
-                      {donutTotal}
+                      {totalErrors}
                     </text>
                     <text
                       x="16"
-                      y="18.6"
+                      y="18.5"
                       textAnchor="middle"
-                      className="fill-slate-400 text-[2px]"
+                      className="fill-slate-400 text-[2.2px]"
                     >
-                      Total Inspections
+                      Total Errors
                     </text>
                   </svg>
                 </div>
+              </div>
 
-                {/* Checked / Unchecked cards */}
-                <div className="w-full space-y-2">
-                  {DONUT_DATA.map((s) => (
-                    <div
-                      key={s.label}
-                      className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="h-2.5 w-2.5 rounded-full"
-                          style={{ backgroundColor: s.color }}
-                        />
-                        <span className="text-xs font-medium text-slate-700">
-                          {s.label}
-                        </span>
-                      </div>
-
-                      <div className="text-right">
-                        <div
-                          className="text-sm font-semibold"
-                          style={{ color: s.color }}
-                        >
-                          {s.value}
-                        </div>
-                        <div className="text-[10px] text-slate-400">items</div>
-                      </div>
+              {/* Open / Resolved INLINE */}
+              <div className="space-y-2">
+                {/* Open Errors */}
+                <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                    <span className="text-xs font-medium text-slate-700">
+                      Open Errors
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-amber-600">
+                      {openErrors}
                     </div>
-                  ))}
+                    <div className="text-[10px] text-slate-400">items</div>
+                  </div>
+                </div>
+
+                {/* Resolved */}
+                <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                    <span className="text-xs font-medium text-slate-700">
+                      Resolved
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-green-600">
+                      {resolvedErrors}
+                    </div>
+                    <div className="text-[10px] text-slate-400">items</div>
+                  </div>
                 </div>
               </div>
 
-              {/* Error KPIs */}
-              <div className="grid grid-cols-2 gap-2 text-[11px]">
-                <MiniKPI
-                  label="Total Errors"
-                  value="32"
-                  icon={<AlertTriangle className="w-3.5 h-3.5 text-rose-500" />}
-                />
-                <MiniKPI
-                  label="Open Errors"
-                  value="9"
-                  icon={
-                    <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
-                  }
-                />
-                <MiniKPI label="Resolved" value="23" icon={<CheckIcon />} />
-                <MiniKPI
-                  label="Avg Resolution"
-                  value="2.4h"
-                  icon={<Clock3 className="w-3.5 h-3.5 text-sky-500" />}
-                />
-              </div>
-
-              {/* Top Defect Lines */}
-              <div className="pt-3 border-t border-slate-100">
+              {/* Divider */}
+              <div className="border-t border-slate-100 pt-3">
                 <p className="mb-2 text-[11px] font-semibold text-slate-700">
                   Top Defect Lines
                 </p>
-                <div className="space-y-2">
-                  {defectLines.slice(0, 4).map((d) => (
-                    <MiniBar
-                      key={d.label}
-                      label={d.label}
-                      value={d.faults}
-                      max={maxFault}
-                    />
-                  ))}
-                </div>
+
+                {data?.topErrorProcesses?.length ? (
+                  <div className="space-y-2">
+                    {data.topErrorProcesses.slice(0, 4).map((d) => (
+                      <MiniBar
+                        key={d.process}
+                        label={d.process}
+                        value={d.count}
+                        max={Math.max(
+                          ...data.topErrorProcesses.map((x) => x.count)
+                        )}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-slate-400">
+                    No defect data available
+                  </p>
+                )}
               </div>
             </div>
           </aside>
