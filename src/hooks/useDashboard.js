@@ -143,4 +143,36 @@ export const useAssemblyMonthly = () => {
 
 
 
+/* ---------------- Inspection Overview API ---------------- */
+export const useInspectionOverview = () => {
+  return useQuery({
+    queryKey: ["inspection-overview"],
+
+    queryFn: async () => {
+      const res = await axiosHandler.get("/dashboard/get-assembly-errors");
+      const data = res?.data?.data || {};
+
+      return {
+        topErrorProcesses: data?.top_error_processes || [],
+        summary: {
+          errorAssemblies: data?.assembly_summary?.error_assemblies || 0,
+          stillErrorAssemblies:
+            data?.assembly_summary?.still_error_assemblies || 0,
+          resolvedAssemblies:
+            data?.assembly_summary?.resolved_assemblies || 0,
+        },
+      };
+    },
+
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message ||
+          "Failed to load inspection overview data"
+      );
+    },
+  });
+};
 
