@@ -9,14 +9,14 @@ const ProtectedRoute = ({ user, isLoading, children }) => {
         return <Navigate to="/login" replace />;
     }
 
-    
+
     if (user?.is_admin === true) {
         return children;
     }
 
-    const permissions = user?.role?.permissions || [];
+    const permissions = user?.userRole?.permissions || [];
     const currentPath = location.pathname;
-    const hasAccess = permissions.includes(currentPath); 
+    const hasAccess = permissions.includes(currentPath);
 
     if (!hasAccess) {
         const redirectPath = permissions[0] || "/";
