@@ -45,7 +45,7 @@ const formatDT = (d) => {
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
       <div className="bg-white h-screen w-full sm:w-[60%] xl:w-[80%] shadow-2xl animate-slideLeft flex flex-col">
-        <div className="px-8 py-6 flex justify-between items-center bg-[#6955e7] sticky top-0 z-10">
+        <div className="px-8 py-6 flex justify-between items-center bg-blue-500 sticky top-0 z-10">
           <div>
             <h2 className="text-2xl font-semibold text-gray-100">
               {data?.assembly_name} ({data?.assembly_number})
@@ -59,7 +59,7 @@ const formatDT = (d) => {
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-white hover:bg-gray-700 transition"
+            className="p-2 rounded-full text-white hover:bg-gray-300 hover:text-black transition"
           >
             <X size={22} />
           </button>
@@ -90,7 +90,7 @@ const formatDT = (d) => {
             <p className="text-sm text-slate-500 font-medium">Responsible</p>
             <p className="font-semibold text-slate-800 text-lg">
               {data?.responsibleUser?.full_name || "—"}
-              <span className="ml-1 text-indigo-600">
+              <span className="ml-1 text-blue-500">
                 ({data?.responsibleUser?.user_id || "—"})
               </span>
             </p>
