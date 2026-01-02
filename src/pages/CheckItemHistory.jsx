@@ -3,7 +3,7 @@ import { X, CheckCircle2, AlertCircle } from "lucide-react";
 
 
 export default function CheckItemHistory({ open, onClose, data }) {
-
+  console.log(data)
 
   if (!open || !data) return null;
   const process =
@@ -69,33 +69,33 @@ const formatDT = (d) => {
           <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <p className="text-sm text-slate-500 font-medium">Company</p>
             <p className="font-semibold text-slate-800 text-lg">
-              {data?.company_id?.company_name || "—"}
+              {data?.company?.company_name || "—"}
             </p>
             <p className="text-sm  text-slate-400 mt-1">
-              {data?.company_id?.company_address || "—"}
+              {data?.company?.company_address || "—"}
             </p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <p className="text-sm text-slate-500 font-medium">Plant</p>
             <p className="font-semibold text-slate-800 text-lg">
-              {data?.plant_id?.plant_name || "—"}
+              {data?.plant?.plant_name || "—"}
             </p>
             <p className="text-sm text-slate-400 mt-1">
-              {data?.plant_id?.plant_address || "—"}
+              {data?.plant?.plant_address || "—"}
             </p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <p className="text-sm text-slate-500 font-medium">Responsible</p>
             <p className="font-semibold text-slate-800 text-lg">
-              {data?.responsibility?.full_name || "—"}
+              {data?.responsibleUser?.full_name || "—"}
               <span className="ml-1 text-indigo-600">
-                ({data?.responsibility?.user_id || "—"})
+                ({data?.responsibleUser?.user_id || "—"})
               </span>
             </p>
             <p className="text-sm text-slate-400 mt-1">
-              {data?.responsibility?.email || "—"}
+              {data?.responsibleUser?.email || "—"}
             </p>
           </div>
         </div>
