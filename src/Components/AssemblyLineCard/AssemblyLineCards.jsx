@@ -41,19 +41,19 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
 
           {/* Info cards */}
           <div className="flex flex-wrap gap-6 p-6">
-            <InfoCard title="Company" content={asl.company_id?.company_name} />
-            <InfoCard title="Plant" content={asl.plant_id?.plant_name} />
+            <InfoCard title="Company" content={asl.company?.company_name} />
+            <InfoCard title="Plant" content={asl.plant?.plant_name} />
             <InfoCard
               title="Responsible"
               content={
                 <div>
                   <span className="font-semibold text-blue-400 cursor-pointer hover:underline">
-                    {asl.responsibility?.full_name} (
-                    {asl.responsibility?.user_id})
+                    {asl.responsibleUser?.full_name} (
+                    {asl.responsibleUser?.user_id})
                   </span>
                   <br />
                   <span className="text-gray-500 text-sm">
-                    {asl.responsibility?.email}
+                    {asl.responsibleUser?.email}
                   </span>
                 </div>
               }

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import {RefreshCw, AlertCircle, CheckCircle2, Pencil, X, OctagonAlert, XCircle } from "lucide-react";
+import { RefreshCw, AlertCircle, CheckCircle2, Pencil, X, OctagonAlert, XCircle } from "lucide-react";
 import { useAssemblyLineError } from "../hooks/useAssemblyLineError";
 import AddErrorModal from "../components/modal/addModal/AddErrorModal";
 import Refresh from "../components/Refresh/Refresh";
@@ -22,6 +22,9 @@ export default function AssemblyError() {
     setSelectedError(error);
     setIsModalOpen(true);
   };
+
+
+  console.log("errors>>>>>>", errors)
 
   const formatDateShort = (dateString) => {
     if (!dateString) return "—";
@@ -93,238 +96,233 @@ export default function AssemblyError() {
         <div className="bg-white border relative min-h-[300px] border-slate-200 rounded-3xl shadow-xl overflow-hidden">
           <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 flex flex-row justify-between w-full items-center gap-4">
             <div className="flex flex-col ">
-            <h3 className="text-lg font-semibold text-slate-900">
-              Error History
-            </h3>
-            <p className="text-sm text-slate-500">
-              Inspection items with error status and audit info
-            </p>
+              <h3 className="text-lg font-semibold text-slate-900">
+                Error History
+              </h3>
+              <p className="text-sm text-slate-500">
+                Inspection items with error status and audit info
+              </p>
             </div>
             <div className="p-2 hover:bg-gray-200 rounded-full"
-             onClick={handleRefresh}
+              onClick={handleRefresh}
             >
-            <RefreshCw size={20} className="text-gray-600"/>
+              <RefreshCw size={20} className="text-gray-600" />
             </div>
           </div>
 
-      {showRefresh ? (
-          <Refresh />
-        ) : (
-          <div className="sm:hidden p-4 space-y-4">
-            {errors.length === 0 && (
-              <div className="text-center py-12 text-slate-500">
-                No error records found
-              </div>
-            )}
-            {errors.map((item) => (
-              <div
-                key={item._id}
-                className="bg-white p-4 rounded-xl shadow-sm border border-slate-200"
-              >
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-semibold text-slate-900">
-                      {item.checkList?.item}
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {formatDateShort(item.createdAt)}
-                    </p>
-                  </div>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      item.is_error
+          {showRefresh ? (
+            <Refresh />
+          ) : (
+            <div className="sm:hidden p-4 space-y-4">
+              {errors.length === 0 && (
+                <div className="text-center py-12 text-slate-500">
+                  No error records found
+                </div>
+              )}
+              {errors.map((item) => (
+                <div
+                  key={item._id}
+                  className="bg-white p-4 rounded-xl shadow-sm border border-slate-200"
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-semibold text-slate-900">
+                        {item?.checklistItem?.item}
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-1">
+                        {formatDateShort(item.createdAt)}
+                      </p>
+                    </div>
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-medium ${item.is_error
                         ? "bg-red-100 text-red-700"
                         : "bg-green-100 text-green-700"
-                    }`}
+                        }`}
+                    >
+                      {item.is_error ? "Error" : "Resolved"}
+                    </span>
+                  </div>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <div className="flex justify-between">
+                      <span>Assembly:</span>
+                      <span className="font-medium">
+                        {item.assemblyLine?.assembly_number}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Process:</span>
+                      <span className="font-medium">
+                        {item?.processInfo?.process_name}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Result:</span>
+                      <span className="font-medium">{item.result}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleUpdateClick(item)}
+                    className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors"
                   >
-                    {item.is_error ? "Error" : "Resolved"}
-                  </span>
+                    <Pencil size={16} />
+                    Update Result
+                  </button>
                 </div>
-                <div className="space-y-2 text-sm text-slate-600">
-                  <div className="flex justify-between">
-                    <span>Assembly:</span>
-                    <span className="font-medium">
-                      {item.assembly?.assembly_number}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Process:</span>
-                    <span className="font-medium">
-                      {item.process_id?.process_name}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Result:</span>
-                    <span className="font-medium">{item.result}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => handleUpdateClick(item)}
-                  className="w-full mt-4 flex items-center justify-center gap-2 py-2.5 bg-blue-50 text-blue-600 font-semibold rounded-xl hover:bg-blue-100 transition-colors"
-                >
-                  <Pencil size={16} />
-                  Update Result
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+              ))}
+            </div>
+          )}
 
-        {showRefresh ? (
-          <Refresh />
-        ) : (
-          <div className="overflow-x-auto m-2 hidden border border-gray-100 rounded-xl sm:block">
-            <table className="min-w-full text-sm whitespace-nowrap">
-              <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
-                <tr>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Severity
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Item
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Method
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Time
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Assembly
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Process
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Result
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Description
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Created
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Updated
-                  </th>
-                  <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {errors.map((row) => (
-                  <tr
-                    key={row?._id}
-                    className={`transition duration-200 group ${
-                      row?.is_error
+          {showRefresh ? (
+            <Refresh />
+          ) : (
+            <div className="overflow-x-auto m-2 hidden border border-gray-100 rounded-xl sm:block">
+              <table className="min-w-full text-sm whitespace-nowrap">
+                <thead className="bg-slate-100/80 sticky top-0 backdrop-blur-sm z-10">
+                  <tr>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Severity
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Item
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Method
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Time
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Assembly
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Process
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Result
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Description
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Created
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Updated
+                    </th>
+                    <th className="px-4 py-3 sm:px-6 sm:py-4 text-left font-semibold text-slate-700 tracking-wide">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {errors.map((row) => (
+                    <tr
+                      key={row?._id}
+                      className={`transition duration-200 group ${row?.is_error
                         ? "bg-red-50/40 hover:bg-red-50/70"
                         : "bg-emerald-50/40 hover:bg-emerald-50/70"
-                    }`}
-                  >
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-semibold shadow-sm ${
-                          row?.is_error
+                        }`}
+                    >
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-semibold shadow-sm ${row?.is_error
                             ? "bg-red-50 text-red-600 border-red-200"
                             : "bg-emerald-50 text-emerald-600 border-emerald-200"
-                        }`}
+                            }`}
+                        >
+                          {row?.is_error ? (
+                            <AlertCircle size={13} />
+                          ) : (
+                            <CheckCircle2 size={13} />
+                          )}
+                          {row?.is_error ? "Error" : "OK"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        <div className="font-semibold text-slate-900">
+                          {row?.checklistItem?.item || "—"}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        {row?.checklistItem?.check_list_method || "—"}
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        {row?.checklistItem?.check_list_time || "—"}
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        {(row?.assemblyLine?.assembly_name || "—") +
+                          " / " +
+                          (row?.assemblyLine?.assembly_number || "—")}
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        {(row?.processInfo?.process_name || "—") +
+                          " / " +
+                          (row?.processInfo?.process_no || "—")}
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        {row?.result || "—"}
+                      </td>
+                      <td
+                        className={`px-4 py-3 sm:px-6 sm:py-4 ${row?.is_error ? "text-red-700" : "text-slate-600"
+                          }`}
                       >
-                        {row?.is_error ? (
-                          <AlertCircle size={13} />
-                        ) : (
-                          <CheckCircle2 size={13} />
-                        )}
-                        {row?.is_error ? "Error" : "OK"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      <div className="font-semibold text-slate-900">
-                        {row?.checkList?.item || "—"}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      {row?.checkList?.check_list_method || "—"}
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      {row?.checkList?.check_list_time || "—"}
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      {(row?.assembly?.assembly_name || "—") +
-                        " / " +
-                        (row?.assembly?.assembly_number || "—")}
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      {(row?.process_id?.process_name || "—") +
-                        " / " +
-                        (row?.process_id?.process_no || "—")}
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      {row?.result || "—"}
-                    </td>
-                    <td
-                      className={`px-4 py-3 sm:px-6 sm:py-4 ${
-                        row?.is_error ? "text-red-700" : "text-slate-600"
-                      }`}
-                    >
-                      <div
-                        className="max-w-[250px] truncate"
-                        title={row?.description}
-                      >
-                        {row?.description || "—"}
-                      </div>
-                    </td>
+                        <div
+                          className="max-w-[250px] truncate"
+                          title={row?.description}
+                        >
+                          {row?.description || "—"}
+                        </div>
+                      </td>
 
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-semibold ${
-                          row?.status === "Checked"
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-semibold ${row?.status === "Checked"
                             ? "bg-emerald-50 text-emerald-600 border-emerald-200"
                             : "bg-amber-50 text-amber-600 border-amber-200"
-                        }`}
+                            }`}
+                        >
+                          {row?.status ? (
+                            <CheckCircle2 size={13} />
+                          ) : (
+                            <AlertCircle size={13} />
+                          )}
+                          {row?.status || "—"}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        {formatDateShort(row?.createdAt)}
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        {formatDateShort(row?.updatedAt)}
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        <button
+                          onClick={() => handleUpdateClick(row)}
+                          className="inline-flex items-center gap-1 px-3 py-1 text-xs border border-amber-400 font-bold text-yellow-600 bg-yellow-100 hover:bg-yellow-200 cursor-pointer rounded-xl transition-all duration-200 shadow-sm"
+                        >
+                          <Pencil size={13} />
+                          Resolve
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {errors.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={12}
+                        className="text-center py-16 text-slate-500"
                       >
-                        {row?.status ? (
-                          <CheckCircle2 size={13} />
-                        ) : (
-                          <AlertCircle size={13} />
-                        )}
-                        {row?.status || "—"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      {formatDateShort(row?.createdAt)}
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      {formatDateShort(row?.updatedAt)}
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      <button
-                        onClick={() => handleUpdateClick(row)}
-                        className="inline-flex items-center gap-1 px-3 py-1 text-xs border border-amber-400 font-bold text-yellow-600 bg-yellow-100 hover:bg-yellow-200 cursor-pointer rounded-xl transition-all duration-200 shadow-sm"
-                      >
-                        <Pencil size={13} />
-                        Resolve
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {errors.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={12}
-                      className="text-center py-16 text-slate-500"
-                    >
-                      No error records found
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        )}
+                        No error records found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 

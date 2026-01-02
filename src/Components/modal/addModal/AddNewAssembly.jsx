@@ -30,10 +30,10 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
     return {
       assembly_name: editTable?.assembly_name || viewModal?.assembly_name || "",
       assembly_number: editTable?.assembly_number || viewModal?.assembly_number || "",
-      company_id: editTable?.company_id?._id || viewModal?.company_id?._id || "",
-      plant_id: editTable?.plant_id?._id || viewModal?.plant_id?._id || "",
-      responsibility: editTable?.responsibility?._id || viewModal?.responsibility?._id || "",
-      part_id: editTable?.part_id?._id || viewModal?.part_id?._id || "",
+      company_id: editTable?.company?._id || viewModal?.company?._id || "",
+      plant_id: editTable?.plant?._id || viewModal?.plant?._id || "",
+      responsibility: editTable?.responsibleUser?._id || viewModal?.responsibleUser?._id || "",
+      part_id: editTable?.part?._id || viewModal?.part?._id || "",
       process_id: existingProcesses || []
 
     };
@@ -147,11 +147,11 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
                     formik.setFieldTouched("plant_id", false);
                   }}
                   onBlur={() => {
-                      formik.setFieldTouched("company_id", true);
-                    }}
+                    formik.setFieldTouched("company_id", true);
+                  }}
                   error={
-                  formik.touched.company_id &&
-                  formik.errors.company_id
+                    formik.touched.company_id &&
+                    formik.errors.company_id
                   }
                 />
               </div>
@@ -163,21 +163,21 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
                     formik.values.company_id
                       ? "Search Plant"
                       : "Select Company first"
-                     }
-                 options={PlantData?.data || []}
-                 value={formik.values.plant_id}
-                 getOptionLabel={(p) => p.plant_name}
-                 getOptionValue={(p) => p._id}
-                onChange={(val) => {
-                   formik.setFieldValue("plant_id", val);
+                  }
+                  options={PlantData?.data || []}
+                  value={formik.values.plant_id}
+                  getOptionLabel={(p) => p.plant_name}
+                  getOptionValue={(p) => p._id}
+                  onChange={(val) => {
+                    formik.setFieldValue("plant_id", val);
                   }}
-                 onBlur={() => {
-                formik.setFieldTouched("plant_id", true);
-                }}
-                error={
+                  onBlur={() => {
+                    formik.setFieldTouched("plant_id", true);
+                  }}
+                  error={
                     formik.touched.plant_id &&
                     formik.errors.plant_id
-                 }
+                  }
                 />
               </div>
             </>

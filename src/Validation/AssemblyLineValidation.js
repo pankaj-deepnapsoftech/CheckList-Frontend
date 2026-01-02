@@ -14,13 +14,10 @@ export const assemblyValidationSchema = yup.object({
         .required("Assembly number is required"),
 
     company_id: yup
-        .string()
-        .matches(objectIdRegex, "Invalid company ID")
-        .required("Company is required"),
+        .string().required("Company is required"),
 
     plant_id: yup
         .string()
-        .matches(objectIdRegex, "Invalid plant ID")
         .required("Plant is required"),
 
         
