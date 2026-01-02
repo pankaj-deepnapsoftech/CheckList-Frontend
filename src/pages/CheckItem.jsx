@@ -216,7 +216,7 @@ const CheckItem = () => {
                       {cl.check_list_time || "N/A"}
                     </td>
                     <td className="px-5 py-4 text-nowrap">
-                      <span className="truncate">{cl.process?.process_name}</span> ({cl.process?.process_no})
+                      <span className="truncate">{cl.processInfo?.process_name}</span> ({cl.processInfo?.process_no})
                     </td>
                     <td className="px-5 py-4 max-w-[250px] truncate">
                       {cl.description || "N/A"}
