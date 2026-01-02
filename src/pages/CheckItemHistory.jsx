@@ -1,46 +1,44 @@
 import React from "react";
 import { X, CheckCircle2, AlertCircle } from "lucide-react";
 
-
 export default function CheckItemHistory({ open, onClose, data }) {
-  console.log(data)
+  console.log(data);
 
   if (!open || !data) return null;
   const process =
     Array.isArray(data?.process_id) && data?.process_id?.length > 0
       ? data?.process_id[0]
       : null;
-const formatDT = (d) => {
-  if (!d) return "—";
-  const dt = new Date(d);
+  const formatDT = (d) => {
+    if (!d) return "—";
+    const dt = new Date(d);
 
-  const months = [
-    "JAN",
-    "FEB",
-    "MAR",
-    "APR",
-    "MAY",
-    "JUN",
-    "JUL",
-    "AUG",
-    "SEP",
-    "OCT",
-    "NOV",
-    "DEC",
-  ];
+    const months = [
+      "JAN",
+      "FEB",
+      "MAR",
+      "APR",
+      "MAY",
+      "JUN",
+      "JUL",
+      "AUG",
+      "SEP",
+      "OCT",
+      "NOV",
+      "DEC",
+    ];
 
-  const dd = String(dt.getDate()).padStart(2, "0");
-  const mm = months[dt.getMonth()];
-  const yyyy = dt.getFullYear();
+    const dd = String(dt.getDate()).padStart(2, "0");
+    const mm = months[dt.getMonth()];
+    const yyyy = dt.getFullYear();
 
-  let hours = dt.getHours();
-  const minutes = String(dt.getMinutes()).padStart(2, "0");
-  const ampm = hours >= 12 ? "pm" : "am";
-  hours = hours % 12 || 12;
+    let hours = dt.getHours();
+    const minutes = String(dt.getMinutes()).padStart(2, "0");
+    const ampm = hours >= 12 ? "pm" : "am";
+    hours = hours % 12 || 12;
 
-  return `${dd}-${mm}-${yyyy}, ${hours}:${minutes}${ampm}`;
-};
-
+    return `${dd}-${mm}-${yyyy}, ${hours}:${minutes}${ampm}`;
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
@@ -84,7 +82,7 @@ const formatDT = (d) => {
             <p className="text-sm text-slate-400 mt-1">
               {data?.plant?.plant_address || "—"}
             </p>
-          </div>
+          </div> 
 
           <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <p className="text-sm text-slate-500 font-medium">Responsible</p>
