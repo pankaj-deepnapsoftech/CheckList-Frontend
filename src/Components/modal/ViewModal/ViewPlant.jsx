@@ -3,6 +3,8 @@ import { X, Building2, MapPin, Factory } from "lucide-react";
 const ViewPlant = ({ open, onClose, data }) => {
   if (!open || !data) return null;
 
+
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
          {/* PANEL */}
@@ -52,11 +54,11 @@ const ViewPlant = ({ open, onClose, data }) => {
 
             <InfoRow
               label="Company Name"
-              value={data.company_id?.company_name || "N/A"}
+              value={data.company?.company_name || "N/A"}
             />
             <InfoRow
               label="Company Address"
-              value={data.company_id?.company_address || "N/A"}
+              value={data.company?.company_address || "N/A"}
             />
           </section>
 

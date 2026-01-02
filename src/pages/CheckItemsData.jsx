@@ -81,7 +81,7 @@ const CheckItemsData = () => {
       updatedData = [
         ...formik.values.data,
         {
-          checkList: checkListId,
+          checkList: checkListId, 
           process_id: processId,
           assembly: assemblyId,
           result,
@@ -177,14 +177,14 @@ const CheckItemsData = () => {
               <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
                 <p className="text-xs text-slate-500 font-medium">Company</p>
                 <p className="font-semibold text-slate-800 text-lg">
-                  {assembly?.company_id?.company_name}
+                  {assembly?.company?.company_name}
                 </p>
               </div>
 
               <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
                 <p className="text-xs text-slate-500 font-medium">Plant</p>
                 <p className="font-semibold text-slate-800 text-lg">
-                  {assembly?.plant_id?.plant_name}
+                  {assembly?.plant?.plant_name}
                 </p>
               </div>
 
@@ -193,13 +193,13 @@ const CheckItemsData = () => {
                   Responsible
                 </p>
                 <p className="font-semibold text-slate-800">
-                  {assembly.responsibility.full_name}
+                  {assembly.responsibleUser.full_name}
                   <span className="ml-1 text-indigo-600">
-                    ({assembly?.responsibility?.user_id})
+                    ({assembly?.responsibleUser?.user_id})
                   </span>
                 </p>
                 <p className="text-xs text-slate-400">
-                  {assembly?.responsibility?.email}
+                  {assembly?.responsibleUser?.email}
                 </p>
               </div>
             </div>

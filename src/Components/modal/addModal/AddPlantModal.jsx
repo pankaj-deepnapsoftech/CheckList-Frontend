@@ -24,7 +24,7 @@ const AddPlantModal = (
       plant_name: viewModal?.plant_name || editTable?.plant_name || "",
       plant_code: viewModal?.plant_code || editTable?.plant_code || "",
       plant_address: viewModal?.plant_address  || editTable?.plant_address ||"",
-      company_id: viewModal?.company_id?._id || editTable?.company_id?._id|| "",
+      company_id: viewModal?.company?._id || editTable?.company?._id|| "",
       description: viewModal?.description || editTable?.description|| "",
     },
     enableReinitialize:true,

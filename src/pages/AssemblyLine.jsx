@@ -320,16 +320,16 @@ export default function AssemblyLine() {
                       </div>
                     </td>
                     <td className="px-5 py-4 text-sm text-nowrap">
-                      {item?.company_id?.company_name}
+                      {item?.company?.company_name}
                     </td>
                     <td className="px-5 py-4 text-sm text-nowrap">
-                      {item?.plant_id?.plant_name}
+                      {item?.plant?.plant_name}
                     </td>
                     <td className="px-5 py-4 text-sm text-nowrap">
-                      {item?.responsibility?.full_name}
-                      {item?.responsibility?.user_id && (
-                        <> ({item.responsibility.user_id})</>
-                      )}
+                      {item?.responsibleUser?.full_name}
+                      {item?.responsibleUser?.user_id && (
+                          <> ({item?.responsibleUser?.user_id})</>
+                        )}
                     </td>
 
                     <td className="px-5 py-4 flex flex-col gap-3 h- justify-center ">

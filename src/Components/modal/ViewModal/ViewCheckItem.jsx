@@ -38,8 +38,8 @@ export default function ViewCheckItem({ open, onClose, data }) {
             color="blue"
           >
             <Row label="Process">
-              {data?.process?.process_name
-                ? `${data.process.process_name} (${data.process.process_no})`
+              {data?.processInfo?.process_name
+                ? `${data.processInfo.process_name} (${data.processInfo.process_no})`
                 : "—"}
             </Row>
 

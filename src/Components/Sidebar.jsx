@@ -21,7 +21,7 @@ import { useLogin } from "../hooks/useLogin";
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const { logedinUser } = useLogin();
   const user = logedinUser.data;
-  const permissions = logedinUser?.data?.role?.permissions || [];
+  const permissions = logedinUser?.data?.userRole?.permissions || [];
   const IsSuper = logedinUser?.data?.is_admin === true;
   const closeMobile = () => setIsMobileOpen(false);
   const navigate = useNavigate();

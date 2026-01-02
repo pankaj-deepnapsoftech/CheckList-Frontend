@@ -62,9 +62,9 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
           >
             <Info
               label="Company"
-              value={data.employee_company?.company_name}
+              value={data.company?.company_name}
             />
-            <Info label="Plant" value={data.employee_plant?.plant_name} />
+            <Info label="Plant" value={data.plant?.plant_name} />
           </ColoredSection>
 
           {/* ASSEMBLY LINES */}

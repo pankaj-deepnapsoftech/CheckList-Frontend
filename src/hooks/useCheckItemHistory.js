@@ -5,13 +5,7 @@ import { toast } from "react-toastify";
 export const useCheckItemHistory = (page = 1, limit = 10) => {
   const qc = useQueryClient();
 
-  const getCheckItemHistory = useQuery({
-    queryKey: ["CheckItem-History"],
-    queryFn: async () => {
-      const res = await axiosHandler.get(`/checkitem-history/get-all-data`);
-      return res?.data?.data;
-    },
-  });
+
 
   const updateCheckItemHistory = useMutation({
     mutationFn: ({ id, data }) =>
@@ -53,7 +47,6 @@ export const useCheckItemHistory = (page = 1, limit = 10) => {
   
 
   return {
-    getCheckItemHistory,
     updateCheckItemHistory,
     getAssemblyReportData,
     getAssemblyCardsData,

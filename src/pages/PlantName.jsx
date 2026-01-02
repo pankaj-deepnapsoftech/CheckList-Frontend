@@ -161,7 +161,7 @@ const PlantName = () => {
                     <strong>Address:</strong> {p?.plant_address}
                   </p>
                   <p>
-                    <strong>Company:</strong> {p?.company_id?.company_name}
+                    <strong>Company:</strong> {p?.company?.company_name}
                   </p>
                 </div>
               </div>
@@ -199,7 +199,7 @@ const PlantName = () => {
                     </td>
                     <td className="px-5 py-4">
                       <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">
-                        {p?.company_id?.company_name}
+                        {p?.company?.company_name}
                       </span>
                     </td>
 

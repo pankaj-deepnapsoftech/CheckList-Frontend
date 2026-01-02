@@ -28,21 +28,21 @@ export default function AddErrorModal({
     onSubmit: (values) => {
     
       let resultValue = values.result;
-      if (data?.checkList?.result_type === "yesno") {
+      if (data?.checklistItem?.result_type === "yesno") {
         resultValue = values.is_error ? "no" : "yes";
       }
 
       const payload = {
-        checkList: data?.checkList?._id,
-        process_id: data?.process_id?._id,
-        assembly: data?.assembly?._id,
+        checkList: data?.checklistItem?._id,
+        process_id: data?.processInfo?._id,
+        assembly: data?.assemblyLine?._id,
         is_error: values.is_error,
         description: values.description,
         result: resultValue,
       };
 
       updateAssemblyLineError.mutate(
-        { id: data._id, data: payload },
+        { id: data?._id, data: payload },
         {
           onSuccess: () => {
             formik.resetForm();
@@ -98,20 +98,20 @@ export default function AddErrorModal({
         <div className="space-y-6 flex-1">
           {/* Item Info Card */}
           <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 space-y-4">
-            <InfoRow label="Item" value={data?.checkList?.item} />
-            <InfoRow label="Method" value={data?.checkList?.check_list_method} />
-            <InfoRow label="Time" value={data?.checkList?.check_list_time} />
+            <InfoRow label="Item" value={data?.checklistItem?.item} />
+            <InfoRow label="Method" value={data?.checklistItem?.check_list_method} />
+            <InfoRow label="Time" value={data?.checklistItem?.check_list_time} />
           </div>
 
           {/* Context Info Card */}
           <div className="bg-white rounded-2xl p-5 border border-slate-200 space-y-4 shadow-sm">
             <InfoRow 
               label="Assembly" 
-              value={`${data?.assembly?.assembly_name} (${data?.assembly?.assembly_number})`} 
+              value={`${data?.assemblyLine?.assembly_name} (${data?.assemblyLine?.assembly_number})`} 
             />
             <InfoRow 
               label="Process" 
-              value={`${data?.process_id?.process_name} (${data?.process_id?.process_no})`} 
+              value={`${data?.processInfo?.process_name} (${data?.processInfo?.process_no})`} 
             />
              <InfoRow 
               label="Current Result" 
