@@ -157,7 +157,7 @@ export default function AddCheckItemModal({
               onChange={formik.handleChange}
               className="input"
             />
-          </Field>
+          </Field> 
 
           {/* Description */}
           <Field label="Description">
