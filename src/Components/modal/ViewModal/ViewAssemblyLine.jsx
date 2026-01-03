@@ -45,11 +45,11 @@ export default function ViewAssemblyLine({ open, onClose, data }) {
             </Row>
 
             <Row label="Company">
-              {data?.company_id?.company_name || "—"}
+              {data?.company?.company_name || "—"}
             </Row>
 
             <Row label="Plant">
-              {data?.plant_id?.plant_name || "—"}
+              {data?.plant?.plant_name || "—"}
             </Row>
           </Section>
 
@@ -60,14 +60,14 @@ export default function ViewAssemblyLine({ open, onClose, data }) {
             color="green"
           >
             <Row label="Responsible Person">
-              {data?.responsibility?.full_name
-                ? `${data.responsibility.full_name} (${data.responsibility.user_id})`
+              {data?.responsibleUser?.full_name
+                ? `${data.responsibleUser.full_name} (${data.responsibleUser.user_id})`
                 : "—"}
             </Row>
 
             <Row label="Part">
-              {data?.part_id?.part_name
-                ? `${data.part_id.part_name} (${data.part_id.part_number})`
+              {data?.part?.part_name
+                ? `${data.part.part_name} (${data.part.part_number})`
                 : "—"}
             </Row>
           </Section>
