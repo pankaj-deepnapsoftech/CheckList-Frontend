@@ -24,8 +24,6 @@ export default function AssemblyError() {
   };
 
 
-  console.log("errors>>>>>>", errors)
-
   const formatDateShort = (dateString) => {
     if (!dateString) return "—";
     const d = new Date(dateString);

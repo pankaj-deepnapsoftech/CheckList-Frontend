@@ -40,7 +40,7 @@ export const RegisterEmployee = (cmId,plId,search, page,limit, enabled = true) =
     
     queryKey: ["search-employee", cmId, plId, search],
     queryFn: async () => {
-      console.log("api search",search)
+     
       const res = await axiosHandler.get("/users/search-employee", {
         params: {
           company: cmId || undefined,

@@ -44,7 +44,7 @@ const PlantName = () => {
     ? searchQuery?.data ?? []
     : getPlantName?.data ?? [];
 
-  console.log(editTable);
+
   return (
     <div className="p-4">
       <div>

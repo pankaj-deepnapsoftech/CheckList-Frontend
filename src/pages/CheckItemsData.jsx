@@ -44,13 +44,14 @@ const CheckItemsData = () => {
       );
 
     
-      console.log("allfilled", allFilled);
+
       if (allFilled) {
         PostCheckListFormHistory.mutate(values, {
           onSuccess: () => {
             formik.resetForm();
             formik.setFieldValue("data", "");
             window.location.reload();
+            
           },
         });
       } else {

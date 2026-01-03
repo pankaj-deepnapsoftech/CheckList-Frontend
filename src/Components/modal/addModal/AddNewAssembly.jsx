@@ -44,7 +44,7 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
     enableReinitialize: true,
     validationSchema: mode !== "assign" ? assemblyValidationSchema : null,
     onSubmit: (values) => {
-      console.log("values", values)
+     
 
       const payload = mode === "assign"
         ? { ...values }

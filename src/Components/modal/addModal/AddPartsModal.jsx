@@ -24,6 +24,7 @@ export default function AddPartsModal({
       part_number: initialData?.part_number || "",
       part_name: initialData?.part_name || "",
       material_code: initialData?.material_code || "" ,
+      description: initialData?.description || "" ,
     },
     enableReinitialize: true,
     validationSchema,

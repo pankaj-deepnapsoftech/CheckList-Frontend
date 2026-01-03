@@ -58,7 +58,7 @@ export default function AssemblyLine() {
   const plantOptions = [
     ...new Map(
       (getAssemblyLineData?.data || [])
-        .map((assem) => assem?.plant_id)
+        .map((assem) => assem?.plant)
         .filter(Boolean)
         .map(plant => [plant._id, plant])
     ).values(),
@@ -67,7 +67,7 @@ export default function AssemblyLine() {
   const companyOptions = [
     ...new Map(
       (getAssemblyLineData?.data || [])
-        .map((assem) => assem?.company_id)
+        .map((assem) => assem?.company)
         .filter(Boolean)
         .map((company) => [company?._id, company])
     ).values(),
@@ -76,7 +76,7 @@ export default function AssemblyLine() {
   const responsibleOptions = [
     ...new Map(
       (getAssemblyLineData?.data || [])
-        .map((assem) => assem?.responsibility)
+        .map((assem) => assem?.responsibleUser)
         .filter(Boolean)
         .map((responsibility) => [responsibility?._id, responsibility])
     ).values(),
@@ -97,7 +97,6 @@ export default function AssemblyLine() {
     setPage(1);
   }, [search, selectedCompany, selectedPlant, selectedProcess]);
 
-  console.log("selectedCompany", selectedCompany)
   return (
     <div className="p-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

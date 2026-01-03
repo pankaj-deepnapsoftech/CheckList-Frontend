@@ -58,7 +58,7 @@ const SearchableSelect = ({
     function handleRemove(id, value) {
         const confirmed = window.confirm("Are you sure you want to remove this item?");
         if (!confirmed) return;
-        console.log(value);
+       
 
         removeLabel.mutate({
             id,

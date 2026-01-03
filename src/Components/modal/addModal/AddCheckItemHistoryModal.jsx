@@ -25,13 +25,6 @@ export default function AddCheckItemHistoryModal({
     validationSchema,
     onSubmit: (values) => {
       if (isView) return;
-
-      console.log("UPDATE PAYLOAD", {
-        id: data._id,
-        ...values,
-      });
-
-      // 🔌 UPDATE API HERE
       onClose();
     },
   });

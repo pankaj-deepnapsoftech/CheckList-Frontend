@@ -2,7 +2,7 @@ import React from "react";
 import { X, CheckCircle2, AlertCircle } from "lucide-react";
 
 export default function CheckItemHistory({ open, onClose, data }) {
-  console.log(data);
+
 
   if (!open || !data) return null;
   const process =

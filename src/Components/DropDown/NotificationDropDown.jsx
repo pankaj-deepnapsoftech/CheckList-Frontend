@@ -100,9 +100,9 @@ const NotificationDropdown = ({ innerRef, onClose }) => {
                     className="bg-white border border-gray-200 rounded-lg p-4 space-y-2 hover:bg-gray-50 transition"
                   >
                     <p className="text-sm text-gray-700 leading-relaxed">
-                      The <b>{item?.assembly?.assembly_name}</b> assembly encountered an issue
-                      during the <b>{item?.process_id?.process_name}</b> process, reported by
-                      <b> {item?.senderId?.full_name}</b>.
+                      The <b>{item?.assemblyLine?.assembly_name}</b> assembly encountered an issue
+                      during the <b>{item?.processInfo?.process_name}</b> process, reported by
+                      <b> {item?.sender?.full_name}({item?.sender?.user_id})</b>.
                     </p>
 
                     <p className="text-sm text-gray-800">
@@ -114,7 +114,7 @@ const NotificationDropdown = ({ innerRef, onClose }) => {
                       <span className="italic text-gray-500">
                         {item?.description?.length > 50
                           ? `${item.description.slice(0, 50)}...`
-                          : item?.description}
+                          : item?.description || "N/A"}
                       </span>
                     </p>
 

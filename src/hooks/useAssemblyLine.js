@@ -25,7 +25,7 @@ export const useAssemblyLine = (company, plant, process, user,search, page, limi
 
   const createAssemblyLine = useMutation({
     mutationFn: async (data) => {
-      console.log(data)
+     
       const res = await axiosHandler.post(`/assembly/create-assembly`, data);
       return res?.data;
     },
@@ -71,7 +71,7 @@ export const useAssemblyLine = (company, plant, process, user,search, page, limi
   const searchQuery = useQuery({
     queryKey: ["search-assembly-line", company, plant, process, user,search],
     queryFn: async () => {
-      console.log(company)
+    
       const res = await axiosHandler.get("/assembly/search-assembly-line", {
         params: {
           company: company || undefined,

@@ -124,7 +124,7 @@ export default function AssemblyError() {
                   <div className="flex justify-between items-start mb-3">
                     <div>
                       <h3 className="font-semibold text-slate-900">
-                        {item.checkList?.item}
+                        {item.checklistItem?.item}
                       </h3>
                       <p className="text-xs text-slate-500 mt-1">
                         {formatDateShort(item.createdAt)}
@@ -143,13 +143,13 @@ export default function AssemblyError() {
                     <div className="flex justify-between">
                       <span>Assembly:</span>
                       <span className="font-medium">
-                        {item.assembly?.assembly_number}
+                        {item?.assemblyLine?.assembly_number}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span>Process:</span>
                       <span className="font-medium">
-                        {item.process_id?.process_name}
+                        {item?.processInfo?.process_name}
                       </span>
                     </div>
                     <div className="flex justify-between">
@@ -237,24 +237,24 @@ export default function AssemblyError() {
                       </td>
                       <td className="px-4 py-3 sm:px-6 sm:py-4">
                         <div className="font-semibold text-slate-900">
-                          {row?.checkList?.item || "—"}
+                          {row?.checklistItem?.item || "—"}
                         </div>
                       </td>
                       <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {row?.checkList?.check_list_method || "—"}
+                        {row?.checklistItem?.check_list_method || "—"}
                       </td>
                       <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {row?.checkList?.check_list_time || "—"}
+                        {row?.checklistItem?.check_list_time || "—"}
                       </td>
                       <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {(row?.assembly?.assembly_name || "—") +
+                        {(row?.assemblyLine?.assembly_name || "—") +
                           " / " +
-                          (row?.assembly?.assembly_number || "—")}
+                          (row?.assemblyLine?.assembly_number || "—")}
                       </td>
                       <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {(row?.process_id?.process_name || "—") +
+                        {(row?.processInfo?.process_name || "—") +
                           " / " +
-                          (row?.process_id?.process_no || "—")}
+                          (row?.processInfo?.process_no || "—")}
                       </td>
                       <td className="px-4 py-3 sm:px-6 sm:py-4">
                         {row?.result || "—"}
