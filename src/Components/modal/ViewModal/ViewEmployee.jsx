@@ -12,11 +12,11 @@ import {
 export default function ViewEmployeeModal({ open, onClose, data }) {
   if (!open || !data) return null;
 
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
       {/* PANEL */}
       <div className="bg-white h-screen w-full sm:w-[750px] xl:w-[850px] shadow-2xl animate-slideLeft flex flex-col">
-        
         {/* HEADER */}
         <div className="px-8 py-6 flex justify-between items-center bg-white sticky top-0 z-10">
           <div>
@@ -38,7 +38,6 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
 
         {/* BODY */}
         <div className="px-8 py-6 space-y-6 overflow-y-auto">
-          
           {/* GENERAL INFORMATION */}
           <ColoredSection
             title="General Information"
@@ -51,7 +50,7 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
               label="Designation"
               value={data.designation || data.desigination}
             />
-            <Info label="Role" value={data.role?.name} />
+            <Info label="Role" value={data?.userRole?.name} />
           </ColoredSection>
 
           {/* ORGANIZATION */}
@@ -60,10 +59,7 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
             color="blue"
             icon={<Building2 size={18} />}
           >
-            <Info
-              label="Company"
-              value={data.company?.company_name}
-            />
+            <Info label="Company" value={data.company?.company_name} />
             <Info label="Plant" value={data.plant?.plant_name} />
           </ColoredSection>
 
