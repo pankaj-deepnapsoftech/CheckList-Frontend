@@ -477,8 +477,8 @@ export default function ChecklistDashboard() {
         id: item._id,
         date: new Date(item.createdAt).toLocaleDateString(),
 
-        company: item.company_id?.company_name || "—",
-        plant: item.plant_id?.plant_name || "—",
+        company: item.company?.company_name || "—",
+        plant: item.plant?.plant_name || "—",
 
         line: `${item.assembly_number} / ${item.assembly_name}`,
 
