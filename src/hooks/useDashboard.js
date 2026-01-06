@@ -113,7 +113,8 @@ export const useAssemblyStatus = () => {
 };
 
 /* ---------------- Assembly Monthly API ---------------- */
-export const useAssemblyMonthly = () => {
+export const useAssemblyMonthly = (filters = {}) => {
+  const { startDate, endDate } = filters;
   const MONTHS = [
     "Jan",
     "Feb",
@@ -130,10 +131,16 @@ export const useAssemblyMonthly = () => {
   ];
 
   return useQuery({
-    queryKey: ["assembly-monthly"],
+    queryKey: ["assembly-monthly", { startDate, endDate }],
 
     queryFn: async () => {
-      const res = await axiosHandler.get("/dashboard/get-assembly-monthly");
+      const params = {};
+      if (startDate && startDate.trim()) params.start_date = startDate;
+      if (endDate && endDate.trim()) params.end_date = endDate;
+
+      const res = await axiosHandler.get("/dashboard/get-assembly-monthly", {
+        params,
+      });
       const rawData = res?.data?.data || [];
 
       // Normalize Jan–Dec
@@ -162,12 +169,20 @@ export const useAssemblyMonthly = () => {
 
 
 /* ---------------- Inspection Overview API ---------------- */
-export const useInspectionOverview = () => {
+export const useInspectionOverview = (filters = {}) => {
+  const { startDate, endDate } = filters;
+
   return useQuery({
-    queryKey: ["inspection-overview"],
+    queryKey: ["inspection-overview", { startDate, endDate }],
 
     queryFn: async () => {
-      const res = await axiosHandler.get("/dashboard/get-assembly-errors");
+      const params = {};
+      if (startDate && startDate.trim()) params.start_date = startDate;
+      if (endDate && endDate.trim()) params.end_date = endDate;
+
+      const res = await axiosHandler.get("/dashboard/get-assembly-errors", {
+        params,
+      });
       const data = res?.data?.data || {};
 
       return {

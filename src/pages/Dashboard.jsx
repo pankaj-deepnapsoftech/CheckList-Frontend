@@ -451,7 +451,11 @@ export default function ChecklistDashboard() {
 
   const Inspection = useAssemblyStatus();
 
-  const Assembly = useAssemblyMonthly();
+  // Assembly Performance (date‑aware)
+  const Assembly = useAssemblyMonthly({
+    startDate: startDateForApi,
+    endDate: endDateForApi,
+  });
 
   const AssemblyData = Assembly?.data;
 
@@ -497,7 +501,11 @@ export default function ChecklistDashboard() {
     })
     : [];
 
-  const { getAssemblyCardsData } = useCheckItemHistory();
+  // Status summary (date‑aware)
+  const { getAssemblyCardsData } = useCheckItemHistory(1, 10, {
+    startDate: startDateForApi,
+    endDate: endDateForApi,
+  });
 
   const summaryCards = [
     {
@@ -526,7 +534,11 @@ export default function ChecklistDashboard() {
     },
   ];
 
-  const { data } = useInspectionOverview();
+  // Inspection overview (date‑aware)
+  const { data } = useInspectionOverview({
+    startDate: startDateForApi,
+    endDate: endDateForApi,
+  });
 
   const openErrors = data?.summary?.stillErrorAssemblies || 0;
   const resolvedErrors = data?.summary?.resolvedAssemblies || 0;
