@@ -126,11 +126,33 @@ export default function UserDashboard() {
   ];
 
   // Trend chart uses monthlyTrendData (month name + checked/error)
-  const trendData = monthlyTrendData.map((m) => ({
-    day: `${m.month}/${m.year}`,
-    checked: m.checked,
-    error: m.error,
-  }));
+  // Ensure we always have data - if monthlyTrendData is empty/undefined, create default 12 months
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const currentMonthIndex = new Date().getMonth(); // 0-11
+  
+  const safeMonthlyData = Array.isArray(monthlyTrendData) && monthlyTrendData.length > 0
+    ? monthlyTrendData
+    : MONTHS.map((month) => ({
+        month,
+        checked: 0,
+        unchecked: 0,
+        error: 0,
+      }));
+
+  // Merge current month's data from statusSummary (more up-to-date than monthly trend)
+  const trendData = safeMonthlyData.map((m, index) => {
+    const isCurrentMonth = index === currentMonthIndex;
+    
+    return {
+      month: m.month || "",
+      checked: isCurrentMonth && statusSummary?.total_checked !== undefined
+        ? statusSummary.total_checked
+        : (m.checked || 0),
+      error: isCurrentMonth && statusSummary?.total_errors !== undefined
+        ? statusSummary.total_errors
+        : (m.error || 0),
+    };
+  });
 
   // Donut status data from statusSummary
   const statusData = [
@@ -199,50 +221,56 @@ export default function UserDashboard() {
             </span>
           </div>
 
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={trendData}>
-              <defs>
-                <linearGradient id="checkedGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#22c55e" stopOpacity={0.4} />
-                  <stop offset="100%" stopColor="#22c55e" stopOpacity={0.05} />
-                </linearGradient>
+          {trendLoading ? (
+            <div className="flex items-center justify-center h-[300px]">
+              <p className="text-sm text-gray-500">Loading chart data...</p>
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height={300}>
+              <AreaChart data={trendData}>
+                <defs>
+                  <linearGradient id="checkedGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#22c55e" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#22c55e" stopOpacity={0.05} />
+                  </linearGradient>
 
-                <linearGradient id="errorGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#ef4444" stopOpacity={0.35} />
-                  <stop offset="100%" stopColor="#ef4444" stopOpacity={0.05} />
-                </linearGradient>
-              </defs>
+                  <linearGradient id="errorGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#ef4444" stopOpacity={0.35} />
+                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0.05} />
+                  </linearGradient>
+                </defs>
 
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis dataKey="day" tick={{ fill: "#6b7280", fontSize: 12 }} />
-              <YAxis tick={{ fill: "#6b7280", fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{
-                  borderRadius: "8px",
-                  border: "1px solid #e5e7eb",
-                }}
-              />
-              <Legend verticalAlign="top" height={30} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis dataKey="month" tick={{ fill: "#6b7280", fontSize: 12 }} />
+                <YAxis tick={{ fill: "#6b7280", fontSize: 12 }} />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "8px",
+                    border: "1px solid #e5e7eb",
+                  }}
+                />
+                <Legend verticalAlign="top" height={30} />
 
-              <Area
-                type="monotone"
-                dataKey="checked"
-                stroke="#22c55e"
-                strokeWidth={2.5}
-                fill="url(#checkedGradient)"
-                name="Checked Assemblies"
-              />
+                <Area
+                  type="monotone"
+                  dataKey="checked"
+                  stroke="#22c55e"
+                  strokeWidth={2.5}
+                  fill="url(#checkedGradient)"
+                  name="Checked Assemblies"
+                />
 
-              <Area
-                type="monotone"
-                dataKey="error"
-                stroke="#ef4444"
-                strokeWidth={2.5}
-                fill="url(#errorGradient)"
-                name="Error Assemblies"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+                <Area
+                  type="monotone"
+                  dataKey="error"
+                  stroke="#ef4444"
+                  strokeWidth={2.5}
+                  fill="url(#errorGradient)"
+                  name="Error Assemblies"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
 
         {/* Donut Chart */}
