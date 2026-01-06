@@ -26,7 +26,7 @@ const AssignedAssemblyLines = () => {
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="max-w-7xl mx-auto px-4 py-6">
         <div className=" rounded-2xl bg-white border border-slate-200 shadow-sm p-4 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -41,7 +41,7 @@ const AssignedAssemblyLines = () => {
         </div>
       </div>
 
-      <div className=" mx-auto max-w-7xl px-4 py-2  ">
+      <div className="max-w-7xl">
         
         <AssemblyLineCards AssemblyLines={AssemblyLines}/>
       
