@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
-export const useCheckItemHistory = (page = 1, limit = 10) => {
+export const useCheckItemHistory = (page = 1, limit = 10, filters = {}) => {
   const qc = useQueryClient();
 
 
@@ -37,10 +37,18 @@ export const useCheckItemHistory = (page = 1, limit = 10) => {
     },
   });
 
+  const { startDate, endDate } = filters || {};
+
   const getAssemblyCardsData = useQuery({
-    queryKey: ["AssemblyCardsData"],
+    queryKey: ["AssemblyCardsData", { startDate, endDate }],
     queryFn: async () => {
-      const res = await axiosHandler.get(`/assembly/assembly-cards-data`);
+      const params = {};
+      if (startDate && startDate.trim()) params.start_date = startDate;
+      if (endDate && endDate.trim()) params.end_date = endDate;
+
+      const res = await axiosHandler.get(`/assembly/assembly-cards-data`, {
+        params,
+      });
       return res?.data?.data;
     },
   });
