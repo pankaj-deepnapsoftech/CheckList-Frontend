@@ -431,14 +431,8 @@ export default function ChecklistDashboard() {
   const selectedPlantId = filters.plant?.value || null;
 
   // Only send start/end dates when user selects Custom range and both dates are filled
-  const startDateForApi =
-    filters.dateRange === "Custom" && filters.startDate && filters.startDate.trim()
-      ? filters.startDate
-      : undefined;
-  const endDateForApi =
-    filters.dateRange === "Custom" && filters.endDate && filters.endDate.trim()
-      ? filters.endDate
-      : undefined;
+  const startDateForApi = filters.startDate?.trim() || undefined;
+  const endDateForApi = filters.endDate?.trim() || undefined;
 
   const {
     data: cardData,
@@ -450,6 +444,7 @@ export default function ChecklistDashboard() {
     startDate: startDateForApi,
     endDate: endDateForApi,
   });
+
 
   const { data: monthlyTrendData = [], isLoading: monthlyTrendLoading } =
     useMonthlyInspectionTrend();
@@ -639,11 +634,37 @@ export default function ChecklistDashboard() {
                 value={filters.dateRange}
                 onChange={(e) => {
                   const value = e.target.value;
-                  setFilters((p) => ({
-                    ...p,
+                  const today = new Date();
+                  let startDate = "";
+                  let endDate = "";
+
+                  if (value === "Today") {
+                    startDate = today.toISOString().split("T")[0];
+                    endDate = today.toISOString().split("T")[0];
+                  } else if (value === "Yesterday") {
+                    const yesterday = new Date(today);
+                    yesterday.setDate(today.getDate() - 1);
+                    startDate = yesterday.toISOString().split("T")[0];
+                    endDate = yesterday.toISOString().split("T")[0];
+                  } else if (value === "This Week") {
+                    const firstDay = new Date(today);
+                    firstDay.setDate(today.getDate() - today.getDay()); // Sunday as first day
+                    const lastDay = new Date(firstDay);
+                    lastDay.setDate(firstDay.getDate() + 6); // Saturday
+                    startDate = firstDay.toISOString().split("T")[0];
+                    endDate = lastDay.toISOString().split("T")[0];
+                  } else if (value === "This Month") {
+                    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    startDate = firstDay.toISOString().split("T")[0];
+                    endDate = lastDay.toISOString().split("T")[0];
+                  }
+
+                  setFilters((prev) => ({
+                    ...prev,
                     dateRange: value,
-                    // Clear custom dates when switching away from Custom
-                    ...(value !== "Custom" ? { startDate: "", endDate: "" } : {}),
+                    startDate: value !== "Custom" ? startDate : "",
+                    endDate: value !== "Custom" ? endDate : "",
                   }));
                 }}
                 className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700 focus:border-slate-400 focus:outline-none"
@@ -654,6 +675,7 @@ export default function ChecklistDashboard() {
                 <option value="This Month">This Month</option>
                 <option value="Custom">Custom</option>
               </select>
+
 
               {filters.dateRange === "Custom" && (
                 <div className="mt-1 flex gap-2">
