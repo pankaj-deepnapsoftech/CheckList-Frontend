@@ -82,7 +82,6 @@ export default function UserDashboard() {
     inspectionOverview?.summary?.resolvedAssemblies ||
     statusSummary.total_resolved ||
     0;
-  console.log("??", cardData);
   // KPI cards for user
   const stats = [
     {
