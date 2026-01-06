@@ -153,7 +153,6 @@ export default function UserDashboard() {
 
   // Recent assemblies table from inspectionData
   const recentAssemblies = (inspectionData || []).map((a) => {
-    console.log("sdfngybcsdjhg", inspectionData);
     const checked = a.checked;
     const status = checked ? "Checked" : "Unchecked";
     return {
