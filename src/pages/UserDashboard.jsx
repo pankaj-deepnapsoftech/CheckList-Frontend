@@ -28,7 +28,7 @@ import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 import { useLogin } from "../hooks/useLogin";
 
 /* ===================== STATIC COLORS ===================== */
-const COLORS = ["#22c55e", "#facc15", "#ef4444"];
+const COLORS = ["#60a5fa", "#93c5fd", "#ef4444"]; // Light blue, lighter blue, red
 
 /* ===================== PAGE ===================== */
 
