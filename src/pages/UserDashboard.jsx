@@ -57,8 +57,7 @@ export default function UserDashboard() {
             User Dashboard
           </h1>
           <p className="text-sm text-gray-500">
-            Aapko abhi kisi assembly module ka access nahi diya gaya. Sidebar se
-            assigned modules par kaam karein.
+           No data Found.
           </p>
         </div>
       </div>
