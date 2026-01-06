@@ -132,26 +132,9 @@ const Parts = () => {
                   <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">
                     {part.part_number}
                   </span>
-                </div>
 
-                <p className="mt-3 text-gray-700 font-medium">
-                  {part.part_name}
-                </p>
-
-                <p className="text-sm text-gray-500 mt-1">
-                  Material Code: {part.material_code || "N/A"}
-                </p>
-
-                <p className="text-sm text-gray-500">
-                  Total Assembly: {part.total_assemblies}
-                </p>
-
-                {/* ACTIONS */}
-                <div className="mt-4 pt-3 border-t border-gray-200">
-                  {/* Actions label */}
-                  <p className="text-xs text-gray-500 mb-3 text-right">
-                    Actions
-                  </p>
+                   <div >
+                
 
                   {/* Icons BELOW the label */}
                   <div className="flex justify-end items-center gap-4">
@@ -188,6 +171,22 @@ const Parts = () => {
                     </button>
                   </div>
                 </div>
+                </div>
+
+                <p className="mt-3 text-gray-700 font-medium">
+                  {part.part_name}
+                </p>
+
+                <p className="text-sm text-gray-500 mt-1">
+                  Material Code: {part.material_code || "N/A"}
+                </p>
+
+                <p className="text-sm text-gray-500">
+                  Total Assembly: {part.total_assemblies}
+                </p>
+
+                {/* ACTIONS */}
+               
               </div>
             ))}
           </div>
@@ -213,7 +212,7 @@ const Parts = () => {
                   <th className="px-5 py-3 font-semibold text-nowrap">
                     Total Assembly
                   </th>
-                  <th className="px-5 py-3 font-semibold text-nowrap">
+                  <th className="px-5 py-3 font-semibold text-nowrap items-center">
                     Actions
                   </th>
                 </tr>
@@ -240,8 +239,8 @@ const Parts = () => {
                       {pro.total_assemblies}
                     </td>
 
-                    <td className="px-5 py-4 align-middle">
-                      <div className="flex justify-center items-center gap-5">
+                    <td className=" align-middle">
+                      <div className="flex">
                         <button
                           title="View"
                           className={`${actionBtn} text-blue-500 hover:bg-blue-100`}
