@@ -18,94 +18,141 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import {
+  useDashboardCards,
+  useMonthlyInspectionTrend,
+  useAssemblyStatus,
+  useInspectionOverview,
+} from "../hooks/useDashboard";
+import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
+import { useLogin } from "../hooks/useLogin";
 
-/* ===================== KPI DATA ===================== */
-
-const stats = [
-  {
-    title: "Total Assemblies",
-    value: 1280,
-    icon: Layers,
-    bg: "bg-blue-50",
-    color: "text-blue-600",
-  },
-  {
-    title: "Checked",
-    value: 980,
-    icon: CheckCircle,
-    bg: "bg-green-50",
-    color: "text-green-600",
-  },
-  {
-    title: "Unchecked",
-    value: 210,
-    icon: Clock,
-    bg: "bg-yellow-50",
-    color: "text-yellow-600",
-  },
-  {
-    title: "Errors",
-    value: 90,
-    icon: AlertTriangle,
-    bg: "bg-red-50",
-    color: "text-red-600",
-  },
-];
-
-/* ===================== CHART DATA ===================== */
-
-const trendData = [
-  { day: "Mon", checked: 120, error: 10 },
-  { day: "Tue", checked: 150, error: 14 },
-  { day: "Wed", checked: 100, error: 8 },
-  { day: "Thu", checked: 180, error: 12 },
-  { day: "Fri", checked: 200, error: 9 },
-];
-
-const statusData = [
-  { name: "Checked", value: 980 },
-  { name: "Unchecked", value: 210 },
-  { name: "Errors", value: 90 },
-];
-
+/* ===================== STATIC COLORS ===================== */
 const COLORS = ["#22c55e", "#facc15", "#ef4444"];
-
-/* ===================== TABLE DATA ===================== */
-
-const recentAssemblies = [
-  {
-    processNo: "P-101",
-    processName: "Bolt Tightening",
-    method: "Manual",
-    time: "2m 10s",
-    status: "Checked",
-  },
-  {
-    processNo: "P-102",
-    processName: "Wiring Check",
-    method: "Visual",
-    time: "1m 40s",
-    status: "Unchecked",
-  },
-  {
-    processNo: "P-103",
-    processName: "Torque Test",
-    method: "Tool",
-    time: "3m 05s",
-    status: "Error",
-  },
-  {
-    processNo: "P-104",
-    processName: "Final Inspection",
-    method: "Visual",
-    time: "2m 45s",
-    status: "Checked",
-  },
-];
 
 /* ===================== PAGE ===================== */
 
 export default function UserDashboard() {
+  const { logedinUser } = useLogin();
+  const user = logedinUser?.data;
+  const permissions = user?.userRole?.permissions || [];
+
+  // Assembly‑related permissions (all assembly modules from sidebar)
+  const assemblyPaths = [
+    "/assembly-line",
+    "/assigned-assembly-lines",
+    "/assembly-line-status",
+    "/assembly-line-admin/error",
+    "/assembly-line/error",
+  ];
+
+  // Only if user has at least one assembly module permission, we show assembly data
+  const canSeeAssembly = permissions.some((p) => assemblyPaths.includes(p));
+
+  if (!canSeeAssembly) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-gray-800">
+            User Dashboard
+          </h1>
+          <p className="text-sm text-gray-500">
+            Aapko abhi kisi assembly module ka access nahi diya gaya. Sidebar se
+            assigned modules par kaam karein.
+          </p>
+        </div>
+      </div>
+    );
+  }
+  // Cards data (scoped to this user by backend)
+  const {
+    data: cardData,
+    isLoading: cardsLoading,
+  } = useDashboardCards();
+
+  // Monthly inspection trend (user assemblies only)
+  const { data: monthlyTrendData = [], isLoading: trendLoading } =
+    useMonthlyInspectionTrend();
+
+  // Assembly status list (today, user assemblies)
+  const inspectionStatus = useAssemblyStatus();
+  const inspectionData = inspectionStatus?.data || [];
+
+  // Status summary (checked/unchecked/errors/resolved) – from assembly cards API
+  const { getAssemblyCardsData } = useCheckItemHistory();
+  const statusSummary = getAssemblyCardsData?.data || {};
+
+  // Inspection overview (error assemblies, resolved/open)
+  const { data: inspectionOverview } = useInspectionOverview();
+
+  const openErrors =
+    inspectionOverview?.summary?.stillErrorAssemblies ||
+    statusSummary.total_errors ||
+    0;
+  const resolvedErrors =
+    inspectionOverview?.summary?.resolvedAssemblies ||
+    statusSummary.total_resolved ||
+    0;
+
+  // KPI cards for user
+  const stats = [
+    {
+      title: "My Assemblies",
+      value: cardData?.totals?.assembly ?? 0,
+      icon: Layers,
+      bg: "bg-blue-50",
+      color: "text-blue-600",
+    },
+    {
+      title: "Checked Today",
+      value: statusSummary.total_checked ?? 0,
+      icon: CheckCircle,
+      bg: "bg-green-50",
+      color: "text-green-600",
+    },
+    {
+      title: "Unchecked Today",
+      value: statusSummary.total_unchecked ?? 0,
+      icon: Clock,
+      bg: "bg-yellow-50",
+      color: "text-yellow-600",
+    },
+    {
+      title: "Open Errors",
+      value: openErrors,
+      icon: AlertTriangle,
+      bg: "bg-red-50",
+      color: "text-red-600",
+    },
+  ];
+
+  // Trend chart uses monthlyTrendData (month name + checked/error)
+  const trendData = monthlyTrendData.map((m) => ({
+    day: `${m.month}/${m.year}`,
+    checked: m.checked,
+    error: m.error,
+  }));
+
+  // Donut status data from statusSummary
+  const statusData = [
+    { name: "Checked", value: statusSummary.total_checked || 0 },
+    { name: "Unchecked", value: statusSummary.total_unchecked || 0 },
+    { name: "Errors", value: statusSummary.total_errors || 0 },
+  ];
+
+  // Recent assemblies table from inspectionData
+  const recentAssemblies = (inspectionData || []).slice(0, 5).map((a) => {
+    const checked = a.checked;
+    const status = checked ? "Checked" : "Unchecked";
+    return {
+      processNo: a.process_id?.[0]?.process_no || "-",
+      processName: a.process_id?.[0]?.process_name || a.assembly_name || "-",
+      method: a.part?.part_name || "N/A",
+      time: new Date(a.updatedAt || a.createdAt || new Date()).toLocaleTimeString(),
+      status,
+    };
+  });
+
   return (
     <div className="min-h-screen bg-gray-50 p-6 space-y-6">
 
@@ -149,7 +196,7 @@ export default function UserDashboard() {
               Assembly Performance Trend
             </h3>
             <span className="text-xs text-gray-500">
-              This Week
+              Monthly (My Assemblies)
             </span>
           </div>
 
