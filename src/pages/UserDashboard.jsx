@@ -93,12 +93,12 @@ export default function UserDashboard() {
     inspectionOverview?.summary?.resolvedAssemblies ||
     statusSummary.total_resolved ||
     0;
-
+  console.log("??", cardData)
   // KPI cards for user
   const stats = [
     {
       title: "My Assemblies",
-      value: cardData?.totals?.assembly ?? 0,
+      value: statusSummary?.total_assemblies ?? 0,
       icon: Layers,
       bg: "bg-blue-50",
       color: "text-blue-600",
