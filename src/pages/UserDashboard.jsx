@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  Layers,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
-} from "lucide-react";
+import { Layers, CheckCircle, Clock, AlertTriangle } from "lucide-react";
 import {
   ResponsiveContainer,
   AreaChart,
@@ -56,18 +51,13 @@ export default function UserDashboard() {
           <h1 className="text-2xl font-semibold text-gray-800">
             User Dashboard
           </h1>
-          <p className="text-sm text-gray-500">
-           No data Found.
-          </p>
+          <p className="text-sm text-gray-500">No data Found.</p>
         </div>
       </div>
     );
   }
   // Cards data (scoped to this user by backend)
-  const {
-    data: cardData,
-    isLoading: cardsLoading,
-  } = useDashboardCards();
+  const { data: cardData, isLoading: cardsLoading } = useDashboardCards();
 
   // Monthly inspection trend (user assemblies only)
   const { data: monthlyTrendData = [], isLoading: trendLoading } =
@@ -92,7 +82,7 @@ export default function UserDashboard() {
     inspectionOverview?.summary?.resolvedAssemblies ||
     statusSummary.total_resolved ||
     0;
-  console.log("??", cardData)
+  console.log("??", cardData);
   // KPI cards for user
   const stats = [
     {
@@ -140,26 +130,26 @@ export default function UserDashboard() {
   ];
 
   // Recent assemblies table from inspectionData
-  const recentAssemblies = (inspectionData || []).slice(0, 5).map((a) => {
+  const recentAssemblies = (inspectionData || []).map((a) => {
+    console.log("sdfngybcsdjhg", inspectionData);
     const checked = a.checked;
     const status = checked ? "Checked" : "Unchecked";
     return {
-      processNo: a.process_id?.[0]?.process_no || "-",
-      processName: a.process_id?.[0]?.process_name || a.assembly_name || "-",
+      assembly_number: a.assembly_number || "-",
+      assembly_name: a.assembly_name || a.assembly_name || "-",
       method: a.part?.part_name || "N/A",
-      time: new Date(a.updatedAt || a.createdAt || new Date()).toLocaleTimeString(),
+      time: new Date(
+        a.updatedAt || a.createdAt || new Date()
+      ).toLocaleTimeString(),
       status,
     };
   });
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 space-y-6">
-
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-semibold text-gray-800">
-          User Dashboard
-        </h1>
+        <h1 className="text-2xl font-semibold text-gray-800">User Dashboard</h1>
         <p className="text-sm text-gray-500">
           Monitor assembly checks, errors and progress
         </p>
@@ -174,9 +164,7 @@ export default function UserDashboard() {
           >
             <div>
               <p className="text-sm text-gray-500">{item.title}</p>
-              <h2 className="text-2xl font-semibold mt-1">
-                {item.value}
-              </h2>
+              <h2 className="text-2xl font-semibold mt-1">{item.value}</h2>
             </div>
             <div className={`p-3 rounded-xl ${item.bg}`}>
               <item.icon className={item.color} size={24} />
@@ -187,7 +175,6 @@ export default function UserDashboard() {
 
       {/* CHART SECTION */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
         {/* Professional Area Chart */}
         <div className="lg:col-span-2 bg-white rounded-2xl shadow p-6">
           <div className="flex items-center justify-between mb-4">
@@ -202,7 +189,13 @@ export default function UserDashboard() {
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={trendData}>
               <defs>
-                <linearGradient id="checkedGradient" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient
+                  id="checkedGradient"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="1"
+                >
                   <stop offset="0%" stopColor="#22c55e" stopOpacity={0.4} />
                   <stop offset="100%" stopColor="#22c55e" stopOpacity={0.05} />
                 </linearGradient>
@@ -247,9 +240,7 @@ export default function UserDashboard() {
 
         {/* Donut Chart */}
         <div className="bg-white rounded-2xl shadow p-6 flex flex-col items-center">
-          <h3 className="text-base font-semibold mb-4">
-            Status Summary
-          </h3>
+          <h3 className="text-base font-semibold mb-4">Status Summary</h3>
 
           <PieChart width={240} height={240}>
             <Pie
@@ -270,9 +261,7 @@ export default function UserDashboard() {
       {/* TABLE SECTION */}
       <div className="bg-white rounded-2xl shadow p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-semibold">
-            Assembly Details
-          </h3>
+          <h3 className="text-base font-semibold">Assembly Details</h3>
           <button className="text-sm text-indigo-600 hover:underline">
             View all
           </button>
@@ -282,8 +271,8 @@ export default function UserDashboard() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-gray-500 border-b border-gray-300">
-                <th className="py-3 px-3">Process No</th>
-                <th className="py-3 px-3">Process Name</th>
+                <th className="py-3 px-3">Assembly No</th>
+                <th className="py-3 px-3">Assembly Name</th>
                 <th className="py-3 px-3">Check Method</th>
                 <th className="py-3 px-3">Check Time</th>
                 <th className="py-3 px-3">Status</th>
@@ -297,12 +286,10 @@ export default function UserDashboard() {
                   className="border-b border-gray-200 last:border-none hover:bg-gray-50 transition"
                 >
                   <td className="py-3 px-3 font-medium">
-                    {item.processNo}
+                    {item.assembly_number}
                   </td>
 
-                  <td className="py-3 px-3">
-                    {item.processName}
-                  </td>
+                  <td className="py-3 px-3">{item.assembly_name}</td>
 
                   <td className="py-3 px-3">
                     <span className="px-2 py-1 bg-gray-100 rounded-md text-xs">
@@ -310,9 +297,7 @@ export default function UserDashboard() {
                     </span>
                   </td>
 
-                  <td className="py-3 px-3 text-gray-600">
-                    {item.time}
-                  </td>
+                  <td className="py-3 px-3 text-gray-600">{item.time}</td>
 
                   <td className="py-3 px-3">
                     <span
@@ -334,7 +319,6 @@ export default function UserDashboard() {
           </table>
         </div>
       </div>
-
     </div>
   );
 }

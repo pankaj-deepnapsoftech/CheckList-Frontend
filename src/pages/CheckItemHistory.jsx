@@ -132,7 +132,7 @@ export default function CheckItemHistory({ open, onClose, data }) {
                             <p className="text-sm text-slate-600">
                               Time:{" "}
                               <span className="font-medium">
-                                {cli?.check_list_time || "—"}
+                                {cli?.check_list_time || "—"}    
                               </span>
                             </p>
                           </div>
