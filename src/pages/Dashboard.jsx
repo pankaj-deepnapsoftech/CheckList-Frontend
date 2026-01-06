@@ -406,6 +406,8 @@ export default function ChecklistDashboard() {
     inspectionStatus: null,
     issueStatus: null,
     dateRange: "Today",
+    startDate: "",
+    endDate: "",
   });
 
   const [openSelect, setOpenSelect] = useState(null);
@@ -424,11 +426,30 @@ export default function ChecklistDashboard() {
 
 
 
+  // Derive selected company / plant IDs for cards API
+  const selectedCompanyId = filters.company?.value || null;
+  const selectedPlantId = filters.plant?.value || null;
+
+  // Only send start/end dates when user selects Custom range and both dates are filled
+  const startDateForApi =
+    filters.dateRange === "Custom" && filters.startDate && filters.startDate.trim()
+      ? filters.startDate
+      : undefined;
+  const endDateForApi =
+    filters.dateRange === "Custom" && filters.endDate && filters.endDate.trim()
+      ? filters.endDate
+      : undefined;
+
   const {
     data: cardData,
     isLoading: cardsLoading,
     isError: cardsError,
-  } = useDashboardCards();
+  } = useDashboardCards({
+    company: selectedCompanyId,
+    plant: selectedPlantId,
+    startDate: startDateForApi,
+    endDate: endDateForApi,
+  });
 
   const { data: monthlyTrendData = [], isLoading: monthlyTrendLoading } =
     useMonthlyInspectionTrend();
@@ -616,16 +637,64 @@ export default function ChecklistDashboard() {
               </label>
               <select
                 value={filters.dateRange}
-                onChange={(e) =>
-                  setFilters((p) => ({ ...p, dateRange: e.target.value }))
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFilters((p) => ({
+                    ...p,
+                    dateRange: value,
+                    // Clear custom dates when switching away from Custom
+                    ...(value !== "Custom" ? { startDate: "", endDate: "" } : {}),
+                  }));
+                }}
                 className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700 focus:border-slate-400 focus:outline-none"
               >
                 <option value="Today">Today</option>
                 <option value="Yesterday">Yesterday</option>
                 <option value="This Week">This Week</option>
                 <option value="This Month">This Month</option>
+                <option value="Custom">Custom</option>
               </select>
+
+              {filters.dateRange === "Custom" && (
+                <div className="mt-1 flex gap-2">
+                  {/* Start Date */}
+                  <input
+                    type="date"
+                    value={filters.startDate || ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFilters((prev) => {
+                        // If there is an existing endDate that is before new startDate,
+                        // snap endDate forward to startDate to keep range valid.
+                        let nextEnd = prev.endDate;
+                        if (nextEnd && value && nextEnd < value) {
+                          nextEnd = value;
+                        }
+                        return {
+                          ...prev,
+                          startDate: value,
+                          endDate: nextEnd,
+                        };
+                      });
+                    }}
+                    className="flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700 focus:border-slate-400 focus:outline-none"
+                  />
+
+                  {/* End Date */}
+                  <input
+                    type="date"
+                    value={filters.endDate || ""}
+                    min={filters.startDate || undefined}
+                    onChange={(e) =>
+                      setFilters((prev) => ({
+                        ...prev,
+                        endDate: e.target.value,
+                      }))
+                    }
+                    className="flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700 focus:border-slate-400 focus:outline-none"
+                  />
+                </div>
+              )}
             </div>
           </section>
         </div>

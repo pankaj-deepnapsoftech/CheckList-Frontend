@@ -3,12 +3,30 @@ import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
 /* ---------------- Dashboard Cards API ---------------- */
-export const useDashboardCards = () => {
+// Accept optional filters so backend can filter cards by company / plant / date range
+export const useDashboardCards = (filters = {}) => {
+  const { company, plant, startDate, endDate } = filters;
+
   return useQuery({
-    queryKey: ["dashboard-cards"],
+    // Include filters in key so cards refetch when selection changes
+    queryKey: ["dashboard-cards", { company, plant, startDate, endDate }],
 
     queryFn: async () => {
-      const res = await axiosHandler.get("/dashboard/get-cards-data");
+      const params = {};
+
+      if (company) params.company = company;
+      if (plant) params.plant = plant;
+      // Only send dates if they are provided and not empty
+      if (startDate && startDate.trim()) {
+        params.start_date = startDate;
+      }
+      if (endDate && endDate.trim()) {
+        params.end_date = endDate;
+      }
+
+      const res = await axiosHandler.get("/dashboard/get-cards-data", {
+        params,
+      });
       return res?.data?.data;
     },
 
