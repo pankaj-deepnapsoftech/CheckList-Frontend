@@ -31,6 +31,7 @@ import {
 
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 import { useCompanies } from "../hooks/useCompanies";
+import { usePlantsByCompany } from "../hooks/UsePlantName";
 
 /* ---------------- Mock / Static Data ---------------- */
 
@@ -305,8 +306,8 @@ function MiniBar({ label, value, max }) {
 
 function MultiSelect({
   label,
-  options,
-  value,
+  options = [],
+  value = null, // single value object
   onChange,
   placeholder,
   isOpen,
@@ -326,72 +327,47 @@ function MultiSelect({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isOpen, onClose]);
 
-  const toggleOption = (opt) => {
-    let next = Array.isArray(value) ? [...value] : [];
-    if (next.includes(opt)) {
-      next = next.filter((v) => v !== opt);
-    } else {
-      next.push(opt);
-    }
-    onChange(next);
+  const selectOption = (opt) => {
+    onChange(opt); 
+    onClose();     
   };
-
+ 
   return (
     <div className="relative min-w-[180px]" ref={ref}>
       <label className="mb-1 block text-[11px] font-medium text-slate-500">
-        {label}
+        {label }
       </label>
 
+    
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-left text-[11px] text-slate-700 hover:bg-slate-50"
+        className="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-left text-[11px]"
       >
-        <div className="flex flex-wrap gap-1 max-h-10 overflow-hidden">
-          {value && value.length > 0 ? (
-            value.map((v) => (
-              <span
-                key={v}
-                className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-[2px] text-[10px] text-slate-700"
-              >
-                {v}
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleOption(v);
-                  }}
-                  className="cursor-pointer text-slate-400 hover:text-slate-600"
-                >
-                  ×
-                </span>
-              </span>
-            ))
-          ) : (
-            <span className="text-slate-400">
-              {placeholder || "Select " + label}
-            </span>
-          )}
-        </div>
+        <span className={value ? "text-slate-700" : "text-slate-400"}>
+          {value ? value.label : placeholder || "Select " + label}
+        </span>
         <span className="ml-2 text-slate-400 text-[10px]">▼</span>
       </button>
 
+    
       {isOpen && (
-        <div className="absolute z-40 mt-1 w-full rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+        <div className="absolute z-40 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-2xl">
           <div className="max-h-48 overflow-auto text-[11px]">
             {options.map((opt) => {
-              const selected = value.includes(opt);
+              const selected = value?.value === opt.value;
               return (
                 <button
-                  key={opt}
+                  key={opt.value}
                   type="button"
-                  onClick={() => toggleOption(opt)}
+                  onClick={() => selectOption(opt)}
                   className={
                     "flex w-full items-center gap-2 px-2 py-1 text-left hover:bg-slate-50 " +
-                    (selected ? "bg-slate-50" : "")
+                    (selected ? "bg-slate-50 font-medium" : "")
                   }
                 >
-                  <span className="text-[12px] w-3">{selected ? "✔" : ""}</span>
-                  <span className="text-slate-700">{opt}</span>
+                  <span className="w-3">{selected ? "✔" : ""}</span>
+                  <span>{opt.label}</span>
                 </button>
               );
             })}
@@ -402,13 +378,16 @@ function MultiSelect({
   );
 }
 
+
+
 /* ---------------- Main Dashboard ---------------- */
 
 export default function ChecklistDashboard() {
 
+  const [companyId, setCompanyId] = useState()
+  const { listQuery } = useCompanies()
+  const query = usePlantsByCompany(companyId)
 
-  const {listQuery} = useCompanies()
-  
   // eslint-disable-next-line no-unused-vars
   const [lineHover, setLineHover] = useState({
     x: null,
@@ -422,22 +401,28 @@ export default function ChecklistDashboard() {
   });
 
   const [filters, setFilters] = useState({
-    company: [],
-    plant: [],
-    line: [],
-    process: [],
-    part: [],
-    inspectionStatus: [],
-    issueStatus: [],
+    company: null,
+    plant: null,
+    inspectionStatus: null,
+    issueStatus: null,
     dateRange: "Today",
   });
 
   const [openSelect, setOpenSelect] = useState(null);
 
-  const handleFilterChange = (key, value) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+  const handleFilterChange = (key, selected) => {
+    setFilters((prev) => ({
+      ...prev,
+      [key]: selected,
+    }));
+
+    if (key === "company") {
+      const companyIds = selected.map((c) => c.value);
+      setCompanyId(companyIds[0]);
+    }
   };
- 
+
+
 
   const {
     data: cardData,
@@ -458,42 +443,42 @@ export default function ChecklistDashboard() {
 
   const tableRows = Array.isArray(InspectionData)
     ? InspectionData.map((item) => {
-        const inspectionStatus = item.checked
-          ? "CHECKED"
-          : item.unchecked
+      const inspectionStatus = item.checked
+        ? "CHECKED"
+        : item.unchecked
           ? "UN-CHECKED"
           : "PENDING";
 
-        const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
+      const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
 
-        const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
+      const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
 
-        return {
-          id: item._id,
-          date: new Date(item.createdAt).toLocaleDateString(),
+      return {
+        id: item._id,
+        date: new Date(item.createdAt).toLocaleDateString(),
 
-          company: item.company_id?.company_name || "—",
-          plant: item.plant_id?.plant_name || "—",
+        company: item.company_id?.company_name || "—",
+        plant: item.plant_id?.plant_name || "—",
 
-          line: `${item.assembly_number} / ${item.assembly_name}`,
+        line: `${item.assembly_number} / ${item.assembly_name}`,
 
-          process: Array.isArray(item.process_id) ? item.process_id.length : 0,
+        process: Array.isArray(item.process_id) ? item.process_id.length : 0,
 
-          part: item.part_id?.part_name || "—",
+        part: item.part_id?.part_name || "—",
 
-          checkItem: "Checklist",
+        checkItem: "Checklist",
 
-          inspectionStatus,
-          issueStatus,
-          resolutionStatus,
+        inspectionStatus,
+        issueStatus,
+        resolutionStatus,
 
-          checkedBy: item.responsibility?.full_name || "—",
+        checkedBy: item.responsibility?.full_name || "—",
 
-          time: new Date(item.updatedAt).toLocaleTimeString(),
+        time: new Date(item.updatedAt).toLocaleTimeString(),
 
-          remarks: item.error ? "Issue detected during inspection" : "—",
-        };
-      })
+        remarks: item.error ? "Issue detected during inspection" : "—",
+      };
+    })
     : [];
 
   const { getAssemblyCardsData } = useCheckItemHistory();
@@ -553,15 +538,20 @@ export default function ChecklistDashboard() {
               Refresh
             </button>
           </header>
- 
+
           <section className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-3 sm:flex-row sm:flex-wrap sm:items-end">
             <MultiSelect
-              id="company"
               label="Company"
-              options={listQuery?.data?.map((company) => company?.company_name)}
-              value={filters.company}
-              onChange={(v) => handleFilterChange("company", v)}
-              placeholder="All Companies + Multi"
+              options={listQuery?.data?.map((c) => ({
+                label: c.company_name,
+                value: c._id,
+              }))}
+              value={filters.company || null} // single selected object
+              onChange={(selected) => {
+                setFilters({ ...filters, company: selected });
+                setCompanyId(selected?.value || null);
+              }}
+              placeholder="Select a company"
               isOpen={openSelect === "company"}
               onToggle={() =>
                 setOpenSelect(openSelect === "company" ? null : "company")
@@ -569,10 +559,14 @@ export default function ChecklistDashboard() {
               onClose={() => openSelect === "company" && setOpenSelect(null)}
             />
 
+
             <MultiSelect
               id="plant"
               label="Plant"
-              options={["Plant 1", "Plant 2", "Plant 3"]}
+              options={query?.data?.map((plant) => ({
+                label: plant?.plant_name,
+                value: plant?._id
+              }))}
               value={filters.plant}
               onChange={(v) => handleFilterChange("plant", v)}
               placeholder="All Plants + Multi"
@@ -582,56 +576,17 @@ export default function ChecklistDashboard() {
               }
               onClose={() => openSelect === "plant" && setOpenSelect(null)}
             />
+
+
             <MultiSelect
-              id="line"
-              label="Assembly Line"
-              options={["500", "1000A", "1000B", "2000", "5000"]}
-              value={filters.line}
-              onChange={(v) => handleFilterChange("line", v)}
-              placeholder="All Lines + Multi"
-              isOpen={openSelect === "line"}
-              onToggle={() =>
-                setOpenSelect(openSelect === "line" ? null : "line")
-              }
-              onClose={() => openSelect === "line" && setOpenSelect(null)}
-            />
-            <MultiSelect
-              id="process"
-              label="Process"
-              options={[
-                "PCB Depaneling",
-                "Soldering",
-                "Greasing",
-                "Cover Assy",
-              ]}
-              value={filters.process}
-              onChange={(v) => handleFilterChange("process", v)}
-              placeholder="All Processes + Multi"
-              isOpen={openSelect === "process"}
-              onToggle={() =>
-                setOpenSelect(openSelect === "process" ? null : "process")
-              }
-              onClose={() => openSelect === "process" && setOpenSelect(null)}
-            />
-            <MultiSelect
-              id="part"
-              label="Part"
-              options={["Main PCB", "Connector", "Slider", "Top Cover"]}
-              value={filters.part}
-              onChange={(v) => handleFilterChange("part", v)}
-              placeholder="All Parts + Multi"
-              isOpen={openSelect === "part"}
-              onToggle={() =>
-                setOpenSelect(openSelect === "part" ? null : "part")
-              }
-              onClose={() => openSelect === "part" && setOpenSelect(null)}
-            />
-            <MultiSelect
-              id="inspection"
               label="Inspection Status"
-              options={["Checked", "Unchecked", "In Progress"]}
-              value={filters.inspectionStatus}
-              onChange={(v) => handleFilterChange("inspectionStatus", v)}
+              options={[
+                { label: "Checked", value: "checked" },
+                { label: "Unchecked", value: "unchecked" },
+                { label: "In Progress", value: "in_progress" },
+              ]}
+              value={filters.inspectionStatus || null}
+              onChange={(v) => setFilters({ ...filters, inspectionStatus: v })}
               placeholder="Checked / Unchecked + Multi"
               isOpen={openSelect === "inspection"}
               onToggle={() =>
@@ -639,12 +594,15 @@ export default function ChecklistDashboard() {
               }
               onClose={() => openSelect === "inspection" && setOpenSelect(null)}
             />
+
             <MultiSelect
-              id="issue"
               label="Issue Status"
-              options={["OK", "Error"]}
-              value={filters.issueStatus}
-              onChange={(v) => handleFilterChange("issueStatus", v)}
+              options={[
+                { label: "OK", value: "ok" },
+                { label: "Error", value: "error" },
+              ]}
+              value={filters.issueStatus || null}
+              onChange={(v) => setFilters({ ...filters, issueStatus: v })}
               placeholder="Error / Resolved + Multi"
               isOpen={openSelect === "issue"}
               onToggle={() =>

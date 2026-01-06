@@ -97,15 +97,17 @@ const NotificationDropdown = ({ innerRef, onClose }) => {
                 {items.map((item) => (
                   <li
                     key={item._id}
-                    className="bg-white border border-gray-200 rounded-lg p-4 space-y-2 hover:bg-gray-50 transition"
+                    className="bg-white border border-gray-200 rounded-lg p-3 space-y-2 hover:bg-gray-50 transition"
                   >
                     <p className="text-sm text-gray-700 leading-relaxed">
-                      The <b>{item?.assemblyLine?.assembly_name}</b> assembly encountered an issue
-                      during the <b>{item?.processInfo?.process_name}</b> process, reported by
-                      <b> {item?.sender?.full_name}({item?.sender?.user_id})</b>.
+                      An issue was reported on the <b>{item?.assemblyLine?.assembly_name}</b> assembly
+                      during the <b>{item?.processInfo?.process_name}</b> process by
+                      <b> {item?.sender?.full_name} ({item?.sender?.user_id})</b>.
                     </p>
 
-                    <p className="text-sm text-gray-800">
+
+
+                    <p className="text-sm text-gray-700">
                       <b>Title:</b> {item?.title}
                     </p>
 
@@ -150,13 +152,8 @@ const NotificationDropdown = ({ innerRef, onClose }) => {
         )}
       </ul>
 
-
-
-
       <div className="sticky bottom-0 z-20 p-3 bg-gray-50 flex justify-center items-center
                   rounded-b-2xl border-t border-gray-300">
-
-
         <button
           disabled={!hasUnread}
           onClick={() => MarkAllasRead.mutate(reciverId)}
