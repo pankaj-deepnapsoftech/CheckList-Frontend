@@ -1,10 +1,19 @@
 import { useState } from "react";
-import { Plus, RefreshCw, Search, Edit2, Trash2, Eye } from "lucide-react";
+import {
+  Plus,
+  RefreshCw,
+  Search,
+  Edit2,
+  Trash2,
+  Eye,
+  View,
+} from "lucide-react";
 import Pagination from "../Components/Pagination/Pagination.jsx";
 import { useDebounce } from "../hooks/useDebounce";
 import { UsePart } from "../hooks/usePart.js";
 import Refresh from "../components/Refresh/Refresh";
 import AddPartsModal from "../Components/modal/addModal/AddPartsModal.jsx";
+import ViewPartsModal from "../components/modal/ViewModal/ViewParts.jsx";
 
 const actionBtn =
   "p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:shadow-md";
@@ -17,13 +26,13 @@ const Parts = () => {
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add");
   const [showRefresh, setShowRefresh] = useState(false);
+
   const { debounce, value } = useDebounce(search);
   const { getPartData, removeParts, searchQuery } = UsePart(page, limit, value);
 
-  const filteredParts =
-    debounce
-      ? searchQuery?.data ?? []
-      : getPartData?.data || [];
+  const filteredParts = debounce
+    ? searchQuery?.data ?? []
+    : getPartData?.data || [];
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this part?")) {
@@ -37,7 +46,7 @@ const Parts = () => {
     setShowRefresh(true);
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
     await Promise.all([getPartData.refetch(), minDelay]);
-    setShowRefresh(false); // Hide overlay
+    setShowRefresh(false);
   };
 
   return (
@@ -84,17 +93,16 @@ const Parts = () => {
 
       {/* LIST */}
       <div className="relative min-h-[300px] bg-white rounded-2xl shadow mt-6 p-5">
-        {/* Header: Count + Show Dropdown */}
+        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
           <h2 className="text-gray-800 text-lg font-semibold">
             {filteredParts.length} Parts Found
           </h2>
 
-          {/* Show Dropdown */}
           <div className="flex items-center gap-4 text-gray-600">
             <span>Show:</span>
             <select
-              className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0 "
+              className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer"
               value={limit}
               onChange={(e) => {
                 setLimit(Number(e.target.value));
@@ -117,26 +125,33 @@ const Parts = () => {
             {filteredParts?.map((part) => (
               <div
                 key={part._id}
-                className=" rounded-xl p-4 shadow-sm bg-white"
+                className="rounded-xl p-4 shadow-sm bg-white border border-gray-200"
               >
+                {/* TOP INFO */}
                 <div className="flex justify-between items-center">
                   <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">
                     {part.part_number}
                   </span>
 
-                  <div className="flex gap-2">
+                   <div >
+                
+
+                  {/* Icons BELOW the label */}
+                  <div className="flex justify-end items-center gap-4">
                     <button
                       title="View"
-                      className="text-blue-500 cursor-pointer"
+                      className={`${actionBtn} text-blue-500 hover:bg-blue-100`}
                       onClick={() => {
                         setEditTable(part);
                         setMode("view");
                         setOpenModal(true);
                       }}
                     >
-                      <Eye size={20} />
+                      <Eye size={18} />
                     </button>
+
                     <button
+                      title="Edit"
                       className={`${actionBtn} text-green-600 hover:bg-green-100`}
                       onClick={() => {
                         setEditTable(part);
@@ -148,6 +163,7 @@ const Parts = () => {
                     </button>
 
                     <button
+                      title="Delete"
                       className={`${actionBtn} text-red-500 hover:bg-red-100`}
                       onClick={() => handleDelete(part._id)}
                     >
@@ -155,10 +171,22 @@ const Parts = () => {
                     </button>
                   </div>
                 </div>
+                </div>
 
                 <p className="mt-3 text-gray-700 font-medium">
                   {part.part_name}
                 </p>
+
+                <p className="text-sm text-gray-500 mt-1">
+                  Material Code: {part.material_code || "N/A"}
+                </p>
+
+                <p className="text-sm text-gray-500">
+                  Total Assembly: {part.total_assemblies}
+                </p>
+
+                {/* ACTIONS */}
+               
               </div>
             ))}
           </div>
@@ -168,16 +196,23 @@ const Parts = () => {
         {showRefresh ? (
           <Refresh />
         ) : (
-          <div className="overflow-x-auto hidden sm:block rounded-xl border border-gray-200">
-            <table className="w-full min-w-[700px] text-left">
+          <div className="hidden sm:block overflow-x-auto rounded-xl border border-gray-200">
+            <table className="w-full  min-w-[700px] text-left">
               <thead>
-                <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
-                  <th className="px-5 py-3 font-semibold text-nowrap">Parts No.</th>
-                  <th className="px-5 py-3 font-semibold ">Parts Name</th>
-                  <th className="px-5 py-3 font-semibold text-nowrap">Material Code</th>
-                  <th className="px-5 py-3 font-semibold text-nowrap">Total Assembly</th>
-
-                  <th className="px-5 py-3 font-semibold text-center">
+                <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Parts No.
+                  </th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Parts Name
+                  </th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Material Code
+                  </th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Total Assembly
+                  </th>
+                  <th className="px-5 py-3 font-semibold text-nowrap items-center">
                     Actions
                   </th>
                 </tr>
@@ -187,27 +222,44 @@ const Parts = () => {
                 {filteredParts?.map((pro) => (
                   <tr
                     key={pro._id}
-                    className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
+                    className="border-b border-gray-200 hover:bg-blue-50 transition align-middle"
                   >
-                    <td className="px-5 py-4 text-nowrap">{pro.part_number}</td>
-
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">
+                    <td className="px-5 py-4 align-middle">
+                      {pro.part_number}
+                    </td>
+                    <td className="px-5 py-4 align-middle">
+                      <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">
                         {pro.part_name}
                       </span>
                     </td>
+                    <td className="px-5 py-4 align-middle">
+                      {pro.material_code || "N/A"}
+                    </td>
+                    <td className="px-5 py-4 align-middle">
+                      {pro.total_assemblies}
+                    </td>
 
-                    <td className="px-5 py-4 text-nowrap"> {pro.material_code|| "N/A"}</td>
-                    <td className="px-5 py-4 "> {pro.total_assemblies}</td>
-                    <td className="px-5 py-4">
-                      <div className="flex justify-center gap-2">
+                    <td className=" align-middle">
+                      <div className="flex">
+                        <button
+                          title="View"
+                          className={`${actionBtn} text-blue-500 hover:bg-blue-100`}
+                          onClick={() => {
+                            setEditTable(pro);
+                            setMode("view");
+                            setOpenModal(true);
+                          }}
+                        >
+                          <Eye size={18} />
+                        </button>
+
                         <button
                           title="Edit"
                           className={`${actionBtn} text-green-600 hover:bg-green-100`}
                           onClick={() => {
-                            setOpenModal(true);
-                            setMode("edit");
                             setEditTable(pro);
+                            setMode("edit");
+                            setOpenModal(true);
                           }}
                         >
                           <Edit2 size={18} />
@@ -216,11 +268,9 @@ const Parts = () => {
                         <button
                           title="Delete"
                           className={`${actionBtn} text-red-500 hover:bg-red-100`}
+                          onClick={() => handleDelete(pro._id)}
                         >
-                          <Trash2
-                            size={18}
-                            onClick={() => handleDelete(pro?._id)}
-                          />
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </td>
@@ -232,14 +282,26 @@ const Parts = () => {
         )}
       </div>
 
-      <AddPartsModal
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        mode={mode}
-        initialData={editTable}
-      />
+      {/* ADD / EDIT MODAL */}
+      {openModal && mode !== "view" && (
+        <AddPartsModal
+          openModal={openModal}
+          setOpenModal={setOpenModal}
+          mode={mode}
+          initialData={editTable}
+        />
+      )}
 
-      {/* PAGINATION (UI ONLY) */}
+      {/* VIEW MODAL */}
+      {openModal && mode === "view" && (
+        <ViewPartsModal
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          data={editTable}
+        />
+      )}
+
+      {/* PAGINATION */}
       <Pagination
         page={page}
         setPage={setPage}
