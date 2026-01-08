@@ -14,22 +14,36 @@ const AssignedAssemblyLines = () => {
 
   const { getAssignedAssemblyLines } = useAssignedAssemblyLines();
   const { data: assemblyLines = [], isLoading } = getAssignedAssemblyLines;
-     
+
   if (isLoading) return <div className="p-6">Loading...</div>;
 
   /* 🔹 Table Mapping */
   const tableData = Array.isArray(assemblyLines)
-    ? assemblyLines.map((item) => ({
-        id: item?._id,
-        assemblyNumber: item?.assembly_number || "—",
-        assemblyName: item?.assembly_name || "—",
-        companyName: item?.company?.company_name || "—",
-        plantName: item?.plant?.plant_name || "—",
-        status: item?.is_checked ? "CHECKED" : "UN-CHECKED",
-        raw: item,
-      }))
+    ? assemblyLines.map((item) => {
+        const allCheckHistories =
+          item.process_id?.flatMap(
+            (process) =>
+              process.check_list_items?.flatMap(
+                (checkItem) => checkItem.check_items_history || []
+              ) || []
+          ) || [];
+
+        const isChecked = allCheckHistories.find(
+          (history) => history.status === "Checked"
+        );
+
+        return {
+          id: item?._id,
+          assemblyNumber: item?.assembly_number || "—",
+          assemblyName: item?.assembly_name || "—",
+          
+          status: isChecked ? "CHECKED" : "UN-CHECKED",
+          raw: item,
+        };
+      })
     : [];
 
+  console.log("hey", assemblyLines);
   /* 🔹 Pagination */
   const ITEMS_PER_PAGE =
     showLimit === "ALL" ? tableData.length : Number(showLimit);
@@ -158,7 +172,10 @@ const AssignedAssemblyLines = () => {
 
                 {tableData.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="text-center py-14 text-slate-500">
+                    <td
+                      colSpan={5}
+                      className="text-center py-14 text-slate-500"
+                    >
                       No assigned assembly lines found
                     </td>
                   </tr>
@@ -185,17 +202,6 @@ const AssignedAssemblyLines = () => {
 
           {/* Modal Panel */}
           <div className="absolute right-0 top-0 h-full w-full max-w-6xl bg-white shadow-2xl overflow-y-auto">
-            {/* Header */}
-            <div className="p-6 border-b flex justify-between items-center">
-              <h3 className="text-xl font-semibold">Assembly Line Details</h3>
-              <button
-                onClick={() => setOpenView(false)}
-                className="p-2 rounded-lg hover:bg-slate-100"
-              >
-                <X />
-              </button>
-            </div>
-
             {/* Body */}
             <div className="p-6">
               <AssemblyLineCards AssemblyLines={[selectedAssembly]} />
