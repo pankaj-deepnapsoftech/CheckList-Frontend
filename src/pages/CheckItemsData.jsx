@@ -49,9 +49,10 @@ const CheckItemsData = () => {
         PostCheckListFormHistory.mutate(values, {
           onSuccess: () => {
             formik.resetForm();
-            formik.setFieldValue("data", "");
-            window.location.reload();
-            
+            setAssembly_id("");
+            setErrors({});
+            PostCheckListForm.data = [];
+            getAssemblyAndProcessData.refetch() ;
           },
         });
       } else {
@@ -139,14 +140,17 @@ const CheckItemsData = () => {
               <option value="">Select Assembly</option>
               {getAssemblyAndProcessData?.data?.map((i) => (
                 <option key={i._id} value={i._id}>
-                  {i.assembly_name} ({i.assembly_number})
+                  {i.assembly_name} ({i.assembly_number}) 
+                  {i?.checked &&
+                    <span>✔</span>
+                  }
                 </option>
               ))}
             </select>
           </div>
         </div>
 
-        {PostCheckListForm?.data?.map((assembly) => (
+        {assembly_id && PostCheckListForm?.data?.map((assembly) => (
           <div
             key={assembly._id}
             className="mb-10 rounded-2xl bg-white border border-slate-200 shadow-lg overflow-hidden"
