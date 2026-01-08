@@ -1,18 +1,21 @@
 import { useAssignedAssemblyLines } from "../hooks/useAssignedAssemblyLines";
 import { useState } from "react";
-import { Eye, CheckCircle2, AlertCircle } from "lucide-react";
+import { Eye, CheckCircle2, AlertCircle, X } from "lucide-react";
 import Pagination from "../Components/Pagination/Pagination";
+import AssemblyLineCards from "../components/AssemblyLineCard/AssemblyLineCards";
 
 const AssignedAssemblyLines = () => {
   const [page, setPage] = useState(1);
   const [showLimit, setShowLimit] = useState(10);
 
+  // 🔹 Modal state
+  const [openView, setOpenView] = useState(false);
+  const [selectedAssembly, setSelectedAssembly] = useState(null);
+
   const { getAssignedAssemblyLines } = useAssignedAssemblyLines();
   const { data: assemblyLines = [], isLoading } = getAssignedAssemblyLines;
 
-  if (isLoading) {
-    return <div className="p-6">Loading...</div>;
-  }
+  if (isLoading) return <div className="p-6">Loading...</div>;
 
   /* 🔹 Table Mapping */
   const tableData = Array.isArray(assemblyLines)
@@ -109,10 +112,7 @@ const AssignedAssemblyLines = () => {
 
               <tbody className="divide-y divide-slate-100">
                 {paginatedTableData.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-blue-50/50 transition"
-                  >
+                  <tr key={row.id} className="hover:bg-blue-50/50 transition">
                     <td className="px-6 py-4 font-semibold text-slate-900">
                       {row.assemblyNumber} / {row.assemblyName}
                     </td>
@@ -144,13 +144,13 @@ const AssignedAssemblyLines = () => {
                     <td className="px-6 py-4">
                       <button
                         onClick={() => {
-                          console.log("View Assembly:", row.raw);
+                          setSelectedAssembly(row.raw);
+                          setOpenView(true);
                         }}
                         className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold
-                        text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition"
+                          text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition"
                       >
-                        <Eye size={14} />
-                        View
+                        <Eye size={14} /> View
                       </button>
                     </td>
                   </tr>
@@ -164,18 +164,45 @@ const AssignedAssemblyLines = () => {
                   </tr>
                 )}
               </tbody>
-            </table>     
+            </table>
           </div>
-        </div>      
+        </div>
+
         {/* Pagination */}
         {tableData.length > 0 && showLimit !== "ALL" && (
-          <Pagination
-            page={page}
-            setPage={setPage}
-            hasNextpage={hasNextPage}
-          />
+          <Pagination page={page} setPage={setPage} hasNextpage={hasNextPage} />
         )}
       </div>
+
+      {/* 🔹 VIEW MODAL */}
+      {openView && selectedAssembly && (
+        <div className="fixed inset-0 z-[90]">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setOpenView(false)}
+          />
+
+          {/* Modal Panel */}
+          <div className="absolute right-0 top-0 h-full w-full max-w-6xl bg-white shadow-2xl overflow-y-auto">
+            {/* Header */}
+            <div className="p-6 border-b flex justify-between items-center">
+              <h3 className="text-xl font-semibold">Assembly Line Details</h3>
+              <button
+                onClick={() => setOpenView(false)}
+                className="p-2 rounded-lg hover:bg-slate-100"
+              >
+                <X />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-6">
+              <AssemblyLineCards AssemblyLines={[selectedAssembly]} />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
