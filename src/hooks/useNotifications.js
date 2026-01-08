@@ -43,14 +43,14 @@ export const useNotifications = () => {
         }
 
         const userId = logedinUser.data._id;
-        const eventName = `notification:${userId}`;
+        const eventName = "notification";
 
         console.log("🔔 Setting up notification listener for user:", userId, "Event:", eventName);
 
         const handleNewNotification = (data) => {
-            console.log("✅ Received notification event:", eventName, data);
+            // console.log("✅ Received notification event:", eventName, data);
             if (data?.type === "new_notification") {
-                console.log("🔄 Invalidating notifications query...");
+                // console.log("🔄 Invalidating notifications query...");
                 qc.invalidateQueries({ 
                     queryKey: ["notification"],
                     refetchType: 'active'
@@ -63,7 +63,7 @@ export const useNotifications = () => {
 
         // Cleanup
         return () => {
-            console.log("🧹 Cleaning up socket listener for:", eventName);
+            // console.log("🧹 Cleaning up socket listener for:", eventName);
             socket.off(eventName, handleNewNotification);
         };
     }, [socket, logedinUser?.data?._id, qc]);
