@@ -44,7 +44,6 @@ const AssignedAssemblyLines = () => {
       })
     : [];
 
-  console.log("hey", assemblyLines);
   /* 🔹 Pagination */
   const ITEMS_PER_PAGE =
     showLimit === "ALL" ? tableData.length : Number(showLimit);
