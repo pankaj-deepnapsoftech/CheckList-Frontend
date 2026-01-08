@@ -14,7 +14,7 @@ const AssignedAssemblyLines = () => {
 
   const { getAssignedAssemblyLines } = useAssignedAssemblyLines();
   const { data: assemblyLines = [], isLoading } = getAssignedAssemblyLines;
-
+     
   if (isLoading) return <div className="p-6">Loading...</div>;
 
   /* 🔹 Table Mapping */
