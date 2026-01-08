@@ -36,7 +36,8 @@ const AssignedAssemblyLines = () => {
           id: item?._id,
           assemblyNumber: item?.assembly_number || "—",
           assemblyName: item?.assembly_name || "—",
-          
+          companyName: item?.company?.company_name || "—",
+          plantName: item?.plant?.plant_name || "—",
           status: isChecked ? "CHECKED" : "UN-CHECKED",
           raw: item,
         };
