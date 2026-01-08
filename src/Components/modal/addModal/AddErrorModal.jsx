@@ -36,9 +36,10 @@ export default function AddErrorModal({
         checkList: data?.checklistItem?._id,
         process_id: data?.processInfo?._id,
         assembly: data?.assemblyLine?._id,
-        is_error: values.is_error,
+        is_error: false,
         description: values.description,
         result: resultValue,
+        is_resolved:true 
       };
 
       updateAssemblyLineError.mutate(
