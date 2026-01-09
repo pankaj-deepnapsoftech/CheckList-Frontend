@@ -455,42 +455,42 @@ export default function ChecklistDashboard() {
 
   const tableRows = Array.isArray(InspectionData)
     ? InspectionData.map((item) => {
-        const inspectionStatus = item.checked
-          ? "CHECKED"
-          : item.unchecked
+      const inspectionStatus = item.checked
+        ? "CHECKED"
+        : item.unchecked
           ? "UN-CHECKED"
           : "PENDING";
 
-        const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
+      const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
 
-        const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
+      const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
 
-        return {
-          id: item._id,
-          date: new Date(item.createdAt).toLocaleDateString(),
+      return {
+        id: item._id,
+        date: new Date(item.createdAt).toLocaleDateString(),
 
-          company: item.company?.company_name || "—",
-          plant: item.plant?.plant_name || "—",
+        company: item.company?.company_name || "—",
+        plant: item.plant?.plant_name || "—",
 
-          line: `${item.assembly_number} / ${item.assembly_name}`,
+        line: `${item.assembly_number} / ${item.assembly_name}`,
 
-          process: Array.isArray(item.process_id) ? item.process_id.length : 0,
+        process: Array.isArray(item.process_id) ? item.process_id.length : 0,
 
-          part: item.part_id?.part_name || "—",
+        part: item.part_id?.part_name || "—",
 
-          checkItem: "Checklist",
+        checkItem: "Checklist",
 
-          inspectionStatus,
-          issueStatus,
-          resolutionStatus,
+        inspectionStatus,
+        issueStatus,
+        resolutionStatus,
 
-          checkedBy: item.responsibleUser?.full_name || "—",
-          userId: item.responsibleUser?.user_id,
-          time: new Date(item.updatedAt).toLocaleTimeString(),
+        checkedBy: item.responsibleUser?.full_name || "—",
+        userId: item.responsibleUser?.user_id,
+        time: new Date(item.updatedAt).toLocaleTimeString(),
 
-          remarks: item.error ? "Issue detected during inspection" : "—",
-        };
-      })
+        remarks: item.error ? "Issue detected during inspection" : "—",
+      };
+    })
     : [];
 
   // Status summary (date‑aware)
@@ -537,14 +537,14 @@ export default function ChecklistDashboard() {
   const { data } = useInspectionOverview({
     startDate: startDateForApi,
     endDate: endDateForApi,
-   company: selectedCompanyId,
-    plant:selectedPlantId
+    company: selectedCompanyId,
+    plant: selectedPlantId
   });
 
   const openErrors = data?.summary?.stillErrorAssemblies || 0;
   const resolvedErrors = data?.summary?.resolvedAssemblies || 0;
   const totalErrors = openErrors + resolvedErrors;
-
+  // console.log(data?.summary)
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
@@ -605,40 +605,6 @@ export default function ChecklistDashboard() {
               }
               onClose={() => openSelect === "plant" && setOpenSelect(null)}
             />
-
-
-            {/* <MultiSelect
-              label="Inspection Status"
-              options={[
-                { label: "Checked", value: "checked" },
-                { label: "Unchecked", value: "unchecked" },
-                { label: "In Progress", value: "in_progress" },
-              ]}
-              value={filters.inspectionStatus || null}
-              onChange={(v) => setFilters({ ...filters, inspectionStatus: v })}
-              placeholder="Checked / Unchecked + Multi"
-              isOpen={openSelect === "inspection"}
-              onToggle={() =>
-                setOpenSelect(openSelect === "inspection" ? null : "inspection")
-              }
-              onClose={() => openSelect === "inspection" && setOpenSelect(null)}
-            /> */}
-
-            {/* <MultiSelect
-              label="Issue Status"
-              options={[
-                { label: "OK", value: "ok" },
-                { label: "Error", value: "error" },
-              ]}
-              value={filters.issueStatus || null}
-              onChange={(v) => setFilters({ ...filters, issueStatus: v })}
-              placeholder="Error / Resolved + Multi"
-              isOpen={openSelect === "issue"}
-              onToggle={() =>
-                setOpenSelect(openSelect === "issue" ? null : "issue")
-              }
-              onClose={() => openSelect === "issue" && setOpenSelect(null)}
-            /> */}
             <div className="flex flex-col gap-1 min-w-[140px]">
               <label className="text-[11px] font-medium text-slate-500">
                 Date Range
@@ -739,6 +705,27 @@ export default function ChecklistDashboard() {
                 </div>
               )}
             </div>
+            <div className="flex items-center justify-end">
+              <button
+              onClick={()=>{
+                  setFilters({
+                    company: null,
+                    plant: null,
+                    inspectionStatus: null,
+                    issueStatus: null,
+                    dateRange: "",
+                    startDate: "",
+                    endDate: "",
+                  })
+                  setCompanyId("")
+                  
+              }}
+                className="px-6 py-[9px] rounded-[10px] bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-semibold"
+              >
+                Rest
+              </button>
+            </div>
+
           </section>
         </div>
       </div>
