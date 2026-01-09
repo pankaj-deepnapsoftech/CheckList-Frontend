@@ -328,17 +328,16 @@ function MultiSelect({
   }, [isOpen, onClose]);
 
   const selectOption = (opt) => {
-    onChange(opt); 
-    onClose();     
+    onChange(opt);
+    onClose();
   };
- 
+
   return (
     <div className="relative min-w-[180px]" ref={ref}>
       <label className="mb-1 block text-[11px] font-medium text-slate-500">
-        {label }
+        {label}
       </label>
 
-    
       <button
         type="button"
         onClick={onToggle}
@@ -350,7 +349,6 @@ function MultiSelect({
         <span className="ml-2 text-slate-400 text-[10px]">▼</span>
       </button>
 
-    
       {isOpen && (
         <div className="absolute z-40 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-2xl">
           <div className="max-h-48 overflow-auto text-[11px]">
@@ -378,15 +376,12 @@ function MultiSelect({
   );
 }
 
-
-
 /* ---------------- Main Dashboard ---------------- */
 
 export default function ChecklistDashboard() {
-
-  const [companyId, setCompanyId] = useState()
-  const { listQuery } = useCompanies()
-  const query = usePlantsByCompany(companyId)
+  const [companyId, setCompanyId] = useState();
+  const { listQuery } = useCompanies();
+  const query = usePlantsByCompany(companyId);
 
   // eslint-disable-next-line no-unused-vars
   const [lineHover, setLineHover] = useState({
@@ -424,8 +419,6 @@ export default function ChecklistDashboard() {
     }
   };
 
-
-
   // Derive selected company / plant IDs for cards API
   const selectedCompanyId = filters.company?.value || null;
   const selectedPlantId = filters.plant?.value || null;
@@ -445,7 +438,6 @@ export default function ChecklistDashboard() {
     endDate: endDateForApi,
   });
 
-
   const { data: monthlyTrendData = [], isLoading: monthlyTrendLoading } =
     useMonthlyInspectionTrend();
 
@@ -463,42 +455,42 @@ export default function ChecklistDashboard() {
 
   const tableRows = Array.isArray(InspectionData)
     ? InspectionData.map((item) => {
-      const inspectionStatus = item.checked
-        ? "CHECKED"
-        : item.unchecked
+        const inspectionStatus = item.checked
+          ? "CHECKED"
+          : item.unchecked
           ? "UN-CHECKED"
           : "PENDING";
 
-      const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
+        const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
 
-      const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
+        const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
 
-      return {
-        id: item._id,
-        date: new Date(item.createdAt).toLocaleDateString(),
+        return {
+          id: item._id,
+          date: new Date(item.createdAt).toLocaleDateString(),
 
-        company: item.company?.company_name || "—",
-        plant: item.plant?.plant_name || "—",
+          company: item.company?.company_name || "—",
+          plant: item.plant?.plant_name || "—",
 
-        line: `${item.assembly_number} / ${item.assembly_name}`,
+          line: `${item.assembly_number} / ${item.assembly_name}`,
 
-        process: Array.isArray(item.process_id) ? item.process_id.length : 0,
+          process: Array.isArray(item.process_id) ? item.process_id.length : 0,
 
-        part: item.part_id?.part_name || "—",
+          part: item.part_id?.part_name || "—",
 
-        checkItem: "Checklist",
+          checkItem: "Checklist",
 
-        inspectionStatus,
-        issueStatus,
-        resolutionStatus,
+          inspectionStatus,
+          issueStatus,
+          resolutionStatus,
 
-        checkedBy: item.responsibleUser?.full_name || "—",
-        userId: item.responsibleUser?.user_id,
-        time: new Date(item.updatedAt).toLocaleTimeString(),
+          checkedBy: item.responsibleUser?.full_name || "—",
+          userId: item.responsibleUser?.user_id,
+          time: new Date(item.updatedAt).toLocaleTimeString(),
 
-        remarks: item.error ? "Issue detected during inspection" : "—",
-      };
-    })
+          remarks: item.error ? "Issue detected during inspection" : "—",
+        };
+      })
     : [];
 
   // Status summary (date‑aware)
@@ -544,11 +536,12 @@ export default function ChecklistDashboard() {
   const resolvedErrors = data?.summary?.resolvedAssemblies || 0;
   const totalErrors = openErrors + resolvedErrors;
 
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Sticky Header + Filters */}
       <div className="border-b border-slate-200/70 bg-white/90 backdrop-blur">
-        <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8 flex flex-col gap-3">
+        <div className="w-full max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 space-y-4">
           <header className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
@@ -587,13 +580,12 @@ export default function ChecklistDashboard() {
               onClose={() => openSelect === "company" && setOpenSelect(null)}
             />
 
-
             <MultiSelect
               id="plant"
               label="Plant"
               options={query?.data?.map((plant) => ({
                 label: plant?.plant_name,
-                value: plant?._id
+                value: plant?._id,
               }))}
               value={filters.plant}
               onChange={(v) => handleFilterChange("plant", v)}
@@ -604,7 +596,6 @@ export default function ChecklistDashboard() {
               }
               onClose={() => openSelect === "plant" && setOpenSelect(null)}
             />
-
 
             <MultiSelect
               label="Inspection Status"
@@ -666,8 +657,16 @@ export default function ChecklistDashboard() {
                     startDate = firstDay.toISOString().split("T")[0];
                     endDate = lastDay.toISOString().split("T")[0];
                   } else if (value === "This Month") {
-                    const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-                    const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    const firstDay = new Date(
+                      today.getFullYear(),
+                      today.getMonth(),
+                      1
+                    );
+                    const lastDay = new Date(
+                      today.getFullYear(),
+                      today.getMonth() + 1,
+                      0
+                    );
                     startDate = firstDay.toISOString().split("T")[0];
                     endDate = lastDay.toISOString().split("T")[0];
                   }
@@ -681,14 +680,15 @@ export default function ChecklistDashboard() {
                 }}
                 className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700 focus:border-slate-400 focus:outline-none"
               >
-                <option value=""  selected>Select Date</option>
+                <option value="" selected>
+                  Select Date
+                </option>
                 <option value="Today">Today</option>
                 <option value="Yesterday">Yesterday</option>
                 <option value="This Week">This Week</option>
                 <option value="This Month">This Month</option>
                 <option value="Custom">Custom</option>
               </select>
-
 
               {filters.dateRange === "Custom" && (
                 <div className="mt-1 flex gap-2">
@@ -736,7 +736,7 @@ export default function ChecklistDashboard() {
       </div>
 
       {/* Main content */}
-      <main className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8 space-y-4">
+      <main className="w-full max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 space-y-4">
         {cardsError && (
           <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
             {cardsError}
@@ -1059,7 +1059,6 @@ export default function ChecklistDashboard() {
                 />
               </div>
             </div>
-
           </aside>
         </section>
 
@@ -1123,7 +1122,9 @@ export default function ChecklistDashboard() {
                       <IssuePill status={r.issueStatus} />
                     </Td>
 
-                    <Td>{r.checkedBy} ({r?.userId})</Td>
+                    <Td>
+                      {r.checkedBy} ({r?.userId})
+                    </Td>
                     <Td>{r.time}</Td>
                   </tr>
                 ))}
