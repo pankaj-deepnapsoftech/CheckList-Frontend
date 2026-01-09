@@ -6,6 +6,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../components/Refresh/Refresh";
 import ViewAssemblyLine from "../components/modal/ViewModal/ViewAssemblyLine";
+import NoDataFound from "../components/NoDataFound/NoDataFound";
 
 export default function AssemblyLine() {
   const [page, setPage] = useState(1);
@@ -293,74 +294,82 @@ export default function AssemblyLine() {
                 </tr>
               </thead>
               <tbody className="text-gray-700 ">
-                {data?.map((item) => (
-                  <tr
-                    key={item._id}
-                    className="border-b  border-gray-200 hover:bg-blue-50/40 transition"
-                  >
-                    <td className="px-5 py-4 text-sm text-nowrap">
-                      {item?.assembly_number}
-                    </td>
-                    <td className="px-5 py-4 text-sm ">
-                      <span className="inline-flex items-center justify-center bg-blue-500 px-3 py-1 rounded-full text-nowrap text-white text-nowrap">
-                        {item?.assembly_name}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 text-sm text-nowrap">
-                      <div className="space-y-1">
-                        {item?.process_id?.map((p) => (
-                          <p key={p._id} className="text-nowrap">
-                            {p.process_name.length > 12
-                              ? p.process_name.slice(0, 12) + "..."
-                              : p.process_name}{" "}
-                            ({p.process_no})
-                          </p>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-5 py-4 text-sm text-nowrap">
-                      {item?.company?.company_name}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-nowrap">
-                      {item?.plant?.plant_name}
-                    </td>
-                    <td className="px-5 py-4 text-sm text-nowrap">
-                      {item?.responsibleUser?.full_name}
-                      {item?.responsibleUser?.user_id && (
+                {data?.length === 0 ? (
+                  <NoDataFound
+                    title="0 Assembly Lines Found"
+                    subtitle="No assembly line data available."
+                    colSpan={7}
+                  />
+                ) : (
+                  data?.map((item) => (
+                    <tr
+                      key={item._id}
+                      className="border-b  border-gray-200 hover:bg-blue-50/40 transition"
+                    >
+                      <td className="px-5 py-4 text-sm text-nowrap">
+                        {item?.assembly_number}
+                      </td>
+                      <td className="px-5 py-4 text-sm ">
+                        <span className="inline-flex items-center justify-center bg-blue-500 px-3 py-1 rounded-full text-nowrap text-white text-nowrap">
+                          {item?.assembly_name}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-sm text-nowrap">
+                        <div className="space-y-1">
+                          {item?.process_id?.map((p) => (
+                            <p key={p._id} className="text-nowrap">
+                              {p.process_name.length > 12
+                                ? p.process_name.slice(0, 12) + "..."
+                                : p.process_name}{" "}
+                              ({p.process_no})
+                            </p>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 text-sm text-nowrap">
+                        {item?.company?.company_name}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-nowrap">
+                        {item?.plant?.plant_name}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-nowrap">
+                        {item?.responsibleUser?.full_name}
+                        {item?.responsibleUser?.user_id && (
                           <> ({item?.responsibleUser?.user_id})</>
                         )}
-                    </td>
+                      </td>
 
-                    <td className="px-5 py-4 flex flex-col gap-3 h- justify-center ">
-                      <div className="flex gap-4 justify-center">
-                        <Eye
-                          onClick={() => {
-                            setSelectedItem(item);
-                            setViewOpen(true);
-                          }}
-                          size={18}
-                          className="text-blue-500 cursor-pointer"
-                        />
-                        <Edit2
-                          onClick={() => openModalHandler("edit", item)}
-                          size={18}
-                          className="text-green-600 cursor-pointer"
-                        />
-                        <Trash2
-                          onClick={() => handleDelete(item._id)}
-                          size={18}
-                          className="text-red-500 cursor-pointer"
-                        />
-                      </div>
-                      <button
-                        onClick={() => openModalHandler("assign", item)}
-                        className="px-3 py-1 bg-blue-600 text-white text-[13px] font-semibold rounded-lg shadow hover:bg-blue-700 transition"
-                      >
-                        Assign
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      <td className="px-5 py-4 flex flex-col gap-3 h- justify-center ">
+                        <div className="flex gap-4 justify-center">
+                          <Eye
+                            onClick={() => {
+                              setSelectedItem(item);
+                              setViewOpen(true);
+                            }}
+                            size={18}
+                            className="text-blue-500 cursor-pointer"
+                          />
+                          <Edit2
+                            onClick={() => openModalHandler("edit", item)}
+                            size={18}
+                            className="text-green-600 cursor-pointer"
+                          />
+                          <Trash2
+                            onClick={() => handleDelete(item._id)}
+                            size={18}
+                            className="text-red-500 cursor-pointer"
+                          />
+                        </div>
+                        <button
+                          onClick={() => openModalHandler("assign", item)}
+                          className="px-3 py-1 bg-blue-600 text-white text-[13px] font-semibold rounded-lg shadow hover:bg-blue-700 transition"
+                        >
+                          Assign
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

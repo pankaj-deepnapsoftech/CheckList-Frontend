@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Plus, RefreshCw, Search, Edit2, Trash2 ,Eye } from "lucide-react";
+import { Plus, RefreshCw, Search, Edit2, Trash2, Eye } from "lucide-react";
 import AddProcessModal from "../components/modal/addModal/AddProcessModal";
 import { useProcess } from "../hooks/useProcess.js";
 import { useDebounce } from "../hooks/useDebounce.js";
 import Pagination from "../Components/Pagination/Pagination.jsx";
 import Refresh from "../components/Refresh/Refresh";
+import NoDataFound from "../components/NoDataFound/NoDataFound.jsx";
 
 const actionBtn =
   "p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:shadow-md";
@@ -15,10 +16,10 @@ const Process = () => {
   const [editTable, setEditTable] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [viewModal, setViewModal] = useState(null);
-  const [limit , setLimit] = useState(10);
+  const [limit, setLimit] = useState(10);
   const [mode, setMode] = useState("add");
   const { debounce, value } = useDebounce(search)
-  const { getProcessData, DeleteProcess,searchQuery } = useProcess(value,page,limit)
+  const { getProcessData, DeleteProcess, searchQuery } = useProcess(value, page, limit)
 
   const [showRefresh, setShowRefresh] = useState(false);
   const filteredProcesses = debounce
@@ -30,12 +31,12 @@ const Process = () => {
     }
   };
 
-   const handleRefresh = async () => {
+  const handleRefresh = async () => {
     setPage(1);
     setSearch("");
-    setShowRefresh(true);  
-    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000)); 
-    await Promise.all([getProcessData.refetch(), minDelay]); 
+    setShowRefresh(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all([getProcessData.refetch(), minDelay]);
     setShowRefresh(false);  // Hide overlay
   };
 
@@ -191,52 +192,60 @@ const Process = () => {
               </thead>
 
               <tbody className="text-gray-700">
-                {filteredProcesses?.map((pro, i) => (
-                  <tr
-                    key={i}
-                    className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
-                  >
-                    <td className="px-5 py-4">{pro.process_no}</td>
-                    <td className="px-5 py-4 "><span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">{pro.process_name}</span></td>
-                    <td className="px-5 py-4">
-                      <span className="px-5 py-4 text-nowrap">
-                        {formatDateDMY(pro.createdAt)}
-                      </span>
-                    </td>
+                {filteredProcesses?.length === 0 ? (
+                  <NoDataFound
+                    title="0 Assembly Lines Found"
+                    subtitle="No assembly line data available."
+                    colSpan={7}
+                  />
+                ) : (
+                  filteredProcesses?.map((pro, i) => (
+                    <tr
+                      key={i}
+                      className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
+                    >
+                      <td className="px-5 py-4">{pro.process_no}</td>
+                      <td className="px-5 py-4 "><span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">{pro.process_name}</span></td>
+                      <td className="px-5 py-4">
+                        <span className="px-5 py-4 text-nowrap">
+                          {formatDateDMY(pro.createdAt)}
+                        </span>
+                      </td>
 
-                    <td className="px-5 py-4">
-                      <span className="px-5 py-4 text-nowrap">
-                        {formatDateDMY(pro.updatedAt)}
-                      </span>
-                    </td>
+                      <td className="px-5 py-4">
+                        <span className="px-5 py-4 text-nowrap">
+                          {formatDateDMY(pro.updatedAt)}
+                        </span>
+                      </td>
 
-                    <td className="px-5 py-4">
-                      <div className="flex justify-center gap-2">
-                        <button
-                          title="Edit"
-                          className={`${actionBtn} text-green-600 hover:bg-green-100`}
-                          onClick={() => {
-                            setOpenModal(true);
-                            setMode("edit");
-                            setEditTable(pro);
-                          }}
-                        >
-                          <Edit2 size={18} />
-                        </button>
+                      <td className="px-5 py-4">
+                        <div className="flex justify-center gap-2">
+                          <button
+                            title="Edit"
+                            className={`${actionBtn} text-green-600 hover:bg-green-100`}
+                            onClick={() => {
+                              setOpenModal(true);
+                              setMode("edit");
+                              setEditTable(pro);
+                            }}
+                          >
+                            <Edit2 size={18} />
+                          </button>
 
-                        <button
-                          title="Delete"
-                          className={`${actionBtn} text-red-500 hover:bg-red-100`}
-                        >
-                          <Trash2
-                            size={18}
-                            onClick={() => handleDelete(pro?._id)}
-                          />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <button
+                            title="Delete"
+                            className={`${actionBtn} text-red-500 hover:bg-red-100`}
+                          >
+                            <Trash2
+                              size={18}
+                              onClick={() => handleDelete(pro?._id)}
+                            />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

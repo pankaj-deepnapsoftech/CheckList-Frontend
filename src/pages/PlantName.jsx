@@ -6,6 +6,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../components/Refresh/Refresh";
 import ViewPlant from "../components/modal/ViewModal/ViewPlant";
+import NoDataFound from "../components/NoDataFound/NoDataFound";
 
 const PlantName = () => {
   const [page, setPage] = useState(1);
@@ -187,50 +188,67 @@ const PlantName = () => {
               </thead>
 
               <tbody className="text-gray-700">
-                {filetredData?.map((p, i) => (
-                  <tr
-                    key={i}
-                    className="border-b border-gray-200 hover:bg-blue-50 transition"
-                  >
-                    <td className="px-5 py-4 text-nowrap">{p?.plant_code || "N/A"}</td>
-                    <td className="px-5 py-4 text-nowrap">{p.plant_name}</td>
-                    <td className="px-5 py-4 max-w-[250px] truncate">
-                      {p?.plant_address}
-                    </td>
-                    <td className="px-5 py-4">
-                      <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">
-                        {p?.company?.company_name}
-                      </span>
-                    </td>
+                {filetredData?.length === 0 ? (
+                  <NoDataFound
+                    title="0 Plants Found"
+                    subtitle="No plants available at the moment."
+                    colSpan={5}
+                  />
+                ) : (
+                  filetredData.map((p, i) => (
+                    <tr
+                      key={i}
+                      className="border-b border-gray-200 hover:bg-blue-50 transition"
+                    >
+                      <td className="px-5 py-4 text-nowrap">
+                        {p?.plant_code || "N/A"}
+                      </td>
 
-                    <td className="px-5 py-4 flex justify-center gap-5">
-                      <Eye
-                        onClick={() => {
-                          setSelectedPlant(p);
-                          setViewOpen(true);
-                        }}
-                        size={20}
-                        className="text-blue-500 cursor-pointer hover:scale-125 transition"
-                      />
-                      <Edit2
-                        size={20}
-                        className="text-green-600 cursor-pointer hover:scale-125 transition"
-                        onClick={() => {
-                          setMode("edit");
-                          setEditTable(p);
-                          setOpenModal(true);
-                        }}
-                      />
+                      <td className="px-5 py-4 text-nowrap">
+                        {p.plant_name}
+                      </td>
 
-                      <Trash2
-                        onClick={() => handleDeletePlant(p?._id)}
-                        size={20}
-                        className="text-red-500 cursor-pointer hover:scale-125 transition"
-                      />
-                    </td>
-                  </tr>
-                ))}
+                      <td className="px-5 py-4 max-w-[250px] truncate">
+                        {p?.plant_address}
+                      </td>
+
+                      <td className="px-5 py-4">
+                        <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">
+                          {p?.company?.company_name}
+                        </span>
+                      </td>
+
+                      <td className="px-5 py-4 flex justify-center gap-5">
+                        <Eye
+                          onClick={() => {
+                            setSelectedPlant(p);
+                            setViewOpen(true);
+                          }}
+                          size={20}
+                          className="text-blue-500 cursor-pointer hover:scale-125 transition"
+                        />
+
+                        <Edit2
+                          size={20}
+                          className="text-green-600 cursor-pointer hover:scale-125 transition"
+                          onClick={() => {
+                            setMode("edit");
+                            setEditTable(p);
+                            setOpenModal(true);
+                          }}
+                        />
+
+                        <Trash2
+                          onClick={() => handleDeletePlant(p?._id)}
+                          size={20}
+                          className="text-red-500 cursor-pointer hover:scale-125 transition"
+                        />
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
+
             </table>
           </div>
         )}

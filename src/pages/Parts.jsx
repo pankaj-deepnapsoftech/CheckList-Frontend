@@ -14,6 +14,7 @@ import { UsePart } from "../hooks/usePart.js";
 import Refresh from "../components/Refresh/Refresh";
 import AddPartsModal from "../Components/modal/addModal/AddPartsModal.jsx";
 import ViewPartsModal from "../components/modal/ViewModal/ViewParts.jsx";
+import NoDataFound from "../components/NoDataFound/NoDataFound.jsx";
 
 const actionBtn =
   "p-2 rounded-lg transition-all duration-200 flex items-center justify-center hover:shadow-md";
@@ -133,44 +134,44 @@ const Parts = () => {
                     {part.part_number}
                   </span>
 
-                   <div >
-                
+                  <div >
 
-                  {/* Icons BELOW the label */}
-                  <div className="flex justify-end items-center gap-4">
-                    <button
-                      title="View"
-                      className={`${actionBtn} text-blue-500 hover:bg-blue-100`}
-                      onClick={() => {
-                        setEditTable(part);
-                        setMode("view");
-                        setOpenModal(true);
-                      }}
-                    >
-                      <Eye size={18} />
-                    </button>
 
-                    <button
-                      title="Edit"
-                      className={`${actionBtn} text-green-600 hover:bg-green-100`}
-                      onClick={() => {
-                        setEditTable(part);
-                        setMode("edit");
-                        setOpenModal(true);
-                      }}
-                    >
-                      <Edit2 size={18} />
-                    </button>
+                    {/* Icons BELOW the label */}
+                    <div className="flex justify-end items-center gap-4">
+                      <button
+                        title="View"
+                        className={`${actionBtn} text-blue-500 hover:bg-blue-100`}
+                        onClick={() => {
+                          setEditTable(part);
+                          setMode("view");
+                          setOpenModal(true);
+                        }}
+                      >
+                        <Eye size={18} />
+                      </button>
 
-                    <button
-                      title="Delete"
-                      className={`${actionBtn} text-red-500 hover:bg-red-100`}
-                      onClick={() => handleDelete(part._id)}
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                      <button
+                        title="Edit"
+                        className={`${actionBtn} text-green-600 hover:bg-green-100`}
+                        onClick={() => {
+                          setEditTable(part);
+                          setMode("edit");
+                          setOpenModal(true);
+                        }}
+                      >
+                        <Edit2 size={18} />
+                      </button>
+
+                      <button
+                        title="Delete"
+                        className={`${actionBtn} text-red-500 hover:bg-red-100`}
+                        onClick={() => handleDelete(part._id)}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </div>
-                </div>
                 </div>
 
                 <p className="mt-3 text-gray-700 font-medium">
@@ -186,7 +187,7 @@ const Parts = () => {
                 </p>
 
                 {/* ACTIONS */}
-               
+
               </div>
             ))}
           </div>
@@ -219,63 +220,71 @@ const Parts = () => {
               </thead>
 
               <tbody className="text-gray-700">
-                {filteredParts?.map((pro) => (
-                  <tr
-                    key={pro._id}
-                    className="border-b border-gray-200 hover:bg-blue-50 transition align-middle"
-                  >
-                    <td className="px-5 py-4 align-middle">
-                      {pro.part_number}
-                    </td>
-                    <td className="px-5 py-4 align-middle">
-                      <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">
-                        {pro.part_name}
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 align-middle">
-                      {pro.material_code || "N/A"}
-                    </td>
-                    <td className="px-5 py-4 align-middle">
-                      {pro.total_assemblies}
-                    </td>
+                {filteredParts?.length === 0 ? (
+                  <NoDataFound
+                    title="0 Assembly Lines Found"
+                    subtitle="No assembly line data available."
+                    colSpan={7}
+                  />
+                ) : (
+                  filteredParts?.map((pro) => (
+                    <tr
+                      key={pro._id}
+                      className="border-b border-gray-200 hover:bg-blue-50 transition align-middle"
+                    >
+                      <td className="px-5 py-4 align-middle">
+                        {pro.part_number}
+                      </td>
+                      <td className="px-5 py-4 align-middle">
+                        <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs">
+                          {pro.part_name}
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 align-middle">
+                        {pro.material_code || "N/A"}
+                      </td>
+                      <td className="px-5 py-4 align-middle">
+                        {pro.total_assemblies}
+                      </td>
 
-                    <td className=" align-middle">
-                      <div className="flex">
-                        <button
-                          title="View"
-                          className={`${actionBtn} text-blue-500 hover:bg-blue-100`}
-                          onClick={() => {
-                            setEditTable(pro);
-                            setMode("view");
-                            setOpenModal(true);
-                          }}
-                        >
-                          <Eye size={18} />
-                        </button>
+                      <td className=" align-middle">
+                        <div className="flex">
+                          <button
+                            title="View"
+                            className={`${actionBtn} text-blue-500 hover:bg-blue-100`}
+                            onClick={() => {
+                              setEditTable(pro);
+                              setMode("view");
+                              setOpenModal(true);
+                            }}
+                          >
+                            <Eye size={18} />
+                          </button>
 
-                        <button
-                          title="Edit"
-                          className={`${actionBtn} text-green-600 hover:bg-green-100`}
-                          onClick={() => {
-                            setEditTable(pro);
-                            setMode("edit");
-                            setOpenModal(true);
-                          }}
-                        >
-                          <Edit2 size={18} />
-                        </button>
+                          <button
+                            title="Edit"
+                            className={`${actionBtn} text-green-600 hover:bg-green-100`}
+                            onClick={() => {
+                              setEditTable(pro);
+                              setMode("edit");
+                              setOpenModal(true);
+                            }}
+                          >
+                            <Edit2 size={18} />
+                          </button>
 
-                        <button
-                          title="Delete"
-                          className={`${actionBtn} text-red-500 hover:bg-red-100`}
-                          onClick={() => handleDelete(pro._id)}
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <button
+                            title="Delete"
+                            className={`${actionBtn} text-red-500 hover:bg-red-100`}
+                            onClick={() => handleDelete(pro._id)}
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
