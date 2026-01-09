@@ -537,6 +537,8 @@ export default function ChecklistDashboard() {
   const { data } = useInspectionOverview({
     startDate: startDateForApi,
     endDate: endDateForApi,
+   company: selectedCompanyId,
+    plant:selectedPlantId
   });
 
   const openErrors = data?.summary?.stillErrorAssemblies || 0;
