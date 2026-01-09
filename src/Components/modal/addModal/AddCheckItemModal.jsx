@@ -18,12 +18,8 @@ export default function AddCheckItemModal({
   const isView = mode === "view";
 
   const { getProcessData } = useProcess();
-  const { CreateCheckItem, updateCheckItem, AddCategroy, GetCategory } = useCheckItem();
-
-
-
-
-
+  const { CreateCheckItem, updateCheckItem, AddCategroy, GetCategory } =
+    useCheckItem();
 
   const [showMethodInput, setShowMethodInput] = useState(false);
   const [showTimeInput, setShowTimeInput] = useState(false);
@@ -36,29 +32,29 @@ export default function AddCheckItemModal({
 
   const [newUom, setNewUom] = useState("");
   const [uom, setUom] = useState([]);
-
+  const [imagePreview, setImagePreview] = useState(null);
 
   useEffect(() => {
     if (GetCategory?.data) {
       const UomData = GetCategory?.data
-        ?.filter(item => item?.uom)
-        ?.map(item => ({
+        ?.filter((item) => item?.uom)
+        ?.map((item) => ({
           uom: item.uom,
           id: item._id,
         }));
 
       setUom(UomData);
       const MethodData = GetCategory.data
-        .filter(item => item?.checking_method)
-        .map(item => ({
+        .filter((item) => item?.checking_method)
+        .map((item) => ({
           checking_method: item.checking_method,
           id: item._id,
         }));
 
       setMethodList(MethodData);
       const ListData = GetCategory.data
-        .filter(item => item?.checking_time)
-        .map(item => ({
+        .filter((item) => item?.checking_time)
+        .map((item) => ({
           checking_time: item.checking_time,
           id: item._id,
         }));
@@ -67,12 +63,9 @@ export default function AddCheckItemModal({
     }
   }, [GetCategory?.data]);
 
-
-
   const formik = useFormik({
     initialValues: {
-      process:
-        initialData?.process?._id || initialData?.process || "",
+      process: initialData?.process?._id || initialData?.process || "",
       item: initialData?.item || "",
       description: initialData?.description || "",
       check_list_method: initialData?.check_list_method || "",
@@ -81,6 +74,7 @@ export default function AddCheckItemModal({
       min: initialData?.min,
       max: initialData?.max,
       uom: initialData?.uom,
+      image: null,
     },
     enableReinitialize: true,
     validationSchema,
@@ -93,7 +87,8 @@ export default function AddCheckItemModal({
               onClose();
               formik.resetForm();
             },
-          });
+          }
+        );
       } else {
         CreateCheckItem.mutate(values, {
           onSuccess: () => {
@@ -104,8 +99,6 @@ export default function AddCheckItemModal({
       }
     },
   });
-
-
 
   if (!open) return null;
 
@@ -118,8 +111,8 @@ export default function AddCheckItemModal({
             {mode === "add"
               ? "Add Check Item"
               : mode === "edit"
-                ? "Edit Check Item"
-                : "View Check Item"}
+              ? "Edit Check Item"
+              : "View Check Item"}
           </h2>
           <button onClick={onClose}>
             <X size={22} />
@@ -143,9 +136,7 @@ export default function AddCheckItemModal({
               onBlur={() => formik.setFieldTouched("process", true)}
               disabled={isView}
               error={formik.touched.process && formik.errors.process}
-
             />
-
           </Field>
 
           {/* Item */}
@@ -157,7 +148,7 @@ export default function AddCheckItemModal({
               onChange={formik.handleChange}
               className="input"
             />
-          </Field> 
+          </Field>
 
           {/* Description */}
           <Field label="Description">
@@ -170,16 +161,15 @@ export default function AddCheckItemModal({
             />
           </Field>
 
-
           <Field label="Check Method">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <SearchableDropdownwithRemove
                   placeholder="Select Checklist Method"
-                  options={methodList.map(m => ({
+                  options={methodList.map((m) => ({
                     label: m.checking_method,
                     value: m.checking_method,
-                    _id: m.id
+                    _id: m.id,
                   }))}
                   value={formik.values.check_list_method}
                   getOptionLabel={(o) => o.label}
@@ -223,7 +213,7 @@ export default function AddCheckItemModal({
                   onClick={() => {
                     if (!newMethod.trim()) return;
 
-                    AddCategroy.mutate({ newMethod: newMethod })
+                    AddCategroy.mutate({ newMethod: newMethod });
                     setNewMethod("");
                     setShowMethodInput(false);
                   }}
@@ -244,7 +234,6 @@ export default function AddCheckItemModal({
             )}
           </Field>
 
-
           <Field label="Checking Time">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
@@ -253,7 +242,7 @@ export default function AddCheckItemModal({
                   options={checklistTimes.map((t) => ({
                     label: t.checking_time,
                     value: t.checking_time,
-                    _id: t.id
+                    _id: t.id,
                   }))}
                   value={formik.values.check_list_time}
                   getOptionLabel={(o) => o.label}
@@ -265,8 +254,6 @@ export default function AddCheckItemModal({
                   type="checking_time"
                 />
               </div>
-
-
             </div>
 
             <div className="w-full flex justify-end pt-2">
@@ -300,7 +287,7 @@ export default function AddCheckItemModal({
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded"
                   onClick={() => {
                     if (!newTime.trim()) return;
-                    AddCategroy.mutate({ newTime: newTime })
+                    AddCategroy.mutate({ newTime: newTime });
                     setNewTime("");
                     setShowTimeInput(false);
                   }}
@@ -320,8 +307,6 @@ export default function AddCheckItemModal({
               </div>
             )}
           </Field>
-
-
 
           {/* Result Type */}
           <Field label="Evaluation Type">
@@ -378,24 +363,20 @@ export default function AddCheckItemModal({
               </Field>
 
               <Field label="UOM">
-
                 <SearchableDropdownwithRemove
                   placeholder="Select UOM"
                   options={uom.map((t) => ({
                     label: t?.uom,
                     value: t?.uom,
-                    _id: t.id
+                    _id: t.id,
                   }))}
                   value={formik.values.uom}
                   getOptionLabel={(o) => o.label}
                   getOptionValue={(o) => o.value}
                   getOptionId={(o) => o._id}
-                  onChange={(val) =>
-                    formik.setFieldValue("uom", val)
-                  }
+                  onChange={(val) => formik.setFieldValue("uom", val)}
                   type="uom"
                 />
-
 
                 <div className="w-full flex justify-end pt-2">
                   {!showUomInput && !isView && (
@@ -414,7 +395,6 @@ export default function AddCheckItemModal({
                   )}
                 </div>
 
-
                 {showUomInput && (
                   <div className="flex gap-2 mb-2">
                     <input
@@ -430,7 +410,7 @@ export default function AddCheckItemModal({
                         if (!newUom.trim()) return;
                         setNewUom("");
                         setShowUomInput(false);
-                        AddCategroy.mutate({ newUom: newUom })
+                        AddCategroy.mutate({ newUom: newUom });
                       }}
                     >
                       Save
@@ -447,11 +427,36 @@ export default function AddCheckItemModal({
                     </button>
                   </div>
                 )}
-
-
               </Field>
             </>
           )}
+
+          {/* IMAGE UPLOAD */}
+              <Field className="mt-2" label="Upload Image">
+                <input
+                  type="file"
+                  accept="image/*"
+                  disabled={isView}
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      formik.setFieldValue("image", file);
+                      setImagePreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  className="input"
+                />
+
+                {imagePreview && (
+                  <div className="mt-2">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="w-full h-40 object-cover rounded-lg border"
+                    />
+                  </div>
+                )}
+              </Field>
 
           {/* SUBMIT */}
           {!isView && (
