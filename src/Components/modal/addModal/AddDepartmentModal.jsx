@@ -5,7 +5,7 @@ const AddDepartmentModal = ({
   openModal,
   setOpenModal,
   editData = null,
-  mode = "add", // add | edit | view
+  mode = "add",
 }) => {
   const isView = mode === "view";
 

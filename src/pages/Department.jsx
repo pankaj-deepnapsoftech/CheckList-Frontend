@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Search, Plus, Eye, Edit2, Trash2 } from "lucide-react";
-import AddDepartmentModal from "../components/modal/AddDepartmentModal";
+import AddDepartmentModal from "../components/modal/addModal/AddDepartmentModal";
 
 const Department = () => {
   const [search, setSearch] = useState("");
@@ -75,7 +75,7 @@ const Department = () => {
         <div className="overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
             <thead>
-              <tr className="bg-gray-100 border-b text-gray-700 text-sm">
+              <tr className="bg-gray-100 text-gray-700 text-sm">
                 <th className="px-5 py-3 font-semibold">Department Code</th>
                 <th className="px-5 py-3 font-semibold">Department Name</th>
                 <th className="px-5 py-3 font-semibold">Description</th>
@@ -89,7 +89,7 @@ const Department = () => {
               {filteredDepartments.map((d) => (
                 <tr
                   key={d.id}
-                  className="border-b hover:bg-blue-50 transition"
+                  className="hover:bg-blue-50 transition"
                 >
                   <td className="px-5 py-4">{d.department_code}</td>
                   <td className="px-5 py-4">{d.department_name}</td>
@@ -133,7 +133,7 @@ const Department = () => {
       </div>
 
       {/* Modal */}
-      <AddDepartmentModal
+      <AddDepartmentModal    
         openModal={openModal}
         setOpenModal={setOpenModal}
         editData={selectedDepartment}
