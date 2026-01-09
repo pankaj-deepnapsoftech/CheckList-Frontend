@@ -15,6 +15,7 @@ import {
   ChevronsLeftRightEllipsis,
   Airplay,
   AlertOctagon,
+  House,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -36,6 +37,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
 
     { name: "Company", path: "/company", icon: <Building size={20} /> },
     { name: "Plant Name", path: "/plant-name", icon: <Package size={20} /> },
+    { name: "Department", path: "/department", icon: <House size={20} /> },
     { name: "Assembly Line", path: "/assembly-line", icon: <Key size={20} /> },
     { name: "User Role", path: "/user-role", icon: <Shield size={20} /> },
     { name: "Employee", path: "/employee", icon: <User size={20} /> },
@@ -69,13 +71,13 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     },
     user?.is_admin === false
       ? {
-          name: "Assembly Line Error",
-          path: "/assembly-line/error",
-          icon: <AlertOctagon size={20} />,
-        }
+        name: "Assembly Line Error",
+        path: "/assembly-line/error",
+        icon: <AlertOctagon size={20} />,
+      }
       : null,
   ].filter(Boolean);
-  
+
 
   const allowedMenu = IsSuper
     ? allMenu
@@ -116,10 +118,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                 end
                 className={({ isActive }) =>
                   `flex items-center gap-3 p-2 rounded-lg transition-all whitespace-nowrap
-                  ${
-                    isActive
-                      ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
-                      : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
+                  ${isActive
+                    ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
+                    : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
                   }`
                 }
               >
@@ -186,10 +187,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                   onClick={closeMobile}
                   className={({ isActive }) =>
                     `flex items-center gap-3 p-2 rounded-lg transition-all
-                    ${
-                      isActive
-                        ? "bg-blue-100 text-blue-600 font-medium"
-                        : "text-gray-700 hover:bg-gray-100"
+                    ${isActive
+                      ? "bg-blue-100 text-blue-600 font-medium"
+                      : "text-gray-700 hover:bg-gray-100"
                     }`
                   }
                 >

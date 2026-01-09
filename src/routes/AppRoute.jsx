@@ -21,6 +21,7 @@ import AssignedAssemblyLines from "../pages/AssignedAssemblyLines";
 import UserDashboard from "../pages/UserDashboard";
 import AssemblyError from "../pages/AssemblyError";
 import ErrorforAdmin  from "../pages/ErrorforAdmin";
+import Department from "../pages/Department";
 
 export const AppRoute = () => {
   const { logedinUser } = useLogin();
@@ -47,6 +48,7 @@ export const AppRoute = () => {
     { path: "/process", element: withProtection(Process) },
     { path: "/parts", element: withProtection(Parts) },
     { path: "/plant-name", element: withProtection(PlantName) },
+    { path: "/department", element: withProtection(Department) },
     { path: "/employee", element: withProtection(Employee) },
     { path: "/company", element: withProtection(Company) },
     { path: "/assembly-line", element: withProtection(AssemblyLine) },
