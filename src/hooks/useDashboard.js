@@ -86,7 +86,7 @@ export const useMonthlyInspectionTrend = () => {
     onError: (error) => {
       toast.error(
         error?.response?.data?.message ||
-          "Failed to load monthly inspection trend"
+        "Failed to load monthly inspection trend"
       );
     },
   });
@@ -170,16 +170,18 @@ export const useAssemblyMonthly = (filters = {}) => {
 
 /* ---------------- Inspection Overview API ---------------- */
 export const useInspectionOverview = (filters = {}) => {
-  const { startDate, endDate } = filters;
+  const { startDate, endDate,company,plant } = filters;
 
   return useQuery({
-    queryKey: ["inspection-overview", { startDate, endDate }],
+    queryKey: ["inspection-overview", { startDate, endDate, company, plant }],
 
     queryFn: async () => {
+      console.log("companyid", company)
       const params = {};
       if (startDate && startDate.trim()) params.start_date = startDate;
       if (endDate && endDate.trim()) params.end_date = endDate;
-
+      if (company) params.company = company;
+      if (plant) params.plant = plant;
       const res = await axiosHandler.get("/dashboard/get-assembly-errors", {
         params,
       });
@@ -203,7 +205,7 @@ export const useInspectionOverview = (filters = {}) => {
     onError: (error) => {
       toast.error(
         error?.response?.data?.message ||
-          "Failed to load inspection overview data"
+        "Failed to load inspection overview data"
       );
     },
   });
