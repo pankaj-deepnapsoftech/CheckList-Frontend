@@ -328,17 +328,17 @@ function MultiSelect({
   }, [isOpen, onClose]);
 
   const selectOption = (opt) => {
-    onChange(opt); 
-    onClose();     
+    onChange(opt);
+    onClose();
   };
- 
+
   return (
     <div className="relative min-w-[180px]" ref={ref}>
       <label className="mb-1 block text-[11px] font-medium text-slate-500">
-        {label }
+        {label}
       </label>
 
-    
+
       <button
         type="button"
         onClick={onToggle}
@@ -350,7 +350,7 @@ function MultiSelect({
         <span className="ml-2 text-slate-400 text-[10px]">▼</span>
       </button>
 
-    
+
       {isOpen && (
         <div className="absolute z-40 mt-1 w-full rounded-lg border border-gray-200 bg-white shadow-2xl">
           <div className="max-h-48 overflow-auto text-[11px]">
@@ -439,10 +439,10 @@ export default function ChecklistDashboard() {
     isLoading: cardsLoading,
     isError: cardsError,
   } = useDashboardCards({
-    company: selectedCompanyId,
-    plant: selectedPlantId,
     startDate: startDateForApi,
     endDate: endDateForApi,
+    company: selectedCompanyId,
+    plant: selectedPlantId
   });
 
 
@@ -502,10 +502,17 @@ export default function ChecklistDashboard() {
     : [];
 
   // Status summary (date‑aware)
-  const { getAssemblyCardsData } = useCheckItemHistory(1, 10, {
-    startDate: startDateForApi,
-    endDate: endDateForApi,
-  });
+  const { getAssemblyCardsData } = useCheckItemHistory(
+    1,
+    10,
+    {
+      startDate: startDateForApi,
+      endDate: endDateForApi,
+    },
+    selectedCompanyId,
+    selectedPlantId
+  );
+
 
   const summaryCards = [
     {
@@ -606,7 +613,7 @@ export default function ChecklistDashboard() {
             />
 
 
-            <MultiSelect
+            {/* <MultiSelect
               label="Inspection Status"
               options={[
                 { label: "Checked", value: "checked" },
@@ -621,9 +628,9 @@ export default function ChecklistDashboard() {
                 setOpenSelect(openSelect === "inspection" ? null : "inspection")
               }
               onClose={() => openSelect === "inspection" && setOpenSelect(null)}
-            />
+            /> */}
 
-            <MultiSelect
+            {/* <MultiSelect
               label="Issue Status"
               options={[
                 { label: "OK", value: "ok" },
@@ -637,7 +644,7 @@ export default function ChecklistDashboard() {
                 setOpenSelect(openSelect === "issue" ? null : "issue")
               }
               onClose={() => openSelect === "issue" && setOpenSelect(null)}
-            />
+            /> */}
             <div className="flex flex-col gap-1 min-w-[140px]">
               <label className="text-[11px] font-medium text-slate-500">
                 Date Range
@@ -681,7 +688,7 @@ export default function ChecklistDashboard() {
                 }}
                 className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700 focus:border-slate-400 focus:outline-none"
               >
-                <option value=""  selected>Select Date</option>
+                <option value="" selected>Select Date</option>
                 <option value="Today">Today</option>
                 <option value="Yesterday">Yesterday</option>
                 <option value="This Week">This Week</option>
@@ -1059,7 +1066,138 @@ export default function ChecklistDashboard() {
                 />
               </div>
             </div>
+            {/* Inspection overview  */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm space-y-6 min-h-[420px]">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-800">
+                    Inspection Overview
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Error status distribution
+                  </p>
+                </div>
 
+
+              </div>
+
+              {/* Donut */}
+              <div className="flex justify-center">
+                <div className="relative w-[160px] h-[160px]">
+                  <svg viewBox="0 0 32 32" className="w-full h-full">
+                    {totalErrors > 0 ? (
+                      (() => {
+                        let cum = 0;
+                        const parts = [
+                          { value: openErrors, color: "#f59e0b" },
+                          { value: resolvedErrors, color: "#22c55e" },
+                        ];
+
+                        return parts.map((p, i) => {
+                          const start = (cum / totalErrors) * Math.PI * 2;
+                          const end =
+                            ((cum + p.value) / totalErrors) * Math.PI * 2;
+                          cum += p.value;
+
+                          return (
+                            <path
+                              key={i}
+                              d={describeArc(16, 16, 14, start, end)}
+                              fill={p.color}
+                            />
+                          );
+                        });
+                      })()
+                    ) : (
+                      <circle cx="16" cy="16" r="14" fill="#e5e7eb" />
+                    )}
+
+                    {/* Inner cut */}
+                    <circle cx="16" cy="16" r="9.8" fill="white" />
+
+                    {/* Center text */}
+                    <text
+                      x="16"
+                      y="14.2"
+                      textAnchor="middle"
+                      className="fill-slate-900 text-[6.5px] font-semibold"
+                    >
+                      {totalErrors}
+                    </text>
+                    <text
+                      x="16"
+                      y="18.5"
+                      textAnchor="middle"
+                      className="fill-slate-400 text-[2.2px]"
+                    >
+                      Total Errors
+                    </text>
+                  </svg>
+                </div>
+              </div>
+
+              {/* Open / Resolved INLINE */}
+              <div className="space-y-2">
+                {/* Open Errors */}
+                <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-amber-500" />
+                    <span className="text-xs font-medium text-slate-700">
+                      Open Errors
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-amber-600">
+                      {openErrors}
+                    </div>
+                    <div className="text-[10px] text-slate-400">items</div>
+                  </div>
+                </div>
+
+                {/* Resolved */}
+                <div className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
+                    <span className="text-xs font-medium text-slate-700">
+                      Resolved
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-semibold text-green-600">
+                      {resolvedErrors}
+                    </div>
+                    <div className="text-[10px] text-slate-400">items</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-slate-100 pt-3">
+                <p className="mb-2 text-[11px] font-semibold text-slate-700">
+                  Top Defect Lines
+                </p>
+
+                {data?.topErrorProcesses?.length ? (
+                  <div className="space-y-2">
+                    {data.topErrorProcesses.slice(0, 4).map((d) => (
+                      <MiniBar
+                        key={d.process}
+                        label={d.process}
+                        value={d.count}
+                        max={Math.max(
+                          ...data.topErrorProcesses.map((x) => x.count)
+                        )}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-[11px] text-slate-400">
+                    No defect data available
+                  </p>
+                )}
+              </div>
+            </div>
           </aside>
         </section>
 

@@ -83,6 +83,8 @@ export default function UserDashboard() {
     statusSummary.total_resolved ||
     0;
   // KPI cards for user
+  console.log(statusSummary)
+
   const stats = [
     {
       title: "My Assemblies",

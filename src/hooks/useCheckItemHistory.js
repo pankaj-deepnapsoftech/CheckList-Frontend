@@ -2,10 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
-export const useCheckItemHistory = (page = 1, limit = 10, filters = {}) => {
+export const useCheckItemHistory = (page = 1, limit = 10, filters = {}, company, plant) => {
   const qc = useQueryClient();
 
-
+  console.log("companyid", company)
 
   const updateCheckItemHistory = useMutation({
     mutationFn: ({ id, data }) =>
@@ -40,11 +40,14 @@ export const useCheckItemHistory = (page = 1, limit = 10, filters = {}) => {
   const { startDate, endDate } = filters || {};
 
   const getAssemblyCardsData = useQuery({
-    queryKey: ["AssemblyCardsData", { startDate, endDate }],
+    queryKey: ["AssemblyCardsData", { startDate, endDate, company, plant }],
     queryFn: async () => {
+      
       const params = {};
       if (startDate && startDate.trim()) params.start_date = startDate;
       if (endDate && endDate.trim()) params.end_date = endDate;
+      if (company) params.company = company;
+      if (plant) params.plant = plant;
 
       const res = await axiosHandler.get(`/assembly/assembly-cards-data`, {
         params,
@@ -52,7 +55,7 @@ export const useCheckItemHistory = (page = 1, limit = 10, filters = {}) => {
       return res?.data?.data;
     },
   });
-  
+
 
   return {
     updateCheckItemHistory,
