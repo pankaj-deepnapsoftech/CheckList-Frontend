@@ -9,7 +9,7 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
       : "bg-emerald-50 text-emerald-600 border-emerald-200";
 
   return (
-    <div className="w-full p-4 space-y-6 bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <>
       {AssemblyLines.map((asl) => (
         <motion.div
           key={asl._id}
@@ -72,7 +72,7 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
           </div>
         </motion.div>
       ))}
-    </div>
+    </>
   );
 };
 
@@ -90,7 +90,7 @@ const ChecklistItem = ({ index, check, getStatusClass }) => {
 
   return (
     <div className="bg-white rounded-xl border border-slate-200 shadow-md p-4 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 group">
-      {/* Top Header with Icon */}
+      {/* Top Header with Icon */}   
       <div className="flex items-start justify-between mb-4 pb-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
           <div className={`p-1.5 rounded-xl border-3 ${getStatusClass(hasError)} shadow-sm`}>
