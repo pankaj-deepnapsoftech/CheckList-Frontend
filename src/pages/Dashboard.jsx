@@ -705,7 +705,7 @@ export default function ChecklistDashboard() {
                 </div>
               )}
             </div>
-            <div className="flex items-center justify-end">
+            <div className="flex items-center ml-auto">
               <button
               onClick={()=>{
                   setFilters({
@@ -720,9 +720,9 @@ export default function ChecklistDashboard() {
                   setCompanyId("")
                   
               }}
-                className="px-6 py-[9px] rounded-[10px] bg-gradient-to-r from-indigo-500 to-indigo-600 text-white font-semibold"
+                className="px-6 py-[7px] rounded-[10px] bg-blue-500 text-white font-semibold"
               >
-                Rest
+                Reset
               </button>
             </div>
 
