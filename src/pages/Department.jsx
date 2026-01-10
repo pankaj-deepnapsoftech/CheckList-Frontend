@@ -1,37 +1,28 @@
 import React, { useState } from "react";
 import { Search, Plus, Eye, Edit2, Trash2 } from "lucide-react";
 import AddDepartmentModal from "../components/modal/addModal/AddDepartmentModal";
+import { useDepartment } from "../hooks/useDepartment";
 
 const Department = () => {
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add"); // add | edit | view
   const [selectedDepartment, setSelectedDepartment] = useState(null);
+  const { getDepartmentData, deleteDepartment } = useDepartment()
+//  console.log(getDepartmentData?.data)
+  const department = getDepartmentData?.data ;
+ 
 
-  const departments = [
-    {
-      id: 1,
-      department_code: "DEP-001",
-      department_name: "Human Resources",
-      description: "Employee management and hiring",
-    },
-    {
-      id: 2,
-      department_code: "DEP-002",
-      department_name: "Engineering",
-      description: "Product development",
-    },
-    {
-      id: 3,
-      department_code: "DEP-003",
-      department_name: "Finance",
-      description: "Accounts and budgeting",
-    },
-  ];
-
-  const filteredDepartments = departments.filter((d) =>
-    d.department_name.toLowerCase().includes(search.toLowerCase())
+  const filteredDepartments = department?.filter((d) =>
+    d?.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  
+  const handleDelete =(id)=>{
+    if(window.confirm("Are you sure you want to delete this Department ?")){
+      deleteDepartment.mutate(id)
+    }
+  }
 
   return (
     <div className="p-4">
@@ -69,14 +60,14 @@ const Department = () => {
       {/* Table Card */}
       <div className="bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
         <h2 className="font-semibold text-gray-800 text-lg mb-4">
-          {filteredDepartments.length} Departments Found
+          {filteredDepartments?.length} Departments Found
         </h2>
 
         <div className="overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
             <thead>
               <tr className="bg-gray-100 text-gray-700 text-sm">
-                <th className="px-5 py-3 font-semibold">Department Code</th>
+                {/* <th className="px-5 py-3 font-semibold">Department Code</th> */}
                 <th className="px-5 py-3 font-semibold">Department Name</th>
                 <th className="px-5 py-3 font-semibold">Description</th>
                 <th className="px-5 py-3 font-semibold text-center">
@@ -86,15 +77,15 @@ const Department = () => {
             </thead>
 
             <tbody>
-              {filteredDepartments.map((d) => (
+              {filteredDepartments?.map((d) => (
                 <tr
-                  key={d.id}
+                  key={d?._id}
                   className="hover:bg-blue-50 transition"
                 >
-                  <td className="px-5 py-4">{d.department_code}</td>
-                  <td className="px-5 py-4">{d.department_name}</td>
+                  {/* <td className="px-5 py-4">{d.department_code}</td> */}
+                  <td className="px-5 py-4">{d?.name}</td>
                   <td className="px-5 py-4 max-w-[250px] truncate">
-                    {d.description}
+                    {d?.description}
                   </td>
                   <td className="px-5 py-4 flex justify-center gap-5">
                     {/* View */}
@@ -121,6 +112,7 @@ const Department = () => {
 
                     {/* Delete (UI only) */}
                     <Trash2
+                    onClick={()=>handleDelete(d?._id)}
                       size={20}
                       className="text-red-500 cursor-pointer"
                     />

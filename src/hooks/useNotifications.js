@@ -45,7 +45,7 @@ export const useNotifications = () => {
         const userId = logedinUser.data._id;
         const eventName = "notification";
 
-        console.log("🔔 Setting up notification listener for user:", userId, "Event:", eventName);
+        // console.log("🔔 Setting up notification listener for user:", userId, "Event:", eventName);
 
         const handleNewNotification = (data) => {
             // console.log("✅ Received notification event:", eventName, data);

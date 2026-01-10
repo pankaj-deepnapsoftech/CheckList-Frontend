@@ -1,0 +1,65 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import axiosHandler from "../config/axiosconfig"
+import { toast } from "react-toastify"
+
+export const useDepartment = () => {
+
+    const qc = useQueryClient()
+
+    const getDepartmentData = useQuery({
+        queryKey: ["department"],
+        queryFn: async () => {
+            const res = await axiosHandler.get(`/department/all`);
+            return res?.data?.data;
+        },
+
+    })
+
+    const postDepartment = useMutation({
+        mutationFn: async (value) => {
+
+            const res = await axiosHandler.post(`/department/create`, value)
+            return res?.data
+        },
+        onSuccess: (data) => {
+            toast.success(data?.message)
+            qc.invalidateQueries({ queryKey: ["department"] })
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message)
+        }
+    })
+
+    const updatedDepartment = useMutation({
+        mutationFn: async ({ id, value }) => {
+
+            const res = await axiosHandler.put(`/department/update/id/${id}`, value)
+            return res?.data
+        },
+        onSuccess: (data) => {
+            toast.success(data?.message)
+            qc.invalidateQueries({ queryKey: ["department"] })
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message)
+        }
+    })
+
+    const deleteDepartment = useMutation({
+        mutationFn: async (id) => {
+            const res = await axiosHandler.delete(`/department/delete/id/${id}`)
+            return res?.data;
+        },
+        onSuccess: (data) => {
+            toast.success(data?.message)
+            qc.invalidateQueries({ queryKey: ["department"] })
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message)
+        }
+    })
+
+    return {
+        getDepartmentData, postDepartment, updatedDepartment, deleteDepartment
+    }
+}

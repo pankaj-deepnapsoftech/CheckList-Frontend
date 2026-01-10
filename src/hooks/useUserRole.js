@@ -54,7 +54,7 @@ export const useUserRole = (search,page,limit) => {
     },
 
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to update role ");
+      toast.error(error?.response?.data?.message );
     },
   });
 

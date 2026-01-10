@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { X } from "lucide-react";
+import { Form, X } from "lucide-react";
 import { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -71,34 +71,65 @@ export default function AddCheckItemModal({
       check_list_method: initialData?.check_list_method || "",
       check_list_time: initialData?.check_list_time || "",
       result_type: initialData?.result_type || "",
-      min: initialData?.min,
-      max: initialData?.max,
-      uom: initialData?.uom,
-      image: null,
-    },
+      min: initialData?.min || 0,
+      max: initialData?.max || 0,
+      uom: initialData?.uom || "",
+      file: initialData?.file_path || null,
+    }, 
     enableReinitialize: true,
     validationSchema,
     onSubmit: (values) => {
+      const formdata = new FormData();
+
+      formdata.append("process", values.process);
+      formdata.append("item", values.item);
+      formdata.append("description", values.description);
+      formdata.append("check_list_method", values.check_list_method);
+      formdata.append("check_list_time", values.check_list_time);
+      formdata.append("result_type", values.result_type);
+      formdata.append("min", values.min);
+      formdata.append("max", values.max);
+      formdata.append("uom", values.uom);
+      formdata.append("file", values.file);
+
+
+
       if (mode === "edit") {
-        updateCheckItem.mutate(
-          { id: initialData?._id, data: values },
-          {
-            onSuccess: () => {
-              onClose();
-              formik.resetForm();
-            },
-          }
-        );
-      } else {
-        CreateCheckItem.mutate(values, {
+        updateCheckItem.mutate({
+          id: initialData?._id,
+          data: formdata,
+        }, {
           onSuccess: () => {
-            onClose();
-            formik.resetForm();
-          },
+            onClose()
+            formik.resetForm()
+            formdata("")
+            setImagePreview(null)
+          }
+        }
+        );
+
+      } else {
+        CreateCheckItem.mutate(formdata, {
+          onSuccess: () => {
+            onClose()
+            formik.resetForm()
+            formdata("")
+            setImagePreview(null)
+          }
         });
+
       }
-    },
+    }
+
   });
+
+
+  useEffect(() => {
+    if (open && initialData?.file_path) {
+      setImagePreview(initialData.file_path);
+    }
+  }, [open, initialData?.file_path]);
+
 
   if (!open) return null;
 
@@ -111,10 +142,14 @@ export default function AddCheckItemModal({
             {mode === "add"
               ? "Add Check Item"
               : mode === "edit"
-              ? "Edit Check Item"
-              : "View Check Item"}
+                ? "Edit Check Item"
+                : "View Check Item"}
           </h2>
-          <button onClick={onClose}>
+          <button onClick={() => {
+            onClose()
+            formik.resetForm()
+            setImagePreview(null)
+          }}>
             <X size={22} />
           </button>
         </div>
@@ -432,31 +467,40 @@ export default function AddCheckItemModal({
           )}
 
           {/* IMAGE UPLOAD */}
-              <Field className="mt-2" label="Upload Image">
-                <input
-                  type="file"
-                  accept="image/*"
-                  disabled={isView}
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      formik.setFieldValue("image", file);
-                      setImagePreview(URL.createObjectURL(file));
-                    }
-                  }}
-                  className="input"
-                />
+          <Field className="mt-2" label="Upload Image">
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              disabled={isView}
+              onChange={(e) => {
+                const file = e.target.files[0];
 
-                {imagePreview && (
-                  <div className="mt-2">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-40 object-cover rounded-lg border"
-                    />
-                  </div>
-                )}
-              </Field>
+                formik.setFieldValue("file", file);  
+                formik.setFieldTouched("file", true); 
+
+                if (file) {
+                  setImagePreview(URL.createObjectURL(file));
+                } else {
+                  setImagePreview(null);
+                }
+              }}
+              className="input"
+            />
+            {formik.touched.file && formik.errors.file && (
+              <p className="text-sm text-red-500">{formik.errors.file}</p>
+            )}
+
+            {imagePreview && (
+              imagePreview.endsWith(".pdf") ? (
+                <a href={imagePreview} target="_blank" className="text-blue-600 underline">
+                  View PDF
+                </a>
+              ) : (
+                <img src={imagePreview} className="w-full h-40 object-cover rounded-lg" />
+              )
+            )}
+
+          </Field>
 
           {/* SUBMIT */}
           {!isView && (
