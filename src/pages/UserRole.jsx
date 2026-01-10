@@ -8,6 +8,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../components/Refresh/Refresh";
 import ViewUserRole from "../components/modal/ViewModal/ViewUserRole";
+import NoDataFound from "../components/NoDataFound/NoDataFound";
 
 const PATH_TO_KEY_MAP = Object.fromEntries(
   Object.entries(PERMISSION_MAP).map(([key, value]) => [value, key])
@@ -220,58 +221,66 @@ export default function UserRoles() {
               </thead>
 
               <tbody className="text-gray-700">
-                {filteredRoles?.map((item) => (
-                  <tr
-                    key={item._id}
-                    className="border-b border-gray-200 hover:bg-blue-50 transition"
-                  >
-                    <td className="px-5 py-4 text-nowrap">{item?.name}</td>
-                    <td className="px-5 py-4">
-                      <div className="flex flex-wrap gap-2 max-w-[280px]">
-                        {formatPermissions(item?.permissions).map(
-                          (perm, idx) => (
-                            <span
-                              key={idx}
-                              className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
-                            >
-                              {PATH_TO_KEY_MAP[perm]}
-                            </span>
-                          )
-                        )}
-                      </div>
-                    </td>
+                {filteredRoles?.length === 0 ? (
+                  <NoDataFound
+                    title="0 Assembly Lines Found"
+                    subtitle="No assembly line data available."
+                    colSpan={7}
+                  />
+                ) : (
+                  filteredRoles?.map((item) => (
+                    <tr
+                      key={item._id}
+                      className="border-b border-gray-200 hover:bg-blue-50 transition"
+                    >
+                      <td className="px-5 py-4 text-nowrap">{item?.name}</td>
+                      <td className="px-5 py-4">
+                        <div className="flex flex-wrap gap-2 max-w-[280px]">
+                          {formatPermissions(item?.permissions).map(
+                            (perm, idx) => (
+                              <span
+                                key={idx}
+                                className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                              >
+                                {PATH_TO_KEY_MAP[perm]}
+                              </span>
+                            )
+                          )}
+                        </div>
+                      </td>
 
-                    <td className="px-5 py-4 max-w-[250px] truncate">
-                      {item.description}
-                    </td>
-                    <td className="px-5 py-4 flex justify-center gap-5">
-                      <Eye
-                        size={20}
-                        className="text-blue-500 cursor-pointer hover:scale-125"
-                        onClick={() => {
-                          setSelectedRole(item);
-                          setViewOpen(true);
-                        }}
-                      />
+                      <td className="px-5 py-4 max-w-[250px] truncate">
+                        {item.description}
+                      </td>
+                      <td className="px-5 py-4 flex justify-center gap-5">
+                        <Eye
+                          size={20}
+                          className="text-blue-500 cursor-pointer hover:scale-125"
+                          onClick={() => {
+                            setSelectedRole(item);
+                            setViewOpen(true);
+                          }}
+                        />
 
-                      <Edit2
-                        size={20}
-                        className="text-green-600 cursor-pointer hover:scale-125"
-                        onClick={() => {
-                          setSelectedRole(item);
-                          setModalMode("edit");
-                          setModalOpen(true);
-                        }}
-                      />
+                        <Edit2
+                          size={20}
+                          className="text-green-600 cursor-pointer hover:scale-125"
+                          onClick={() => {
+                            setSelectedRole(item);
+                            setModalMode("edit");
+                            setModalOpen(true);
+                          }}
+                        />
 
-                      <Trash2
-                        size={20}
-                        className="text-red-500 cursor-pointer hover:scale-125"
-                        onClick={() => handleDelete(item._id)}
-                      />
-                    </td>
-                  </tr>
-                ))}
+                        <Trash2
+                          size={20}
+                          className="text-red-500 cursor-pointer hover:scale-125"
+                          onClick={() => handleDelete(item._id)}
+                        />
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

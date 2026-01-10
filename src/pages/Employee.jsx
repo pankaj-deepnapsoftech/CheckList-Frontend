@@ -8,6 +8,7 @@ import { UserCheck } from "lucide-react";
 import Refresh from "../components/Refresh/Refresh";
 import { UserX } from "lucide-react";
 import ViewEmployeeModal from "../components/modal/ViewModal/ViewEmployee";
+import NoDataFound from "../components/NoDataFound/NoDataFound";
 
 const Employee = () => {
   const [search, setSearch] = useState("");
@@ -286,68 +287,75 @@ const Employee = () => {
 
               {/* Table Body */}
               <tbody className="text-gray-700">
-                {filteredEmployees.map((emp, i) => (
-                  <tr
-                    key={i}
-                    className={`border-b border-gray-200 transition ${
-                      emp.terminate
-                        ? "opacity-50 bg-gray-50"
-                        : "hover:bg-blue-50/40"
-                    }`}
-                  >
-                    <td className="px-5 py-4 whitespace-nowrap">
-                      {emp.user_id || "N/A"}
-                    </td>
-                    <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
-                    <td className="px-5 py-4 whitespace-nowrap">
-                      <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow text-nowrap">
-                        {emp?.plant?.plant_name || "N/A"}
-                      </span>
-                    </td>
+                {filteredEmployees?.length === 0 ? (
+                  <NoDataFound
+                    title="0 Assembly Lines Found"
+                    subtitle="No assembly line data available."
+                    colSpan={7}
+                  />
+                ) : (
+                  filteredEmployees.map((emp, i) => (
+                    <tr
+                      key={i}
+                      className={`border-b border-gray-200 transition ${emp.terminate
+                          ? "opacity-50 bg-gray-50"
+                          : "hover:bg-blue-50/40"
+                        }`}
+                    >
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        {emp.user_id || "N/A"}
+                      </td>
+                      <td className="px-5 py-4">{emp.full_name || "N/A"}</td>
+                      <td className="px-5 py-4 whitespace-nowrap">
+                        <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow text-nowrap">
+                          {emp?.plant?.plant_name || "N/A"}
+                        </span>
+                      </td>
 
-                    <td className="px-5 py-4 text-nowrap">
-                      {emp?.company?.company_name || "N/A"}
-                    </td>
+                      <td className="px-5 py-4 text-nowrap">
+                        {emp?.company?.company_name || "N/A"}
+                      </td>
 
-                    {/* Actions */}
-                    <td className="px-5 py-4 flex justify-center gap-5">
-                      {/* VIEW */}
-                      <Eye
-                        size={20}
-                        className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
-                        onClick={() => {
-                          setSelectedEmployee(emp);
-                          setViewOpen(true);
-                        }}
-                      />
-
-                      {/* EDIT */}
-                      <Edit2
-                        size={20}
-                        className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition transform"
-                        onClick={() => {
-                          setModalMode("edit");
-                          setSelectedEmployee(emp);
-                          setModalOpen(true);
-                        }}
-                      />
-
-                      {/* DELETE */}
-                      <label className="inline-flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={!emp.terminate}
-                          onChange={() => handleTerminateToggle(emp)}
-                          className="sr-only peer"
+                      {/* Actions */}
+                      <td className="px-5 py-4 flex justify-center gap-5">
+                        {/* VIEW */}
+                        <Eye
+                          size={20}
+                          className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
+                          onClick={() => {
+                            setSelectedEmployee(emp);
+                            setViewOpen(true);
+                          }}
                         />
-                        <div
-                          className="relative w-9 h-5 bg-red-500 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+
+                        {/* EDIT */}
+                        <Edit2
+                          size={20}
+                          className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition transform"
+                          onClick={() => {
+                            setModalMode("edit");
+                            setSelectedEmployee(emp);
+                            setModalOpen(true);
+                          }}
+                        />
+
+                        {/* DELETE */}
+                        <label className="inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!emp.terminate}
+                            onChange={() => handleTerminateToggle(emp)}
+                            className="sr-only peer"
+                          />
+                          <div
+                            className="relative w-9 h-5 bg-red-500 peer-focus:outline-none rounded-full peer peer-checked:bg-green-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px]
                                     after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-full"
-                        ></div>
-                      </label>
-                    </td>
-                  </tr>
-                ))}
+                          ></div>
+                        </label>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
