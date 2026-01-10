@@ -132,7 +132,7 @@ const CheckItem = () => {
                 <div className="flex items-center flex-wrap justify-between gap-3">
                   <span className="bg-blue-500 whitespace-nowrap text-white px-3 py-1 rounded-full text-xs font-medium">
                     {cl.item}
-                  </span>
+                  </span>   
 
                   {/* ACTIONS */}
                   <div className="flex gap-4">

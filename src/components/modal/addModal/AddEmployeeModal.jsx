@@ -37,6 +37,7 @@ export default function AddEmployeeModal({
         ? Yup.string().required("Password is required")
         : Yup.string(),
     employee_company: Yup.string().required("Company is required"),
+    employee_department: Yup.string().required("Department is required"),
     Employee_plant: Yup.string().required("Plant is required"),
   });
 
@@ -241,6 +242,14 @@ export default function AddEmployeeModal({
                 disabled={isView}
                 getOptionLabel={(c) => c.company_name}
                 getOptionValue={(c) => c._id}
+              />
+            </Field>
+
+            {/* Department */}
+            <Field label="Department">
+              <span className="text-red-500">*</span>
+              <SearchableDropdown
+                placeholder="Search Department"
               />
             </Field>
 
