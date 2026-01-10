@@ -217,7 +217,7 @@ export default function AssemblyError() {
                     <NoDataFound
                       title="0 Plants Found"
                       subtitle="No plants available at the moment."
-                      colSpan={5}
+                      colSpan={11}
                     />
                   ) : (
                     errors.map((row) => (
