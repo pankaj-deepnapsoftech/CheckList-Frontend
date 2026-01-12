@@ -20,6 +20,7 @@ export default function AddCheckItemModal({
   const { getProcessData } = useProcess();
   const { CreateCheckItem, updateCheckItem, AddCategroy, GetCategory } =
     useCheckItem();
+  const [newInputTime, setNewInputTime] = useState("");
 
   const [showMethodInput, setShowMethodInput] = useState(false);
   const [showTimeInput, setShowTimeInput] = useState(false);
@@ -62,7 +63,7 @@ export default function AddCheckItemModal({
       setChecklistTimes(ListData);
     }
   }, [GetCategory?.data]);
-
+  console.log(initialData)
   const formik = useFormik({
     initialValues: {
       process: initialData?.process?._id || initialData?.process || "",
@@ -75,6 +76,7 @@ export default function AddCheckItemModal({
       max: initialData?.max || 0,
       uom: initialData?.uom || "",
       file: initialData?.file_path || null,
+      time:initialData?.time || []
     }, 
     enableReinitialize: true,
     validationSchema,
@@ -91,9 +93,10 @@ export default function AddCheckItemModal({
       formdata.append("max", values.max);
       formdata.append("uom", values.uom);
       formdata.append("file", values.file);
+      formdata.append("time", JSON.stringify(values.time));
 
-
-
+      // console.log("values", values)
+ 
       if (mode === "edit") {
         updateCheckItem.mutate({
           id: initialData?._id,
@@ -342,6 +345,65 @@ export default function AddCheckItemModal({
               </div>
             )}
           </Field>
+
+          <Field label="Timing">
+            <div className="flex gap-2">
+              <input
+                type="time"
+                value={newInputTime}
+                onChange={(e) => setNewInputTime(e.target.value)}
+                className="input flex-1"
+                disabled={isView}
+              />
+
+              {!isView && (
+                <button
+                  type="button"
+                  className="bg-blue-600 text-white px-4 rounded"
+                  onClick={() => {
+                    if (!newInputTime) return;
+
+                    formik.setFieldValue("time", [
+                      ...formik.values.time,
+                      newInputTime,
+                    ]);
+
+                    setNewInputTime("");
+                  }}
+                >
+                  Add
+                </button>
+              )}
+            </div>
+
+           
+            <div className="flex flex-wrap gap-2 mt-2">
+              {formik.values.time?.map((time, index) => (
+                <span
+                  key={index}
+                  className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
+                >
+                  {time}
+                  {!isView && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = formik.values.time.filter(
+                          (_, i) => i !== index
+                        );
+                        formik.setFieldValue("time", updated);
+                      }}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </span>
+              ))}
+            </div>
+          </Field>
+
+
+
 
           {/* Result Type */}
           <Field label="Evaluation Type">

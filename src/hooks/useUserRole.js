@@ -68,7 +68,7 @@ export const useUserRole = (search,page,limit) => {
     },
 
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to delete role ");
+      toast.error(error?.response?.data?.message );
     },
   });
 

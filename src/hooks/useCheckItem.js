@@ -100,7 +100,7 @@ export const useCheckItem = (search, page, limit) => {
 
     onError: (error) => {
       toast.error(
-        error?.response?.data?.message || "Failed to delete role "
+        error?.response?.data?.message 
       );
     },
   });
