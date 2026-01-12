@@ -14,6 +14,14 @@ export const useDepartment = () => {
         },
 
     })
+    const getAllDepartmentData = useQuery({
+        queryKey: ["department-all"],
+        queryFn: async () => {
+            const res = await axiosHandler.get(`/department/data`);
+            return res?.data?.data;
+        },
+
+    })
 
     const postDepartment = useMutation({
         mutationFn: async (value) => {
@@ -24,6 +32,7 @@ export const useDepartment = () => {
         onSuccess: (data) => {
             toast.success(data?.message)
             qc.invalidateQueries({ queryKey: ["department"] })
+            qc.invalidateQueries({ queryKey: ["department-all"] })
         },
         onError: (error) => {
             toast.error(error?.response?.data?.message)
@@ -39,6 +48,7 @@ export const useDepartment = () => {
         onSuccess: (data) => {
             toast.success(data?.message)
             qc.invalidateQueries({ queryKey: ["department"] })
+            qc.invalidateQueries({ queryKey: ["department-all"] })
         },
         onError: (error) => {
             toast.error(error?.response?.data?.message)
@@ -53,6 +63,7 @@ export const useDepartment = () => {
         onSuccess: (data) => {
             toast.success(data?.message)
             qc.invalidateQueries({ queryKey: ["department"] })
+            qc.invalidateQueries({ queryKey: ["department-all"] })
         },
         onError: (error) => {
             toast.error(error?.response?.data?.message)
@@ -60,6 +71,6 @@ export const useDepartment = () => {
     })
 
     return {
-        getDepartmentData, postDepartment, updatedDepartment, deleteDepartment
+        getDepartmentData, postDepartment, updatedDepartment, deleteDepartment,getAllDepartmentData
     }
 }

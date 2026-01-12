@@ -9,6 +9,7 @@ import { RegisterEmployee } from "../../../hooks/useRegisterEmployee";
 import { Eye } from "lucide-react";
 import { EyeOff } from "lucide-react";
 import SearchableDropdown from "../../SearchableDropDown/SearchableDropdown";
+import { useDepartment } from "../../../hooks/useDepartment";
 
 export default function AddEmployeeModal({
   open,
@@ -24,8 +25,8 @@ export default function AddEmployeeModal({
   const { AllRolesData } = useUserRole();
   const { createEmployee, updateEmployee } = RegisterEmployee();
   const [showPassword, setShowPassword] = useState(false);
+  const { getAllDepartmentData } = useDepartment();
 
-  const [assemblyOpen, setAssemblyOpen] = useState(false);
 
   const validationSchema = Yup.object({
     full_name: Yup.string().required("Full name is required"),
@@ -37,7 +38,7 @@ export default function AddEmployeeModal({
         ? Yup.string().required("Password is required")
         : Yup.string(),
     employee_company: Yup.string().required("Company is required"),
-    employee_department: Yup.string().required("Department is required"),
+    department_id: Yup.string().required("Department is required"),
     Employee_plant: Yup.string().required("Plant is required"),
   });
 
@@ -51,6 +52,7 @@ export default function AddEmployeeModal({
       password: "",
       employee_company: initialData?.company?._id || "",
       Employee_plant: initialData?.plant?._id || "",
+      department_id: initialData?.department_id || "",
       assambly_line: initialData?.assambly_line?.map((l) => l._id) || [],
     },
     enableReinitialize: true,
@@ -59,7 +61,7 @@ export default function AddEmployeeModal({
       const payload = {
         full_name: values.full_name,
         email: values.email,
-        desigination: values.designation, // ⚠ backend spelling
+        desigination: values.designation,
         employee_plant: values.Employee_plant,
         employee_company: values.employee_company,
         role: values.role,
@@ -248,10 +250,26 @@ export default function AddEmployeeModal({
             {/* Department */}
             <Field label="Department">
               <span className="text-red-500">*</span>
+
               <SearchableDropdown
                 placeholder="Search Department"
+                options={getAllDepartmentData?.data || []}
+                value={formik.values.department_id}
+                onChange={(val) => {
+                  formik.setFieldValue("department_id", val);
+                }}
+                onBlur={() => {
+                  formik.setFieldTouched("department_id", true);
+                }}
+                error={
+                  formik.touched.department_id &&
+                  formik.errors.department_id
+                }
+                getOptionLabel={(d) => d.name}
+                getOptionValue={(d) => d._id}
               />
             </Field>
+
 
             <Field label="Plant">
               <span className="text-red-500">*</span>
