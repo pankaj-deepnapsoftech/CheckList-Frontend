@@ -44,6 +44,7 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
             color="teal"
             icon={<User size={18} />}
           >
+            <Info label="Employee Code" value={data.user_id} />
             <Info label="Full Name" value={data.full_name} />
             <Info label="Email" value={data.email} />
             <Info
@@ -61,6 +62,7 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
           >
             <Info label="Company" value={data.company?.company_name} />
             <Info label="Plant" value={data.plant?.plant_name} />
+            <Info label="Department" value={data.department.name} />
           </ColoredSection>
 
           {/* ASSEMBLY LINES */}

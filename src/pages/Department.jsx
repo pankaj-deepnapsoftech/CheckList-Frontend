@@ -83,7 +83,7 @@ const Department = () => {
                   className="hover:bg-blue-50 transition"
                 >
                   {/* <td className="px-5 py-4">{d.department_code}</td> */}
-                  <td className="px-5 py-4">{d?.name}</td>
+                  <td className="px-5 py-4 font-medium text-gray-800 text-nowrap">{d?.name}</td>
                   <td className="px-5 py-4 max-w-[250px] truncate">
                     {d?.description}
                   </td>
