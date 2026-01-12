@@ -268,7 +268,7 @@ const Employee = () => {
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
                   <th className="px-5 py-3 text-left text-sm font-semibold text-gray-700">
-                    ID
+                    Code
                   </th>
                   <th className="px-5 py-3 text-left text-sm font-semibold text-gray-700">
                     Name
@@ -278,6 +278,9 @@ const Employee = () => {
                   </th>
                   <th className="px-5 py-3 text-left text-sm font-semibold text-gray-700">
                     Company
+                  </th>
+                  <th className="px-5 py-3 text-left text-sm font-semibold text-gray-700">
+                    Department
                   </th>
                   <th className="px-5 py-3 text-center text-sm font-semibold text-gray-700">
                     Actions
@@ -298,8 +301,8 @@ const Employee = () => {
                     <tr
                       key={i}
                       className={`border-b border-gray-200 transition ${emp.terminate
-                          ? "opacity-50 bg-gray-50"
-                          : "hover:bg-blue-50/40"
+                        ? "opacity-50 bg-gray-50"
+                        : "hover:bg-blue-50/40"
                         }`}
                     >
                       <td className="px-5 py-4 whitespace-nowrap">
@@ -314,6 +317,9 @@ const Employee = () => {
 
                       <td className="px-5 py-4 text-nowrap">
                         {emp?.company?.company_name || "N/A"}
+                      </td>
+                      <td className="px-5 py-4 text-nowrap">
+                        {emp?.department.name || "N/A"}
                       </td>
 
                       {/* Actions */}

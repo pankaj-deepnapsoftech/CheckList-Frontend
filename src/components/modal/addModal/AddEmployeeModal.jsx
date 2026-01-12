@@ -29,6 +29,7 @@ export default function AddEmployeeModal({
 
 
   const validationSchema = Yup.object({
+    user_id: Yup.string().required("Employee code is required"),
     full_name: Yup.string().required("Full name is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
     role: Yup.string().required("Role is required"),
@@ -44,11 +45,11 @@ export default function AddEmployeeModal({
 
   const formik = useFormik({
     initialValues: {
+      user_id: initialData?.user_id || "",
       full_name: initialData?.full_name || "",
       email: initialData?.email || "",
       role: initialData?.userRole?._id || "",
       designation: initialData?.designation || initialData?.desigination || "",
-      user_id: initialData?.user_id || "",
       password: "",
       employee_company: initialData?.company?._id || "",
       Employee_plant: initialData?.plant?._id || "",
@@ -59,11 +60,13 @@ export default function AddEmployeeModal({
     validationSchema,
     onSubmit: (values) => {
       const payload = {
+        user_id: values.user_id,
         full_name: values.full_name,
         email: values.email,
         desigination: values.designation,
         employee_plant: values.Employee_plant,
         employee_company: values.employee_company,
+        department_id: values.department_id,
         role: values.role,
         assambly_line: values.assambly_line,
       };
@@ -114,6 +117,43 @@ export default function AddEmployeeModal({
         {/* FORM */}
         <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
+
+            <input
+              type="text"
+              name="username"
+              autoComplete="username"
+              tabIndex={-1}
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                opacity: 0,
+                height: 0,
+                width: 0,
+                pointerEvents: "none",
+              }}
+            />
+
+            {/* Employee code */}
+            <Field label="Employee Code">
+              <span className="text-red-500">*</span>
+              <input
+                name="user_id"
+                type="search"
+                autoComplete="new-password"   // 🔥 important
+                value={formik.values.user_id}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="input"
+              />
+
+
+              {formik.touched.user_id && formik.errors.user_id && (
+                <p className="text-red-500 text-sm mt-1">
+                  {formik.errors.user_id}
+                </p>
+              )}
+            </Field>
+
             {/* Full Name */}
             <Field label="Full Name">
               <span className="text-red-500">*</span>
@@ -161,6 +201,7 @@ export default function AddEmployeeModal({
                     type={showPassword ? "text" : "password"}
                     value={formik.values.password}
                     onChange={formik.handleChange}
+                    autoComplete="new-password"
                     onBlur={formik.handleBlur}
                     className="input pr-10"
                   />

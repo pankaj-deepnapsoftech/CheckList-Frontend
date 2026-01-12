@@ -177,11 +177,11 @@ const PlantName = () => {
             <table className="w-full min-w-[700px] text-left">
               <thead>
                 <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
-                  <th className="px-5 py-3 font-semibold text-nowrap">Plant Code</th>
-                  <th className="px-5 py-3 font-semibold text-nowrap">Plant Name</th>
-                  <th className="px-5 py-3 font-semibold">Address</th>
-                  <th className="px-5 py-3 font-semibold">Company</th>
-                  <th className="px-5 py-3 font-semibold text-center">
+                  <th className="px-6 py-4 font-semibold text-nowrap">Plant Code</th>
+                  <th className="px-6 py-4 font-semibold text-nowrap">Plant Name</th>
+                  <th className="px-6 py-4 font-semibold">Address</th>
+                  <th className="px-6 py-4 font-semibold">Company</th>
+                  <th className="px-6 py-4 font-semibold text-center">
                     Actions
                   </th>
                 </tr>
@@ -198,13 +198,13 @@ const PlantName = () => {
                   filetredData.map((p, i) => (
                     <tr
                       key={i}
-                      className="border-b border-gray-200 hover:bg-blue-50 transition"
+                      className="border-b border-gray-200 hover:bg-blue-50/50 transition-all duration-200"
                     >
-                      <td className="px-5 py-4 text-nowrap">
+                      <td className="px-4 py-4 font-medium text-gray-800 text-nowrap">
                         {p?.plant_code || "N/A"}
                       </td>
 
-                      <td className="px-5 py-4 text-nowrap">
+                      <td className="px-4 py-4 font-medium text-gray-800 text-nowrap">
                         {p.plant_name}
                       </td>
 
