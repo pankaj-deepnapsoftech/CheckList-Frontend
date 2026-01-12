@@ -23,7 +23,7 @@ const AddDepartmentModal = ({
   const formik = useFormik({
     initialValues: {
       name: editData?.name || "",
-      description: editData?.name || "",
+      description: editData?.description || "",
     },
     enableReinitialize: true,
     validationSchema: DepartmentSchema ,
