@@ -14,6 +14,7 @@ import {
 import CheckItemHistoryModal from "./CheckItemHistory";
 import { useCheckItemHistory } from "../hooks/useCheckItemHistory";
 import Pagination from "../Components/Pagination/Pagination";
+import NoDataFound from "../components/NoDataFound/NoDataFound";
 
 export default function AssemblyLineStatus() {
   const [openHistory, setOpenHistory] = useState(false);
@@ -31,37 +32,37 @@ export default function AssemblyLineStatus() {
   const assemblies = Array.isArray(assembliesRaw)
     ? assembliesRaw
     : assembliesRaw
-    ? [assembliesRaw]
-    : [];
+      ? [assembliesRaw]
+      : [];
 
   const tableData = Array.isArray(assemblies)
     ? assemblies.map((item) => {
-        // 🔹 Detect ERROR / RESOLVED
-        const hasError =
+      // 🔹 Detect ERROR / RESOLVED
+      const hasError =
+        Array.isArray(item?.process_id) &&
+        item.process_id.some(
+          (proc) =>
+            Array.isArray(proc?.check_list_items) &&
+            proc.check_list_items.some(
+              (cli) =>
+                Array.isArray(cli?.check_items_history) &&
+                cli.check_items_history.some(
+                  (history) => history?.is_error === true
+                )
+            )
+        );
+
+      return {
+        id: item?._id,
+        assemblyNumber: item?.assembly_number || "—",
+        assemblyName: item?.assembly_name || "—",
+        companyName: item?.company?.company_name || "—",
+        plantName: item?.plant?.plant_name || "—",
+        raw: item,
+
+        //  Status
+        status:
           Array.isArray(item?.process_id) &&
-          item.process_id.some(
-            (proc) =>
-              Array.isArray(proc?.check_list_items) &&
-              proc.check_list_items.some(
-                (cli) =>
-                  Array.isArray(cli?.check_items_history) &&
-                  cli.check_items_history.some(
-                    (history) => history?.is_error === true
-                  )
-              )
-          );
-
-        return {
-          id: item?._id,
-          assemblyNumber: item?.assembly_number || "—",
-          assemblyName: item?.assembly_name || "—",
-          companyName: item?.company?.company_name || "—",
-          plantName: item?.plant?.plant_name || "—",
-          raw: item,
-
-          //  Status
-          status:
-            Array.isArray(item?.process_id) &&
             item.process_id.length > 0 &&
             item.process_id.every(
               (proc) =>
@@ -73,13 +74,13 @@ export default function AssemblyLineStatus() {
                     cli.check_items_history.length > 0
                 )
             )
-              ? "CHECKED"
-              : "UN-CHECKED",
+            ? "CHECKED"
+            : "UN-CHECKED",
 
-          //  Result
-          result: hasError ? "ERROR" : "RESOLVED",
-        };
-      })
+        //  Result
+        result: hasError ? "ERROR" : "RESOLVED",
+      };
+    })
     : [];
 
   //  Apply Assembly + Status filters together
@@ -316,52 +317,59 @@ export default function AssemblyLineStatus() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {paginatedTableData?.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="hover:bg-blue-50/50 transition duration-200 group"
-                  >
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      <div className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
-                        {row.assemblyNumber} / {row.assemblyName}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      <div className="text-slate-900">{row.companyName}</div>
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4 hidden md:table-cell">
-                      <div className="text-slate-900">{row.plantName}</div>
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      <span
-                        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-sm ${
-                          row.status === "CHECKED"
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                            : "bg-amber-50 text-amber-600 border-amber-200"
-                        }`}
-                      >
-                        {row.status === "CHECKED" ? (
-                          <CheckCircle2 size={14} />
-                        ) : (
-                          <AlertCircle size={14} />
-                        )}
-                        {row.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 sm:px-6 sm:py-4">
-                      <button
-                        onClick={() => {
-                          setSelectedAssembly(row.raw);
-                          setOpenHistory(true);
-                        }}
-                        className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 cursor-pointer rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
-                      >
-                        <History size={14} />
-                        History
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {paginatedTableData?.length === 0 ? (
+                  <NoDataFound
+                    title="0 Assembly Lines Found"
+                    subtitle="No assembly line data available."
+                    colSpan={7}
+                  />
+                ) : (
+                  paginatedTableData?.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="hover:bg-blue-50/50 transition duration-200 group"
+                    >
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        <div className="font-semibold text-slate-900 group-hover:text-blue-700 transition-colors">
+                          {row.assemblyNumber} / {row.assemblyName}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        <div className="text-slate-900">{row.companyName}</div>
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4 hidden md:table-cell">
+                        <div className="text-slate-900">{row.plantName}</div>
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        <span
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-sm ${row.status === "CHECKED"
+                              ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                              : "bg-amber-50 text-amber-600 border-amber-200"
+                            }`}
+                        >
+                          {row.status === "CHECKED" ? (
+                            <CheckCircle2 size={14} />
+                          ) : (
+                            <AlertCircle size={14} />
+                          )}
+                          {row.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 sm:px-6 sm:py-4">
+                        <button
+                          onClick={() => {
+                            setSelectedAssembly(row.raw);
+                            setOpenHistory(true);
+                          }}
+                          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 cursor-pointer rounded-xl transition-all duration-200 shadow-sm hover:shadow-md"
+                        >
+                          <History size={14} />
+                          History
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
                 {tableData.length === 0 && (
                   <tr>
                     <td

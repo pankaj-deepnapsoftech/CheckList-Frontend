@@ -11,6 +11,7 @@ import {
 import { useAssemblyLineError } from "../hooks/useAssemblyLineError";
 import AddErrorModal from "../components/modal/addModal/AddErrorModal";
 import Refresh from "../components/Refresh/Refresh";
+import NoDataFound from "../components/NoDataFound/NoDataFound";
 
 export default function AssemblyError() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -212,88 +213,96 @@ export default function AssemblyError() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {errors.map((row) => (
-                    <tr
-                      key={row?._id}
-                      className={`transition duration-200 group ${row?.is_error
-                        ? "bg-red-50/40 hover:bg-red-50/70"
-                        : "bg-emerald-50/40 hover:bg-emerald-50/70"
-                        }`}
-                    >
-                      <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-semibold shadow-sm ${row?.is_error
-                            ? "bg-red-50 text-red-600 border-red-200"
-                            : "bg-emerald-50 text-emerald-600 border-emerald-200"
-                            }`}
-                        >
-                          {row?.is_error ? (
-                            <AlertCircle size={13} />
-                          ) : (
-                            <CheckCircle2 size={13} />
-                          )}
-                          {row?.is_error ? "Error" : "OK"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        <div className="font-semibold text-slate-900">
-                          {row?.checklistItem?.item || "—"}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {row?.checklistItem?.check_list_method || "—"}
-                      </td>
-                      <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {row?.checklistItem?.check_list_time || "—"}
-                      </td>
-                      <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {(row?.assemblyLine?.assembly_name || "—") +
-                          " / " +
-                          (row?.assemblyLine?.assembly_number || "—")}
-                      </td>
-                      <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {(row?.processInfo?.process_name || "—") +
-                          " / " +
-                          (row?.processInfo?.process_no || "—")}
-                      </td>
-                      <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {row?.result || "—"}
-                      </td>
-                      <td
-                        className={`px-4 py-3 sm:px-6 sm:py-4 ${row?.is_error ? "text-red-700" : "text-slate-600"
+                  {errors?.length === 0 ? (
+                    <NoDataFound
+                      title="0 Plants Found"
+                      subtitle="No plants available at the moment."
+                      colSpan={11}
+                    />
+                  ) : (
+                    errors.map((row) => (
+                      <tr
+                        key={row?._id}
+                        className={`transition duration-200 group ${row?.is_error
+                          ? "bg-red-50/40 hover:bg-red-50/70"
+                          : "bg-emerald-50/40 hover:bg-emerald-50/70"
                           }`}
                       >
-                        <div
-                          className="max-w-[250px] truncate"
-                          title={row?.description}
-                        >
-                          {row?.description || "—"}
-                        </div>
-                      </td>
-
-                      <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        <span
-                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-semibold ${row?.status === "Checked"
-                            ? "bg-emerald-50 text-emerald-600 border-emerald-200"
-                            : "bg-amber-50 text-amber-600 border-amber-200"
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-semibold shadow-sm ${row?.is_error
+                              ? "bg-red-50 text-red-600 border-red-200"
+                              : "bg-emerald-50 text-emerald-600 border-emerald-200"
+                              }`}
+                          >
+                            {row?.is_error ? (
+                              <AlertCircle size={13} />
+                            ) : (
+                              <CheckCircle2 size={13} />
+                            )}
+                            {row?.is_error ? "Error" : "OK"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          <div className="font-semibold text-slate-900">
+                            {row?.checklistItem?.item || "—"}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          {row?.checklistItem?.check_list_method || "—"}
+                        </td>
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          {row?.checklistItem?.check_list_time || "—"}
+                        </td>
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          {(row?.assemblyLine?.assembly_name || "—") +
+                            " / " +
+                            (row?.assemblyLine?.assembly_number || "—")}
+                        </td>
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          {(row?.processInfo?.process_name || "—") +
+                            " / " +
+                            (row?.processInfo?.process_no || "—")}
+                        </td>
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          {row?.result || "—"}
+                        </td>
+                        <td
+                          className={`px-4 py-3 sm:px-6 sm:py-4 ${row?.is_error ? "text-red-700" : "text-slate-600"
                             }`}
                         >
-                          {row?.status ? (
-                            <CheckCircle2 size={13} />
-                          ) : (
-                            <AlertCircle size={13} />
-                          )}
-                          {row?.status || "—"}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {formatDateShort(row?.createdAt)}
-                      </td>
-                      <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        {formatDateShort(row?.updatedAt)}
-                      </td>
-                    </tr>
-                  ))}
+                          <div
+                            className="max-w-[250px] truncate"
+                            title={row?.description}
+                          >
+                            {row?.description || "—"}
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          <span
+                            className={`inline-flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-semibold ${row?.status === "Checked"
+                              ? "bg-emerald-50 text-emerald-600 border-emerald-200"
+                              : "bg-amber-50 text-amber-600 border-amber-200"
+                              }`}
+                          >
+                            {row?.status ? (
+                              <CheckCircle2 size={13} />
+                            ) : (
+                              <AlertCircle size={13} />
+                            )}
+                            {row?.status || "—"}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          {formatDateShort(row?.createdAt)}
+                        </td>
+                        <td className="px-4 py-3 sm:px-6 sm:py-4">
+                          {formatDateShort(row?.updatedAt)}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                   {errors.length === 0 && (
                     <tr>
                       <td

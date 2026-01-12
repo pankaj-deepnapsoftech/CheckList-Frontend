@@ -4,6 +4,8 @@ import { useFormik } from "formik";
 import { toast } from "react-toastify";
 import { History } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import NoDataFound from "../components/NoDataFound/NoDataFound";
+import NoDataFoundPage from "../components/NoDataFound/NoDataFoundPage";
 
 const CheckItemsData = () => {
   const [assembly_id, setAssembly_id] = useState("");
@@ -127,7 +129,7 @@ const CheckItemsData = () => {
 
         <div className="mb-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
-            <select
+            <select                                                                                  
               value={assembly_id}
               onChange={(e) => {
                 setAssembly_id(e.target.value);
@@ -145,6 +147,14 @@ const CheckItemsData = () => {
             </select>
           </div>
         </div>
+
+        {!assembly_id && (
+          <NoDataFoundPage
+            title="No Assembly Selected"
+            subtitle="Please select an assembly from the dropdown above to load 
+            quality check items."
+          />
+        )}
 
         {assembly_id &&
           PostCheckListForm?.data?.map((assembly) => (
@@ -295,18 +305,18 @@ const CheckItemsData = () => {
                                     {formik.values.data.find(
                                       (d) => d?.checkList === item?._id
                                     )?.is_error && (
-                                      <textarea
-                                        placeholder="Enter reason for issue found..."
-                                        onChange={(e) =>
-                                          setDescription(
-                                            item?._id,
-                                            e.target.value
-                                          )
-                                        }
-                                        className="w-full rounded-lg border border-red-300 px-3 py-2 text-sm"
-                                        rows={2}
-                                      />
-                                    )}
+                                        <textarea
+                                          placeholder="Enter reason for issue found..."
+                                          onChange={(e) =>
+                                            setDescription(
+                                              item?._id,
+                                              e.target.value
+                                            )
+                                          }
+                                          className="w-full rounded-lg border border-red-300 px-3 py-2 text-sm"
+                                          rows={2}
+                                        />
+                                      )}
                                   </div>
                                 ) : (
                                   <div>
@@ -339,11 +349,10 @@ const CheckItemsData = () => {
                                         );
                                       }}
                                       className={`w-full rounded-lg border px-3 py-2 text-sm
-                        ${
-                          errors[item?._id]
-                            ? "border-red-400"
-                            : "border-gray-300"
-                        }`}
+                        ${errors[item?._id]
+                                          ? "border-red-400"
+                                          : "border-gray-300"
+                                        }`}
                                       placeholder="Enter value"
                                     />
 
