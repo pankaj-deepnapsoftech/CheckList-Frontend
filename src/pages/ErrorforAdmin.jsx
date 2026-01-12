@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useMemo, useState } from "react";
 import {
   RefreshCw,
@@ -18,7 +19,6 @@ export default function AssemblyError() {
   const [selectedError, setSelectedError] = useState(null);
   const [showRefresh, setShowRefresh] = useState(false);
   const { getAssemblyLineError } = useAssemblyLineError();
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const errorsRaw = getAssemblyLineError?.data;
   const errors = useMemo(() => {

@@ -20,7 +20,7 @@ export default function AssemblyLine() {
   const [selectedProcess, setSelectedProcess] = useState("");
   const [limit, setLimit] = useState(10);
   const [mode, setMode] = useState("add");
-  const { debounce, value } = useDebounce(search);
+  const { value } = useDebounce(search);
   const searchValue = search ? value : "";
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -28,6 +28,7 @@ export default function AssemblyLine() {
 
   const hasfilter = selectedPlant || selectedCompany || search || selectedProcess || selectedResponsible;
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const data = useMemo(() =>
     hasfilter ? searchQuery?.data ?? [] : getAssemblyLineData?.data ?? [],
     [hasfilter, searchQuery?.data, getAssemblyLineData?.data]
@@ -95,6 +96,7 @@ export default function AssemblyLine() {
   ];
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [search, selectedCompany, selectedPlant, selectedProcess]);
 

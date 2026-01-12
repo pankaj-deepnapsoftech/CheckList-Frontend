@@ -389,11 +389,6 @@ export default function ChecklistDashboard() {
     y: null,
     text: null,
   });
-  const [donutHover, setDonutHover] = useState({
-    x: null,
-    y: null,
-    text: null,
-  });
 
   const [filters, setFilters] = useState({
     company: null,

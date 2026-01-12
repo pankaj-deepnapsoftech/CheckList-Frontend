@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useCheckItemData } from "../hooks/useCheckItemData";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
-import { History } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import NoDataFound from "../components/NoDataFound/NoDataFound";
 import NoDataFoundPage from "../components/NoDataFound/NoDataFoundPage";
 
 const CheckItemsData = () => {
