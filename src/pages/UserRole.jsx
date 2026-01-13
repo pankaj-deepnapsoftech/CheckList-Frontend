@@ -223,7 +223,7 @@ export default function UserRoles() {
               <tbody className="text-gray-700">
                 {filteredRoles?.length === 0 ? (
                   <NoDataFound
-                    title="0 Assembly Lines Found"
+                    title="0 role Found"
                     subtitle="No assembly line data available."
                     colSpan={7}
                   />

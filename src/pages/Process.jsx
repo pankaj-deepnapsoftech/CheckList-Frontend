@@ -196,7 +196,7 @@ const Process = () => {
               <tbody className="text-gray-700">
                 {filteredProcesses?.length === 0 ? (
                   <NoDataFound
-                    title="0 Assembly Lines Found"
+                    title="0 Process Found"
                     subtitle="No assembly line data available."
                     colSpan={7}
                   />

@@ -101,7 +101,7 @@ const Department = () => {
             <tbody>
               {filteredDepartments?.length === 0 ? (
                 <NoDataFound
-                  title="0 Companies Found"
+                  title="0 Departments Found"
                   subtitle="No companies available to display."
                   colSpan={6}
                 />

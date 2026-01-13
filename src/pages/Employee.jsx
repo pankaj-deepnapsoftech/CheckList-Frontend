@@ -290,7 +290,7 @@ const Employee = () => {
               <tbody className="text-gray-700">
                 {filteredEmployees?.length === 0 ? (
                   <NoDataFound
-                    title="0 Assembly Lines Found"
+                    title="0 Employees Found"
                     subtitle="No assembly line data available."
                     colSpan={7}
                   />
