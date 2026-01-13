@@ -317,17 +317,9 @@ export default function AssemblyLine() {
                         </span>
                       </td>
                       <td className="px-5 py-4 text-sm text-nowrap">
-                        <div className="space-y-1">
-                          {item?.process_id?.map((p) => (
-                            <p key={p._id} className="text-nowrap">
-                              {p.process_name.length > 12
-                                ? p.process_name.slice(0, 12) + "..."
-                                : p.process_name}{" "}
-                              ({p.process_no})
-                            </p>
-                          ))}
-                        </div>
+                        {item?.process_id?.length || 0} Processes
                       </td>
+
                       <td className="px-5 py-4 text-sm text-nowrap">
                         {item?.company?.company_name}
                       </td>
