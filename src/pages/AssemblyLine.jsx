@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Search, Plus, RefreshCw, Edit2, Trash2, Eye } from "lucide-react";
-import AssemblyLineModal from "../components/modal/addModal/AddNewAssembly";
+
 import { useAssemblyLine } from "../hooks/useAssemblyLine";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../components/Refresh/Refresh";
 import ViewAssemblyLine from "../components/modal/ViewModal/ViewAssemblyLine";
 import NoDataFound from "../components/NoDataFound/NoDataFound";
+import AssemblyLineModal from "../Components/modal/addModal/AddNewAssembly";
 
 export default function AssemblyLine() {
   const [page, setPage] = useState(1);
@@ -88,7 +89,7 @@ export default function AssemblyLine() {
   const processOptions = [
     ...new Map(
       (getAssemblyLineData?.data || [])
-        .map((assem) => assem?.process_id)
+        .map((assem) => assem?.processes)
         .filter(Boolean)
         .flatMap((process) => process)
         .map((p) => [p?._id, p])
@@ -317,7 +318,7 @@ export default function AssemblyLine() {
                         </span>
                       </td>
                       <td className="px-5 py-4 text-sm text-nowrap">
-                        {item?.process_id?.length || 0} Processes
+                        {item?.processes?.length || 0} Processes
                       </td>
 
                       <td className="px-5 py-4 text-sm text-nowrap">
