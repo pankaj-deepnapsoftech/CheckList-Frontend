@@ -375,16 +375,18 @@ const CheckItemsData = () => {
         {formik.errors.data && (
           <p className="text-red-500 text-sm mb-2">{formik.errors.data}</p>
         )}
-        <div className="flex justify-end mt-2">
-          <button
-            type="submit"
-            onClick={formik.handleSubmit}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-colors duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
-            disabled={formik.values.data.length === 0}
-          >
-            Submit
-          </button>
-        </div>
+        {assembly_id?.length > 0 && (
+          <div className="flex justify-end mt-2">
+            <button
+              type="submit"
+              onClick={formik.handleSubmit}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition-colors duration-200 disabled:bg-gray-300 disabled:cursor-not-allowed"
+              disabled={formik.values.data.length === 0}
+            >
+              Submit
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

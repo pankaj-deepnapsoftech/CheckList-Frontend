@@ -26,6 +26,9 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
     const existingProcesses =
       editTable?.process_id?.map(i => i?._id).filter(Boolean) ||
       viewModal?.process_id?.map(i => i?._id).filter(Boolean);
+    const existingPart =
+      editTable?.process_id?.map(i => i?._id).filter(Boolean) ||
+      viewModal?.process_id?.map(i => i?._id).filter(Boolean);
 
     return {
       assembly_name: editTable?.assembly_name || viewModal?.assembly_name || "",
@@ -33,7 +36,7 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
       company_id: editTable?.company?._id || viewModal?.company?._id || "",
       plant_id: editTable?.plant?._id || viewModal?.plant?._id || "",
       responsibility: editTable?.responsibleUser?._id || viewModal?.responsibleUser?._id || "",
-      part_id: editTable?.part?._id || viewModal?.part?._id || "",
+      part_id: existingPart || [],
       process_id: existingProcesses || []
 
     };
@@ -44,7 +47,7 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
     enableReinitialize: true,
     validationSchema: mode !== "assign" ? assemblyValidationSchema : null,
     onSubmit: (values) => {
-     
+
 
       const payload = mode === "assign"
         ? { ...values }
@@ -202,18 +205,45 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Part</label>
-                <select
-                  name="part_id"
-                  value={formik.values.part_id}
-                  onChange={formik.handleChange}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                {formik.values.part_id.map((pid, index) => (
+                  <div key={index} className="flex gap-2 mt-1">
+                    <select
+                      value={pid || ""}
+                      onChange={(e) => {
+                        const updated = [...formik.values.part_id];
+                        updated[index] = e.target.value;
+                        formik.setFieldValue("part_id", updated);
+                      }}
+                      className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="">Select</option>
+                      {getAllPart?.data?.map((p) => (
+                        <option key={p._id} value={p._id}>{p.part_name} ({p.part_number})</option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated = [...formik.values.part_id];
+                        updated.splice(index, 1);
+                        formik.setFieldValue("part_id", updated);
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => formik.setFieldValue("part_id", [...formik.values.part_id, ""])}
+                  className="mt-2 px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
-                  <option value="">Select</option>
-                  {getAllPart?.data?.map((p) => (
-                    <option key={p._id} value={p._id}>{p.part_name} ({p.part_number})</option>
-                  ))}
-                </select>
+                  + Add Part
+                </button>
               </div>
+
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Processes</label>
