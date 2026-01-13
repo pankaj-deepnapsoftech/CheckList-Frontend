@@ -66,7 +66,7 @@ const ViewPlant = ({ open, onClose, data }) => {
           <section className="rounded-xl border border-red-200 bg-red-50 p-4">
             <div className="flex items-center gap-2 mb-3 text-red-700 font-semibold">
               <MapPin size={18} />
-              Description
+              GST number
             </div>
 
             <p className="text-sm text-gray-600 leading-relaxed">

@@ -60,6 +60,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       icon: <Airplay size={20} />,
     },
     {
+      name: "Daily Assembly Check",
+      path: "/daily-assembly-check",
+      icon: <BookCheck size={20} />,
+    },
+    {
       name: "Inspection Status",
       path: "/assembly-line-status",
       icon: <ChartNoAxesCombined size={20} />,

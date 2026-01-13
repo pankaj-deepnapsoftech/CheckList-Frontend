@@ -153,13 +153,14 @@ const AddPlantModal = (
           </label>
 
           <label className="block mb-6">
-            <span className="text-gray-700 font-medium">Description <span className="font-light">(optional)</span></span>
-            <textarea
-              placeholder="Description"
+            <span className="text-gray-700 font-medium">GST <span className="font-light">(optional)</span></span>
+            <input
+              placeholder="GST number"
               value={formik.values.description}
               name="description"
               readOnly={isView}
-              className={`mt-2 w-full px-4 py-3 border rounded-lg h-24 resize-none  border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400
+             className={`mt-2 w-full px-4 py-3 border rounded-lg 
+                 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400
                 `}
               onChange={formik.handleChange}
             />

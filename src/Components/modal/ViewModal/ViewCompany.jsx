@@ -38,7 +38,7 @@ const ViewCompanyDrawer = ({ open, onClose, data }) => {
             icon={<Building2 size={18} />}
           >
             <Info label="Company Name" value={data.company_name} />
-            <Info label="GST Number" value={data.gst_no} />
+            <Info label="PAN Number" value={data.gst_no} />
           </ColoredSection>
 
           {/* ADDRESS */}

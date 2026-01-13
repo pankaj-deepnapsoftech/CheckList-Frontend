@@ -140,7 +140,7 @@ const CompanyDrawer = ({ openModal, setOpenModal, editTable, viewModal, mode, se
           </div>
 
           <div>
-            <label className="text-sm text-gray-700 font-medium">GST <span className="text-red-500">*</span></label>
+            <label className="text-sm text-gray-700 font-medium">PAN <span className="text-red-500">*</span></label>
             <input
               type="text"
               className="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 "

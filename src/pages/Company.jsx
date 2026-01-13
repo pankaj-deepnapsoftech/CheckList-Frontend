@@ -159,7 +159,7 @@ const Company = () => {
                     <strong>Address:</strong> {com.company_address}
                   </p>
                   <p>
-                    <strong>GST:</strong> {com.gst_no || "N/A"}
+                    <strong>PAN:</strong> {com.gst_no || "N/A"}
                   </p>
                   <p className="max-w-[300px] truncate">
                     <strong>Description:</strong> {com.description || "N/A"}
@@ -181,7 +181,7 @@ const Company = () => {
                   <th className="px-6 py-4 font-semibold text-nowrap">Company Code</th>
                   <th className="px-6 py-4 font-semibold text-nowrap">Company Name</th>
                   <th className="px-6 py-4 font-semibold ">Address</th>
-                  <th className="px-6 py-4 font-semibold text-center ">GST</th>
+                  <th className="px-6 py-4 font-semibold text-center ">PAN</th>
                   <th className="px-6 py-4 font-semibold ">Description</th>
                   <th className="px-6 py-4 font-semibold text-center">
                     Actions
