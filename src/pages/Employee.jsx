@@ -1,12 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { Plus, RefreshCw, Search, Eye, Edit2, Trash2, Ban } from "lucide-react";
+import { Plus, RefreshCw, Search, Eye, Edit2 } from "lucide-react";
 import AddEmployeeModal from "../components/modal/addModal/AddEmployeeModal";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
-import { UserCheck } from "lucide-react";
 import Refresh from "../components/Refresh/Refresh";
-import { UserX } from "lucide-react";
 import ViewEmployeeModal from "../components/modal/ViewModal/ViewEmployee";
 import NoDataFound from "../components/NoDataFound/NoDataFound";
 
@@ -319,7 +317,7 @@ const Employee = () => {
                         {emp?.company?.company_name || "N/A"}
                       </td>
                       <td className="px-5 py-4 text-nowrap">
-                        {emp?.department.name || "N/A"}
+                        {emp?.department?.name || "N/A"}
                       </td>
 
                       {/* Actions */}

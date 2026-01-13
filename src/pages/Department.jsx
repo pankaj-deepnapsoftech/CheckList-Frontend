@@ -2,24 +2,29 @@ import React, { useState } from "react";
 import { Search, Plus, Eye, Edit2, Trash2 } from "lucide-react";
 import AddDepartmentModal from "../components/modal/addModal/AddDepartmentModal";
 import { useDepartment } from "../hooks/useDepartment";
+import Pagination from "../Components/Pagination/Pagination";
+import NoDataFound from "../components/NoDataFound/NoDataFound";
 
 const Department = () => {
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add"); // add | edit | view
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
-  const { getDepartmentData, deleteDepartment } = useDepartment()
-//  console.log(getDepartmentData?.data)
-  const department = getDepartmentData?.data ;
- 
+  const { getDepartmentData, deleteDepartment } = useDepartment(page, limit);
+  //  console.log(getDepartmentData?.data)
+  const department = getDepartmentData?.data;
+
+
 
   const filteredDepartments = department?.filter((d) =>
     d?.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  
-  const handleDelete =(id)=>{
-    if(window.confirm("Are you sure you want to delete this Department ?")){
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this Department ?")) {
       deleteDepartment.mutate(id)
     }
   }
@@ -59,9 +64,28 @@ const Department = () => {
 
       {/* Table Card */}
       <div className="bg-white rounded-2xl shadow-md border border-gray-200 mt-6 p-5">
-        <h2 className="font-semibold text-gray-800 text-lg mb-4">
-          {filteredDepartments?.length} Departments Found
-        </h2>
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-3">
+          <h2 className="font-semibold text-gray-800 text-lg mb-4">
+            {filteredDepartments?.length} Departments Found
+          </h2>
+
+          <div className="flex items-center gap-4 text-gray-600">
+            <span>Show:</span>
+            <select
+              className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0"
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value));
+                setPage(1);
+              }}
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+            </select>
+          </div>
+        </div>
 
         <div className="overflow-x-auto rounded-xl border border-gray-200">
           <table className="w-full min-w-[700px] text-left">
@@ -77,60 +101,75 @@ const Department = () => {
             </thead>
 
             <tbody>
-              {filteredDepartments?.map((d) => (
-                <tr
-                  key={d?._id}
-                  className="hover:bg-blue-50 transition"
-                >
-                  {/* <td className="px-5 py-4">{d.department_code}</td> */}
-                  <td className="px-5 py-4 font-medium text-gray-800 text-nowrap">{d?.name}</td>
-                  <td className="px-5 py-4 max-w-[250px] truncate">
-                    {d?.description}
-                  </td>
-                  <td className="px-5 py-4 flex justify-center gap-5">
-                    {/* View */}
-                    <Eye
-                      size={20}
-                      className="text-blue-500 cursor-pointer"
-                      onClick={() => {
-                        setMode("view");
-                        setSelectedDepartment(d);
-                        setOpenModal(true);
-                      }}
-                    />
+              {filteredDepartments?.length === 0 ? (
+                <NoDataFound
+                  title="0 Companies Found"
+                  subtitle="No companies available to display."
+                  colSpan={6}
+                />
+              ) : (
+                filteredDepartments?.map((d) => (
+                  <tr
+                    key={d?._id}
+                    className="hover:bg-blue-50 transition"
+                  >
+                    {/* <td className="px-5 py-4">{d.department_code}</td> */}
+                    <td className="px-5 py-4 font-medium text-gray-800 text-nowrap">{d?.name}</td>
+                    <td className="px-5 py-4 max-w-[250px] truncate">
+                      {d?.description}
+                    </td>
+                    <td className="px-5 py-4 flex justify-center gap-5">
+                      {/* View */}
+                      <Eye
+                        size={20}
+                        className="text-blue-500 cursor-pointer"
+                        onClick={() => {
+                          setMode("view");
+                          setSelectedDepartment(d);
+                          setOpenModal(true);
+                        }}
+                      />
 
-                    {/* Edit */}
-                    <Edit2
-                      size={20}
-                      className="text-green-600 cursor-pointer"
-                      onClick={() => {
-                        setMode("edit");
-                        setSelectedDepartment(d);
-                        setOpenModal(true);
-                      }}
-                    />
+                      {/* Edit */}
+                      <Edit2
+                        size={20}
+                        className="text-green-600 cursor-pointer"
+                        onClick={() => {
+                          setMode("edit");
+                          setSelectedDepartment(d);
+                          setOpenModal(true);
+                        }}
+                      />
 
-                    {/* Delete (UI only) */}
-                    {/* <Trash2
+                      {/* Delete (UI only) */}
+                      {/* <Trash2
                     onClick={()=>handleDelete(d?._id)}
                       size={20}
                       className="text-red-500 cursor-pointer"
                     /> */}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
       {/* Modal */}
-      <AddDepartmentModal    
+      <AddDepartmentModal
         openModal={openModal}
         setOpenModal={setOpenModal}
         editData={selectedDepartment}
         mode={mode}
       />
+
+      <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={filteredDepartments?.length === limit}
+      />
+
     </div>
   );
 };
