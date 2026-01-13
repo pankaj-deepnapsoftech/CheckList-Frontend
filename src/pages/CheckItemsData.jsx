@@ -35,7 +35,7 @@ const CheckItemsData = () => {
     },
     onSubmit: (values) => {
       const allFilled = PostCheckListForm?.data?.every((assembly) =>
-        assembly?.process_id?.every((p) =>
+        assembly?.processes?.every((p) =>
           p?.checklist_item?.every((item) =>
             values.data.some((dataItem) => dataItem.checkList === item._id)
           )
@@ -170,7 +170,7 @@ const CheckItemsData = () => {
                 <p className="text-sm mt-2 flex items-center gap-2">
                   <p className="font-bold">Process:</p>
                   <span className="flex flex-wrap gap-2 mt-2">
-                    {assembly?.process_id?.map((p) => (
+                    {assembly?.processes?.map((p) => (
                       <span
                         key={p._id}
                         className="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
@@ -219,7 +219,7 @@ const CheckItemsData = () => {
                 </h3>
 
                 <div className="space-y-8">
-                  {assembly?.process_id?.map((p, pIndex) => (
+                  {assembly?.processes?.map((p, pIndex) => (
                     <div
                       key={p._id}
                       className="  rounded-xl p-4 bg-white shadow-sm"

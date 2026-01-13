@@ -727,11 +727,11 @@ export default function ChecklistDashboard() {
 
       {/* Main content */}
       <main className="w-full max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 space-y-4">
-        {cardsError && (
+        {/* {cardsError && (
           <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
             {cardsError}
           </div>
-        )}
+        )} */}
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {summaryCards.map((c, i) => (

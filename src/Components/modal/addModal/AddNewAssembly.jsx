@@ -85,6 +85,8 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
     assign: "Assign Processes / Responsibilities"
   };
 
+  console.log(formik.values.part_id)
+
   return (
     <div className="fixed inset-0 z-50 flex">
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setOpenModal(false)} />

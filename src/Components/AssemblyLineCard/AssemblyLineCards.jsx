@@ -50,7 +50,7 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
           {/* Checklist */}
           <div className="px-6 pb-8">
             <h3 className="text-xl font-bold text-slate-900 mb-6 pl-4 border-l-4 border-blue-500">Checklist Items</h3>
-            {asl.process_id?.map((proc, i) => (
+            {asl.processes?.map((proc, i) => (
               <div key={proc._id} className="mb-6">
                 <div className="px-4 py-3 bg-gradient-to-r from-slate-50 to-blue-50 rounded-xl border-l-4 border-blue-500 mb-4">
                   <h4 className="text-lg font-bold text-slate-900">
