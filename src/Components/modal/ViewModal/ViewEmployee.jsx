@@ -27,7 +27,7 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
               Complete employee information (read only)
             </p>
           </div>
-
+ 
           <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-gray-100 transition"

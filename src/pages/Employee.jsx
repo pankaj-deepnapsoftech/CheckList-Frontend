@@ -19,7 +19,7 @@ const Employee = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedPlant, setSelectedPlant] = useState("");
   const [selectedCompany, setSelectedCompany] = useState("");
-  const { debounce, value } = useDebounce(search);
+  const { value } = useDebounce(search);
   const [viewOpen, setViewOpen] = useState(false);
   const searchValue = search ? value : "";
 

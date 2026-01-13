@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import {
   Search,
-  Plus,
-  RefreshCw,
-  Download,
-  SlidersHorizontal,
-  ChevronDown,
   CheckCircle2,
   XCircle,
   AlertCircle,
@@ -103,6 +98,7 @@ export default function AssemblyLineStatus() {
     showLimit === "ALL" ? currentTableData.length : Number(showLimit);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(1);
   }, [assemblyLine, dateFilter, statusFilter, resultFilter]);
 
@@ -121,6 +117,7 @@ export default function AssemblyLineStatus() {
     });
 
     return ["ALL", ...Array.from(uniqueMap.values())];
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   }, [tableData]);
 
   const paginatedTableData =
