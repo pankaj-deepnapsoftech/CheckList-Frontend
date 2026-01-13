@@ -210,6 +210,9 @@ const Parts = () => {
                   <th className="px-5 py-3 font-semibold text-nowrap">
                     Material Code
                   </th>
+                    <th className="px-5 py-3 font-semibold text-nowrap">
+                      Modal Name
+                    </th>
                   <th className="px-5 py-3 font-semibold text-nowrap">
                     Total Assembly
                   </th>
@@ -244,7 +247,10 @@ const Parts = () => {
                         {pro.material_code || "N/A"}
                       </td>
                       <td className="px-5 py-4 align-middle">
-                        {pro.total_assemblies}
+                        {pro.modal_name || "N/A"}
+                      </td>
+                      <td className="px-5 py-4 align-middle">
+                        {pro.total_assemblies || "Comming soon...."}
                       </td>
 
                       <td className=" align-middle">

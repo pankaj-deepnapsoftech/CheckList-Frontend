@@ -2,15 +2,19 @@ import React, { useState } from "react";
 import { Search, Plus, Eye, Edit2, Trash2 } from "lucide-react";
 import AddDepartmentModal from "../components/modal/addModal/AddDepartmentModal";
 import { useDepartment } from "../hooks/useDepartment";
+import { useDebounce } from "../hooks/useDebounce";
 
 const Department = () => {
+
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add"); // add | edit | view
   const [selectedDepartment, setSelectedDepartment] = useState(null);
-  const { getDepartmentData, deleteDepartment } = useDepartment()
+  const { debounce, value } = useDebounce(search)
+  const { getDepartmentData, deleteDepartment } = useDepartment(value);
+
 //  console.log(getDepartmentData?.data)
-  const department = getDepartmentData?.data ;
+  const department = getDepartmentData?.data || [] ;
  
 
   const filteredDepartments = department?.filter((d) =>
