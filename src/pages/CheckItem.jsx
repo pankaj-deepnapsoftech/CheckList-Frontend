@@ -6,6 +6,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../components/Refresh/Refresh";
 import ViewCheckItem from "../components/modal/ViewModal/ViewCheckItem";
+import NoDataFound from "../components/NoDataFound/NoDataFound";
 
 const CheckItem = () => {
   const [search, setSearch] = useState("");
@@ -132,7 +133,7 @@ const CheckItem = () => {
                 <div className="flex items-center flex-wrap justify-between gap-3">
                   <span className="bg-blue-500 whitespace-nowrap text-white px-3 py-1 rounded-full text-xs font-medium">
                     {cl.item}
-                  </span>   
+                  </span>
 
                   {/* ACTIONS */}
                   <div className="flex gap-4">
@@ -202,57 +203,65 @@ const CheckItem = () => {
 
               {/* Table Body */}
               <tbody className="text-gray-700">
-                {filteredCheckItem?.map((cl, i) => (
-                  <tr
-                    key={i}
-                    className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 "
-                  >
-                    <td className="px-5 py-4 text-nowrap">{cl.item || "N/A"}</td>
+                {filteredCheckItem?.length === 0 ? (
+                  <NoDataFound
+                    title="0 Companies Found"
+                    subtitle="No companies available to display."
+                    colSpan={6}
+                  />
+                ) : (
+                  filteredCheckItem?.map((cl, i) => (
+                    <tr
+                      key={i}
+                      className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 "
+                    >
+                      <td className="px-5 py-4 text-nowrap truncate">{cl.item || "N/A"}</td>
 
-                    <td className="px-5 py-4 text-nowrap">
-                      {cl.check_list_method || "N/A"}
-                    </td>
-                    <td className="px-5 py-4 text-nowrap">
-                      {cl.check_list_time || "N/A"}
-                    </td>
-                    <td className="px-5 py-4 text-nowrap">
-                      <span className="truncate">{cl.processInfo?.process_name}</span> ({cl.processInfo?.process_no})
-                    </td>
-                    <td className="px-5 py-4 max-w-[250px] truncate">
-                      {cl.description || "N/A"}
-                    </td>
-                    {/* Actions */}
-                    <td className="px-5 py-4 flex justify-center gap-5">
-                      {/* VIEW */}
-                      <Eye
-                        size={20}
-                        className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
-                        onClick={() => {
-                          setSelectedItem(cl);
-                          setViewOpen(true);
-                        }}
-                      />
+                      <td className="px-5 py-4 text-nowrap truncate">
+                        {cl.check_list_method || "N/A"}
+                      </td>
+                      <td className="px-5 py-4 text-nowrap truncate">
+                        {cl.check_list_time || "N/A"}
+                      </td>
+                      <td className="px-5 py-4 text-nowrap truncate">
+                        <span className="truncate">{cl.processInfo?.process_name}</span> ({cl.processInfo?.process_no})
+                      </td>
+                      <td className="px-5 py-4 max-w-[250px] truncate">
+                        {cl.description || "N/A"}
+                      </td>
+                      {/* Actions */}
+                      <td className="px-5 py-4 flex justify-center gap-5">
+                        {/* VIEW */}
+                        <Eye
+                          size={20}
+                          className="text-blue-500 hover:text-blue-600 hover:scale-125 cursor-pointer transition transform"
+                          onClick={() => {
+                            setSelectedItem(cl);
+                            setViewOpen(true);
+                          }}
+                        />
 
-                      {/* EDIT */}
-                      <Edit2
-                        size={20}
-                        className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition transform"
-                        onClick={() => {
-                          setModalMode("edit");
-                          setSelectedCheckItem(cl);
-                          setOpenCheckItemModal(true);
-                        }}
-                      />
+                        {/* EDIT */}
+                        <Edit2
+                          size={20}
+                          className="text-green-500 hover:text-green-700 hover:scale-125 cursor-pointer transition transform"
+                          onClick={() => {
+                            setModalMode("edit");
+                            setSelectedCheckItem(cl);
+                            setOpenCheckItemModal(true);
+                          }}
+                        />
 
-                      {/* DELETE */}
-                      {/* <Trash2
+                        {/* DELETE */}
+                        {/* <Trash2
                         onClick={() => handleDelete(cl._id)}
                         size={20}
                         className="text-red-500 hover:text-red-600 hover:scale-125 cursor-pointer transition transform"
                       /> */}
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
