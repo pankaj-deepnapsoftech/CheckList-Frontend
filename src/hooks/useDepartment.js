@@ -2,14 +2,16 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import axiosHandler from "../config/axiosconfig"
 import { toast } from "react-toastify"
 
-export const useDepartment = (page, limit) => {
+export const useDepartment = (value) => {
 
     const qc = useQueryClient()
 
     const getDepartmentData = useQuery({
-        queryKey: ["department",page , limit],
+        queryKey: ["department",value],
         queryFn: async () => {
-            const res = await axiosHandler.get(`/department/all?page=${page}&&limit=${limit}`);
+            const res = await axiosHandler.get(`/department/all`,{
+                params:{search:value}
+            });
             return res?.data?.data;
         },
 

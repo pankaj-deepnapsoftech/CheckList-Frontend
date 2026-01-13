@@ -4,23 +4,21 @@ import AddDepartmentModal from "../components/modal/addModal/AddDepartmentModal"
 import { useDepartment } from "../hooks/useDepartment";
 import Pagination from "../Components/Pagination/Pagination";
 import NoDataFound from "../components/NoDataFound/NoDataFound";
+import { useDebounce } from "../hooks/useDebounce";
 
 const Department = () => {
+
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add"); // add | edit | view
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
   const [selectedDepartment, setSelectedDepartment] = useState(null);
-  const { getDepartmentData, deleteDepartment } = useDepartment(page, limit);
-  //  console.log(getDepartmentData?.data)
-  const department = getDepartmentData?.data;
+  const { debounce, value } = useDebounce(search)
+  const { getDepartmentData, deleteDepartment } = useDepartment(value,page,limit);
 
-
-
-  const filteredDepartments = department?.filter((d) =>
-    d?.name.toLowerCase().includes(search.toLowerCase())
-  );
+//  console.log(getDepartmentData?.data)
+  const filteredDepartments = getDepartmentData?.data || [] ;
 
 
   const handleDelete = (id) => {
