@@ -146,11 +146,11 @@ const Company = () => {
                         setMode("edit");
                       }}
                     />
-                    <Trash2
+                    {/* <Trash2
                       size={18}
                       className="text-red-500 cursor-pointer"
                       onClick={() => handleDelete(com._id)}
-                    />
+                    /> */}
                   </div>
                 </div>
 
@@ -251,11 +251,11 @@ const Company = () => {
                             size={20}
                           />
 
-                          <Trash2
+                          {/* <Trash2
                             onClick={() => handleDelete(com._id)}
                             className="text-red-500 hover:text-red-600 hover:scale-125 transition cursor-pointer"
                             size={20}
-                          />
+                          /> */}
                         </div>
                       </td>
                     </tr>

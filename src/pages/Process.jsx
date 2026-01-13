@@ -143,7 +143,7 @@ const Process = () => {
                         setViewModal(pro);
                       }}
                     >
-                      <Eye size={18} />
+                      <Eye size={18} /> 
                     </button>
 
                     <button
@@ -178,11 +178,13 @@ const Process = () => {
           <Refresh />
         ) : (
           <div className="overflow-x-auto hidden sm:block rounded-xl border border-gray-200">
-            <table className="w-full min-w-[700px] text-left">
+            <table className="w-full min-w-[700px] text-left whitespace-nowrap">
               <thead>
                 <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
                   <th className="px-5 py-3 font-semibold text-nowrap">Process No.</th>
                   <th className="px-5 py-3 font-semibold text-nowrap">Process Name</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Compnay Name</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">Plant Name</th>
                   <th className="px-5 py-3 font-semibold text-nowrap">Created At</th>
                   <th className="px-5 py-3 font-semibold text-nowrap">Updated At</th>
                   <th className="px-5 py-3 font-semibold text-center">
@@ -206,6 +208,9 @@ const Process = () => {
                     >
                       <td className="px-5 py-4">{pro.process_no}</td>
                       <td className="px-5 py-4 "><span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">{pro.process_name}</span></td>
+
+                      <td className="px-5 py-4">{pro?.company?.company_name}</td>
+                      <td className="px-5 py-4">{pro?.plant?.plant_name}</td>
                       <td className="px-5 py-4">
                         <span className="px-5 py-4 text-nowrap">
                           {formatDateDMY(pro.createdAt)}
@@ -232,15 +237,15 @@ const Process = () => {
                             <Edit2 size={18} />
                           </button>
 
-                          <button
+                          {/* <button
                             title="Delete"
                             className={`${actionBtn} text-red-500 hover:bg-red-100`}
                           >
-                            <Trash2
+                             <Trash2
                               size={18}
                               onClick={() => handleDelete(pro?._id)}
                             />
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>

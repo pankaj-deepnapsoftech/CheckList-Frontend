@@ -5,7 +5,10 @@ export const processValidationSchema = yup.object({
         .string()
         .required("Process name is required"),
 
-    process_no: yup
+    company_id: yup
+        .string()
+        .required("Process number is required"),
+    plant_id: yup
         .string()
         .required("Process number is required"),
 });

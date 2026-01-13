@@ -111,11 +111,11 @@ const Department = () => {
                     />
 
                     {/* Delete (UI only) */}
-                    <Trash2
+                    {/* <Trash2
                     onClick={()=>handleDelete(d?._id)}
                       size={20}
                       className="text-red-500 cursor-pointer"
-                    />
+                    /> */}
                   </td>
                 </tr>
               ))}

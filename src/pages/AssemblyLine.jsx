@@ -243,11 +243,11 @@ export default function AssemblyLine() {
                       size={18}
                       className="text-green-600 cursor-pointer"
                     />
-                    <Trash2
+                    {/* <Trash2
                       onClick={() => handleDelete(asl._id)}
                       size={18}
                       className="text-red-500 cursor-pointer"
-                    />
+                    /> */}
                   </div>
                 </div>
 
@@ -259,7 +259,7 @@ export default function AssemblyLine() {
                     <strong>Plant:</strong> {asl?.plant_id?.plant_name}
                   </p>
                   <p className="max-w-[300px] truncate">
-                    <strong>Process Count:</strong> {asl.process_id.length}
+                    <strong>Process Count:</strong> {asl?.process_id?.length}
                   </p>
                   <button
                     onClick={() => openModalHandler("assign", asl)}
@@ -354,11 +354,11 @@ export default function AssemblyLine() {
                             size={18}
                             className="text-green-600 cursor-pointer"
                           />
-                          <Trash2
+                          {/* <Trash2
                             onClick={() => handleDelete(item._id)}
                             size={18}
                             className="text-red-500 cursor-pointer"
-                          />
+                          /> */}
                         </div>
                         <button
                           onClick={() => openModalHandler("assign", item)}

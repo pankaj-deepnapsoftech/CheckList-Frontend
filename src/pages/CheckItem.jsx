@@ -156,11 +156,11 @@ const CheckItem = () => {
                       }}
                     />
 
-                    <Trash2
+                    {/* <Trash2
                       onClick={() => handleDelete(cl._id)}
                       size={20}
                       className="text-red-500 cursor-pointer"
-                    />
+                    /> */}
                   </div>
                 </div>
 
@@ -245,11 +245,11 @@ const CheckItem = () => {
                       />
 
                       {/* DELETE */}
-                      <Trash2
+                      {/* <Trash2
                         onClick={() => handleDelete(cl._id)}
                         size={20}
                         className="text-red-500 hover:text-red-600 hover:scale-125 cursor-pointer transition transform"
-                      />
+                      /> */}
                     </td>
                   </tr>
                 ))}

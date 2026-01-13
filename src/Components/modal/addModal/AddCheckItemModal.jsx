@@ -76,7 +76,13 @@ export default function AddCheckItemModal({
       max: initialData?.max || 0,
       uom: initialData?.uom || "",
       file: initialData?.file_path || null,
-      time:initialData?.time || []
+      time:
+        initialData?.time.map((i) => (
+          <p key={i}>
+            {new Date(i?.check_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </p>
+        )) || []
+
     }, 
     enableReinitialize: true,
     validationSchema,
@@ -95,7 +101,7 @@ export default function AddCheckItemModal({
       formdata.append("file", values.file);
       formdata.append("time", JSON.stringify(values.time));
 
-      // console.log("values", values)
+      console.log("values", values)
  
       if (mode === "edit") {
         updateCheckItem.mutate({

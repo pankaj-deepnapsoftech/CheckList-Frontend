@@ -7,6 +7,7 @@ import { UsePart } from "../../../hooks/usePart";
 const validationSchema = Yup.object({
   part_number: Yup.string().required("Part No is required"),
   part_name: Yup.string().required("Part Name is required"),
+  modal_name: Yup.string().required("Modal Name is required"),
 });
 
 export default function AddPartsModal({
@@ -24,6 +25,7 @@ export default function AddPartsModal({
       part_number: initialData?.part_number || "",
       part_name: initialData?.part_name || "",
       material_code: initialData?.material_code || "" ,
+      modal_name: initialData?.modal_name || "" ,
       description: initialData?.description || "" ,
     },
     enableReinitialize: true,
@@ -88,7 +90,7 @@ export default function AddPartsModal({
               value={formik.values.part_number}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className="mt-1 w-full px-4 py-3 rounded-lg border"
+              className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 "
             />
             {formik.touched.part_number && formik.errors.part_number && (
               <p className="text-red-500 text-sm">
@@ -108,7 +110,7 @@ export default function AddPartsModal({
               value={formik.values.part_name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className="mt-1 w-full px-4 py-3 rounded-lg border"
+              className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300"
             />
             {formik.touched.part_name && formik.errors.part_name && (
               <p className="text-red-500 text-sm">{formik.errors.part_name}</p>
@@ -125,12 +127,32 @@ export default function AddPartsModal({
               value={formik.values.material_code}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className="mt-1 w-full px-4 py-3 rounded-lg border"
+              className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300"
             />
             {formik.touched.material_code && formik.errors.material_code && (
               <p className="text-red-500 text-sm">{formik.errors.material_code}</p>
             )}
           </div>
+
+
+          <div>
+            <label className="text-sm font-medium">
+            Modal Name/Code <span className="text-red-500">*</span>
+            </label>
+            <input
+              name="modal_name"
+              disabled={isView}
+              value={formik.values.modal_name}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300"
+            />
+            {formik.touched.modal_name && formik.errors.modal_name && (
+              <p className="text-red-500 text-sm">{formik.errors.modal_name}</p>
+            )}
+          </div>
+
+
 
           <label className="block mb-6">
             <span className="text-gray-700 font-medium">Description <span className="font-light">(optional)</span></span>
@@ -139,7 +161,7 @@ export default function AddPartsModal({
               value={formik.values.description}
               name="description"
               readOnly={isView}
-              className={`mt-2 w-full px-4 py-3 border rounded-lg h-24 resize-none   
+              className={`mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg h-24 resize-none   
                 `}
               onChange={formik.handleChange}
             />
@@ -155,7 +177,7 @@ export default function AddPartsModal({
               <input
                 value={initialData?.total_assemblies ?? 0}
                 disabled
-                className="mt-1 w-full px-4 py-3 rounded-lg border bg-gray-100 text-gray-700"
+                className="mt-1 w-full px-4 py-3 rounded-lg border border-gray-300 bg-gray-100 text-gray-700"
               />
             </div>
           )}

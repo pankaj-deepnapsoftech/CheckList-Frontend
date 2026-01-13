@@ -3,14 +3,22 @@ import { X, PlusCircle, Trash2 } from "lucide-react";
 import { useFormik } from "formik";
 import { processValidationSchema } from "../../../Validation/ProcessValidation";
 import { useProcess } from "../../../hooks/useProcess";
+import SearchableDropdown from "../../SearchableDropDown/SearchableDropDown";
+import { usePlantsByCompany } from "../../../hooks/UsePlantName";
+import { useCompanies } from "../../../hooks/useCompanies";
 
 export default function AddProcessModal({ openModal, setOpenModal, editTable, viewModal, mode }) {
   const { PostProcessData, UpdateProcess } = useProcess()
+ const { AllCompanyData } = useCompanies();
+
+  console.log(AllCompanyData?.data)
 
   const formik = useFormik({
     initialValues: {
-      process_no: editTable?.process_no || viewModal?.process_no || "",
+     
       process_name:editTable?.process_name || viewModal?.process_name || "",
+      company_id: editTable?.company_id || viewModal?.company_id || "",
+      plant_id: editTable?.plant_id || viewModal?.plant_id || "",
     },
     enableReinitialize:true,
     validationSchema: processValidationSchema,
@@ -32,6 +40,7 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
      }
     }
   })
+  const PlantData = usePlantsByCompany(formik.values.company_id || editTable?.company_id || viewModal?.company_id);
 
 
   const isView = mode === "view";
@@ -66,7 +75,7 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
 
 
         <form onSubmit={formik.handleSubmit}>
-          <label className="block mb-4">
+          {/* <label className="block mb-4">
             <span className="text-gray-700 font-medium">Process No.</span>
             <input
               disabled={isView}
@@ -83,7 +92,7 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
                 <p className="text-sm text-red-500">{formik.errors.process_no}</p>
               )
             }
-          </label>
+          </label> */}
 
 
           <label className="block mb-4">
@@ -105,6 +114,54 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
             }
           </label>
 
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
+            <SearchableDropdown
+              placeholder="Search Company"
+              options={AllCompanyData?.data || []}
+              value={formik.values.company_id}
+              disabled={isView}
+              getOptionLabel={(c) => c.company_name}
+              getOptionValue={(c) => c._id}
+              onChange={(val) => {
+                formik.setFieldValue("company_id", val);
+                formik.setFieldValue("plant_id", "");
+                formik.setFieldTouched("plant_id", false);
+              }}
+              onBlur={() => {
+                formik.setFieldTouched("company_id", true);
+              }}
+              error={
+                formik.touched.company_id &&
+                formik.errors.company_id
+              }
+            />
+          </div>
+
+          <div className="mb-5">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Plant</label>
+            <SearchableDropdown
+              placeholder={
+                formik.values.company_id
+                  ? "Search Plant"
+                  : "Select Company first"
+              }
+              options={PlantData?.data || []}
+              value={formik.values.plant_id}
+              getOptionLabel={(p) => p.plant_name}
+              getOptionValue={(p) => p._id}
+              onChange={(val) => {
+                formik.setFieldValue("plant_id", val);
+              }}
+              onBlur={() => {
+                formik.setFieldTouched("plant_id", true);
+              }}
+              error={
+                formik.touched.plant_id &&
+                formik.errors.plant_id
+              }
+            />
+          </div>
 
 
           <button disabled={isView} type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">

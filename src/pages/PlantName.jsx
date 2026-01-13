@@ -149,11 +149,11 @@ const PlantName = () => {
                       }}
                     />
 
-                    <Trash2
+                    {/* <Trash2
                       size={20}
                       className="text-red-500 cursor-pointer"
                       onClick={() => handleDeletePlant(p?._id)}
-                    />
+                    /> */}
                   </div>
                 </div>
 

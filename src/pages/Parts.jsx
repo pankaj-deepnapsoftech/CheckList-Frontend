@@ -163,13 +163,13 @@ const Parts = () => {
                         <Edit2 size={18} />
                       </button>
 
-                      <button
+                      {/* <button
                         title="Delete"
                         className={`${actionBtn} text-red-500 hover:bg-red-100`}
                         onClick={() => handleDelete(part._id)}
                       >
                         <Trash2 size={18} />
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </div>
@@ -273,13 +273,13 @@ const Parts = () => {
                             <Edit2 size={18} />
                           </button>
 
-                          <button
+                          {/* <button
                             title="Delete"
                             className={`${actionBtn} text-red-500 hover:bg-red-100`}
                             onClick={() => handleDelete(pro._id)}
                           >
                             <Trash2 size={18} />
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>

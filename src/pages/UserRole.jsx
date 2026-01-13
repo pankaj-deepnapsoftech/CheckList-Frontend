@@ -179,11 +179,11 @@ export default function UserRoles() {
                       }}
                     />
 
-                    <Trash2
+                    {/* <Trash2
                       size={20}
                       className="text-red-500 cursor-pointer"
                       onClick={() => handleDelete(item._id)}
-                    />
+                    /> */}
                   </div>
                 </div>
 
@@ -272,11 +272,11 @@ export default function UserRoles() {
                           }}
                         />
 
-                        <Trash2
+                        {/* <Trash2
                           size={20}
                           className="text-red-500 cursor-pointer hover:scale-125"
                           onClick={() => handleDelete(item._id)}
-                        />
+                        /> */}
                       </td>
                     </tr>
                   ))
