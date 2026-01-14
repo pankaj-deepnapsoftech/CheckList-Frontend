@@ -22,6 +22,7 @@ import UserDashboard from "../pages/UserDashboard";
 import AssemblyError from "../pages/AssemblyError";
 import ErrorforAdmin  from "../pages/ErrorforAdmin";
 import Department from "../pages/Department";
+import DailyCheckAssembly from "../pages/DailyAssemblyCheck";
 
 export const AppRoute = () => {
   const { logedinUser } = useLogin();
@@ -72,6 +73,10 @@ export const AppRoute = () => {
     {
       path: "/assigned-assembly-lines",
       element: withProtection(!user?.is_admin ? AssignedAssemblyLines : PageNotFound)
+    },
+    {
+      path: "/daily-assembly-check",
+      element: withProtection(!user?.is_admin ? DailyCheckAssembly : PageNotFound)
     },
     { path: "/*", element: <PageNotFound /> },
   ]);
