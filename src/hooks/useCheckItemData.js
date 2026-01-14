@@ -15,6 +15,7 @@ export const useCheckItemData = () => {
         }
     })
 
+
     const PostCheckListForm = useMutation({
         mutationFn: async ({ assembly_id,
              },) => {
@@ -46,5 +47,31 @@ export const useCheckItemData = () => {
         }
     })
 
-    return { getAssemblyAndProcessData, PostCheckListForm, PostCheckListFormHistory }
+    const PostCheckListFormHistoryTiming = useMutation({
+        mutationFn: async (data) => {
+            const res = await axiosHandler.post(`checkitem-history/create-checklist-history-timing`,data);
+            return res?.data;
+        },
+        onSuccess: (data) => {
+            toast.success(data?.message)
+            qc.invalidateQueries({ queryKey: ["checkitem-history"] })
+        },
+        onError: (error) => {
+            toast.error(error?.response?.data?.message);
+        }
+    })
+
+
+    return { getAssemblyAndProcessData, PostCheckListForm, PostCheckListFormHistory, PostCheckListFormHistoryTiming }
 }
+
+ export const getDailyAssemblyLineData = (id) => {
+    return useQuery({
+        queryKey: ["assembly", id], 
+        queryFn: async () => {
+            const res = await axiosHandler.get(`assembly/assembly-checked-data/${id}`);
+            return res?.data?.data;
+        },
+        enabled: !!id,
+    });
+};
