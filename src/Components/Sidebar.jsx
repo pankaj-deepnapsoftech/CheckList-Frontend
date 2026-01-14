@@ -16,6 +16,7 @@ import {
   Airplay,
   AlertOctagon,
   House,
+  BookCheck,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -59,7 +60,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       path: "/assigned-assembly-lines",
       icon: <Airplay size={20} />,
     },
-    
+     !IsSuper && { 
+      name: "Daily assembly check",
+      path: "/daily-assembly-check",
+      icon: <BookCheck size={20} />,
+    },
     {
       name: "Inspection Status",
       path: "/assembly-line-status",

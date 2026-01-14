@@ -124,7 +124,7 @@ const CheckItemsData = () => {
           </div>
         </div>
 
-        <div className="mb-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
             <select                                                                                  
               value={assembly_id}
