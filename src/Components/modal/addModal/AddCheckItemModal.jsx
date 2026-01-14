@@ -66,7 +66,7 @@ export default function AddCheckItemModal({
 
   const formik = useFormik({
     initialValues: {
-      process: initialData?.process?._id || initialData?.process || "",
+      process: initialData?.processInfo?._id || initialData?.processInfo || "",
       item: initialData?.item || "",
       description: initialData?.description || "",
       check_list_method: initialData?.check_list_method || "",
@@ -87,6 +87,7 @@ export default function AddCheckItemModal({
     enableReinitialize: true,
     validationSchema,
     onSubmit: (values) => {
+      console.log(values)
       const formdata = new FormData();
 
       formdata.append("process", values.process);
@@ -99,7 +100,7 @@ export default function AddCheckItemModal({
       formdata.append("max", values.max);
       formdata.append("uom", values.uom);
       formdata.append("file", values.file);
-      formdata.append("time", JSON.stringify(values.time));
+      formdata.append("time", values.time);
 
    
  
@@ -538,7 +539,7 @@ export default function AddCheckItemModal({
           <Field className="mt-2" label="Upload Image">
             <input
               type="file"
-              accept="image/*,.pdf"
+              accept="image/*"
               disabled={isView}
               onChange={(e) => {
                 const file = e.target.files[0];

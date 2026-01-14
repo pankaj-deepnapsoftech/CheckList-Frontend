@@ -93,5 +93,6 @@ export const useAssemblyLine = (company, plant, process, user,search, page, limi
     searchQuery,
     UpdateAssemblyLine,
     DeleteAssemblyLine,
+    
   };
 }; 
