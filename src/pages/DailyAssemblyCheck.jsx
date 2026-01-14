@@ -26,15 +26,6 @@ const DailyCheckAssembly = () => {
             <select className="rounded-lg border border-gray-300 px-4 py-2 text-sm">
               <option>Select Assembly</option>
             </select>
-
-            <select className="rounded-lg border border-gray-300 px-4 py-2 text-sm">
-              <option>Select Process</option>
-            </select>
-
-            <input
-              type="date"
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm"
-            />
           </div>
         </div>
 
