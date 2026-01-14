@@ -32,7 +32,7 @@ const DailyCheckAssembly = () => {
 
       PostCheckListFormHistoryTiming.mutate(values, {
         onSuccess: () => {
-         
+
           formik.resetForm();
           setAssembly_id("");
           setErrors({});
@@ -179,6 +179,19 @@ const DailyCheckAssembly = () => {
                 <p className="text-xs text-slate-400">{assembly.responsibleUser.email}</p>
               </div>
             </div>
+            <div className="p-6 border-t border-gray-200">
+              <h3 className="text-xl font-bold text-indigo-700 mb-4">Part Details</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {assembly.part_details.map((part) => (
+                  <div key={part._id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                    <p className="font-semibold text-slate-800">{part.part_name}</p>
+                    <p className="text-xs text-slate-500">Part Number: {part.part_number}</p>
+                    <p className="text-xs text-slate-500">Material: {part.material_code}</p>
+                    <p className="text-xs text-slate-500">Modal: {part.modal_name}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
 
             {/* Processes & Checklist */}
             {assembly.processes.map((process, pIndex) => (
@@ -264,29 +277,29 @@ const DailyCheckAssembly = () => {
 
                           ) : (
                             <div>
-                                <input
-                                  type="number"
-                                  min={item.min}
-                                  max={item.max}
-                                  onChange={(e) => {
-                                    const value = e.target.value;
-                                    const num = Number(value);
-                                    const isError = num < item.min || num > item.max;
+                              <input
+                                type="number"
+                                min={item.min}
+                                max={item.max}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  const num = Number(value);
+                                  const isError = num < item.min || num > item.max;
 
-                                    handleMeasurementChange(item._id, value, item.min, item.max);
+                                  handleMeasurementChange(item._id, value, item.min, item.max);
 
-                                    setResult(
-                                      item._id,
-                                      value,
-                                      assembly._id,
-                                      process._id,
-                                      isError
-                                    );
-                                  }}
-                                  className={`w-full rounded-lg border px-3 py-2 text-sm ${errors[item._id] ? "border-red-400" : "border-gray-300"
-                                    }`}
-                                  placeholder="Enter value"
-                                />
+                                  setResult(
+                                    item._id,
+                                    value,
+                                    assembly._id,
+                                    process._id,
+                                    isError
+                                  );
+                                }}
+                                className={`w-full rounded-lg border px-3 py-2 text-sm ${errors[item._id] ? "border-red-400" : "border-gray-300"
+                                  }`}
+                                placeholder="Enter value"
+                              />
 
 
                               {errors[item?._id] && (
@@ -312,19 +325,6 @@ const DailyCheckAssembly = () => {
               </div>
             ))}
 
-            <div className="p-6 border-t border-gray-200">
-              <h3 className="text-xl font-bold text-indigo-700 mb-4">Part Details</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {assembly.part_details.map((part) => (
-                  <div key={part._id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
-                    <p className="font-semibold text-slate-800">{part.part_name}</p>
-                    <p className="text-xs text-slate-500">Part Number: {part.part_number}</p>
-                    <p className="text-xs text-slate-500">Material: {part.material_code}</p>
-                    <p className="text-xs text-slate-500">Modal: {part.modal_name}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
 
 
             <div className="flex justify-end p-6 border-t border-gray-200">
