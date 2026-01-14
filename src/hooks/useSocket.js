@@ -39,7 +39,7 @@ export const useSocket = () => {
     // Remove /api/v1 if present in URL for socket connection
     const socketUrl = backendUrl.replace(/\/api\/v1$/, "").replace(/\/$/, "");
     
-    // console.log("🔌 Creating socket connection to:", socketUrl);
+    
 
     // Create socket connection
     const newSocket = io(socketUrl, {
@@ -54,44 +54,38 @@ export const useSocket = () => {
     socketRef.current = newSocket;
 
     newSocket.on("connect", () => {
-      // console.log("✅ Socket connected:", newSocket.id);
+     
       setSocket(newSocket);
       setIsConnected(true);
     });
 
     newSocket.on("disconnect", (reason) => {
-      // console.log("❌ Socket disconnected:", reason);
+     
       setIsConnected(false);
     });
 
     newSocket.on("connect_error", (error) => {
-      // console.error("❌ Socket connection error:", error);
+   
       setIsConnected(false);
     });
 
     newSocket.on("reconnect", (attemptNumber) => {
-      // console.log("🔄 Socket reconnected after", attemptNumber, "attempts");
+     
       setIsConnected(true);
     });
 
-    // newSocket.on("reconnect_error", (error) => {
-    //   // console.error("❌ Reconnection error:", error);
-    // });
+    
 
     newSocket.on("reconnect_failed", () => {
-      // console.error("❌ Socket reconnection failed");
+      
       setIsConnected(false);
     });
 
-    // // Test event listener
-    // newSocket.on("test", (data) => {
-    //   console.log("🧪 Test event received from server:", data);
-    // });
-
+  
     // Cleanup on unmount
     return () => {
       if (newSocket && newSocket.connected) {
-        // console.log("🧹 Cleaning up socket connection");
+      
         newSocket.disconnect();
         socketRef.current = null;
         setSocket(null);

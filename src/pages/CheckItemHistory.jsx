@@ -6,8 +6,8 @@ export default function CheckItemHistory({ open, onClose, data }) {
 
   if (!open || !data) return null;
   const process =
-    Array.isArray(data?.process_id) && data?.process_id?.length > 0
-      ? data?.process_id[0]
+    Array.isArray(data?.processes) && data?.processes?.length > 0
+      ? data?.processes[0]
       : null;
   const formatDT = (d) => {
     if (!d) return "—";
@@ -99,8 +99,8 @@ export default function CheckItemHistory({ open, onClose, data }) {
         </div>
 
         <div className="px-6 pb-8 space-y-6 overflow-y-auto">
-          {Array.isArray(data?.process_id) &&
-            data?.process_id?.map((proc) => (
+          {Array.isArray(data?.processes) &&
+            data?.processes?.map((proc) => (
               <div
                 key={proc?._id}
                 className="bg-white rounded-2xl border border-slate-200 shadow-sm"

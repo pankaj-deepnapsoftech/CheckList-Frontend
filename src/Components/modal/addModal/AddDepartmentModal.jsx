@@ -28,7 +28,7 @@ const AddDepartmentModal = ({
     enableReinitialize: true,
     validationSchema: DepartmentSchema ,
     onSubmit: (value) => {
-      console.log(value)
+     
       if (editData) {
         updatedDepartment.mutate({ id: editData?._id, value: value }, {
           onSuccess: () => {

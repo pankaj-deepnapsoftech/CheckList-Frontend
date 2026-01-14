@@ -95,7 +95,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       <aside className="hidden md:flex w-64 bg-white shadow-xl p-5 flex-col justify-between h-screen">
         <div>
           <div
-            className="flex flex-col items-center mb-6 mt-2"
+            className="flex flex-col items-center mb-4  "
             onClick={() => {
               closeMobile();
               navigate("/");

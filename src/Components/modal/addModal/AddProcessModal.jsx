@@ -11,7 +11,7 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
   const { PostProcessData, UpdateProcess } = useProcess()
  const { AllCompanyData } = useCompanies();
 
-  console.log(AllCompanyData?.data)
+  
 
   const formik = useFormik({
     initialValues: {

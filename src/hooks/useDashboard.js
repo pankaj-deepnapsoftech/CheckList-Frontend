@@ -176,7 +176,7 @@ export const useInspectionOverview = (filters = {}) => {
     queryKey: ["inspection-overview", { startDate, endDate, company, plant }],
 
     queryFn: async () => {
-      console.log("companyid", company)
+    
       const params = {};
       if (startDate && startDate.trim()) params.start_date = startDate;
       if (endDate && endDate.trim()) params.end_date = endDate;

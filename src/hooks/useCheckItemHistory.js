@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 export const useCheckItemHistory = (page = 1, limit = 10, filters = {}, company, plant) => {
   const qc = useQueryClient();
 
-  console.log("companyid", company)
+  
 
   const updateCheckItemHistory = useMutation({
     mutationFn: ({ id, data }) =>

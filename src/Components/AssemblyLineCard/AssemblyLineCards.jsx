@@ -1,8 +1,8 @@
 import React from "react";
-import { Clock, CheckCircle2, AlertCircle } from "lucide-react";
+import { Clock, CheckCircle2, AlertCircle, X } from "lucide-react";
 import { motion } from "framer-motion";
 
-const AssemblyLineCards = ({ AssemblyLines = [] }) => {
+const AssemblyLineCards = ({ AssemblyLines = [], setOpenView }) => {
   const getStatusClass = (isError) =>
     isError
       ? "bg-red-50 text-red-600 border-red-200"
@@ -20,20 +20,28 @@ const AssemblyLineCards = ({ AssemblyLines = [] }) => {
         >
           {/* Header */}
           <div className="px-6 py-6 bg-blue-500 rounded-t-2xl">
-            <h2 className="text-2xl font-bold text-white mb-2">
-              {asl.assembly_name}
-              <span className="ml-3 text-lg text-blue-100">({asl.assembly_number})</span>
-            </h2>
-            <div className="flex flex-wrap gap-2">
-              {asl.process_id?.map((proc) => (
-                <span
-                  key={proc._id}
-                  className="px-3 py-1.5 bg-white/20 backdrop-blur border border-white/40 rounded-xl text-sm font-semibold text-white"
-                >
-                  {proc.process_name}
-                </span>
-              ))}
+            <div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                {asl.assembly_name}
+                <span className="ml-3 text-lg text-blue-100">({asl.assembly_number})</span>
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {asl.process_id?.map((proc) => (
+                  <span
+                    key={proc._id}
+                    className="px-3 py-1.5 bg-white/20 backdrop-blur border border-white/40 rounded-xl text-sm font-semibold text-white"
+                  >
+                    {proc.process_name}
+                  </span>
+                ))}
+              </div>
             </div>
+           <div>
+              <button className="absolute right-4 top-4 text-gray-100 hover:text-gray-400" onClick={() => setOpenView(false)}>
+                     <X size={25} />
+                   </button>
+           </div>
+
           </div>
 
           {/* Info Cards */}

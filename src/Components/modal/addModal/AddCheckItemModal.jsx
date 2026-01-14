@@ -63,7 +63,7 @@ export default function AddCheckItemModal({
       setChecklistTimes(ListData);
     }
   }, [GetCategory?.data]);
-  console.log(initialData)
+
   const formik = useFormik({
     initialValues: {
       process: initialData?.process?._id || initialData?.process || "",
@@ -101,7 +101,7 @@ export default function AddCheckItemModal({
       formdata.append("file", values.file);
       formdata.append("time", JSON.stringify(values.time));
 
-      console.log("values", values)
+   
  
       if (mode === "edit") {
         updateCheckItem.mutate({

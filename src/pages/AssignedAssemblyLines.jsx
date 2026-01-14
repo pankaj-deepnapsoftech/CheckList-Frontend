@@ -21,7 +21,7 @@ const AssignedAssemblyLines = () => {
   const tableData = Array.isArray(assemblyLines)
     ? assemblyLines.map((item) => {
         const allCheckHistories =
-          item.process_id?.flatMap(
+          item.processes?.flatMap(
             (process) =>
               process.check_list_items?.flatMap(
                 (checkItem) => checkItem.check_items_history || []
@@ -103,7 +103,7 @@ const AssignedAssemblyLines = () => {
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
+            <table className="min-w-full text-sm whitespace-nowrap">
               <thead className="bg-slate-100">
                 <tr>
                   <th className="px-6 py-4 text-left font-semibold text-slate-700">
@@ -201,10 +201,10 @@ const AssignedAssemblyLines = () => {
           />
 
           {/* Modal Panel */}
-          <div className="absolute right-0 top-0 h-full w-full max-w-6xl bg-white shadow-2xl overflow-y-auto">
+          <div className="absolute right-0 top-0 h-full w-full max-w-3xl bg-white shadow-2xl overflow-y-auto">
             {/* Body */}
             <div className="p-6">
-              <AssemblyLineCards AssemblyLines={[selectedAssembly]} />
+              <AssemblyLineCards AssemblyLines={[selectedAssembly]} setOpenView={setOpenView}  />
             </div>
           </div>
         </div>

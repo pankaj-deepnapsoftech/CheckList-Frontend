@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { X } from "lucide-react";
 import { useFormik } from "formik";
 import { useAssemblyLine } from "../../../hooks/useAssemblyLine";
@@ -22,25 +22,28 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
   const isView = mode === "view";
 
 
+
+
   const getInitialValues = () => {
     const existingProcesses =
-      editTable?.process_id?.map(i => i?._id).filter(Boolean) ||
-      viewModal?.process_id?.map(i => i?._id).filter(Boolean);
-    const existingPart =
-      editTable?.process_id?.map(i => i?._id).filter(Boolean) ||
-      viewModal?.process_id?.map(i => i?._id).filter(Boolean);
+        editTable?.processes?.map(i => i?._id).filter(Boolean) ||
+        viewModal?.processes?.map(i => i?._id).filter(Boolean);
+      const existingPart =
+        editTable?.part_details?.map(i => i?._id).filter(Boolean) ||
+        viewModal?.part_details?.map(i => i?._id).filter(Boolean);
 
     return {
-      assembly_name: editTable?.assembly_name || viewModal?.assembly_name || "",
-      assembly_number: editTable?.assembly_number || viewModal?.assembly_number || "",
-      company_id: editTable?.company?._id || viewModal?.company?._id || "",
-      plant_id: editTable?.plant?._id || viewModal?.plant?._id || "",
-      responsibility: editTable?.responsibleUser?._id || viewModal?.responsibleUser?._id || "",
-      part_id: existingPart || [],
-      process_id: existingProcesses || []
+      assembly_name: editTable?.assembly_name || "",
+      assembly_number: editTable?.assembly_number || "",
+      company_id: editTable?.company?._id || "",
+      plant_id: editTable?.plant?._id || "",
+      responsibility: editTable?.responsibleUser?._id || "",
 
+      process_id: existingProcesses.length ? existingProcesses : [""],
+      part_id: existingPart.length ? existingPart : [""]
     };
   };
+
 
   const formik = useFormik({
     initialValues: getInitialValues(),
@@ -85,7 +88,16 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
     assign: "Assign Processes / Responsibilities"
   };
 
-  console.log(formik.values.part_id)
+
+
+
+  //  useEffect(()=>{
+  //   if(!editTable){
+  //     console.log("hey")
+  //     formik.setFieldValue("process_id", [""])
+  //     formik.setFieldValue("part_id", [""])
+  //   }
+  //  },[editTable])
 
   return (
     <div className="fixed inset-0 z-50 flex">

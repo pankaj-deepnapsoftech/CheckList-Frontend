@@ -34,8 +34,8 @@ export default function AssemblyLineStatus() {
     ? assemblies.map((item) => {
       // 🔹 Detect ERROR / RESOLVED
       const hasError =
-        Array.isArray(item?.process_id) &&
-        item.process_id.some(
+        Array.isArray(item?.processes) &&
+        item.processes.some(
           (proc) =>
             Array.isArray(proc?.check_list_items) &&
             proc.check_list_items.some(
@@ -57,9 +57,9 @@ export default function AssemblyLineStatus() {
 
         //  Status
         status:
-          Array.isArray(item?.process_id) &&
-            item.process_id.length > 0 &&
-            item.process_id.every(
+          Array.isArray(item?.processes) &&
+            item.processes.length > 0 &&
+            item.processes.every(
               (proc) =>
                 Array.isArray(proc?.check_list_items) &&
                 proc.check_list_items.length > 0 &&
