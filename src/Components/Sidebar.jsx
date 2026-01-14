@@ -17,6 +17,7 @@ import {
   AlertOctagon,
   House,
   BookCheck,
+  LayoutTemplate,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -74,6 +75,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: "Assembly Line Error",
       path: "/assembly-line-admin/error",
       icon: <AlertOctagon size={20} />,
+    },
+    {
+      name: "Template Master",
+      path: "/template-master",
+      icon: <LayoutTemplate size={20} />,
     },
     user?.is_admin === false
       ? {

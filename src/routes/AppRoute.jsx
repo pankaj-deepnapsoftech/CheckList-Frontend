@@ -23,6 +23,7 @@ import AssemblyError from "../pages/AssemblyError";
 import ErrorforAdmin  from "../pages/ErrorforAdmin";
 import Department from "../pages/Department";
 import DailyCheckAssembly from "../pages/DailyAssemblyCheck";
+import TemplateMaster from "../pages/TemplateMaster";
 
 export const AppRoute = () => {
   const { logedinUser } = useLogin();
@@ -53,6 +54,7 @@ export const AppRoute = () => {
     { path: "/employee", element: withProtection(Employee) },
     { path: "/company", element: withProtection(Company) },
     { path: "/assembly-line", element: withProtection(AssemblyLine) },
+    { path: "template-master", element:withProtection(TemplateMaster) },
     {
       path: "/assembly-line-status",
       element: withProtection(AssemblyLineStatus),
