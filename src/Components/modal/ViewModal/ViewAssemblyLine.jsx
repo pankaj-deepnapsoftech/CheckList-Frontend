@@ -65,10 +65,17 @@ export default function ViewAssemblyLine({ open, onClose, data }) {
                 : "—"}
             </Row>
 
+            {/* PART DATA */}
             <Row label="Part">
-              {data?.part?.part_name
-                ? `${data.part.part_name} (${data.part.part_number})`
-                : "—"}
+              {data?.part_details?.length ? (
+                data.part_details.map((part) => (
+                  <div key={part._id}>
+                    {part.part_name} ({part.part_number})
+                  </div>
+                ))
+              ) : (
+                "—"
+              )}
             </Row>
           </Section>
 
@@ -76,21 +83,23 @@ export default function ViewAssemblyLine({ open, onClose, data }) {
           <Section
             title="Assigned Processes"
             icon={<Settings size={16} />}
-            color="purple"
+            color="blue"
           >
-            {data?.process_id?.length ? (
+            {data?.processes?.length ? (
               <div className="flex flex-wrap gap-2">
-                {data.process_id.map((p, idx) => (
+                {data.processes.map((p) => (
                   <span
-                    key={idx}
-                    className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium"
+                    key={p._id}
+                    className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium"
                   >
                     {p.process_name} ({p.process_no})
                   </span>
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-gray-500">No processes assigned</p>
+              <p className="text-sm text-gray-500">
+                No processes assigned
+              </p>
             )}
           </Section>
 
