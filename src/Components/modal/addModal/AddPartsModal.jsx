@@ -137,7 +137,7 @@ export default function AddPartsModal({
 
           <div>
             <label className="text-sm font-medium">
-            Modal Name/Code <span className="text-red-500">*</span>
+            Model Name/Code <span className="text-red-500">*</span>
             </label>
             <input
               name="modal_name"

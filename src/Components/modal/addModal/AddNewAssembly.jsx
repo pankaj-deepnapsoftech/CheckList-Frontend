@@ -33,14 +33,13 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
         viewModal?.part_details?.map(i => i?._id).filter(Boolean);
 
     return {
-      assembly_name: editTable?.assembly_name || "",
-      assembly_number: editTable?.assembly_number || "",
+      assembly_name: editTable?.assembly_name || "",  
       company_id: editTable?.company?._id || "",
       plant_id: editTable?.plant?._id || "",
       responsibility: editTable?.responsibleUser?._id || "",
 
-      process_id: existingProcesses.length ? existingProcesses : [""],
-      part_id: existingPart.length ? existingPart : [""]
+      process_id: existingProcesses?.length ? existingProcesses : [""],
+      part_id: existingPart?.length ? existingPart : [""]
     };
   };
 
@@ -57,7 +56,6 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
         : {
 
           assembly_name: values.assembly_name,
-          assembly_number: values.assembly_number,
           company_id: values.company_id,
           plant_id: values.plant_id,
         };
@@ -130,7 +128,7 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
                 )}
               </div>
 
-              <div>
+              {/* <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Assembly Number <span className="text-red-500">*</span>
                 </label>
@@ -147,7 +145,7 @@ const AssemblyLineModal = ({ openModal, setOpenModal, editTable, viewModal, mode
                     {formik.errors.assembly_number}
                   </p>
                 )}
-              </div>
+              </div> */}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>

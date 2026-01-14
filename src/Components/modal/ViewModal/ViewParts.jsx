@@ -40,7 +40,8 @@ export default function ViewPartsModal({ open, onClose, data }) {
             <Info label="Part Name" value={data.part_name} />
             <Info label="Part Number" value={data.part_number} />
             <Info label="Material Code" value={data.material_code} />
-            <Info label="Total Assemblies" value={data.total_assemblies} />
+            <Info label="Total Assemblies" value={data.integration_count
+} />
           </ColoredSection>
 
           {/* ASSEMBLIES */}
@@ -49,7 +50,7 @@ export default function ViewPartsModal({ open, onClose, data }) {
             color="green"
             icon={<Layers size={18} />}
           >
-            {data.assemblies?.length ? (
+            {data.assemblies_used?.length ? (
               <div className="col-span-2">
                 <div className="border border-gray-300 rounded-xl overflow-hidden">
                   <table className="w-full text-sm">
@@ -64,7 +65,7 @@ export default function ViewPartsModal({ open, onClose, data }) {
                       </tr>
                     </thead>
                     <tbody>
-                      {data.assemblies.map((asm) => (
+                      {data?.assemblies_used?.map((asm) => (
                         <tr key={asm._id} className="border-t border-gray-300">
                           <td className="px-4 py-2">
                             {asm.assembly_name}
@@ -85,7 +86,7 @@ export default function ViewPartsModal({ open, onClose, data }) {
             )}
           </ColoredSection>
 
-          {/* METADATA */}
+          {/* METADATA
           <ColoredSection
             title="Metadata"
             color="teal"
@@ -99,7 +100,7 @@ export default function ViewPartsModal({ open, onClose, data }) {
               label="Updated At"
               value={new Date(data.updatedAt).toLocaleString()}
             />
-          </ColoredSection>
+          </ColoredSection> */}
         </div>
       </div>
 

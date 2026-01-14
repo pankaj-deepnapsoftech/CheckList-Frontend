@@ -8,11 +8,7 @@ export const assemblyValidationSchema = yup.object({
         .trim()
         .required("Assembly name is required"),
 
-    assembly_number: yup
-        .string()
-        .trim()
-        .required("Assembly number is required"),
-
+   
     company_id: yup
         .string().required("Company is required"),
 

@@ -87,7 +87,6 @@ export default function AddCheckItemModal({
     enableReinitialize: true,
     validationSchema,
     onSubmit: (values) => {
-      console.log(values)
       const formdata = new FormData();
 
       formdata.append("process", values.process);
@@ -100,9 +99,11 @@ export default function AddCheckItemModal({
       formdata.append("max", values.max);
       formdata.append("uom", values.uom);
       formdata.append("file", values.file);
-      formdata.append("time", values.time);
+      values.time.map((item)=>{
+        formdata.append("time", item);
+      })
 
-   
+
  
       if (mode === "edit") {
         updateCheckItem.mutate({
