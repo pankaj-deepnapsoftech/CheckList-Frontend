@@ -20,15 +20,19 @@ import {
   LayoutTemplate,
   Repeat2,
   ChevronDown,
+  WorkflowIcon,
+  GraduationCap,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const { logedinUser, logOutUser } = useLogin();
   const navigate = useNavigate();
+
   const user = logedinUser?.data;
   const permissions = user?.userRole?.permissions || [];
   const IsSuper = user?.is_admin === true;
+
   const closeMobile = () => setIsMobileOpen(false);
   const [openMenu, setOpenMenu] = useState(null);
 
@@ -36,21 +40,19 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     setOpenMenu(openMenu === name ? null : name);
   };
 
-  // ================= EXISTING MENU =================
+  // ================= MENU =================
   const allMenu = [
     {
       name: "Dashboard",
       path: "/",
       icon: <LayoutDashboard size={20} />,
     },
-
     { name: "Company", path: "/company", icon: <Building size={20} /> },
     { name: "Plant Name", path: "/plant-name", icon: <Package size={20} /> },
     { name: "Department", path: "/department", icon: <House size={20} /> },
     { name: "User Role", path: "/user-role", icon: <Shield size={20} /> },
     { name: "Employee", path: "/employee", icon: <User size={20} /> },
 
-    // ===== CHECKLIST =====
     {
       name: "Checklist",
       icon: <BookCheck size={20} />,
@@ -58,46 +60,24 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         { name: "Assembly Line", path: "/assembly-line", icon: <Key size={18} /> },
         { name: "Parts", path: "/parts", icon: <GitCompare size={18} /> },
         { name: "Process", path: "/process", icon: <ShoppingBag size={18} /> },
-        {
-          name: "Check Item",
-          path: "/checkitem",
-          icon: <LaptopMinimalCheck size={18} />,
-        },
-        {
-          name: "Inspection-Data",
-          path: "/checkitem-data",
-          icon: <ChevronsLeftRightEllipsis size={18} />,
-        },
-        {
-          name: "Inspection Status",
-          path: "/assembly-line-status",
-          icon: <ChartNoAxesCombined size={18} />,
-        },
+        { name: "Check Item", path: "/checkitem", icon: <LaptopMinimalCheck size={18} /> },
+        { name: "Inspection-Data", path: "/checkitem-data", icon: <ChevronsLeftRightEllipsis size={18} /> },
+        { name: "Inspection Status", path: "/assembly-line-status", icon: <ChartNoAxesCombined size={18} /> },
         {
           name: "Assembly Line Error",
-          path: IsSuper
-            ? "/assembly-line-admin/error"
-            : "/assembly-line/error",
+          path: IsSuper ? "/assembly-line-admin/error" : "/assembly-line/error",
           icon: <AlertOctagon size={18} />,
         },
       ],
     },
 
-    // ===== TEMPLATE MASTER =====
     {
       name: "Template Master",
-      icon: <LayoutTemplate size={20} />,
+      icon: <GraduationCap size={20} />,
       children: [
-        {
-          name: "Template Master",
-          path: "/template-master",
-          icon: <LayoutTemplate size={18} />,
-        },
-        {
-          name: "Release Group",
-          path: "/release-group",
-          icon: <Repeat2 size={18} />,
-        },
+        { name: "Manage Template", path: "/template-master", icon: <LayoutTemplate size={18} /> },
+        { name: "Manage Release Group", path: "/release-group", icon: <Repeat2 size={18} /> },
+        { name: "Manage Workflow", path: "/workflow", icon: <WorkflowIcon size={18} /> },
       ],
     },
 
@@ -108,21 +88,21 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     },
 
     !IsSuper && {
-      name: "Daily assembly check",
+      name: "Daily Assembly Check",
       path: "/daily-assembly-check",
       icon: <BookCheck size={20} />,
     },
   ].filter(Boolean);
 
-  // ================= PERMISSION LOGIC (UNCHANGED) =================
+  // ================= PERMISSION =================
   const allowedMenu = IsSuper
     ? allMenu
     : allMenu.filter((i) =>
-      i.children
-        ? i.children.some((c) => permissions.includes(c.path)) ||
-        permissions.includes(i.path)
-        : permissions.includes(i.path)
-    );
+        i.children
+          ? i.children.some((c) => permissions.includes(c.path)) ||
+            permissions.includes(i.path)
+          : permissions.includes(i.path)
+      );
 
   const handleLogout = () => {
     logOutUser.mutate();
@@ -133,39 +113,24 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const renderMenu = () => (
     <nav className="flex flex-col gap-1">
       {allowedMenu.map((item) => {
-        // ===== DROPDOWN =====
         if (item.children) {
           return (
             <div key={item.name}>
               <div className="flex items-center justify-between">
-                {/* Parent clickable */}
-                {item.path ? (
-                  <NavLink
-                    to={item.path}
-                    className="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 flex-1"
-                    onClick={closeMobile}
-                  >
-                    {item.icon}
-                    {item.name}
-                  </NavLink>
-                ) : (
-                  <button
-                    className="flex items-center gap-3 p-2 flex-1 text-gray-700"
-                    onClick={() => toggleMenu(item.name)}
-                  >
-                    {item.icon}
-                    {item.name}
-                  </button>
-                )}
-
                 <button
                   onClick={() => toggleMenu(item.name)}
-                  className="p-2"
+                  className="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 flex-1"
                 >
+                  {item.icon}
+                  {item.name}
+                </button>
+
+                <button onClick={() => toggleMenu(item.name)} className="p-2">
                   <ChevronDown
                     size={16}
-                    className={`transition ${openMenu === item.name ? "rotate-180" : ""
-                      }`}
+                    className={`transition ${
+                      openMenu === item.name ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
               </div>
@@ -179,9 +144,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                       onClick={closeMobile}
                       className={({ isActive }) =>
                         `flex items-center gap-2 p-2 rounded-md text-sm
-                        ${isActive
-                          ? "bg-blue-100 text-blue-600 font-medium"
-                          : "text-gray-600 hover:bg-gray-100"
+                        ${
+                          isActive
+                            ? "bg-blue-100 text-blue-600 font-medium"
+                            : "text-gray-600 hover:bg-gray-100"
                         }`
                       }
                     >
@@ -195,7 +161,6 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           );
         }
 
-        // ===== NORMAL ITEM =====
         return (
           <NavLink
             key={item.name}
@@ -203,9 +168,10 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             onClick={closeMobile}
             className={({ isActive }) =>
               `flex items-center gap-3 p-2 rounded-lg
-              ${isActive
-                ? "bg-blue-100 text-blue-600 font-medium"
-                : "text-gray-700 hover:bg-gray-100"
+              ${
+                isActive
+                  ? "bg-blue-100 text-blue-600 font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
               }`
             }
           >
@@ -221,7 +187,8 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     <>
       {/* DESKTOP */}
       <aside className="hidden md:flex w-64 bg-white shadow-xl p-5 flex-col h-screen">
-        <div>
+        <div className="flex flex-col flex-1 overflow-hidden">
+          {/* LOGO */}
           <div
             className="flex flex-col items-center mb-4 cursor-pointer"
             onClick={() => navigate("/")}
@@ -236,12 +203,16 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             </p>
           </div>
 
-          {renderMenu()}
+          {/* SCROLLABLE MENU */}
+          <div className="flex-1 overflow-y-auto z pr-1">
+            {renderMenu()}
+          </div>
         </div>
 
+        {/* LOGOUT */}
         <button
           onClick={handleLogout}
-          className="mt-auto flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5"
+          className="mt-4 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5"
         >
           <LogOut size={18} />
           Logout
@@ -254,11 +225,13 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           <div className="fixed inset-0 bg-black/40" onClick={closeMobile} />
 
           <aside className="relative w-64 bg-white p-4 flex flex-col h-full">
-            {renderMenu()}
+            <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+              {renderMenu()}
+            </div>
 
             <button
               onClick={handleLogout}
-              className="mt-auto flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5"
+              className="mt-4 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5"
             >
               <LogOut size={18} />
               Logout
