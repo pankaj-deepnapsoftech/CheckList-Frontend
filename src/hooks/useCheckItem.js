@@ -74,9 +74,11 @@ export const useCheckItem = (search, page, limit) => {
 
 
   const updateCheckItem = useMutation({
-    mutationFn: ({ id, data }) =>
-      axiosHandler.put(`/checkitem/update-checklist/${id}`, data),
-
+    mutationFn: async ({ id, data }) => {
+      
+      const res = await axiosHandler.put(`/checkitem/update-checklist/${id}`, data)
+      return res?.data ;
+    },
     onSuccess: () => {
       toast.success("Check Item updated sucessfully");
       qc.invalidateQueries({ queryKey: ["checkitem"] });
@@ -84,7 +86,7 @@ export const useCheckItem = (search, page, limit) => {
 
     onError: (error) => {
       toast.error(
-        error?.response?.data?.message 
+        error?.response?.data?.message
       );
     },
   });
@@ -100,7 +102,7 @@ export const useCheckItem = (search, page, limit) => {
 
     onError: (error) => {
       toast.error(
-        error?.response?.data?.message 
+        error?.response?.data?.message
       );
     },
   });

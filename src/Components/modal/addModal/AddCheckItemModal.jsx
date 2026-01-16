@@ -76,12 +76,7 @@ export default function AddCheckItemModal({
       max: initialData?.max || 0,
       uom: initialData?.uom || "",
       file: initialData?.file_path || null,
-      time:
-        initialData?.time.map((i) => (
-          <p key={i}>
-            {new Date(i?.check_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </p>
-        )) || []
+      time: initialData?.time || []
 
     }, 
     enableReinitialize: true,
@@ -99,12 +94,21 @@ export default function AddCheckItemModal({
       formdata.append("max", values.max);
       formdata.append("uom", values.uom);
       formdata.append("file", values.file);
-      values.time.map((item)=>{
-        formdata.append("time", item);
-      })
+      values.time.map((item) => {
+        const time = item?.check_time
+          ? new Date(item.check_time).toLocaleTimeString('en-IN', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+          })
+          : item;
+
+        formdata.append("time", time);
+      });
 
 
- 
+
+      console.log(values.time)
       if (mode === "edit") {
         updateCheckItem.mutate({
           id: initialData?._id,
@@ -386,12 +390,18 @@ export default function AddCheckItemModal({
 
            
             <div className="flex flex-wrap gap-2 mt-2">
-              {formik.values.time?.map((time, index) => (
+              {formik.values.time?.map((time, index) => 
+              (
                 <span
                   key={index}
                   className="flex items-center gap-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm"
                 >
-                  {time}
+                  
+                  {
+                    <p key={index}>
+                      {time?.check_time ? new Date(time?.check_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : time}
+                  </p>
+                 }
                   {!isView && (
                     <button
                       type="button"
