@@ -91,7 +91,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         {
           name: "Template Master",
           path: "/template-master",
-          icon: <Repeat2 size={18} />,
+          icon: <LayoutTemplate size={18} />,
         },
         {
           name: "Release Group",
