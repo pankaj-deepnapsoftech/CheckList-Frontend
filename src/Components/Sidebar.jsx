@@ -54,7 +54,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     { name: "Employee", path: "/employee", icon: <User size={20} /> },
 
     {
-      name: "Checklist",
+      name: "Checklist Module",
       icon: <BookCheck size={20} />,
       children: [
         { name: "Assembly Line", path: "/assembly-line", icon: <Key size={18} /> },
@@ -72,7 +72,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     },
 
     {
-      name: "Template Master",
+      name: "Template Module                                                                     ",
       icon: <GraduationCap size={20} />,
       children: [
         { name: "Manage Template", path: "/template-master", icon: <LayoutTemplate size={18} /> },
