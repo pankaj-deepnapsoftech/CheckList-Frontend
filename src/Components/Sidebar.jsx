@@ -18,6 +18,7 @@ import {
   House,
   BookCheck,
   LayoutTemplate,
+  Repeat2,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -75,6 +76,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: "Assembly Line Error",
       path: "/assembly-line-admin/error",
       icon: <AlertOctagon size={20} />,
+    },
+    {
+      name: "Release Group",
+      path: "/release-group",
+      icon: <Repeat2 size={20} />,
     },
     {
       name: "Template Master",

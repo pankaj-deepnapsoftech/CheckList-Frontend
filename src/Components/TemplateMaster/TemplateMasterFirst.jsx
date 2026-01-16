@@ -33,7 +33,7 @@ const TemplateBasicForm = ({
       <div className="mb-4">
         <label className="mb-1 block text-sm font-medium text-slate-700">
           Template Name <span className="text-red-500">*</span>
-        </label>
+        </label> 
         <input
           type="text"
           name="template_name"
