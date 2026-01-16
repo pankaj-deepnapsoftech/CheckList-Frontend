@@ -3,6 +3,7 @@ import { Search, Plus, Eye, Edit2 } from "lucide-react";
 import Pagination from "../Components/Pagination/Pagination";
 import NoDataFound from "../components/NoDataFound/NoDataFound";
 import AddReleaseGroupModal from "../components/TemplateModals/AddModal/ReleaseGroupModal";
+import ViewReleaseGroupModal from "../components/TemplateModals/ViewModal/ReleaseGroupViewModal";
 
 const ReleaseGroups = () => {
     const [search, setSearch] = useState("");
@@ -12,6 +13,8 @@ const ReleaseGroups = () => {
     const [openModal, setOpenModal] = useState(false);
     const [mode, setMode] = useState("add");
     const [selectedGroup, setSelectedGroup] = useState(null);
+
+    const [viewOpen, setViewOpen] = useState(false);
 
     const releaseGroups = [
         {
@@ -125,15 +128,28 @@ const ReleaseGroups = () => {
                                         <td className="px-5 py-4">{g.group_department}</td>
                                         <td className="px-5 py-4">{g.groupusers}</td>
                                         <td className="px-5 py-4 flex justify-center gap-5">
+                                            {/* VIEW */}
                                             <Eye
                                                 size={20}
                                                 className="text-blue-500 cursor-pointer"
+                                                onClick={() => {
+                                                    setSelectedGroup(g);
+                                                    setViewOpen(true);
+                                                }}
                                             />
+
+                                            {/* EDIT */}
                                             <Edit2
                                                 size={20}
                                                 className="text-green-600 cursor-pointer"
+                                                onClick={() => {
+                                                    setMode("edit");
+                                                    setSelectedGroup(g);
+                                                    setOpenModal(true);
+                                                }}
                                             />
                                         </td>
+
                                     </tr>
                                 ))
                             )}
@@ -155,6 +171,13 @@ const ReleaseGroups = () => {
                 setOpenModal={setOpenModal}
                 editData={selectedGroup}
                 mode={mode}
+            />
+
+            {/* Modal-View  */}
+            <ViewReleaseGroupModal
+                open={viewOpen}
+                onClose={() => setViewOpen(false)}
+                data={selectedGroup}
             />
         </div>
     );
