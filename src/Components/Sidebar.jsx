@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import {
   LayoutDashboard,
   User,
@@ -8,7 +9,6 @@ import {
   LogOut,
   ShoppingBag,
   Building,
-  X,
   ChartNoAxesCombined,
   LaptopMinimalCheck,
   GitCompare,
@@ -19,42 +19,66 @@ import {
   BookCheck,
   LayoutTemplate,
   Repeat2,
+  ChevronDown,
+  WorkflowIcon,
+  GraduationCap,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
-  const { logedinUser } = useLogin();
-  const user = logedinUser.data;
-  const permissions = logedinUser?.data?.userRole?.permissions || [];
-  const IsSuper = logedinUser?.data?.is_admin === true;
-  const closeMobile = () => setIsMobileOpen(false);
+  const { logedinUser, logOutUser } = useLogin();
   const navigate = useNavigate();
-  const { logOutUser } = useLogin();
 
+  const user = logedinUser?.data;
+  const permissions = user?.userRole?.permissions || [];
+  const IsSuper = user?.is_admin === true;
+
+  const closeMobile = () => setIsMobileOpen(false);
+  const [openMenu, setOpenMenu] = useState(null);
+
+  const toggleMenu = (name) => {
+    setOpenMenu(openMenu === name ? null : name);
+  };
+
+  // ================= MENU =================
   const allMenu = [
     {
       name: "Dashboard",
       path: "/",
       icon: <LayoutDashboard size={20} />,
     },
-
     { name: "Company", path: "/company", icon: <Building size={20} /> },
     { name: "Plant Name", path: "/plant-name", icon: <Package size={20} /> },
     { name: "Department", path: "/department", icon: <House size={20} /> },
-    { name: "Assembly Line", path: "/assembly-line", icon: <Key size={20} /> },
     { name: "User Role", path: "/user-role", icon: <Shield size={20} /> },
     { name: "Employee", path: "/employee", icon: <User size={20} /> },
-    { name: "Parts", path: "/parts", icon: <GitCompare size={20} /> },
-    { name: "Process", path: "/process", icon: <ShoppingBag size={20} /> },
+
     {
-      name: "Check Item",
-      path: "/checkitem",
-      icon: <LaptopMinimalCheck size={20} />,
+      name: "Checklist Module",
+      icon: <BookCheck size={20} />,
+      children: [
+        { name: "Assembly Line", path: "/assembly-line", icon: <Key size={18} /> },
+        { name: "Parts", path: "/parts", icon: <GitCompare size={18} /> },
+        { name: "Process", path: "/process", icon: <ShoppingBag size={18} /> },
+        { name: "Check Item", path: "/checkitem", icon: <LaptopMinimalCheck size={18} /> },
+        { name: "Inspection-Data", path: "/checkitem-data", icon: <ChevronsLeftRightEllipsis size={18} /> },
+        { name: "Inspection Status", path: "/assembly-line-status", icon: <ChartNoAxesCombined size={18} /> },
+        {
+          name: "Assembly Line Error",
+          path: IsSuper ? "/assembly-line-admin/error" : "/assembly-line/error",
+          icon: <AlertOctagon size={18} />,
+        },
+      ],
     },
+
     {
-      name: "Inspection-Data",
-      path: "/checkitem-data",
-      icon: <ChevronsLeftRightEllipsis size={20} />,
+      name: "Template Module                                                                     ",
+      icon: <GraduationCap size={20} />,
+      children: [
+        { name: "Manage Template", path: "/template-master", icon: <LayoutTemplate size={18} /> },
+        { name: "Manage Release Group", path: "/release-group", icon: <Repeat2 size={18} /> },
+        { name: "Manage Workflow", path: "/workflow", icon: <WorkflowIcon size={18} /> },
+      ],
     },
 
     !IsSuper && {
@@ -62,173 +86,156 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       path: "/assigned-assembly-lines",
       icon: <Airplay size={20} />,
     },
-     !IsSuper && { 
-      name: "Daily assembly check",
+
+    !IsSuper && {
+      name: "Daily Assembly Check",
       path: "/daily-assembly-check",
       icon: <BookCheck size={20} />,
     },
-    {
-      name: "Inspection Status",
-      path: "/assembly-line-status",
-      icon: <ChartNoAxesCombined size={20} />,
-    },
-    {
-      name: "Assembly Line Error",
-      path: "/assembly-line-admin/error",
-      icon: <AlertOctagon size={20} />,
-    },
-    {
-      name: "Release Group",
-      path: "/release-group",
-      icon: <Repeat2 size={20} />,
-    },
-    {
-      name: "Template Master",
-      path: "/template-master",
-      icon: <LayoutTemplate size={20} />,
-    },
-    user?.is_admin === false
-      ? {
-        name: "Assembly Line Error",
-        path: "/assembly-line/error",
-        icon: <AlertOctagon size={20} />,
-      }
-      : null,
   ].filter(Boolean);
 
-
+  // ================= PERMISSION =================
   const allowedMenu = IsSuper
     ? allMenu
-    : allMenu.filter((i) => permissions.includes(i?.path));
+    : allMenu.filter((i) =>
+        i.children
+          ? i.children.some((c) => permissions.includes(c.path)) ||
+            permissions.includes(i.path)
+          : permissions.includes(i.path)
+      );
 
   const handleLogout = () => {
     logOutUser.mutate();
     navigate("/login");
   };
 
+  // ================= MENU RENDER =================
+  const renderMenu = () => (
+    <nav className="flex flex-col gap-1">
+      {allowedMenu.map((item) => {
+        if (item.children) {
+          return (
+            <div key={item.name}>
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => toggleMenu(item.name)}
+                  className="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 flex-1"
+                >
+                  {item.icon}
+                  {item.name}
+                </button>
+
+                <button onClick={() => toggleMenu(item.name)} className="p-2">
+                  <ChevronDown
+                    size={16}
+                    className={`transition ${
+                      openMenu === item.name ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {openMenu === item.name && (
+                <div className="ml-6 flex flex-col gap-1">
+                  {item.children.map((child) => (
+                    <NavLink
+                      key={child.name}
+                      to={child.path}
+                      onClick={closeMobile}
+                      className={({ isActive }) =>
+                        `flex items-center gap-2 p-2 rounded-md text-sm
+                        ${
+                          isActive
+                            ? "bg-blue-100 text-blue-600 font-medium"
+                            : "text-gray-600 hover:bg-gray-100"
+                        }`
+                      }
+                    >
+                      {child.icon}
+                      {child.name}
+                    </NavLink>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        return (
+          <NavLink
+            key={item.name}
+            to={item.path}
+            onClick={closeMobile}
+            className={({ isActive }) =>
+              `flex items-center gap-3 p-2 rounded-lg
+              ${
+                isActive
+                  ? "bg-blue-100 text-blue-600 font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`
+            }
+          >
+            {item.icon}
+            {item.name}
+          </NavLink>
+        );
+      })}
+    </nav>
+  );
+
   return (
     <>
-      {/* ---------- DESKTOP SIDEBAR ---------- */}
-      <aside className="hidden md:flex w-64 bg-white shadow-xl p-5 flex-col justify-between h-screen">
-        <div>
+      {/* DESKTOP */}
+      <aside className="hidden md:flex w-64 bg-white shadow-xl p-5 flex-col h-screen">
+        <div className="flex flex-col flex-1 overflow-hidden">
+          {/* LOGO */}
           <div
-            className="flex flex-col items-center mb-4  "
-            onClick={() => {
-              closeMobile();
-              navigate("/");
-            }}
+            className="flex flex-col items-center mb-4 cursor-pointer"
+            onClick={() => navigate("/")}
           >
             <img
               src="https://jpmgroup.co.in/assets/svg/logo-color.svg"
               alt="Logo"
-              className="h-20 object-contain"
+              className="h-20"
             />
-            <p className="text-[#2e4c99] font-semibold text-[18px] mt-2">
-              &nbsp;JP MINDA GROUP
+            <p className="text-[#2e4c99] font-semibold text-lg mt-2">
+              JP MINDA GROUP
             </p>
           </div>
 
-          <nav className="flex flex-col gap-1">
-            {allowedMenu.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                end
-                className={({ isActive }) =>
-                  `flex items-center gap-3 p-2 rounded-lg transition-all whitespace-nowrap
-                  ${isActive
-                    ? "bg-blue-100 text-blue-600 font-medium shadow-sm"
-                    : "text-gray-700 hover:bg-gray-100 hover:shadow-sm"
-                  }`
-                }
-              >
-                {item.icon}
-                {item.name}
-              </NavLink>
-            ))}
-          </nav>
+          {/* SCROLLABLE MENU */}
+          <div className="flex-1 overflow-y-auto z pr-1">
+            {renderMenu()}
+          </div>
         </div>
 
-        {/* Logout */}
-        <div className="mt-auto pt-4 border-t border-gray-200">
-          <button
-            onClick={() => handleLogout()}
-            className="w-full flex items-center justify-center gap-2 
-                       bg-blue-500 hover:bg-blue-600 text-white 
-                       rounded-lg py-2.5 shadow-sm transition-all"
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
-        </div>
+        {/* LOGOUT */}
+        <button
+          onClick={handleLogout}
+          className="mt-4 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5"
+        >
+          <LogOut size={18} />
+          Logout
+        </button>
       </aside>
 
-      {/* ---------- MOBILE SIDEBAR ---------- */}
+      {/* MOBILE */}
       {isMobileOpen && (
-        <div className="md:hidden fixed inset-0 z-[50] pt-[50px] flex">
-          {/* Background overlay */}
+        <div className="md:hidden fixed inset-0 z-50 flex">
           <div className="fixed inset-0 bg-black/40" onClick={closeMobile} />
 
-          {/* Drawer Sidebar */}
-          <aside className="relative w-64 bg-white shadow-xl p-4 flex flex-col justify-between h-full animate-slideIn">
-            {/* Top Logo + Close Icon */}
-            <div
-              className="flex items-center mb-6 mt-2"
-              onClick={() => {
-                closeMobile();
-                navigate("/");
-              }}
+          <aside className="relative w-64 bg-white p-4 flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+              {renderMenu()}
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="mt-4 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5"
             >
-              <img
-                src="https://jpmgroup.co.in/assets/svg/logo-color.svg"
-                alt="Logo"
-                className="h-14 object-contain"
-              />
-              <p className="text-[#2e4c99] font-semibold text-[19px]">
-                &nbsp;JP MINDA GROUP
-              </p>
-              {/* <button
-                className="p-2 rounded-md bg-gray-100"
-                onClick={closeMobile}
-              >
-               
-              </button> */}
-            </div>
-
-            {/* Menu Items */}
-            <nav className="flex flex-col gap-1">
-              {allowedMenu.map((item) => (
-                <NavLink
-                  key={item.name}
-                  to={item.path}
-                  end
-                  onClick={closeMobile}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 p-2 rounded-lg transition-all
-                    ${isActive
-                      ? "bg-blue-100 text-blue-600 font-medium"
-                      : "text-gray-700 hover:bg-gray-100"
-                    }`
-                  }
-                >
-                  {item.icon}
-                  {item.name}
-                </NavLink>
-              ))}
-            </nav>
-
-            {/* Logout Mobile */}
-            <div className="mt-auto pt-4 border-t border-gray-200">
-              <button
-                onClick={() => handleLogout()}
-                className="w-full flex items-center justify-center gap-2 
-                           bg-blue-500 hover:bg-blue-600 text-white 
-                           rounded-lg py-2.5 shadow-sm transition-all"
-              >
-                <LogOut size={18} />
-                Logout
-              </button>
-            </div>
+              <LogOut size={18} />
+              Logout
+            </button>
           </aside>
         </div>
       )}

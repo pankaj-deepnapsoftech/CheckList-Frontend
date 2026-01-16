@@ -56,7 +56,9 @@ export const AppRoute = () => {
     { path: "/company", element: withProtection(Company) },
     { path: "/assembly-line", element: withProtection(AssemblyLine) },
     { path: "/release-group", element: withProtection(ReleaseGroups) },
-    { path: "template-master", element:withProtection(TemplateMaster) },
+    { path: "/template-master", element:withProtection(TemplateMaster) },
+    { path: "/workflow", element:withProtection(TemplateMaster) },
+    
     {
       path: "/assembly-line-status",
       element: withProtection(AssemblyLineStatus),
