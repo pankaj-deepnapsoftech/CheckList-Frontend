@@ -15,6 +15,15 @@ export const UsePlantName = (search, page , limit) => {
         enabled: !search,
         placeholderData: keepPreviousData
     })
+    const getAllPlantName = useQuery({
+        queryKey: ["plant"],
+        queryFn: async () => {
+            const res = await axiosHandler.get(`/plant/get-all-plant-data`);
+            return res?.data?.data;
+        },
+        enabled: !search,
+        placeholderData: keepPreviousData
+    })
 
     const CreatePlantName = useMutation({
         mutationFn: async (data) => {
@@ -75,12 +84,12 @@ export const UsePlantName = (search, page , limit) => {
 
 
     return {
-        getPlantName,
-        CreatePlantName,
-        UpdatedPLant,
-        DeletePlantData,
-        searchQuery,
-
+      getPlantName,
+      CreatePlantName,
+      UpdatedPLant,
+      DeletePlantData,
+      searchQuery,
+      getAllPlantName,
     };
 }
 
