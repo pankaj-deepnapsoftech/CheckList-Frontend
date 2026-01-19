@@ -1,9 +1,8 @@
 import React from "react";
 import { UserCheck, Wand, X } from "lucide-react";
 import { useFormik } from "formik";
-
-const USER_OPTIONS = ["Rahul", "Amit", "Neha"];
-const PLANT_OPTIONS = ["ItsyBuzz", "Plant-X", "Plant-Y"];
+import { RegisterEmployee } from "../../../hooks/useRegisterEmployee";
+import { UsePlantName } from "../../../hooks/UsePlantName";
 
 const AddReleaseGroupModal = ({
   openModal,
@@ -11,6 +10,11 @@ const AddReleaseGroupModal = ({
   editData = null,
   mode = "add",
 }) => {
+  const { getAllEmployee } = RegisterEmployee();
+  const { getAllPlantName } = UsePlantName();
+  const USER_OPTIONS = getAllEmployee?.data || [];
+  const PLANT_OPTIONS = getAllPlantName?.data;
+
   const isView = mode === "view";
 
   const titleMap = {
@@ -141,7 +145,6 @@ const AddReleaseGroupModal = ({
                     key={`${item.user}-${item.plant}-${index}`}
                     className="flex items-center gap-3 bg-blue-50 border border-blue-200 px-3 py-2 rounded-full text-sm text-gray-800 shadow-sm"
                   >
-                 
                     <div className="flex items-center gap-1">
                       <UserCheck size={14} className="text-blue-600" />
                       <span className="font-medium">{item.user}</span>
@@ -149,7 +152,6 @@ const AddReleaseGroupModal = ({
 
                     <span className="text-gray-400">|</span>
 
-                    
                     <div className="flex items-center gap-1">
                       <Wand size={14} className="text-green-600" />
                       <span>{item.plant}</span>
@@ -190,7 +192,10 @@ const AddReleaseGroupModal = ({
 const Input = ({ label, ...props }) => (
   <label className="block mb-4">
     <span className="font-medium">{label}</span>
-    <input {...props} className="mt-2 w-full px-4 py-3 border border-gray-200 rounded-lg" />
+    <input
+      {...props}
+      className="mt-2 w-full px-4 py-3 border border-gray-200 rounded-lg"
+    />
   </label>
 );
 
@@ -203,8 +208,9 @@ const Select = ({ label, options, ...props }) => (
     >
       <option value="">Select {label}</option>
       {options.map((opt) => (
-        <option key={opt} value={opt}>
-          {opt}
+        <option key={opt?._id} value={opt?._id}>
+          {opt?.full_name || opt?.plant_name} ({opt?.user_id || opt?.plant_code}
+          )
         </option>
       ))}
     </select>
