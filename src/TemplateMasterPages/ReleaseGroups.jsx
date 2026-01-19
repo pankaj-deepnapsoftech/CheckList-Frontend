@@ -47,7 +47,8 @@ const ReleaseGroups = () => {
             </div>
 
             {/* Search + Add */}
-            <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="bg-white shadow-sm rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center gap-4 sm:justify-between">
+
                 <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-300 rounded-lg px-3 py-2">
                     <Search size={20} className="text-gray-500" />
                     <input
@@ -65,10 +66,13 @@ const ReleaseGroups = () => {
                         setSelectedGroup(null);
                         setOpenModal(true);
                     }}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-600"
+                    className="bg-blue-500 text-white px-4 py-2 rounded-lg 
+                    flex items-center gap-2 hover:bg-blue-600
+                    self-center sm:self-auto"
                 >
                     <Plus size={18} /> Add Release Group
                 </button>
+
 
             </div>
 
@@ -100,7 +104,7 @@ const ReleaseGroups = () => {
                     <table className="w-full min-w-[700px] text-left">
                         <thead>
                             <tr className="bg-gray-100 text-gray-700 text-sm">
-                                <th className="px-5 py-3 font-semibold">Group Name</th>  
+                                <th className="px-5 py-3 font-semibold">Group Name</th>
                                 <th className="px-5 py-3 font-semibold">Department</th>
                                 <th className="px-5 py-3 font-semibold">Users Count</th>
                                 <th className="px-5 py-3 font-semibold text-center">
