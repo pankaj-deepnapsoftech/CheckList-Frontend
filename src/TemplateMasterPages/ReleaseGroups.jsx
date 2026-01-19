@@ -100,7 +100,7 @@ const ReleaseGroups = () => {
                     <table className="w-full min-w-[700px] text-left">
                         <thead>
                             <tr className="bg-gray-100 text-gray-700 text-sm">
-                                <th className="px-5 py-3 font-semibold">Group Name</th>
+                                <th className="px-5 py-3 font-semibold">Group Name</th>  
                                 <th className="px-5 py-3 font-semibold">Department</th>
                                 <th className="px-5 py-3 font-semibold">Users Count</th>
                                 <th className="px-5 py-3 font-semibold text-center">
