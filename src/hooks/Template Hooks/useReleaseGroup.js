@@ -5,37 +5,66 @@ import { toast } from "react-toastify";
 export const useReleaseGroup = () => {
   const qc = useQueryClient();
 
+  const getReleaseGroup = useQuery({
+    queryKey: ["release"],
+    queryFn: async () => {
+      const res = await axiosHandler.get("release-group/get");
+      return res?.data?.data;
+    },
+  });
 
-    const getReleaseGroup = useQuery({
-      queryKey: ["release"],
-      queryFn: async () => {
-        const res = await axiosHandler.get("release-group/get");
-        return res?.data?.data;
-      },
-    });
+  const postReleaseGroup = useMutation({
+    mutationFn: async (values) => {
+      const res = await axiosHandler.post(`/release-group/create`, values);
+      return res?.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      qc.invalidateQueries({ queryKey: ["release"] });
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message);
+    },
+  });
 
+  const updateReleaseGroup = useMutation({
+    mutationFn: async ({ id, data }) => {
+      const res = await axiosHandler.put(
+        `/release-group/update/id/${id}`,
+        data,
+      );
+      return res?.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      qc.invalidateQueries({ queryKey: ["release"] });
+    },
 
+    onError: (error) => {
+      toast.error(error?.response?.data?.message);
+    },
+  });
 
-   const postReleaseGroup = useMutation({
-        mutationFn: async (values) => {
+  const removeReleaseGroup = useMutation({
+    mutationFn: async (id) => {
+      const res = await axiosHandler.delete(`/release-group/delete/id/${id}`);
+      return res?.data ;
+    },
 
-            const res = await axiosHandler.post(
-              `/release-group/create`,
-              values,
-            );
-            return res?.data
-        },
-        onSuccess: (data) => {
-            toast.success(data?.message)
-            qc.invalidateQueries({ queryKey: [""] })
-        },
-        onError: (error) => {
-            toast.error(error?.response?.data?.message)
-        }
-    })
+    onSuccess: (data) => {
+      toast.success(data?.message);
+      qc.invalidateQueries({ queryKey: ["release"] });
+    },
+
+    onError: (error) => {
+      toast.error(error?.response?.data?.message);
+    },
+  });
 
   return {
     postReleaseGroup,
     getReleaseGroup,
+    updateReleaseGroup,
+    removeReleaseGroup,
   };
 };

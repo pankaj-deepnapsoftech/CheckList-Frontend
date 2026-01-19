@@ -3,12 +3,11 @@ import { X, Users, Building2, Layers } from "lucide-react";
 
 export default function ViewReleaseGroupModal({ open, onClose, data }) {
   if (!open || !data) return null;
-
+  console.log(data)
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
       {/* PANEL */}
       <div className="bg-white h-screen w-full sm:w-[750px] xl:w-[850px] shadow-2xl animate-slideLeft flex flex-col">
-
         {/* HEADER */}
         <div className="px-8 py-6 flex justify-between items-center sticky top-0 bg-white z-10">
           <div>
@@ -30,7 +29,6 @@ export default function ViewReleaseGroupModal({ open, onClose, data }) {
 
         {/* BODY */}
         <div className="px-8 py-6 space-y-6 overflow-y-auto">
-
           {/* BASIC INFO */}
           <ColoredSection
             title="Basic Information"
@@ -39,61 +37,60 @@ export default function ViewReleaseGroupModal({ open, onClose, data }) {
           >
             <Info label="Group Name" value={data.group_name} />
             <Info label="Department" value={data.group_department} />
-            <Info label="Total Users" value={data.groupusers} />
+            <Info label="Total Users" value={data.users?.length || 0} />
           </ColoredSection>
 
-          {/* GROUP USERS */}
           <ColoredSection
-            title="Group Users"
+            title="User & Plant Mapping"
             color="green"
             icon={<Users size={18} />}
           >
-            {data.groupusers_list?.length ? (
-              <div className="col-span-2">
-                <div className="border border-gray-300 rounded-xl overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead className="bg-green-100 text-green-800">
-                      <tr>
-                        <th className="px-4 py-2 text-left">User Name</th>
-                        <th className="px-4 py-2 text-left">User ID</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {data.groupusers_list.map((u, index) => (
-                        <tr
-                          key={index}
-                          className="border-t border-gray-300"
-                        >
-                          <td className="px-4 py-2">{u.name}</td>
-                          <td className="px-4 py-2">{u.user_id}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+            {data.users?.length ? (
+              <div className="col-span-2 space-y-4">
+                {data.users.map((u, index) => (
+                  <div
+                    key={index}
+                    className="border border-gray-300 rounded-xl p-4 bg-white"
+                  >
+                    {/* USER */}
+                    <div className="flex justify-between mb-3">
+                      <div>
+                        <p className="text-sm text-gray-600">User ID</p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {u.user_id}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* PLANTS */}
+                    <div>
+                      <p className="text-sm text-gray-600 mb-2">Plants</p>
+
+                      {u.plants?.length ? (
+                        <ul className="list-disc ml-6 text-sm text-gray-700 space-y-1">
+                          {u.plants.map((p) => (
+                            <li key={p._id}>
+                              <span className="font-medium">
+                                {p.plant_name}
+                              </span>{" "}
+                              <span className="text-gray-500">
+                                ({p.plant_code})
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          No plants assigned
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <p className="text-sm text-gray-500 col-span-2">
                 No users assigned to this group
-              </p>
-            )}
-          </ColoredSection>
-
-          {/* PLANTS / MAPPING */}
-          <ColoredSection
-            title="Plant Mapping"
-            color="teal"
-            icon={<Building2 size={18} />}
-          >
-            {data.plant_codes?.length ? (
-              <ul className="col-span-2 list-disc ml-6 text-sm text-gray-700">
-                {data.plant_codes.map((p, index) => (
-                  <li key={index}>{p}</li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-gray-500 col-span-2">
-                No plants linked
               </p>
             )}
           </ColoredSection>
