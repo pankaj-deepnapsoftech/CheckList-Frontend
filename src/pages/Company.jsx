@@ -16,15 +16,15 @@ const Company = () => {
   const [viewModal, setViewModal] = useState(null);
   const [limit, setLimit] = useState(10);
   const [mode, setMode] = useState("add");
-  const { debounce, value } = useDebounce(search);
+  const {  value } = useDebounce(search);
   const { listQuery, remove, searchQuery } = useCompanies(value, page, limit);
   const [showRefresh, setShowRefresh] = useState(false);
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState(null);
 
-  const filteredCompanies = debounce
-    ? searchQuery?.data ?? []
-    : listQuery?.data ?? [];
+  const filteredCompanies = value
+    ? (searchQuery?.data ?? [])
+    : (listQuery?.data ?? []);
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this company?")) {

@@ -1,14 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {  useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../../config/axiosconfig";
 import { toast } from "react-toastify";
 
-export const useReleaseGroup = () => {
+export const useReleaseGroup = (search, page, limit) => {
   const qc = useQueryClient();
 
   const getReleaseGroup = useQuery({
-    queryKey: ["release"],
+    queryKey: ["release", search, page, limit],
     queryFn: async () => {
-      const res = await axiosHandler.get("release-group/get");
+        console.log(search)
+        const res = await axiosHandler.get(`release-group/get`, {
+            params: { search: search || "", page: page, limit: limit },
+        });
       return res?.data?.data;
     },
   });
@@ -48,7 +51,7 @@ export const useReleaseGroup = () => {
   const removeReleaseGroup = useMutation({
     mutationFn: async (id) => {
       const res = await axiosHandler.delete(`/release-group/delete/id/${id}`);
-      return res?.data ;
+      return res?.data;
     },
 
     onSuccess: (data) => {
@@ -67,5 +70,4 @@ export const useReleaseGroup = () => {
     updateReleaseGroup,
     removeReleaseGroup,
   };
-  
 };

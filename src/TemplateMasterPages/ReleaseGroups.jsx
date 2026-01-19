@@ -5,20 +5,21 @@ import NoDataFound from "../components/NoDataFound/NoDataFound";
 import AddReleaseGroupModal from "../components/TemplateModals/AddModal/ReleaseGroupModal";
 import ViewReleaseGroupModal from "../components/TemplateModals/ViewModal/ReleaseGroupViewModal";
 import { useReleaseGroup } from "../hooks/Template Hooks/useReleaseGroup";
+import { useDebounce } from "../hooks/useDebounce";
 
 const ReleaseGroups = () => {
   const [search, setSearch] = useState("");
   const [limit, setLimit] = useState(10);
   const [page, setPage] = useState(1);
-  const { getReleaseGroup, removeReleaseGroup } = useReleaseGroup();
+  const { debounce, value } = useDebounce(search);
+  const { getReleaseGroup } = useReleaseGroup(value,page,limit);
   const [openModal, setOpenModal] = useState(false);
   const [mode, setMode] = useState("add");
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [viewOpen, setViewOpen] = useState(false);
-  const releaseGroups = getReleaseGroup?.data;
-  const filteredGroups = releaseGroups?.filter((g) =>
-    g?.group_name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filteredGroups = getReleaseGroup?.data || [];
+ 
+console.log(value)
 
   return (
     <div className="p-4">

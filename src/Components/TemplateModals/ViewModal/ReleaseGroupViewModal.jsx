@@ -3,12 +3,10 @@ import { X, Users, Building2, Layers } from "lucide-react";
 
 export default function ViewReleaseGroupModal({ open, onClose, data }) {
   if (!open || !data) return null;
-  console.log(data)
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
-      {/* PANEL */}
       <div className="bg-white h-screen w-full sm:w-[750px] xl:w-[850px] shadow-2xl animate-slideLeft flex flex-col">
-        {/* HEADER */}
         <div className="px-8 py-6 flex justify-between items-center sticky top-0 bg-white z-10">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900">
@@ -27,9 +25,7 @@ export default function ViewReleaseGroupModal({ open, onClose, data }) {
           </button>
         </div>
 
-        {/* BODY */}
         <div className="px-8 py-6 space-y-6 overflow-y-auto">
-          {/* BASIC INFO */}
           <ColoredSection
             title="Basic Information"
             color="blue"
@@ -52,17 +48,16 @@ export default function ViewReleaseGroupModal({ open, onClose, data }) {
                     key={index}
                     className="border border-gray-300 rounded-xl p-4 bg-white"
                   >
-                    {/* USER */}
+                    
                     <div className="flex justify-between mb-3">
                       <div>
-                        <p className="text-sm text-gray-600">User ID</p>
+                        <p className="text-sm text-gray-600">User Name</p>
                         <p className="text-sm font-medium text-gray-900">
-                          {u.user_id}
+                          {u.users_detail?.full_name} ({u.users_detail?.user_id})
                         </p>
                       </div>
                     </div>
 
-                    {/* PLANTS */}
                     <div>
                       <p className="text-sm text-gray-600 mb-2">Plants</p>
 

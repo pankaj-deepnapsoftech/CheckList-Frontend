@@ -41,9 +41,9 @@ const PlantName = () => {
     setShowRefresh(false); // Hide overlay
   };
 
-  const filetredData = debounce
-    ? searchQuery?.data ?? []
-    : getPlantName?.data ?? [];
+  const filetredData = value
+    ? (searchQuery?.data ?? [])
+    : (getPlantName?.data ?? []);
 
 
   return (

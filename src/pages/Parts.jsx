@@ -28,11 +28,11 @@ const Parts = () => {
   const [mode, setMode] = useState("add");
   const [showRefresh, setShowRefresh] = useState(false);
 
-  const { debounce, value } = useDebounce(search);
+  const {  value } = useDebounce(search);
   const { getPartData, removeParts, searchQuery } = UsePart(page, limit, value);
 
-  const filteredParts = debounce
-    ? searchQuery?.data ?? []
+  const filteredParts = value
+    ? (searchQuery?.data ?? [])
     : getPartData?.data || [];
 
   const handleDelete = (id) => {

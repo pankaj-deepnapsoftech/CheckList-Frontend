@@ -23,7 +23,7 @@ export default function UserRoles() {
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
 
-  const { debounce, value } = useDebounce(search);
+  const {  value } = useDebounce(search);
   const { UserlistQuery, removeUser, SearchUserList } = useUserRole(
     value,
     page,
@@ -31,9 +31,9 @@ export default function UserRoles() {
   );
   const [showRefresh, setShowRefresh] = useState(false);
 
-  const filteredRoles = debounce
-    ? SearchUserList?.data ?? []
-    : UserlistQuery?.data ?? [];
+  const filteredRoles = value
+    ? (SearchUserList?.data ?? [])
+    : (UserlistQuery?.data ?? []);
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this data?")) {
