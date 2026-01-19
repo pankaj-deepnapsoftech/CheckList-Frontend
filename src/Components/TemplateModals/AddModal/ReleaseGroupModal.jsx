@@ -14,8 +14,7 @@ const AddReleaseGroupModal = ({
 }) => {
   const { getAllEmployee } = RegisterEmployee();
   const { getAllPlantName } = UsePlantName();
-  const { postReleaseGroup } = useReleaseGroup();
-  const { getAllDepartmentData } = useDepartment();
+  const { postReleaseGroup, updateReleaseGroup } = useReleaseGroup();
 
   const USER_OPTIONS = getAllEmployee?.data || [];
   const PLANT_OPTIONS = getAllPlantName?.data || [];
@@ -27,8 +26,6 @@ const AddReleaseGroupModal = ({
     edit: "Update Release Group",
     view: "View Release Group",
   };
-
-  /* ---------------- Lookup Maps (ID → Name) ---------------- */
 
   const userMap = React.useMemo(() => {
     const map = {};
@@ -46,13 +43,22 @@ const AddReleaseGroupModal = ({
     return map;
   }, [PLANT_OPTIONS]);
 
-  /* ---------------- Formik ---------------- */
+  const normalizeUsers = (users = []) => {
+    return users.map((u) => ({
+      user_id: u.user_id,
+      plants_id: Array.isArray(u.plants_id)
+        ? u.plants_id
+        : u.plants?.map((p) => p._id) || [],
+    }));
+  };
 
   const formik = useFormik({
     initialValues: {
       group_name: editData?.group_name ?? "",
       group_department: editData?.group_department ?? "",
-      users: editData?.users ?? [],
+      users: normalizeUsers(editData?.users),
+      selectedUser: "",
+      selectedPlant: "",
     },
 
     enableReinitialize: true,
@@ -62,21 +68,30 @@ const AddReleaseGroupModal = ({
         group_department: values.group_department,
         users: values.users,
       };
-
-      console.log("Payload:", payload);
-
-      postReleaseGroup.mutate(payload, {
-        onSuccess: () => {
-          setOpenModal(false);
-          formik.resetForm();
-        },
-      });
+      if (editData) {
+        if (editData) {
+          updateReleaseGroup.mutate(
+            { id: editData._id, data: payload },
+            {
+              onSuccess: () => {
+                setOpenModal(false);
+                formik.resetForm();
+              },
+            },
+          );
+        }
+      } else {
+        postReleaseGroup.mutate(payload, {
+          onSuccess: () => {
+            setOpenModal(false);
+            formik.resetForm();
+          },
+        });
+      }
     },
   });
-
+  console.log(editData);
   const { values, handleChange, handleSubmit, setFieldValue } = formik;
-
-  /* ---------------- Handlers ---------------- */
 
   const handleAddUserPlant = () => {
     const { selectedUser, selectedPlant, users } = values;
@@ -85,7 +100,6 @@ const AddReleaseGroupModal = ({
 
     const userIndex = users.findIndex((u) => u.user_id === selectedUser);
 
-    // user already exists → add plant
     if (userIndex !== -1) {
       const user = users[userIndex];
 
@@ -101,9 +115,7 @@ const AddReleaseGroupModal = ({
       };
 
       setFieldValue("users", updatedUsers);
-    }
-    // new user → create user with plant
-    else {
+    } else {
       setFieldValue("users", [
         ...users,
         {
@@ -123,28 +135,44 @@ const AddReleaseGroupModal = ({
     );
   };
 
-  const selectedUserPlants = React.useMemo(() => {
-    if (!values.selectedUser) return [];
+  const filteredPlantOptions = React.useMemo(() => {
+    if (mode === "edit" && values.selectedUser) {
+      const currentUser = values.users.find(
+        (u) => u.user_id === values.selectedUser,
+      );
 
-    const user = values.users.find((u) => u.user_id === values.selectedUser);
+      const otherUsedPlants = values.users
+        .filter((u) => u.user_id !== values.selectedUser)
+        .flatMap((u) => u.plants_id || []);
 
-    return user?.plants_id || [];
-  }, [values.selectedUser, values.users]);
+      return PLANT_OPTIONS.filter(
+        (p) =>
+          !otherUsedPlants.includes(p._id) ||
+          currentUser?.plants_id.includes(p._id),
+      );
+    }
 
- const filteredPlantOptions = React.useMemo(() => {
+    const usedPlants = values.users.flatMap((u) => u.plants_id || []);
+    return PLANT_OPTIONS.filter((p) => !usedPlants.includes(p._id));
+  }, [PLANT_OPTIONS, values.users, values.selectedUser, mode]);
 
-  const usedPlants = values.users.flatMap((u) => u.plants_id);
-
-  
-  return PLANT_OPTIONS.filter(
-    (plant) => !usedPlants.includes(plant._id)
-  );
-}, [PLANT_OPTIONS, values.users]);
-
+  React.useEffect(() => {
+    if (
+      values.selectedUser &&
+      values.selectedPlant &&
+      !values.users.some(
+        (u) =>
+          u.user_id === values.selectedUser &&
+          u.plants_id.includes(values.selectedPlant),
+      )
+    ) {
+      handleAddUserPlant();
+    }
+  }, [values.selectedPlant]);
 
   if (!openModal) return null;
 
-  /* ---------------- UI ---------------- */
+ 
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex justify-end">
@@ -187,16 +215,19 @@ const AddReleaseGroupModal = ({
             getLabel={(opt) => opt.full_name}
           />
 
-     <Select
-  label="Plant"
-  name="selectedPlant"
-  value={values.selectedPlant}
-  onChange={handleChange}
-  options={filteredPlantOptions}
-  disabled={isView || !values.selectedUser || filteredPlantOptions.length === 0}
-  getLabel={(opt) => opt.plant_name}
-/>
-
+          <Select
+            label="Plant"
+            name="selectedPlant"
+            value={values.selectedPlant}
+            onChange={handleChange}
+            options={filteredPlantOptions}
+            disabled={
+              isView ||
+              !values.selectedUser ||
+              filteredPlantOptions.length === 0
+            }
+            getLabel={(opt) => opt.plant_name}
+          />
 
           {!isView && (
             <div className="flex justify-end mb-4">
@@ -210,7 +241,7 @@ const AddReleaseGroupModal = ({
             </div>
           )}
 
-          {values.users.map((user, userIndex) => (
+          {values?.users?.map((user, userIndex) => (
             <div
               key={user.user_id}
               className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-2"
@@ -219,7 +250,15 @@ const AddReleaseGroupModal = ({
                 <UserCheck size={16} className="text-blue-600" />
                 <span className="font-semibold">{userMap[user.user_id]}</span>
               </div>
-
+              {!isView && (
+                <button
+                  type="button"
+                  onClick={() => handleRemove(userIndex)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  ✕
+                </button>
+              )}
               <div className="flex flex-wrap gap-2 ml-6">
                 {user.plants_id.map((plantId, plantIndex) => (
                   <div
@@ -234,16 +273,17 @@ const AddReleaseGroupModal = ({
                         type="button"
                         onClick={() => {
                           const updatedUsers = [...values.users];
+
                           updatedUsers[userIndex].plants_id = updatedUsers[
                             userIndex
                           ].plants_id.filter((_, i) => i !== plantIndex);
 
-                          // remove user if no plants left
                           if (updatedUsers[userIndex].plants_id.length === 0) {
                             updatedUsers.splice(userIndex, 1);
                           }
 
                           setFieldValue("users", updatedUsers);
+                          setFieldValue("selectedPlant", ""); 
                         }}
                         className="text-gray-400 hover:text-red-500"
                       >
@@ -270,7 +310,6 @@ const AddReleaseGroupModal = ({
   );
 };
 
-/* ---------------- Reusable Components ---------------- */
 
 const Input = ({ label, ...props }) => (
   <label className="block mb-4">
