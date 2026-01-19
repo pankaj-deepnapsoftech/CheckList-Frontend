@@ -88,7 +88,7 @@ const AddDocumentModal = ({
                                 <span className="text-sm">{editData.document_file}</span>
                             </div>
                         ) : (
-                            <>
+                            <>       
                                 {/* DROP ZONE */}
                                 <div
                                     className="mt-3 border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-400 transition"
