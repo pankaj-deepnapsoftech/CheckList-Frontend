@@ -204,7 +204,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           </div>
 
           {/* SCROLLABLE MENU */}
-          <div className="flex-1 overflow-y-auto z pr-1">
+          <div className="flex-1 overflow-y-auto z pr-1 custom-scrollbar">
             {renderMenu()}
           </div>
         </div>
