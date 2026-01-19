@@ -7,9 +7,12 @@ export const useReleaseGroup = () => {
    const qc = useQueryClient();
 
    const postReleaseGroup = useMutation({
-        mutationFn: async () => {
+        mutationFn: async (values) => {
 
-            const res = await axiosHandler.post("/release-group/create")
+            const res = await axiosHandler.post(
+              `/release-group/create`,
+              values,
+            );
             return res?.data
         },
         onSuccess: (data) => {

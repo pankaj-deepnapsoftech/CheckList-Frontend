@@ -3,6 +3,8 @@ import { UserCheck, Wand, X } from "lucide-react";
 import { useFormik } from "formik";
 import { RegisterEmployee } from "../../../hooks/useRegisterEmployee";
 import { UsePlantName } from "../../../hooks/UsePlantName";
+import { useReleaseGroup } from "../../../hooks/Template Hooks/useReleaseGroup";
+import { useDepartment } from "../../../hooks/useDepartment";
 
 const AddReleaseGroupModal = ({
   openModal,
@@ -12,8 +14,11 @@ const AddReleaseGroupModal = ({
 }) => {
   const { getAllEmployee } = RegisterEmployee();
   const { getAllPlantName } = UsePlantName();
+  const { postReleaseGroup } = useReleaseGroup();
+  const { getAllDepartmentData } = useDepartment();
+
   const USER_OPTIONS = getAllEmployee?.data || [];
-  const PLANT_OPTIONS = getAllPlantName?.data;
+  const PLANT_OPTIONS = getAllPlantName?.data || [];
 
   const isView = mode === "view";
 
@@ -23,54 +28,123 @@ const AddReleaseGroupModal = ({
     view: "View Release Group",
   };
 
+  /* ---------------- Lookup Maps (ID → Name) ---------------- */
+
+  const userMap = React.useMemo(() => {
+    const map = {};
+    USER_OPTIONS.forEach((u) => {
+      map[u._id] = u.full_name;
+    });
+    return map;
+  }, [USER_OPTIONS]);
+
+  const plantMap = React.useMemo(() => {
+    const map = {};
+    PLANT_OPTIONS.forEach((p) => {
+      map[p._id] = p.plant_name;
+    });
+    return map;
+  }, [PLANT_OPTIONS]);
+
+  /* ---------------- Formik ---------------- */
+
   const formik = useFormik({
     initialValues: {
       group_name: editData?.group_name ?? "",
       group_department: editData?.group_department ?? "",
-      selectedUser: "",
-      selectedPlant: "",
-      users_plants: editData?.users_plants ?? [],
+      users: editData?.users ?? [],
     },
+
     enableReinitialize: true,
     onSubmit: (values) => {
-      console.log("FINAL DATA 👉", values);
-      setOpenModal(false);
+      const payload = {
+        group_name: values.group_name,
+        group_department: values.group_department,
+        users: values.users,
+      };
+
+      console.log("Payload:", payload);
+
+      postReleaseGroup.mutate(payload, {
+        onSuccess: () => {
+          setOpenModal(false);
+          formik.resetForm();
+        },
+      });
     },
   });
 
   const { values, handleChange, handleSubmit, setFieldValue } = formik;
 
+  /* ---------------- Handlers ---------------- */
+
   const handleAddUserPlant = () => {
-    const { selectedUser, selectedPlant, users_plants } = values;
+    const { selectedUser, selectedPlant, users } = values;
 
     if (!selectedUser || !selectedPlant) return;
 
-    const isDuplicate = users_plants.some(
-      (item) => item.user === selectedUser && item.plant === selectedPlant
-    );
+    const userIndex = users.findIndex((u) => u.user_id === selectedUser);
 
-    if (isDuplicate) {
-      alert("This user is already added with this plant");
-      return;
+    // user already exists → add plant
+    if (userIndex !== -1) {
+      const user = users[userIndex];
+
+      if (user.plants_id.includes(selectedPlant)) {
+        alert("This plant is already added for this user");
+        return;
+      }
+
+      const updatedUsers = [...users];
+      updatedUsers[userIndex] = {
+        ...user,
+        plants_id: [...user.plants_id, selectedPlant],
+      };
+
+      setFieldValue("users", updatedUsers);
+    }
+    // new user → create user with plant
+    else {
+      setFieldValue("users", [
+        ...users,
+        {
+          user_id: selectedUser,
+          plants_id: [selectedPlant],
+        },
+      ]);
     }
 
-    setFieldValue("users_plants", [
-      ...users_plants,
-      { user: selectedUser, plant: selectedPlant },
-    ]);
-
-    setFieldValue("selectedUser", "");
     setFieldValue("selectedPlant", "");
   };
 
   const handleRemove = (index) => {
     setFieldValue(
-      "users_plants",
-      values.users_plants.filter((_, i) => i !== index)
+      "users",
+      values.users.filter((_, i) => i !== index),
     );
   };
 
+  const selectedUserPlants = React.useMemo(() => {
+    if (!values.selectedUser) return [];
+
+    const user = values.users.find((u) => u.user_id === values.selectedUser);
+
+    return user?.plants_id || [];
+  }, [values.selectedUser, values.users]);
+
+ const filteredPlantOptions = React.useMemo(() => {
+
+  const usedPlants = values.users.flatMap((u) => u.plants_id);
+
+  
+  return PLANT_OPTIONS.filter(
+    (plant) => !usedPlants.includes(plant._id)
+  );
+}, [PLANT_OPTIONS, values.users]);
+
+
   if (!openModal) return null;
+
+  /* ---------------- UI ---------------- */
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex justify-end">
@@ -96,7 +170,7 @@ const AddReleaseGroupModal = ({
           />
 
           <Input
-            label="Department"
+            label="Group Department"
             name="group_department"
             value={values.group_department}
             onChange={handleChange}
@@ -110,16 +184,19 @@ const AddReleaseGroupModal = ({
             onChange={handleChange}
             options={USER_OPTIONS}
             disabled={isView}
+            getLabel={(opt) => opt.full_name}
           />
 
-          <Select
-            label="Plant"
-            name="selectedPlant"
-            value={values.selectedPlant}
-            onChange={handleChange}
-            options={PLANT_OPTIONS}
-            disabled={isView}
-          />
+     <Select
+  label="Plant"
+  name="selectedPlant"
+  value={values.selectedPlant}
+  onChange={handleChange}
+  options={filteredPlantOptions}
+  disabled={isView || !values.selectedUser || filteredPlantOptions.length === 0}
+  getLabel={(opt) => opt.plant_name}
+/>
+
 
           {!isView && (
             <div className="flex justify-end mb-4">
@@ -133,36 +210,42 @@ const AddReleaseGroupModal = ({
             </div>
           )}
 
-          {values.users_plants.length > 0 && (
-            <div className="mb-6">
-              <p className="text-sm font-semibold text-gray-700 mb-3">
-                Selected Users & Plants
-              </p>
+          {values.users.map((user, userIndex) => (
+            <div
+              key={user.user_id}
+              className="bg-blue-50 border border-blue-200 p-3 rounded-lg mb-2"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <UserCheck size={16} className="text-blue-600" />
+                <span className="font-semibold">{userMap[user.user_id]}</span>
+              </div>
 
-              <div className="flex  gap-2">
-                {values.users_plants.map((item, index) => (
+              <div className="flex flex-wrap gap-2 ml-6">
+                {user.plants_id.map((plantId, plantIndex) => (
                   <div
-                    key={`${item.user}-${item.plant}-${index}`}
-                    className="flex items-center gap-3 bg-blue-50 border border-blue-200 px-3 py-2 rounded-full text-sm text-gray-800 shadow-sm"
+                    key={plantId}
+                    className="flex items-center gap-2 bg-white border px-3 py-1 rounded-full text-sm"
                   >
-                    <div className="flex items-center gap-1">
-                      <UserCheck size={14} className="text-blue-600" />
-                      <span className="font-medium">{item.user}</span>
-                    </div>
-
-                    <span className="text-gray-400">|</span>
-
-                    <div className="flex items-center gap-1">
-                      <Wand size={14} className="text-green-600" />
-                      <span>{item.plant}</span>
-                    </div>
+                    <Wand size={14} className="text-green-600" />
+                    <span>{plantMap[plantId]}</span>
 
                     {!isView && (
                       <button
                         type="button"
-                        onClick={() => handleRemove(index)}
-                        className="ml-2 text-gray-400 hover:text-red-500 transition"
-                        aria-label="Remove"
+                        onClick={() => {
+                          const updatedUsers = [...values.users];
+                          updatedUsers[userIndex].plants_id = updatedUsers[
+                            userIndex
+                          ].plants_id.filter((_, i) => i !== plantIndex);
+
+                          // remove user if no plants left
+                          if (updatedUsers[userIndex].plants_id.length === 0) {
+                            updatedUsers.splice(userIndex, 1);
+                          }
+
+                          setFieldValue("users", updatedUsers);
+                        }}
+                        className="text-gray-400 hover:text-red-500"
                       >
                         ✕
                       </button>
@@ -171,7 +254,7 @@ const AddReleaseGroupModal = ({
                 ))}
               </div>
             </div>
-          )}
+          ))}
 
           {!isView && (
             <button
@@ -187,7 +270,7 @@ const AddReleaseGroupModal = ({
   );
 };
 
-/* ---------- Reusable Components ---------- */
+/* ---------------- Reusable Components ---------------- */
 
 const Input = ({ label, ...props }) => (
   <label className="block mb-4">
@@ -199,18 +282,20 @@ const Input = ({ label, ...props }) => (
   </label>
 );
 
-const Select = ({ label, options, ...props }) => (
+const Select = ({ label, options, getLabel, ...props }) => (
   <label className="block mb-4">
     <span className="font-medium">{label}</span>
     <select
       {...props}
       className="mt-2 w-full px-4 py-3 border border-gray-200 rounded-lg"
     >
-      <option value="">Select {label}</option>
+      <option value="">
+        {options.length === 0 ? "No plants available" : `Select ${label}`}
+      </option>
+
       {options.map((opt) => (
-        <option key={opt?._id} value={opt?._id}>
-          {opt?.full_name || opt?.plant_name} ({opt?.user_id || opt?.plant_code}
-          )
+        <option key={opt._id} value={opt._id}>
+          {getLabel(opt)}
         </option>
       ))}
     </select>
