@@ -25,6 +25,8 @@ import Department from "../pages/Department";
 import DailyCheckAssembly from "../pages/DailyAssemblyCheck";
 import TemplateMaster from "../TemplateMasterPages/TemplateMaster";
 import ReleaseGroups from "../TemplateMasterPages/ReleaseGroups";
+import ManageDocument from "../TemplateMasterPages/ManageDocument";
+import ManageWorkflow from "../TemplateMasterPages/ManageWorkflow";
 
 export const AppRoute = () => {
   const { logedinUser } = useLogin();
@@ -57,7 +59,8 @@ export const AppRoute = () => {
     { path: "/assembly-line", element: withProtection(AssemblyLine) },
     { path: "/release-group", element: withProtection(ReleaseGroups) },
     { path: "/template-master", element:withProtection(TemplateMaster) },
-    { path: "/workflow", element:withProtection(TemplateMaster) },
+    { path: "/workflow", element:withProtection(ManageWorkflow) },
+    { path: "/document-management", element:withProtection(ManageDocument) },
     
     {
       path: "/assembly-line-status",
