@@ -72,7 +72,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     },
 
     {
-      name: "Template Module                                                                     ",
+      name: "Template Module",
       icon: <GraduationCap size={20} />,
       children: [
         { name: "Manage Template", path: "/template-master", icon: <LayoutTemplate size={18} /> },
@@ -98,11 +98,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const allowedMenu = IsSuper
     ? allMenu
     : allMenu.filter((i) =>
-        i.children
-          ? i.children.some((c) => permissions.includes(c.path)) ||
-            permissions.includes(i.path)
-          : permissions.includes(i.path)
-      );
+      i.children
+        ? i.children.some((c) => permissions.includes(c.path)) ||
+        permissions.includes(i.path)
+        : permissions.includes(i.path)
+    );
 
   const handleLogout = () => {
     logOutUser.mutate();
@@ -119,18 +119,18 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => toggleMenu(item.name)}
-                  className="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 flex-1"
+                  className="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 flex-1 whitespace-nowrap"
                 >
                   {item.icon}
-                  {item.name}
+                  <span className="truncate">{item.name}</span>
                 </button>
+
 
                 <button onClick={() => toggleMenu(item.name)} className="p-2">
                   <ChevronDown
                     size={16}
-                    className={`transition ${
-                      openMenu === item.name ? "rotate-180" : ""
-                    }`}
+                    className={`transition ${openMenu === item.name ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
               </div>
@@ -144,10 +144,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                       onClick={closeMobile}
                       className={({ isActive }) =>
                         `flex items-center gap-2 p-2 rounded-md text-sm
-                        ${
-                          isActive
-                            ? "bg-blue-100 text-blue-600 font-medium"
-                            : "text-gray-600 hover:bg-gray-100"
+                        ${isActive
+                          ? "bg-blue-100 text-blue-600 font-normal"
+                          : "text-gray-600 hover:bg-gray-100"
                         }`
                       }
                     >
@@ -168,10 +167,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
             onClick={closeMobile}
             className={({ isActive }) =>
               `flex items-center gap-3 p-2 rounded-lg
-              ${
-                isActive
-                  ? "bg-blue-100 text-blue-600 font-medium"
-                  : "text-gray-700 hover:bg-gray-100"
+              ${isActive
+                ? "bg-blue-100 text-blue-600 font-medium"
+                : "text-gray-700 hover:bg-gray-100"
               }`
             }
           >
