@@ -1,10 +1,20 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../../config/axiosconfig";
 import { toast } from "react-toastify";
 
-
 export const useReleaseGroup = () => {
-   const qc = useQueryClient();
+  const qc = useQueryClient();
+
+
+    const getReleaseGroup = useQuery({
+      queryKey: ["release"],
+      queryFn: async () => {
+        const res = await axiosHandler.get("release-group/get");
+        return res?.data?.data;
+      },
+    });
+
+
 
    const postReleaseGroup = useMutation({
         mutationFn: async (values) => {
@@ -24,7 +34,8 @@ export const useReleaseGroup = () => {
         }
     })
 
-    return{
-        postReleaseGroup,
-    }
-}
+  return {
+    postReleaseGroup,
+    getReleaseGroup,
+  };
+};
