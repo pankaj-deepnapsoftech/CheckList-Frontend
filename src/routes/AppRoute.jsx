@@ -25,6 +25,7 @@ import Department from "../pages/Department";
 import DailyCheckAssembly from "../pages/DailyAssemblyCheck";
 import TemplateMaster from "../TemplateMasterPages/TemplateMaster";
 import ReleaseGroups from "../TemplateMasterPages/ReleaseGroups";
+import ManageWorkflow from "../TemplateMasterPages/ManageWorkflow";
 import PlcLiveData from "../pages/PlcLiveData";
 import PlcStoppage from "../pages/PlcStoppage";
 
@@ -59,7 +60,7 @@ export const AppRoute = () => {
     { path: "/assembly-line", element: withProtection(AssemblyLine) },
     { path: "/release-group", element: withProtection(ReleaseGroups) },
     { path: "/template-master", element:withProtection(TemplateMaster) },
-    { path: "/workflow", element:withProtection(TemplateMaster) },
+    { path: "/workflow", element:withProtection(ManageWorkflow) },
     
     {
       path: "/assembly-line-status",
