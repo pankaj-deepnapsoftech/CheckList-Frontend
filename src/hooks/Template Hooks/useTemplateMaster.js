@@ -52,6 +52,21 @@ export const useTemplateMaster = (selectedTemplateId) => {
     },
   });
 
+  const updateField = useMutation({
+    mutationFn: async ({ fieldId, payload }) => {
+      const res = await axiosHandler.put(`/template-master/fields/${fieldId}`, payload);
+      return res?.data;
+    },
+    onSuccess: (data, variables) => {
+      toast.success(data?.message || "Field updated");
+      qc.invalidateQueries({ queryKey: ["template-master", "template", selectedTemplateId] });
+      qc.invalidateQueries({ queryKey: ["template-master", "templates"] });
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Failed to update field");
+    },
+  });
+
   const deleteField = useMutation({
     mutationFn: async ({ fieldId }) => {
       const res = await axiosHandler.delete(`/template-master/fields/${fieldId}`);
@@ -102,6 +117,7 @@ export const useTemplateMaster = (selectedTemplateId) => {
     templateQuery,
     createTemplate,
     addField,
+    updateField,
     deleteField,
     updateTemplate,
     deleteTemplate,
