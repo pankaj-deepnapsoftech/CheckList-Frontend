@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Edit2, Plus, Trash2, X } from "lucide-react";
+import { Edit2, Eye, Plus, Trash2, X } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 
 const FIELD_TYPES = [
@@ -21,6 +21,8 @@ export default function TemplateMaster() {
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewingTemplateId, setViewingTemplateId] = useState("");
   const [editingTemplateId, setEditingTemplateId] = useState("");
   const [editTemplateName, setEditTemplateName] = useState("");
   const [editTemplateType, setEditTemplateType] = useState("");
@@ -230,6 +232,18 @@ export default function TemplateMaster() {
 
   const closeCreate = () => {
     setIsCreateOpen(false);
+  };
+
+  const openView = (template) => {
+    setViewingTemplateId(template._id);
+    setIsViewOpen(true);
+    // Select template to load its fields
+    setSelectedTemplateId(template._id);
+  };
+
+  const closeView = () => {
+    setIsViewOpen(false);
+    setViewingTemplateId("");
   };
 
   const openEdit = (template) => {
@@ -476,6 +490,16 @@ export default function TemplateMaster() {
                         </div>
                       </button>
                       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openView(t);
+                          }}
+                          className="rounded p-1 hover:bg-green-100 text-green-600"
+                          title="View Template"
+                        >
+                          <Eye size={14} />
+                        </button>
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -1212,6 +1236,198 @@ export default function TemplateMaster() {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* RIGHT DRAWER: View Template */}
+      {isViewOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={closeView} />
+          <div className="absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b px-5 py-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">View Template</h2>
+                <p className="text-xs text-gray-500">
+                  Template details aur form preview (Read-only).
+                </p>
+              </div>
+              <button onClick={closeView} className="rounded-lg p-2 hover:bg-gray-100">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="h-full overflow-y-auto px-5 py-4">
+              {templateQuery.isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <span className="text-sm text-gray-500">Loading template...</span>
+                </div>
+              ) : selectedTemplate ? (
+                <div className="space-y-4">
+                  {/* Template Info */}
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <div className="text-xs font-semibold text-gray-700">Template Name</div>
+                    <div className="mt-1 text-sm font-semibold text-gray-900">
+                      {selectedTemplate.template_name || "—"}
+                    </div>
+                    {selectedTemplate.template_type && (
+                      <>
+                        <div className="mt-3 text-xs font-semibold text-gray-700">Template Type</div>
+                        <div className="mt-1 text-sm text-gray-800">
+                          {selectedTemplate.template_type}
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Fields List */}
+                  <div className="rounded-xl border border-gray-100 bg-white p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-gray-800">Template Fields</h3>
+                      <span className="text-xs text-gray-500">
+                        Total: {fields.length}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                              Field Name
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                              Type
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                              Mandatory
+                            </th>
+                            {fields.some((f) => f.field_type === "DROPDOWN") && (
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                                Options
+                              </th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 bg-white">
+                          {fields.length === 0 ? (
+                            <tr>
+                              <td
+                                className="px-3 py-3 text-sm text-gray-500"
+                                colSpan={fields.some((f) => f.field_type === "DROPDOWN") ? 4 : 3}
+                              >
+                                No fields in this template.
+                              </td>
+                            </tr>
+                          ) : (
+                            fields.map((f) => {
+                              let dropdownOpts = [];
+                              if (f.field_type === "DROPDOWN" && f.dropdown_options) {
+                                try {
+                                  dropdownOpts = JSON.parse(f.dropdown_options);
+                                } catch {
+                                  dropdownOpts = [];
+                                }
+                              }
+                              return (
+                                <tr key={f._id} className="hover:bg-gray-50">
+                                  <td className="px-3 py-2 text-sm font-semibold text-gray-800">
+                                    {f.field_name}
+                                    {f.is_mandatory && (
+                                      <span className="ml-1 text-red-500">*</span>
+                                    )}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-700">{f.field_type}</td>
+                                  <td className="px-3 py-2 text-sm text-gray-700">
+                                    {f.is_mandatory ? "Yes" : "No"}
+                                  </td>
+                                  {fields.some((f) => f.field_type === "DROPDOWN") && (
+                                    <td className="px-3 py-2 text-sm text-gray-700">
+                                      {f.field_type === "DROPDOWN" && dropdownOpts.length > 0
+                                        ? dropdownOpts.join(", ")
+                                        : "—"}
+                                    </td>
+                                  )}
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Form Preview (Read-only) */}
+                  <div className="rounded-xl border border-gray-100 bg-white p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-sm font-semibold text-gray-800">Form Preview</h3>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Ye form user ko dikhega (Read-only preview).
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-4">
+                      {/* Template Name & Type */}
+                      <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                        <div className="text-xs font-semibold text-gray-700">Template Name</div>
+                        <div className="mt-1 text-sm font-semibold text-gray-900">
+                          {selectedTemplate.template_name || "—"}
+                        </div>
+                        {selectedTemplate.template_type && (
+                          <>
+                            <div className="mt-2 text-xs font-semibold text-gray-700">Template Type</div>
+                            <div className="mt-1 text-sm text-gray-800">
+                              {selectedTemplate.template_type}
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Fields Preview */}
+                      {fields.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
+                          No fields in this template.
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {fields.map((f) => (
+                            <div key={f._id}>
+                              {f.field_type !== "CHECKBOX" && (
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  {f.field_name}
+                                  {f.is_mandatory && <span className="text-red-500"> *</span>}
+                                </label>
+                              )}
+                              <div className="opacity-60 pointer-events-none">
+                                {renderPreviewInput(f)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <span className="text-sm text-gray-500">Template not found.</span>
+                </div>
+              )}
+
+              <div className="sticky bottom-0 mt-6 border-t bg-white py-4">
+                <div className="flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={closeView}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
