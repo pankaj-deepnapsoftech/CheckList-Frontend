@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { X, FileText, Upload } from "lucide-react";
-import {  useFormik } from "formik";
+import { useFormik } from "formik";
 import { useCheckItem } from "../../../hooks/useCheckItem";
 import SearchableDropdownwithRemove from "../../SearchableDropDown/SearchableDropDown2";
 import { Field } from "../../modal/addModal/AddCheckItemModal";
+import { useManageDocuments } from "../../../hooks/Template Hooks/useManageDocuments";
 
 const AddDocumentModal = ({
   openModal,
@@ -12,11 +13,12 @@ const AddDocumentModal = ({
   mode = "add",
 }) => {
   const isView = mode === "view";
+  const { postDocuments } = useManageDocuments();
   const { GetCategory, AddCategroy } = useCheckItem();
   const [category, setCategoryList] = useState([]);
   const [showCategory, setShowCategory] = useState(false);
   const [newCategory, setNewCategory] = useState("");
-  
+
   const titleMap = {
     add: "Add Document",
     edit: "Update Document",
@@ -25,19 +27,30 @@ const AddDocumentModal = ({
 
   const formik = useFormik({
     initialValues: {
-      document_name: editData?.document_name ?? "",
+      doc_name: editData?.doc_name ?? "",
       category: editData?.category ?? "",
-      expiry_date: editData?.expiry_date ?? "",
-      document_file: null,
+      expiry: editData?.expiry ?? "",
+      attached_doc: null,
     },
     enableReinitialize: true,
     onSubmit: (values) => {
+      let formdata = new FormData();
+      formdata.append("attached_doc", values.attached_doc);
+      formdata.append("category", values.category);
+      formdata.append("expiry", values.expiry);
+      formdata.append("doc_name", values.doc_name);
+
       console.log("DOCUMENT DATA 👉", values);
-      setOpenModal(false);
+
+      postDocuments.mutate(formdata, {
+        onSuccess: () => {
+          setOpenModal(false);
+        },
+      });
     },
   });
 
-  console.log(GetCategory?.data);
+  // console.log(GetCategory?.data);
 
   useEffect(() => {
     if (GetCategory?.data) {
@@ -74,8 +87,8 @@ const AddDocumentModal = ({
         <form onSubmit={handleSubmit}>
           <Input
             label="Document Name"
-            name="document_name"
-            value={values.document_name}
+            name="doc_name"
+            value={values.doc_name}
             onChange={handleChange}
             readOnly={isView}
           />
@@ -156,8 +169,8 @@ const AddDocumentModal = ({
           <Input
             type="date"
             label="Expiry Date"
-            name="expiry_date"
-            value={values.expiry_date}
+            name="expiry"
+            value={values.expiry}
             onChange={handleChange}
             readOnly={isView}
           />
@@ -166,10 +179,10 @@ const AddDocumentModal = ({
           <label className="block mb-6">
             <span className="font-medium">Attach Document</span>
 
-            {isView && editData?.document_file ? (
+            {isView && editData?.attached_doc ? (
               <div className="mt-3 flex items-center gap-2 text-blue-600">
                 <FileText size={18} />
-                <span className="text-sm">{editData.document_file}</span>
+                <span className="text-sm">{editData.attached_doc}</span>
               </div>
             ) : (
               <>
@@ -180,7 +193,7 @@ const AddDocumentModal = ({
                   onDrop={(e) => {
                     e.preventDefault();
                     const file = e.dataTransfer.files[0];
-                    if (file) setFieldValue("document_file", file);
+                    if (file) setFieldValue("attached_doc", file);
                   }}
                   onClick={() =>
                     document.getElementById("documentUpload").click()
@@ -205,7 +218,7 @@ const AddDocumentModal = ({
                     hidden
                     accept=".pdf,.doc,.docx"
                     onChange={(e) =>
-                      setFieldValue("document_file", e.target.files[0])
+                      setFieldValue("attached_doc", e.target.files[0])
                     }
                   />
                 </div>
@@ -216,11 +229,11 @@ const AddDocumentModal = ({
                 </div>
 
                 {/* SELECTED FILE */}
-                {values.document_file && (
+                {values.attached_doc && (
                   <div className="mt-3 flex items-center gap-2 text-sm text-gray-700">
                     <FileText size={16} />
                     <span className="truncate max-w-[250px]">
-                      {values.document_file.name}
+                      {values.attached_doc.name}
                     </span>
                   </div>
                 )}

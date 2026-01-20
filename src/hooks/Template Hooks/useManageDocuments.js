@@ -14,8 +14,8 @@ export const useManageDocuments = () => {
   });
 
   const postDocuments = useMutation({
-    mutationFn: async () => {
-      const res = await axiosHandler.post(`/document/create`);
+    mutationFn: async (data) => {
+      const res = await axiosHandler.post(`/document/create`,data);
       return res?.data;
     },
     onSuccess: (data) => {
