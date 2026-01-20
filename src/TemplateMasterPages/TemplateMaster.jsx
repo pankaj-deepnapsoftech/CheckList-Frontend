@@ -9,6 +9,7 @@ const FIELD_TYPES = [
   { label: "Dropdown", value: "DROPDOWN" },
   { label: "Date", value: "DATE" },
   { label: "Text Area", value: "TEXTAREA" },
+  { label: "Image Uploader", value: "IMAGE" },
 ];
 
 const TEMPLATE_TYPES = [
@@ -124,6 +125,36 @@ export default function TemplateMaster() {
             placeholder={`Enter ${f.field_name}`}
           />
         );
+      case "IMAGE":
+        const imageUrl = previewValues[key];
+        return (
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setPreviewValue(key, reader.result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+              className={commonClass}
+            />
+            {imageUrl && (
+              <div className="mt-2">
+                <img
+                  src={imageUrl}
+                  alt="Preview"
+                  className="max-w-full h-auto max-h-48 rounded-lg border border-gray-200"
+                />
+              </div>
+            )}
+          </div>
+        );
       case "TEXT":
       default:
         return (
@@ -203,6 +234,36 @@ export default function TemplateMaster() {
             rows={3}
             placeholder={`Enter ${f.field_name}`}
           />
+        );
+      case "IMAGE":
+        const draftImageUrl = draftPreviewValues[key];
+        return (
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setDraftPreviewValue(key, reader.result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+              className={commonClass}
+            />
+            {draftImageUrl && (
+              <div className="mt-2">
+                <img
+                  src={draftImageUrl}
+                  alt="Preview"
+                  className="max-w-full h-auto max-h-48 rounded-lg border border-gray-200"
+                />
+              </div>
+            )}
+          </div>
         );
       case "TEXT":
       default:
