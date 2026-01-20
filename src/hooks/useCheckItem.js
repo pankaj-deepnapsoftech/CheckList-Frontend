@@ -51,11 +51,12 @@ export const useCheckItem = (search, page, limit) => {
 
   const AddCategroy = useMutation({
     mutationFn: async (data) => {
-
+     console.log(data)
       const body = {};
       if (data.newMethod) body.checking_method = data.newMethod;
       if (data.newUom) body.uom = data.newUom;
       if (data.newTime) body.checking_time = data.newTime;
+      if (data.newCategory) body.category = data.newCategory;
 
       const res = await axiosHandler.post(`types/create-types`, body);
       return res?.data;
