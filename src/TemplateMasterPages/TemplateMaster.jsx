@@ -1175,7 +1175,7 @@ export default function TemplateMaster() {
                         </span>
                       </div>
 
-                      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                      <div className="mt-3 grid gap-2 sm:grid-cols-3 pr-10">
                         <div className="sm:col-span-1">
                           <label className="block text-xs font-medium text-gray-600">
                             Field Name <span className="text-red-500">*</span>
@@ -1216,7 +1216,7 @@ export default function TemplateMaster() {
                           </select>
                         </div>
                         <div className="sm:col-span-1 flex items-end justify-between gap-3">
-                          <label className="flex items-center gap-2 text-sm text-gray-700">
+                          <label className="flex items-center gap-1 text-sm text-gray-700">
                             <input
                               type="checkbox"
                               checked={
@@ -1237,7 +1237,7 @@ export default function TemplateMaster() {
                               <button
                                 type="button"
                                 onClick={cancelEditField}
-                                className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                                className="rounded-lg border border-gray-300 px-1 py-1 text-xs font-small text-gray-700 hover:bg-gray-50"
                               >
                                 Cancel
                               </button>
@@ -1245,7 +1245,7 @@ export default function TemplateMaster() {
                                 type="button"
                                 onClick={handleUpdateField}
                                 disabled={updateField.isPending}
-                                className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                                className="rounded-lg bg-blue-600 px-2 py-2 text-xs font-small text-white hover:bg-blue-700 disabled:opacity-60"
                               >
                                 {updateField.isPending
                                   ? "Updating..."
