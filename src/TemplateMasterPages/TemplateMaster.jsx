@@ -30,7 +30,7 @@ export default function TemplateMaster() {
   const [draftFields, setDraftFields] = useState([]);
   const [draftPreviewValues, setDraftPreviewValues] = useState({});
 
-  const { templatesQuery, templateQuery, createTemplate, addField, deleteField } =
+  const { templatesQuery, templateQuery, createTemplate, addField, deleteField, deleteTemplate } =
     useTemplateMaster(selectedTemplateId);
 
   const templates = templatesQuery.data || [];
@@ -331,20 +331,45 @@ export default function TemplateMaster() {
                   <div className="text-sm text-gray-500">No templates yet.</div>
                 ) : (
                   templates.map((t) => (
-                    <button
+                    <div
                       key={t._id}
-                      onClick={() => setSelectedTemplateId(t._id)}
-                      className={`w-full rounded-lg border px-3 py-2 text-left text-sm ${
+                      className={`group flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm ${
                         selectedTemplateId === t._id
                           ? "border-blue-200 bg-blue-50 text-blue-700"
                           : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                       }`}
                     >
-                      <div className="font-semibold">{t.template_name}</div>
-                      <div className="text-[11px] text-gray-500">
-                        {t.template_type || "—"}
-                      </div>
-                    </button>
+                      <button
+                        onClick={() => setSelectedTemplateId(t._id)}
+                        className="flex-1 text-left"
+                      >
+                        <div className="font-semibold">{t.template_name}</div>
+                        <div className="text-[11px] text-gray-500">
+                          {t.template_type || "—"}
+                        </div>
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm(`Are you sure you want to delete "${t.template_name}"? This will also delete all its fields.`)) {
+                            deleteTemplate.mutate(
+                              { templateId: t._id },
+                              {
+                                onSuccess: () => {
+                                  if (selectedTemplateId === t._id) {
+                                    setSelectedTemplateId("");
+                                  }
+                                },
+                              }
+                            );
+                          }
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-rose-100 text-rose-600"
+                        title="Delete Template"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   ))
                 )}
               </div>

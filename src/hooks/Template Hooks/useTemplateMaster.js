@@ -67,12 +67,28 @@ export const useTemplateMaster = (selectedTemplateId) => {
     },
   });
 
+  const deleteTemplate = useMutation({
+    mutationFn: async ({ templateId }) => {
+      const res = await axiosHandler.delete(`/template-master/templates/${templateId}`);
+      return res?.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message || "Template deleted");
+      qc.invalidateQueries({ queryKey: ["template-master", "templates"] });
+      qc.invalidateQueries({ queryKey: ["template-master", "template"] });
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Failed to delete template");
+    },
+  });
+
   return {
     templatesQuery,
     templateQuery,
     createTemplate,
     addField,
     deleteField,
+    deleteTemplate,
   };
 };
 
