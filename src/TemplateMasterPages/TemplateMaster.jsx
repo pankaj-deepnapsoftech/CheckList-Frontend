@@ -545,8 +545,8 @@ export default function TemplateMaster() {
                         onClick={() => setSelectedTemplateId(t._id)}
                         className="flex-1 text-left"
                       >
-                        <div className="font-semibold">{t.template_name}</div>
-                        <div className="text-[11px] text-gray-500">
+                        <div className="font-semibold text-[18px]">{t.template_name}</div>
+                        <div className="text-[14px] text-gray-500">
                           {t.template_type || "—"}
                         </div>
                       </button>
@@ -559,7 +559,7 @@ export default function TemplateMaster() {
                           className="rounded p-1 hover:bg-green-100 text-green-600"
                           title="View Template"
                         >
-                          <Eye size={14} />
+                          <Eye size={18} />
                         </button>
                         <button
                           onClick={(e) => {
@@ -569,7 +569,7 @@ export default function TemplateMaster() {
                           className="rounded p-1 hover:bg-blue-100 text-blue-600"
                           title="Edit Template"
                         >
-                          <Edit2 size={14} />
+                          <Edit2 size={18} />
                         </button>
                         <button
                           onClick={(e) => {
@@ -590,7 +590,7 @@ export default function TemplateMaster() {
                           className="rounded p-1 hover:bg-rose-100 text-rose-600"
                           title="Delete Template"
                         >
-                          <Trash2 size={14} />
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </div>
@@ -758,7 +758,7 @@ export default function TemplateMaster() {
       {isCreateOpen && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" onClick={closeCreate} />
-          <div className="absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl">
+          <div className="absolute right-0 top-0 h-full w-full max-w-[70%] bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Create New Template</h2>
@@ -766,7 +766,7 @@ export default function TemplateMaster() {
                   Fill Template details and add fields, then save.
                 </p>
               </div>
-              <button onClick={closeCreate} className="rounded-lg p-2 hover:bg-gray-100">
+              <button onClick={closeCreate} className="rounded-lg cursor-pointer p-2 hover:bg-gray-100">
                 <X size={18} />
               </button>
             </div>
@@ -774,7 +774,7 @@ export default function TemplateMaster() {
             <form onSubmit={saveNewTemplateWithFields} className="h-full overflow-y-auto px-5 py-4">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600">
+                  <label className="block text-sm font-medium text-gray-600">
                     Template Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -786,7 +786,7 @@ export default function TemplateMaster() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-600">Template Type</label>
+                  <label className="block text-sm font-medium text-gray-600">Template Type</label>
                   <input
                     type="text"
                     value={newTemplateType}
@@ -799,7 +799,7 @@ export default function TemplateMaster() {
                 <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-sm font-semibold text-gray-800">Add Field</h3>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-yellow-600">
                       Total: {draftFields.length}
                     </span>
                   </div>
@@ -923,10 +923,8 @@ export default function TemplateMaster() {
                 <div className="rounded-xl border border-gray-100 bg-white p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-800">Live Form Preview</h3>
-                      <p className="mt-1 text-xs text-gray-500">
-                        Jaise-jaise fields add karoge, yaha form banta hua dikhega — aur aap isko normal form ki tarah fill kar sakte ho.
-                      </p>
+                      <h3 className="text-md font-semibold text-green-800">Form Preview</h3>
+                     
                     </div>
                   </div>
 
@@ -998,7 +996,7 @@ export default function TemplateMaster() {
       {isEditOpen && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" onClick={closeEdit} />
-          <div className="absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl">
+          <div className="absolute right-0 top-0 h-full w-full max-w-[70%] bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">Edit Template</h2>
@@ -1014,7 +1012,7 @@ export default function TemplateMaster() {
             <form onSubmit={handleUpdateTemplate} className="h-full overflow-y-auto px-5 py-4">
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-600">
+                  <label className="block text-sm font-medium text-gray-600">
                     Template Name <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -1026,7 +1024,7 @@ export default function TemplateMaster() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-gray-600">Template Type</label>
+                  <label className="block text-sm font-medium text-gray-600">Template Type</label>
                   <input
                     type="text"
                     value={editTemplateType}
@@ -1042,7 +1040,7 @@ export default function TemplateMaster() {
                     <h3 className="text-sm font-semibold text-gray-800">
                       {editingFieldId ? "Edit Field" : "Add Field"}
                     </h3>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-xs text-yellow-600">
                       Total: {fields.length}
                     </span>
                   </div>
@@ -1228,10 +1226,8 @@ export default function TemplateMaster() {
                 <div className="rounded-xl border border-gray-100 bg-white p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <h3 className="text-sm font-semibold text-gray-800">Live Form Preview</h3>
-                      <p className="mt-1 text-xs text-gray-500">
-                        Template aur fields ka live preview — aap isko normal form ki tarah fill kar sakte ho.
-                      </p>
+                      <h3 className="text-sm font-semibold text-green-800">Form Preview</h3>
+                     
                     </div>
                   </div>
 
@@ -1276,7 +1272,7 @@ export default function TemplateMaster() {
                 </div>
               </div>
 
-              <div className="sticky bottom-0 mt-6 border-t bg-white py-4">
+              <div className="sticky bottom-0 mt-6 mb-20 border-t bg-white py-4">
                 <div className="flex items-center justify-end gap-3">
                   <button
                     type="button"
@@ -1303,13 +1299,11 @@ export default function TemplateMaster() {
       {isViewOpen && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" onClick={closeView} />
-          <div className="absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl">
+          <div className="absolute right-0 top-0 h-full w-full max-w-[70%] bg-white shadow-2xl">
             <div className="flex items-center justify-between border-b px-5 py-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">View Template</h2>
-                <p className="text-xs text-gray-500">
-                  Template details aur form preview (Read-only).
-                </p>
+                
               </div>
               <button onClick={closeView} className="rounded-lg p-2 hover:bg-gray-100">
                 <X size={18} />
@@ -1421,9 +1415,7 @@ export default function TemplateMaster() {
                     <div className="flex items-start justify-between gap-3">
                       <div>
                         <h3 className="text-sm font-semibold text-gray-800">Form Preview</h3>
-                        <p className="mt-1 text-xs text-gray-500">
-                          Ye form user ko dikhega (Read-only preview).
-                        </p>
+                       
                       </div>
                     </div>
 
@@ -1475,7 +1467,7 @@ export default function TemplateMaster() {
                 </div>
               )}
 
-              <div className="sticky bottom-0 mt-6 border-t bg-white py-4">
+              <div className="sticky bottom-0 mt-6 mb-20 border-t bg-white py-4">
                 <div className="flex items-center justify-end">
                   <button
                     type="button"
