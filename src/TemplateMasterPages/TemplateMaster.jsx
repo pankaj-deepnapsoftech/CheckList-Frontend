@@ -456,12 +456,12 @@ export default function TemplateMaster() {
           </button>
         </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <div className="mt-6 grid gap-4 ">
           {/* LEFT: Templates list */}
           <div className="lg:col-span-1">
             <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-gray-800">Templates</h2>
+                <h2 className="text-md font-semibold text-gray-800">Templates</h2>
                 {templatesQuery.isLoading && (
                   <span className="text-xs text-gray-400">Loading...</span>
                 )}
@@ -489,7 +489,7 @@ export default function TemplateMaster() {
                           {t.template_type || "—"}
                         </div>
                       </button>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex items-center gap-1 ">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -540,7 +540,7 @@ export default function TemplateMaster() {
           </div>
 
           {/* MIDDLE: Field Builder */}
-          <div className="lg:col-span-1">
+          {/* <div className="lg:col-span-1">
             <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
               <div className="flex items-center justify-between">
                 <div>
@@ -626,10 +626,10 @@ export default function TemplateMaster() {
                 </>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* RIGHT: Form Preview */}
-          <div className="lg:col-span-1">
+          {/* <div className="lg:col-span-1">
             <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -650,7 +650,6 @@ export default function TemplateMaster() {
                 </div>
               ) : (
                 <div className="mt-4 space-y-4">
-                  {/* Template Name & Type */}
                   <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
                     <div className="text-xs font-semibold text-gray-700">Template Name</div>
                     <div className="mt-1 text-sm font-semibold text-gray-900">
@@ -666,7 +665,6 @@ export default function TemplateMaster() {
                     )}
                   </div>
 
-                  {/* Fields */}
                   {fields.map((f) => (
                     <div key={f._id}>
                       {f.field_type !== "CHECKBOX" && (
@@ -691,7 +689,7 @@ export default function TemplateMaster() {
                 </div>
               )}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 
