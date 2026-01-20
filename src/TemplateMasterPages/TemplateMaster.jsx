@@ -424,7 +424,7 @@ export default function TemplateMaster() {
   };
 
   return (
-    <div className="min-h-full bg-gray-50">
+    <div className="min-h-full bg-gray-50 ">
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -888,7 +888,7 @@ export default function TemplateMaster() {
                 </div>
               </div>
 
-              <div className="sticky bottom-0 mt-6 border-t bg-white py-4">
+              <div className="sticky bottom-0 mt-6 mb-20 border-t bg-white py-4">
                 <div className="flex items-center justify-end gap-3">
                   <button
                     type="button"
