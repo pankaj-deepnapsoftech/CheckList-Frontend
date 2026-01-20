@@ -22,6 +22,8 @@ import {
   ChevronDown,
   WorkflowIcon,
   GraduationCap,
+  Cpu,
+  Activity,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -78,6 +80,23 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         { name: "Manage Template", path: "/template-master", icon: <LayoutTemplate size={18} /> },
         { name: "Manage Release Group", path: "/release-group", icon: <Repeat2 size={18} /> },
         { name: "Manage Workflow", path: "/workflow", icon: <WorkflowIcon size={18} /> },
+      ],
+    },
+
+    {
+      name: "Plc-Data",
+      icon: <Cpu size={20} />,
+      children: [
+        {
+          name: "Live-Data",
+          path: "/plc-data/live",
+          icon: <Activity size={18} />,
+        },
+        {
+          name: "Stoppage",
+          path: "/plc-data/stoppage",
+          icon: <Activity size={18} />,
+        },
       ],
     },
 
