@@ -3,12 +3,11 @@ import { X, FileText, Folder, Calendar, Paperclip } from "lucide-react";
 
 export default function ViewDocumentModal({ open, onClose, data }) {
   if (!open || !data) return null;
-
+ 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
       {/* PANEL */}
       <div className="bg-white h-screen w-full sm:w-[750px] xl:w-[850px] shadow-2xl animate-slideLeft flex flex-col">
-
         {/* HEADER */}
         <div className="px-8 py-6 flex justify-between items-center sticky top-0 bg-white z-10">
           <div>
@@ -30,15 +29,14 @@ export default function ViewDocumentModal({ open, onClose, data }) {
 
         {/* BODY */}
         <div className="px-8 py-6 space-y-6 overflow-y-auto">
-
           {/* BASIC INFO */}
           <ColoredSection
             title="Document Information"
             color="blue"
             icon={<FileText size={18} />}
           >
-            <Info label="Document Name" value={data.document_name} />
-            <Info label="Status" value={data.status} />
+            <Info label="Document Name" value={data.doc_name} />
+            {/* <Info label="Status" value={data.status} /> */}
           </ColoredSection>
 
           {/* CATEGORY */}
@@ -56,7 +54,10 @@ export default function ViewDocumentModal({ open, onClose, data }) {
             color="teal"
             icon={<Calendar size={18} />}
           >
-            <Info label="Expiry Date" value={data.expiry_date} />
+            <Info
+              label="Expiry Date"
+              value={new Date(data.expiry).toLocaleDateString("en-GB")}
+            />
           </ColoredSection>
 
           {/* ATTACHMENT */}
@@ -65,16 +66,16 @@ export default function ViewDocumentModal({ open, onClose, data }) {
             color="purple"
             icon={<Paperclip size={18} />}
           >
-            {data.file_url ? (
+            {data.attached_doc ? (
               <div className="col-span-2">
                 <a
-                  href={data.file_url}
+                  href={data.attached_doc}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 text-blue-600 font-medium hover:underline"
                 >
                   <Paperclip size={16} />
-                  View / Download Document
+                  View
                 </a>
               </div>
             ) : (
@@ -83,7 +84,6 @@ export default function ViewDocumentModal({ open, onClose, data }) {
               </p>
             )}
           </ColoredSection>
-
         </div>
       </div>
 

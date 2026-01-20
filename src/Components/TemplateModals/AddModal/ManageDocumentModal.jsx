@@ -13,44 +13,59 @@ const AddDocumentModal = ({
   mode = "add",
 }) => {
   const isView = mode === "view";
-  const { postDocuments } = useManageDocuments();
+  const { postDocuments, updateDocuments } = useManageDocuments();
   const { GetCategory, AddCategroy } = useCheckItem();
   const [category, setCategoryList] = useState([]);
   const [showCategory, setShowCategory] = useState(false);
   const [newCategory, setNewCategory] = useState("");
+
+  const formatDateForInput = (date) => {
+    if (!date) return "";
+    return new Date(date).toISOString().split("T")[0];
+  };
 
   const titleMap = {
     add: "Add Document",
     edit: "Update Document",
     view: "View Document",
   };
-
+  console.log(editData);
   const formik = useFormik({
     initialValues: {
       doc_name: editData?.doc_name ?? "",
       category: editData?.category ?? "",
-      expiry: editData?.expiry ?? "",
+      expiry: editData?.expiry ? formatDateForInput(editData.expiry) : "",
       attached_doc: null,
     },
+
     enableReinitialize: true,
     onSubmit: (values) => {
       let formdata = new FormData();
       formdata.append("attached_doc", values.attached_doc);
       formdata.append("category", values.category);
-      formdata.append("expiry", values.expiry);
+      formdata.append(
+        "expiry",
+        values.expiry ? new Date(values.expiry).toISOString() : "",
+      );
+
       formdata.append("doc_name", values.doc_name);
-
-      console.log("DOCUMENT DATA 👉", values);
-
-      postDocuments.mutate(formdata, {
-        onSuccess: () => {
-          setOpenModal(false);
-        },
-      });
+      if (editData) {
+        updateDocuments.mutate({id:editData?._id, data:formdata}, {
+          onSuccess: () => {
+            setOpenModal(false);
+            formik.resetForm();
+          },
+        });
+      } else {
+        postDocuments.mutate(formdata, {
+          onSuccess: () => {
+            setOpenModal(false);
+            formik.resetForm();
+          },
+        });
+      }
     },
   });
-
-  // console.log(GetCategory?.data);
 
   useEffect(() => {
     if (GetCategory?.data) {
@@ -126,7 +141,7 @@ const AddDocumentModal = ({
                         "
                   onClick={() => setShowCategory(true)}
                 >
-                  + Add Time
+                  + Add Category
                 </button>
               )}
             </div>
@@ -166,14 +181,17 @@ const AddDocumentModal = ({
           </Field>
 
           {/* EXPIRY DATE */}
-          <Input
-            type="date"
-            label="Expiry Date"
-            name="expiry"
-            value={values.expiry}
-            onChange={handleChange}
-            readOnly={isView}
-          />
+          <label className="block mb-4">
+            <span className="font-medium">Expary</span>
+            <input
+              type="date"
+              name="expiry"
+              value={values.expiry}
+              onChange={formik.handleChange}
+              readOnly={isView}
+              className="mt-2 w-full px-4 py-3 border border-gray-200 rounded-lg"
+            />
+          </label>
 
           {/* FILE UPLOAD */}
           <label className="block mb-6">
@@ -216,14 +234,13 @@ const AddDocumentModal = ({
                     id="documentUpload"
                     type="file"
                     hidden
-                    accept=".pdf,.doc,.docx"
+                    accept=".pdf,.doc,.docx,.jpg"
                     onChange={(e) =>
                       setFieldValue("attached_doc", e.target.files[0])
                     }
                   />
                 </div>
 
-                {/* FILE INFO */}
                 <div className="flex justify-between items-center mt-2 text-xs text-gray-500">
                   <span>Accepted File Types: PDF, DOC, DOCX, JPG, PNG...</span>
                 </div>
