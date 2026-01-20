@@ -1411,7 +1411,7 @@ export default function TemplateMaster() {
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" onClick={closeView} />
           <div className="absolute right-0 top-0 h-full w-full max-w-[90%] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b  px-5 py-4">
+            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
                   View Template
@@ -1435,11 +1435,11 @@ export default function TemplateMaster() {
               ) : selectedTemplate ? (
                 <div className="space-y-4">
                   {/* Template Info */}
-                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  {/* <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                     <div className="text-xs font-semibold text-gray-700">
                       Template Name
                     </div>
-                    <div className="mt-1 text-sm font-semibold text-gray-900">
+                    <div className="mt-1 text-md font-semibold text-gray-900">
                       {selectedTemplate.template_name || "—"}
                     </div>
                     {selectedTemplate.template_type && (
@@ -1452,7 +1452,7 @@ export default function TemplateMaster() {
                         </div>
                       </>
                     )}
-                  </div>
+                  </div> */}
 
                   {/* Fields List */}
                   <div className="rounded-xl border border-gray-100 bg-white p-4">
@@ -1562,19 +1562,18 @@ export default function TemplateMaster() {
                     </div>
 
                     <div className="mt-4">
-                      {/* Template Name & Type */}
                       <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
-                        <div className="text-xs font-semibold text-gray-700">
+                        {/* <div className="text-xs font-semibold text-gray-700">
                           Template Name
-                        </div>
-                        <div className="mt-1 text-sm font-semibold text-gray-900">
+                        </div> */}
+                        <div className="mt-1 text-md font-semibold text-gray-900">
                           {selectedTemplate.template_name || "—"}
                         </div>
                         {selectedTemplate.template_type && (
                           <>
-                            <div className="mt-2 text-xs font-semibold text-gray-700">
+                            {/* <div className="mt-2 text-xs font-semibold text-gray-700">
                               Template Type
-                            </div>
+                            </div> */}
                             <div className="mt-1 text-sm text-gray-800">
                               {selectedTemplate.template_type}
                             </div>
@@ -1582,7 +1581,6 @@ export default function TemplateMaster() {
                         )}
                       </div>
 
-                      {/* Fields Preview */}
                       {fields.length === 0 ? (
                         <div className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
                           No fields in this template.
@@ -1617,7 +1615,7 @@ export default function TemplateMaster() {
                 </div>
               )}
 
-              <div className="sticky bottom-0 mt-6 mb-20 border-t  bg-white py-4">
+              <div className="sticky bottom-0 mt-6 mb-20 border-t border-gray-200  bg-white py-4">
                 <div className="flex items-center justify-end">
                   <button
                     type="button"
