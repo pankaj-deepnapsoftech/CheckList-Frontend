@@ -355,6 +355,7 @@ export default function TemplateMaster() {
 
   const handleAddFieldInEdit = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     const name = (newFieldName || "").trim();
     if (!name) return;
 
@@ -378,6 +379,7 @@ export default function TemplateMaster() {
       },
     });
 
+    // Reset form fields after adding
     setNewFieldName("");
     setNewFieldType("TEXT");
     setNewIsMandatory(false);
@@ -386,6 +388,7 @@ export default function TemplateMaster() {
 
   const handleUpdateField = async (e) => {
     e.preventDefault();
+    e.stopPropagation();
     const name = (editFieldName || "").trim();
     if (!name) return;
 
@@ -1051,8 +1054,8 @@ export default function TemplateMaster() {
       {isEditOpen && (
         <div className="fixed inset-0 z-50">
           <div className="absolute inset-0 bg-black/40" onClick={closeEdit} />
-          <div className="absolute right-0 top-0 h-full w-full max-w-[70%] bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b  px-5 py-4">
+          <div className="absolute right-0 top-0 h-full w-full max-w-[90%] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b px-5 py-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
                   Edit Template
@@ -1074,48 +1077,45 @@ export default function TemplateMaster() {
               className="h-full overflow-y-auto px-5 py-4"
             >
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600">
-                    Template Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    value={editTemplateName}
-                    onChange={(e) => setEditTemplateName(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                    placeholder="e.g., Item Master – General"
-                  />
-                </div>
+                {/* Two Column Layout: Template Fields + Add Field Section (Left) and Form Preview (Right) */}
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {/* LEFT: Template Name, Template Type, and Add/Edit Field Section */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">
+                        Template Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        value={editTemplateName}
+                        onChange={(e) => setEditTemplateName(e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                        placeholder="e.g., Item Master – General"
+                      />
+                    </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-600">
-                    Template Type
-                  </label>
-                  <input
-                    type="text"
-                    value={editTemplateType}
-                    onChange={(e) => setEditTemplateType(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                    placeholder="e.g., New / Amendment / Item Master – General"
-                  />
-                </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">Template Type</label>
+                      <input
+                        type="text"
+                        value={editTemplateType}
+                        onChange={(e) => setEditTemplateType(e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                        placeholder="e.g., New / Amendment / Item Master – General"
+                      />
+                    </div>
 
-                {/* Add/Edit Field Section */}
-                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-gray-800">
-                      {editingFieldId ? "Edit Field" : "Add Field"}
-                    </h3>
-                    <span className="text-xs text-yellow-600">
-                      Total: {fields.length}
-                    </span>
-                  </div>
+                    {/* Add/Edit Field Section */}
+                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-gray-800">
+                          {editingFieldId ? "Edit Field" : "Add Field"}
+                        </h3>
+                        <span className="text-xs text-yellow-600">
+                          Total: {fields.length}
+                        </span>
+                      </div>
 
-                  <form
-                    onSubmit={
-                      editingFieldId ? handleUpdateField : handleAddFieldInEdit
-                    }
-                    className="mt-3 grid gap-3 sm:grid-cols-3"
-                  >
+                      <div className="mt-3 grid gap-3 sm:grid-cols-3">
                     <div className="sm:col-span-1">
                       <label className="block text-xs font-medium text-gray-600">
                         Field Name <span className="text-red-500">*</span>
@@ -1176,7 +1176,8 @@ export default function TemplateMaster() {
                             Cancel
                           </button>
                           <button
-                            type="submit"
+                            type="button"
+                            onClick={handleUpdateField}
                             disabled={updateField.isPending}
                             className="rounded-lg bg-blue-600 px-3 py-2 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-60"
                           >
@@ -1185,7 +1186,8 @@ export default function TemplateMaster() {
                         </div>
                       ) : (
                         <button
-                          type="submit"
+                          type="button"
+                          onClick={handleAddFieldInEdit}
                           disabled={addField.isPending}
                           className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
                         >
@@ -1220,9 +1222,9 @@ export default function TemplateMaster() {
                         </p>
                       </div>
                     )}
-                  </form>
+                      </div>
 
-                  {/* Fields List */}
+                      {/* Fields List */}
                   <div className="mt-4 overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200 text-sm">
                       <thead className="bg-white">
@@ -1303,11 +1305,12 @@ export default function TemplateMaster() {
                         )}
                       </tbody>
                     </table>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                {/* LIVE FORM PREVIEW (EDIT MODE) */}
-                <div className="rounded-xl border border-gray-100 bg-white p-4">
+                  {/* RIGHT: LIVE FORM PREVIEW (EDIT MODE) */}
+                  <div className="rounded-xl border border-gray-100 bg-white p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <h3 className="text-sm font-semibold text-green-800">
@@ -1363,6 +1366,7 @@ export default function TemplateMaster() {
                       </div>
                     )}
                   </div>
+                </div>
                 </div>
               </div>
 
