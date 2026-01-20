@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Plus, Trash2, X } from "lucide-react";
+import { Edit2, Plus, Trash2, X } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 
 const FIELD_TYPES = [
@@ -20,6 +20,10 @@ export default function TemplateMaster() {
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editingTemplateId, setEditingTemplateId] = useState("");
+  const [editTemplateName, setEditTemplateName] = useState("");
+  const [editTemplateType, setEditTemplateType] = useState("");
   const [newTemplateName, setNewTemplateName] = useState("");
   const [newTemplateType, setNewTemplateType] = useState("");
 
@@ -30,7 +34,7 @@ export default function TemplateMaster() {
   const [draftFields, setDraftFields] = useState([]);
   const [draftPreviewValues, setDraftPreviewValues] = useState({});
 
-  const { templatesQuery, templateQuery, createTemplate, addField, deleteField, deleteTemplate } =
+  const { templatesQuery, templateQuery, createTemplate, addField, deleteField, updateTemplate, deleteTemplate } =
     useTemplateMaster(selectedTemplateId);
 
   const templates = templatesQuery.data || [];
@@ -221,6 +225,34 @@ export default function TemplateMaster() {
     setIsCreateOpen(false);
   };
 
+  const openEdit = (template) => {
+    setEditingTemplateId(template._id);
+    setEditTemplateName(template.template_name);
+    setEditTemplateType(template.template_type || "");
+    setIsEditOpen(true);
+    // Select template to load its fields
+    setSelectedTemplateId(template._id);
+  };
+
+  const closeEdit = () => {
+    setIsEditOpen(false);
+    setEditingTemplateId("");
+    setEditTemplateName("");
+    setEditTemplateType("");
+  };
+
+  const handleUpdateTemplate = async (e) => {
+    e.preventDefault();
+    await updateTemplate.mutateAsync({
+      templateId: editingTemplateId,
+      payload: {
+        template_name: editTemplateName,
+        template_type: editTemplateType || null,
+      },
+    });
+    closeEdit();
+  };
+
   const addDraftField = (e) => {
     e.preventDefault();
     const name = (newFieldName || "").trim();
@@ -348,27 +380,39 @@ export default function TemplateMaster() {
                           {t.template_type || "—"}
                         </div>
                       </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (window.confirm(`Are you sure you want to delete "${t.template_name}"? This will also delete all its fields.`)) {
-                            deleteTemplate.mutate(
-                              { templateId: t._id },
-                              {
-                                onSuccess: () => {
-                                  if (selectedTemplateId === t._id) {
-                                    setSelectedTemplateId("");
-                                  }
-                                },
-                              }
-                            );
-                          }
-                        }}
-                        className="opacity-0 group-hover:opacity-100 transition-opacity rounded p-1 hover:bg-rose-100 text-rose-600"
-                        title="Delete Template"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEdit(t);
+                          }}
+                          className="rounded p-1 hover:bg-blue-100 text-blue-600"
+                          title="Edit Template"
+                        >
+                          <Edit2 size={14} />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (window.confirm(`Are you sure you want to delete "${t.template_name}"? This will also delete all its fields.`)) {
+                              deleteTemplate.mutate(
+                                { templateId: t._id },
+                                {
+                                  onSuccess: () => {
+                                    if (selectedTemplateId === t._id) {
+                                      setSelectedTemplateId("");
+                                    }
+                                  },
+                                }
+                              );
+                            }
+                          }}
+                          className="rounded p-1 hover:bg-rose-100 text-rose-600"
+                          title="Delete Template"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
@@ -764,6 +808,136 @@ export default function TemplateMaster() {
                     className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
                   >
                     {createTemplate.isPending || addField.isPending ? "Saving..." : "Save Template"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* RIGHT DRAWER: Edit Template */}
+      {isEditOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={closeEdit} />
+          <div className="absolute right-0 top-0 h-full w-full max-w-xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b px-5 py-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">Edit Template</h2>
+                <p className="text-xs text-gray-500">
+                  Update template name and type.
+                </p>
+              </div>
+              <button onClick={closeEdit} className="rounded-lg p-2 hover:bg-gray-100">
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateTemplate} className="h-full overflow-y-auto px-5 py-4">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600">
+                    Template Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    value={editTemplateName}
+                    onChange={(e) => setEditTemplateName(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                    placeholder="e.g., Item Master – General"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-600">Template Type</label>
+                  <input
+                    type="text"
+                    value={editTemplateType}
+                    onChange={(e) => setEditTemplateType(e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                    placeholder="e.g., New / Amendment / Item Master – General"
+                  />
+                </div>
+
+                {/* Existing Fields */}
+                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-semibold text-gray-800">Template Fields</h3>
+                    <span className="text-xs text-gray-500">
+                      Total: {fields.length}
+                    </span>
+                  </div>
+
+                  <div className="mt-4 overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                      <thead className="bg-white">
+                        <tr>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                            Field
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                            Type
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                            Mandatory
+                          </th>
+                          <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500">
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 bg-white">
+                        {fields.length === 0 ? (
+                          <tr>
+                            <td className="px-3 py-3 text-sm text-gray-500" colSpan={4}>
+                              No fields in this template.
+                            </td>
+                          </tr>
+                        ) : (
+                          fields.map((f) => (
+                            <tr key={f._id} className="hover:bg-gray-50">
+                              <td className="px-3 py-2 text-sm font-semibold text-gray-800">
+                                {f.field_name}
+                              </td>
+                              <td className="px-3 py-2 text-sm text-gray-700">{f.field_type}</td>
+                              <td className="px-3 py-2 text-sm text-gray-700">
+                                {f.is_mandatory ? "Yes" : "No"}
+                              </td>
+                              <td className="px-3 py-2 text-right">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    deleteField.mutate({ fieldId: f._id })
+                                  }
+                                  className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100"
+                                >
+                                  <Trash2 size={14} />
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 mt-6 border-t bg-white py-4">
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={closeEdit}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updateTemplate.isPending}
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                  >
+                    {updateTemplate.isPending ? "Updating..." : "Update Template"}
                   </button>
                 </div>
               </div>
