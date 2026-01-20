@@ -25,7 +25,7 @@ const AddDocumentModal = ({
         },
         enableReinitialize: true,
         onSubmit: (values) => {
-            console.log("DOCUMENT DATA 👉", values);
+            console.log("DOCUMENT DATA", values);
             setOpenModal(false);
         },
     });
@@ -46,7 +46,7 @@ const AddDocumentModal = ({
                 >
                     <X size={20} />
                 </button>
-
+ 
                 <h2 className="text-xl font-semibold mb-6">{titleMap[mode]}</h2>
 
                 <form onSubmit={handleSubmit}>
@@ -76,10 +76,10 @@ const AddDocumentModal = ({
                         value={values.expiry_date}
                         onChange={handleChange}
                         readOnly={isView}
-                    />
+                    />  
 
                     {/* FILE UPLOAD */}
-                    <label className="block mb-6">
+                    <label className="block mb-6">  
                         <span className="font-medium">Attach Document</span>
 
                         {isView && editData?.document_file ? (
@@ -95,10 +95,10 @@ const AddDocumentModal = ({
                                     onDragOver={(e) => e.preventDefault()}
                                     onDrop={(e) => {
                                         e.preventDefault();
-                                        const file = e.dataTransfer.files[0];
+                                        const file = e.dataTransfer.files[0]; 
                                         if (file) setFieldValue("document_file", file);
                                     }}
-                                    onClick={() => document.getElementById("documentUpload").click()}
+                                    onClick={() => document.getElementById("documentUpload").click()}  
                                 >
                                     <Upload className="mx-auto mb-3 text-gray-500" size={32} />
 
