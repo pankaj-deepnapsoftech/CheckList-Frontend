@@ -1478,7 +1478,7 @@ export default function TemplateMaster() {
               ) : selectedTemplate ? (
                 <div className="space-y-4">
                   {/* Template Info */}
-                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  {/* <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                     <div className="text-xs font-semibold text-gray-700">
                       Template Name
                     </div>
@@ -1510,7 +1510,7 @@ export default function TemplateMaster() {
                         </div>
                       </>
                     )}
-                  </div>
+                  </div> */}
 
                   {/* Fields List */}
                   <div className="rounded-xl border border-gray-100 bg-white p-4">
@@ -1518,7 +1518,7 @@ export default function TemplateMaster() {
                       <h3 className="text-sm font-semibold text-gray-800">
                         Template Fields
                       </h3>
-                      <span className="text-xs text-gray-500">
+                      <span className="text-xs text-yellow-500">
                         Total: {fields.length}
                       </span>
                     </div>
@@ -1613,7 +1613,7 @@ export default function TemplateMaster() {
                   <div className="rounded-xl border border-gray-100 bg-white p-4">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <h3 className="text-sm font-semibold text-gray-800">
+                        <h3 className="text-md font-semibold text-green-700">
                           Form Preview
                         </h3>
                       </div>
