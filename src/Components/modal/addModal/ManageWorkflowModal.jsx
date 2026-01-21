@@ -164,7 +164,7 @@ const ManageWorkflowModal = ({
             className="cursor-pointer"
             onClick={() => {
               setOpenModal(false);
-              formik.resetForm();
+              formik.resetForm();   
             }}
           >
             <X size={22} className="text-gray-500 hover:text-black" />
