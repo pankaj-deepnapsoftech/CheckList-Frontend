@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import React, { useState } from "react";
 import {
   LayoutDashboard,
@@ -31,6 +31,7 @@ import { useLogin } from "../hooks/useLogin";
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const { logedinUser, logOutUser } = useLogin();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const user = logedinUser?.data;
   const permissions = user?.userRole?.permissions || [];
@@ -85,6 +86,12 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       ],
     },
 
+    !IsSuper && {
+      name: "My Templates",
+      path: "/assigned-templates",
+      icon: <LayoutTemplate size={20} />,
+    },
+
     {
       name: "Plc-Data",
       icon: <Cpu size={20} />,
@@ -116,14 +123,25 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   ].filter(Boolean);
 
   // ================= PERMISSION =================
+  // User-specific pages that should always be visible to non-admin users
+  const userSpecificPaths = [
+    "/assigned-assembly-lines",
+    "/daily-assembly-check",
+  ];
+
   const allowedMenu = IsSuper
     ? allMenu
-    : allMenu.filter((i) =>
-      i.children
-        ? i.children.some((c) => permissions.includes(c.path)) ||
-        permissions.includes(i.path)
-        : permissions.includes(i.path)
-    );
+    : allMenu.filter((i) => {
+        // Always show user-specific pages for non-admin users
+        if (i.path && userSpecificPaths.includes(i.path)) {
+          return true;
+        }
+        // For other items (including "My Templates"), check permissions
+        return i.children
+          ? i.children.some((c) => permissions.includes(c.path)) ||
+              permissions.includes(i.path)
+          : permissions.includes(i.path);
+      });
 
   const handleLogout = () => {
     logOutUser.mutate();
@@ -181,22 +199,25 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           );
         }
 
+        const isActive = location.pathname === item.path;
         return (
-          <NavLink
+          <button
             key={item.name}
-            to={item.path}
-            onClick={closeMobile}
-            className={({ isActive }) =>
-              `flex items-center gap-3 p-2 rounded-lg
+            onClick={() => {
+              closeMobile();
+              if (item.path) {
+                navigate(item.path);
+              }
+            }}
+            className={`flex items-center gap-3 p-2 rounded-lg w-full text-left
               ${isActive
                 ? "bg-blue-100 text-blue-600 font-medium"
                 : "text-gray-700 hover:bg-gray-100"
-              }`
-            }
+              }`}
           >
             {item.icon}
             {item.name}
-          </NavLink>
+          </button>
         );
       })}
     </nav>

@@ -21,6 +21,7 @@ import { useUserRole } from "../../../hooks/useUserRole";
    "Assigned Assembly Lines": "/assigned-assembly-lines",
    "Daily Assembly Check" : "/daily-assembly-check",
    "Assembly Line Error": "/assembly-line/error",
+   "My Templates": "/assigned-templates",
  };
 
 const SIDEBAR_PAGES = Object.keys(PERMISSION_MAP);
