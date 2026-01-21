@@ -7,20 +7,34 @@ import {
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
-
-export const RegisterEmployee = (cmId,plId,search, page,limit, enabled = true) => {
+export const RegisterEmployee = (
+  hodvales,
+  cmId,
+  plId,
+  search,
+  page,
+  limit,
+  enabled = true,
+) => {
   const qc = useQueryClient();
-  
+
   const getAllEmployee = useQuery({
-    queryKey: ["employees", page , limit],
+    queryKey: ["employees", page, limit],
     queryFn: async () => {
       const res = await axiosHandler.get(
-        `/users/get-employees?page=${page}&&limit=${limit}`
+        `/users/get-employees?page=${page}&&limit=${limit}`,
       );
       return res?.data?.data;
     },
     enabled: !search,
     placeholderData: keepPreviousData,
+  });
+  const getAllHOD = useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const res = await axiosHandler.get(`/users/get-all-hods`);
+      return res?.data?.data;
+    },
   });
 
   const createEmployee = useMutation({
@@ -33,16 +47,17 @@ export const RegisterEmployee = (cmId,plId,search, page,limit, enabled = true) =
       toast.success(data?.message);
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to create Employee");
-    }
+      toast.error(
+        error?.response?.data?.message || "Failed to create Employee",
+      );
+    },
   });
   const searchEmployee = useQuery({
-    
-    queryKey: ["search-employee", cmId, plId, search],
+    queryKey: ["search-employee",hodvales, cmId, plId, search],
     queryFn: async () => {
-     
       const res = await axiosHandler.get("/users/search-employee", {
         params: {
+          is_hod: hodvales,
           company: cmId || undefined,
           plant: plId || undefined,
           search,
@@ -50,23 +65,21 @@ export const RegisterEmployee = (cmId,plId,search, page,limit, enabled = true) =
       });
       return res.data.data;
     },
-    enabled: !!search || !!cmId || !!plId,
+    enabled: !!hodvales || !!search || !!cmId || !!plId,
     keepPreviousData: true,
   });
-
-
 
   const updateEmployee = useMutation({
     mutationFn: async ({ id, data }) => {
       const res = await axiosHandler.put(
         `/users/update-user-by-admin/${id}`,
-        data
+        data,
       );
       return res?.data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["employees"] });
-      toast.success( "Employee updated successfully" || data?.message);
+      toast.success("Employee updated successfully" || data?.message);
     },
     onError: (error) => {
       toast.error(error?.response?.data?.message);
@@ -87,11 +100,9 @@ export const RegisterEmployee = (cmId,plId,search, page,limit, enabled = true) =
 
     onSuccess: ({ terminate }) => {
       if (terminate) {
-        toast.error("User Terminated Successfully", {
-        });
+        toast.error("User Terminated Successfully", {});
       } else {
-        toast.success("User Successfully Un-Terminated", {
-        });
+        toast.success("User Successfully Un-Terminated", {});
       }
 
       qc.invalidateQueries({ queryKey: ["employees"] });
@@ -106,8 +117,8 @@ export const RegisterEmployee = (cmId,plId,search, page,limit, enabled = true) =
     queryFn: async () => {
       const res = await axiosHandler.get("/users/get-all-employees");
       return res?.data?.data;
-    }
-  })
+    },
+  });
 
   return {
     getAllEmployee,
@@ -115,6 +126,7 @@ export const RegisterEmployee = (cmId,plId,search, page,limit, enabled = true) =
     searchEmployee,
     updateEmployee,
     toggleTerminateEmployee,
-    AllEmpData
+    AllEmpData,
+    getAllHOD,
   };
 };
