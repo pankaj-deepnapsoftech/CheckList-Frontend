@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from "react";
 import { Edit2, Eye, Plus, Trash2, X } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
+import { RegisterEmployee } from "../hooks/useRegisterEmployee";
+import SearchableDropdown from "../Components/SearchableDropDown/SearchableDropdown";
 
 const FIELD_TYPES = [
   { label: "Text Input", value: "TEXT" },
@@ -27,8 +29,10 @@ export default function TemplateMaster() {
   const [editingTemplateId, setEditingTemplateId] = useState("");
   const [editTemplateName, setEditTemplateName] = useState("");
   const [editTemplateType, setEditTemplateType] = useState("");
+  const [editAssignedUser, setEditAssignedUser] = useState("");
   const [newTemplateName, setNewTemplateName] = useState("");
   const [newTemplateType, setNewTemplateType] = useState("");
+  const [assignedUser, setAssignedUser] = useState("");
 
   const [newFieldName, setNewFieldName] = useState("");
   const [newFieldType, setNewFieldType] = useState("TEXT");
@@ -46,6 +50,8 @@ export default function TemplateMaster() {
 
   const { templatesQuery, templateQuery, createTemplate, addField, updateField, deleteField, updateTemplate, deleteTemplate } =
     useTemplateMaster(selectedTemplateId);
+  
+  const { AllEmpData } = RegisterEmployee();
 
   const templates = templatesQuery.data || [];
   const selectedTemplate = templateQuery.data;
@@ -283,6 +289,7 @@ export default function TemplateMaster() {
     setIsCreateOpen(true);
     setNewTemplateName("");
     setNewTemplateType("");
+    setAssignedUser("");
     setDraftFields([]);
     setDraftPreviewValues({});
     setNewFieldName("");
@@ -311,6 +318,7 @@ export default function TemplateMaster() {
     setEditingTemplateId(template._id);
     setEditTemplateName(template.template_name);
     setEditTemplateType(template.template_type || "");
+    setEditAssignedUser(template.assigned_user?._id || template.assigned_user || "");
     setIsEditOpen(true);
     // Select template to load its fields
     setSelectedTemplateId(template._id);
@@ -321,6 +329,7 @@ export default function TemplateMaster() {
     setEditingTemplateId("");
     setEditTemplateName("");
     setEditTemplateType("");
+    setEditAssignedUser("");
     setEditingFieldId("");
     setEditFieldName("");
     setEditFieldType("TEXT");
@@ -421,6 +430,7 @@ export default function TemplateMaster() {
       payload: {
         template_name: editTemplateName,
         template_type: editTemplateType || null,
+        assigned_user: editAssignedUser || null,
       },
     });
     closeEdit();
@@ -472,6 +482,7 @@ export default function TemplateMaster() {
     const res = await createTemplate.mutateAsync({
       template_name: newTemplateName,
       template_type: newTemplateType || null,
+      assigned_user: assignedUser || null,
     });
 
     const createdId = res?.data?._id;
@@ -882,6 +893,22 @@ export default function TemplateMaster() {
                       />
                     </div>
 
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">
+                        Assign User
+                      </label>
+                      <div className="mt-1">
+                        <SearchableDropdown
+                          placeholder="Search Employee"
+                          options={AllEmpData?.data || []}
+                          value={assignedUser}
+                          getOptionLabel={(emp) => `${emp.full_name} (${emp.user_id || emp.email || ""})`}
+                          getOptionValue={(emp) => emp._id}
+                          onChange={(val) => setAssignedUser(val)}
+                        />
+                      </div>
+                    </div>
+
                     {/* Add Field Section */}
                     <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
                       <div className="flex items-center justify-between">
@@ -1162,6 +1189,22 @@ export default function TemplateMaster() {
                         className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                         placeholder="e.g., New / Amendment / Item Master – General"
                       />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">
+                        Assign User
+                      </label>
+                      <div className="mt-1">
+                        <SearchableDropdown
+                          placeholder="Search Employee"
+                          options={AllEmpData?.data || []}
+                          value={editAssignedUser}
+                          getOptionLabel={(emp) => `${emp.full_name} (${emp.user_id || emp.email || ""})`}
+                          getOptionValue={(emp) => emp._id}
+                          onChange={(val) => setEditAssignedUser(val)}
+                        />
+                      </div>
                     </div>
 
                     {/* Add/Edit Field Section */}
@@ -1452,6 +1495,21 @@ export default function TemplateMaster() {
                         </div>
                       </>
                     )}
+                    {selectedTemplate.assigned_user && (
+                      <>
+                        <div className="mt-3 text-xs font-semibold text-gray-700">
+                          Assigned User
+                        </div>
+                        <div className="mt-1 text-sm text-gray-800">
+                          {selectedTemplate.assigned_user?.full_name || selectedTemplate.assigned_user?.name || "—"}
+                          {selectedTemplate.assigned_user?.user_id && (
+                            <span className="text-gray-500 ml-1">
+                              ({selectedTemplate.assigned_user.user_id})
+                            </span>
+                          )}
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   {/* Fields List */}
@@ -1577,6 +1635,21 @@ export default function TemplateMaster() {
                             </div>
                             <div className="mt-1 text-sm text-gray-800">
                               {selectedTemplate.template_type}
+                            </div>
+                          </>
+                        )}
+                        {selectedTemplate.assigned_user && (
+                          <>
+                            <div className="mt-2 text-xs font-semibold text-gray-700">
+                              Assigned User
+                            </div>
+                            <div className="mt-1 text-sm text-gray-800">
+                              {selectedTemplate.assigned_user?.full_name || selectedTemplate.assigned_user?.name || "—"}
+                              {selectedTemplate.assigned_user?.user_id && (
+                                <span className="text-gray-500 ml-1">
+                                  ({selectedTemplate.assigned_user.user_id})
+                                </span>
+                              )}
                             </div>
                           </>
                         )}
