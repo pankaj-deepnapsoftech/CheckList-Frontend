@@ -318,7 +318,7 @@ export default function TemplateMaster() {
     setEditingTemplateId(template._id);
     setEditTemplateName(template.template_name);
     setEditTemplateType(template.template_type || "");
-    setEditAssignedUser(template.assigned_user?._id || template.assigned_user || "");
+    setEditAssignedUser(template.assignedUser?._id || template.assigned_user?._id || template.assigned_user || "");
     setIsEditOpen(true);
     // Select template to load its fields
     setSelectedTemplateId(template._id);
@@ -1478,7 +1478,7 @@ export default function TemplateMaster() {
               ) : selectedTemplate ? (
                 <div className="space-y-4">
                   {/* Template Info */}
-                  {/* <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                  <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                     <div className="text-xs font-semibold text-gray-700">
                       Template Name
                     </div>
@@ -1495,16 +1495,16 @@ export default function TemplateMaster() {
                         </div>
                       </>
                     )}
-                    {selectedTemplate.assigned_user && (
+                    {selectedTemplate.assignedUser && (
                       <>
                         <div className="mt-3 text-xs font-semibold text-gray-700">
                           Assigned User
                         </div>
                         <div className="mt-1 text-sm text-gray-800">
-                          {selectedTemplate.assigned_user?.full_name || selectedTemplate.assigned_user?.name || "—"}
-                          {selectedTemplate.assigned_user?.user_id && (
+                          {selectedTemplate.assignedUser?.full_name || selectedTemplate.assignedUser?.name || "—"}
+                          {selectedTemplate.assignedUser?.user_id && (
                             <span className="text-gray-500 ml-1">
-                              ({selectedTemplate.assigned_user.user_id})
+                              ({selectedTemplate.assignedUser.user_id})
                             </span>
                           )}
                         </div>
@@ -1637,16 +1637,16 @@ export default function TemplateMaster() {
                             </div>
                           </>
                         )}
-                        {selectedTemplate.assigned_user && (
+                        {selectedTemplate.assignedUser && (
                           <>
                             <div className="mt-2 text-xs font-semibold text-gray-700">
                               Assigned User
                             </div>
                             <div className="mt-1 text-sm text-gray-800">
-                              {selectedTemplate.assigned_user?.full_name || selectedTemplate.assigned_user?.name || "—"}
-                              {selectedTemplate.assigned_user?.user_id && (
+                              {selectedTemplate.assignedUser?.full_name || selectedTemplate.assignedUser?.name || "—"}
+                              {selectedTemplate.assignedUser?.user_id && (
                                 <span className="text-gray-500 ml-1">
-                                  ({selectedTemplate.assigned_user.user_id})
+                                  ({selectedTemplate.assignedUser.user_id})
                                 </span>
                               )}
                             </div>
