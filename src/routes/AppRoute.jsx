@@ -28,6 +28,8 @@ import ReleaseGroups from "../TemplateMasterPages/ReleaseGroups";
 import ManageWorkflow from "../TemplateMasterPages/ManageWorkflow";
 import PlcLiveData from "../pages/PlcLiveData";
 import PlcStoppage from "../pages/PlcStoppage";
+import ManageDocument from "../TemplateMasterPages/ManageDocument";
+
 
 export const AppRoute = () => {
   const { logedinUser } = useLogin();
@@ -61,6 +63,7 @@ export const AppRoute = () => {
     { path: "/release-group", element: withProtection(ReleaseGroups) },
     { path: "/template-master", element:withProtection(TemplateMaster) },
     { path: "/workflow", element:withProtection(ManageWorkflow) },
+    { path: "/document-management", element:withProtection(ManageDocument) },
     
     {
       path: "/assembly-line-status",

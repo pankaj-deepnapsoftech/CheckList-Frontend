@@ -24,6 +24,7 @@ import {
   GraduationCap,
   Cpu,
   Activity,
+  FileText,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -80,6 +81,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         { name: "Manage Template", path: "/template-master", icon: <LayoutTemplate size={18} /> },
         { name: "Manage Release Group", path: "/release-group", icon: <Repeat2 size={18} /> },
         { name: "Manage Workflow", path: "/workflow", icon: <WorkflowIcon size={18} /> },
+        { name: "Manage Documents", path: "/document-management", icon: <FileText size={18} /> },
       ],
     },
 

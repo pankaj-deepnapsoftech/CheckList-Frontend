@@ -1,19 +1,21 @@
 import React from "react";
-import { X, Users, Building2, Layers } from "lucide-react";
+import { X, FileText, Folder, Calendar, Paperclip } from "lucide-react";
 
-export default function ViewReleaseGroupModal({ open, onClose, data }) {
+export default function ViewDocumentModal({ open, onClose, data }) {
   if (!open || !data) return null;
-
+ 
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
+      {/* PANEL */}
       <div className="bg-white h-screen w-full sm:w-[750px] xl:w-[850px] shadow-2xl animate-slideLeft flex flex-col">
+        {/* HEADER */}
         <div className="px-8 py-6 flex justify-between items-center sticky top-0 bg-white z-10">
           <div>
             <h2 className="text-2xl font-semibold text-gray-900">
-              Release Group Details
+              Document Details
             </h2>
             <p className="text-sm text-gray-500 mt-1">
-              Complete release group information (read only)
+              Complete document information (read only)
             </p>
           </div>
 
@@ -25,67 +27,60 @@ export default function ViewReleaseGroupModal({ open, onClose, data }) {
           </button>
         </div>
 
+        {/* BODY */}
         <div className="px-8 py-6 space-y-6 overflow-y-auto">
+          {/* BASIC INFO */}
           <ColoredSection
-            title="Basic Information"
+            title="Document Information"
             color="blue"
-            icon={<Layers size={18} />}
+            icon={<FileText size={18} />}
           >
-            <Info label="Group Name" value={data.group_name} />
-            <Info label="Department" value={data.group_department} />
-            <Info label="Total Users" value={data.users?.length || 0} />
+            <Info label="Document Name" value={data.doc_name} />
+            {/* <Info label="Status" value={data.status} /> */}
           </ColoredSection>
 
+          {/* CATEGORY */}
           <ColoredSection
-            title="User & Plant Mapping"
+            title="Category"
             color="green"
-            icon={<Users size={18} />}
+            icon={<Folder size={18} />}
           >
-            {data.users?.length ? (
-              <div className="col-span-2 space-y-4">
-                {data.users.map((u, index) => (
-                  <div
-                    key={index}
-                    className="border border-gray-300 rounded-xl p-4 bg-white"
-                  >
-                    
-                    <div className="flex justify-between mb-3">
-                      <div>
-                        <p className="text-sm text-gray-600">User Name</p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {u.users_detail?.full_name} ({u.users_detail?.user_id})
-                        </p>
-                      </div>
-                    </div>
+            <Info label="Category Name" value={data.category} />
+          </ColoredSection>
 
-                    <div>
-                      <p className="text-sm text-gray-600 mb-2">Plants</p>
+          {/* EXPIRY */}
+          <ColoredSection
+            title="Expiry Details"
+            color="teal"
+            icon={<Calendar size={18} />}
+          >
+            <Info
+              label="Expiry Date"
+              value={new Date(data.expiry).toLocaleDateString("en-GB")}
+            />
+          </ColoredSection>
 
-                      {u.plants?.length ? (
-                        <ul className="list-disc ml-6 text-sm text-gray-700 space-y-1">
-                          {u.plants.map((p) => (
-                            <li key={p._id}>
-                              <span className="font-medium">
-                                {p.plant_name}
-                              </span>{" "}
-                              <span className="text-gray-500">
-                                ({p.plant_code})
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p className="text-sm text-gray-500">
-                          No plants assigned
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
+          {/* ATTACHMENT */}
+          <ColoredSection
+            title="Attached Document"
+            color="purple"
+            icon={<Paperclip size={18} />}
+          >
+            {data.attached_doc ? (
+              <div className="col-span-2">
+                <a
+                  href={data.attached_doc}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 text-blue-600 font-medium hover:underline"
+                >
+                  <Paperclip size={16} />
+                  View
+                </a>
               </div>
             ) : (
               <p className="text-sm text-gray-500 col-span-2">
-                No users assigned to this group
+                No document attached
               </p>
             )}
           </ColoredSection>
@@ -119,12 +114,14 @@ function ColoredSection({ title, icon, color, children }) {
     blue: "bg-blue-50 border-l-4 border-blue-400",
     green: "bg-green-50 border-l-4 border-green-400",
     teal: "bg-teal-50 border-l-4 border-teal-400",
+    purple: "bg-purple-50 border-l-4 border-purple-400",
   };
 
   const titleColor = {
     blue: "text-blue-700",
     green: "text-green-700",
     teal: "text-teal-700",
+    purple: "text-purple-700",
   };
 
   return (

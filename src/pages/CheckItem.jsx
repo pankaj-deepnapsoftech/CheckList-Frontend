@@ -15,7 +15,7 @@ const CheckItem = () => {
   const [openCheckItemModal, setOpenCheckItemModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [selectedCheckItem, setSelectedCheckItem] = useState(null);
-  const { debounce, value } = useDebounce(search);
+  const {  value } = useDebounce(search);
   const { getCheckItemData, removeItem, searchQuery } = useCheckItem(
     value,
     page,
@@ -25,8 +25,8 @@ const CheckItem = () => {
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const filteredCheckItem = debounce
-    ? searchQuery?.data ?? []
+  const filteredCheckItem = value
+    ? (searchQuery?.data ?? [])
     : getCheckItemData?.data;
 
   const handleDelete = (id) => {
