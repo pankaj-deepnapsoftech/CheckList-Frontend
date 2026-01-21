@@ -29,6 +29,7 @@ import ManageWorkflow from "../TemplateMasterPages/ManageWorkflow";
 import PlcLiveData from "../pages/PlcLiveData";
 import PlcStoppage from "../pages/PlcStoppage";
 import ManageDocument from "../TemplateMasterPages/ManageDocument";
+import AssignedTemplates from "../TemplateMasterPages/AssignedTemplates";
 
 
 export const AppRoute = () => {
@@ -97,6 +98,10 @@ export const AppRoute = () => {
     {
       path: "/daily-assembly-check",
       element: withProtection(!user?.is_admin ? DailyCheckAssembly : PageNotFound)
+    },
+    {
+      path: "/assigned-templates",
+      element: withProtection(AssignedTemplates)
     },
     { path: "/*", element: <PageNotFound /> },
   ]);
