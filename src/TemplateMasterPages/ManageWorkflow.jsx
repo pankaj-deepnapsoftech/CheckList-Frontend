@@ -7,6 +7,7 @@ import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../Components/Refresh/Refresh";
 import NoDataFound from "../Components/NoDataFound/NoDataFound";
 import { useReleaseGroup } from "../hooks/Template Hooks/useReleaseGroup";
+import { ArrowRight } from "lucide-react";
 
 const ManageWorkflow = () => {
   const [search, setSearch] = useState("");
@@ -43,43 +44,38 @@ const ManageWorkflow = () => {
   };
 
   // Helper function to get workflow management label from release groups
-  const getWorkflowManagementLabel = (workflow) => {
-    if (!workflow) return "N/A";
-    
-    // Helper to get group name
-    const getGroupName = (groupId) => {
-      if (groupId === "HOD") {
-        return "HOD";
-      }
-      const releaseGroup = releaseGroupsData.find((group) => {
-        const groupData = group?.dataValues || group;
-        return groupData?._id === groupId;
-      });
-      if (releaseGroup) {
-        const groupData = releaseGroup?.dataValues || releaseGroup;
-        return groupData?.group_name || groupId;
-      }
-      return groupId;
-    };
-    
-    // Handle array format (new format)
-    if (Array.isArray(workflow) && workflow.length > 0) {
-      const groupNames = workflow.map((item) => {
-        const groupId = item?.group;
-        if (!groupId) return null;
-        return getGroupName(groupId);
-      }).filter(Boolean);
-      
-      return groupNames.length > 0 ? groupNames.join(", ") : "N/A";
-    }
-    
-    // Handle old string format (backward compatibility)
-    if (typeof workflow === "string") {
-      return getGroupName(workflow);
-    }
-    
-    return "N/A";
-  };
+ const getWorkflowManagementGroups = (workflow) => {
+   if (!workflow) return [];
+
+   const getGroupName = (groupId) => {
+     if (groupId === "HOD") return "HOD";
+
+     const releaseGroup = releaseGroupsData.find((group) => {
+       const groupData = group?.dataValues || group;
+       return groupData?._id === groupId;
+     });
+
+     if (releaseGroup) {
+       const groupData = releaseGroup?.dataValues || releaseGroup;
+       return groupData?.group_name || groupId;
+     }
+
+     return groupId;
+   };
+
+   // New format (array)
+   if (Array.isArray(workflow)) {
+     return workflow.map((item) => getGroupName(item?.group)).filter(Boolean);
+   }
+
+   // Old format (string)
+   if (typeof workflow === "string") {
+     return [getGroupName(workflow)];
+   }
+
+   return [];
+ };
+
 
   return (
     <div className="p-4">
@@ -197,7 +193,9 @@ const ManageWorkflow = () => {
                 <div className="mt-3 text-sm text-gray-600 space-y-1">
                   <p>
                     <strong>Workflow Management:</strong>{" "}
-                    {getWorkflowManagementLabel(workflow.workflow || workflow.workflow_management)}
+                    {getWorkflowManagementGroups(
+                      workflow.workflow || workflow.workflow_management,
+                    )}
                   </p>
                 </div>
               </div>
@@ -243,12 +241,28 @@ const ManageWorkflow = () => {
                       </td>
 
                       {/* WORKFLOW MANAGEMENT */}
-                      <td className="px-6 py-4 text-gray-600">
-                        <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
-                          {getWorkflowManagementLabel(
-                            workflow.workflow || workflow.workflow_management
-                          )}
-                        </span>
+                      <td className="px-6 py-4">
+                        <div className="inline-flex items-center gap-1 flex-wrap">
+                          {getWorkflowManagementGroups(
+                            workflow.workflow || workflow.workflow_management,
+                          )?.map((group, index, arr) => (
+                            <div
+                              key={index}
+                              className="inline-flex items-center"
+                            >
+                              <span className="bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
+                                {group}
+                              </span>
+
+                              {index < arr.length - 1 && (
+                                <ArrowRight
+                                  className="mx-2 text-gray-500"
+                                  size={16}
+                                />
+                              )}
+                            </div>
+                          ))}
+                        </div>
                       </td>
 
                       {/* ACTIONS */}
