@@ -6,6 +6,7 @@ import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
 import Refresh from "../Components/Refresh/Refresh";
 import NoDataFound from "../Components/NoDataFound/NoDataFound";
+import { useReleaseGroup } from "../hooks/Template Hooks/useReleaseGroup";
 
 const ManageWorkflow = () => {
   const [search, setSearch] = useState("");
@@ -17,11 +18,14 @@ const ManageWorkflow = () => {
   const [mode, setMode] = useState("add");
   const { debounce, value } = useDebounce(search);
   const { listQuery, remove, searchQuery } = useWorkflow(value, page, limit);
+  const { getReleaseGroup } = useReleaseGroup("", 1, 1000);
   const [showRefresh, setShowRefresh] = useState(false);
 
   const filteredWorkflows = debounce
     ? searchQuery?.data ?? []
     : listQuery?.data ?? [];
+
+  const releaseGroupsData = getReleaseGroup?.data || [];
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this workflow?")) {
@@ -34,20 +38,47 @@ const ManageWorkflow = () => {
     setSearch("");
     setShowRefresh(true);
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
-    await Promise.all([listQuery.refetch(), minDelay]);
+    await Promise.all([listQuery.refetch(), getReleaseGroup.refetch(), minDelay]);
     setShowRefresh(false);
   };
 
-  // Helper function to get workflow management label
-  const getWorkflowManagementLabel = (value) => {
-    const options = {
-      approval: "Approval Workflow",
-      review: "Review Workflow",
-      processing: "Processing Workflow",
-      verification: "Verification Workflow",
-      custom: "Custom Workflow",
+  // Helper function to get workflow management label from release groups
+  const getWorkflowManagementLabel = (workflow) => {
+    if (!workflow) return "N/A";
+    
+    // Helper to get group name
+    const getGroupName = (groupId) => {
+      if (groupId === "HOD") {
+        return "HOD";
+      }
+      const releaseGroup = releaseGroupsData.find((group) => {
+        const groupData = group?.dataValues || group;
+        return groupData?._id === groupId;
+      });
+      if (releaseGroup) {
+        const groupData = releaseGroup?.dataValues || releaseGroup;
+        return groupData?.group_name || groupId;
+      }
+      return groupId;
     };
-    return options[value] || value || "N/A";
+    
+    // Handle array format (new format)
+    if (Array.isArray(workflow) && workflow.length > 0) {
+      const groupNames = workflow.map((item) => {
+        const groupId = item?.group;
+        if (!groupId) return null;
+        return getGroupName(groupId);
+      }).filter(Boolean);
+      
+      return groupNames.length > 0 ? groupNames.join(", ") : "N/A";
+    }
+    
+    // Handle old string format (backward compatibility)
+    if (typeof workflow === "string") {
+      return getGroupName(workflow);
+    }
+    
+    return "N/A";
   };
 
   return (
@@ -166,7 +197,7 @@ const ManageWorkflow = () => {
                 <div className="mt-3 text-sm text-gray-600 space-y-1">
                   <p>
                     <strong>Workflow Management:</strong>{" "}
-                    {getWorkflowManagementLabel(workflow.workflow_management)}
+                    {getWorkflowManagementLabel(workflow.workflow || workflow.workflow_management)}
                   </p>
                 </div>
               </div>
@@ -215,7 +246,7 @@ const ManageWorkflow = () => {
                       <td className="px-6 py-4 text-gray-600">
                         <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm">
                           {getWorkflowManagementLabel(
-                            workflow.workflow_management
+                            workflow.workflow || workflow.workflow_management
                           )}
                         </span>
                       </td>
