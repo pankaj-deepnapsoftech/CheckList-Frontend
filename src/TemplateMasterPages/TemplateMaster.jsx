@@ -1632,4 +1632,4 @@ export default function TemplateMaster() {
       )}
     </div>
   );
-}
+};
