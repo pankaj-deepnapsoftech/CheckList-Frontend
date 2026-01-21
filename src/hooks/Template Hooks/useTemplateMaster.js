@@ -42,7 +42,7 @@ export const useTemplateMaster = (selectedTemplateId) => {
       return res?.data;
     },
     onSuccess: (data, variables) => {
-      toast.success(data?.message || "Field added");
+     
       qc.invalidateQueries({ queryKey: ["template-master", "template", variables.templateId] });
     },
     onError: (error) => {
