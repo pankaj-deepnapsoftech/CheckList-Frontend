@@ -113,6 +113,32 @@ export default function TemplateMaster() {
           </select>
           );
         }
+      case "RADIO":
+        {
+          let opts = [];
+          try {
+            opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
+          } catch {
+            opts = [];
+          }
+          return (
+            <div className="mt-2 space-y-2">
+              {opts.map((o) => (
+                <label key={o} className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="radio"
+                    name={key}
+                    value={o}
+                    checked={previewValues[key] === o}
+                    onChange={(e) => setPreviewValue(key, e.target.value)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span>{o}</span>
+                </label>
+              ))}
+            </div>
+          );
+        }
       case "DATE":
         return (
           <input
@@ -222,6 +248,24 @@ export default function TemplateMaster() {
               </option>
             ))}
           </select>
+        );
+      case "RADIO":
+        return (
+          <div className="mt-2 space-y-2">
+            {(f.dropdown_options || []).map((o) => (
+              <label key={o} className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="radio"
+                  name={key}
+                  value={o}
+                  checked={draftPreviewValues[key] === o}
+                  onChange={(e) => setDraftPreviewValue(key, e.target.value)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                />
+                <span>{o}</span>
+              </label>
+            ))}
+          </div>
         );
       case "DATE":
         return (
@@ -344,7 +388,7 @@ export default function TemplateMaster() {
     setEditFieldType(field.field_type);
     setEditIsMandatory(field.is_mandatory);
     let opts = "";
-    if (field.field_type === "DROPDOWN" && field.dropdown_options) {
+    if ((field.field_type === "DROPDOWN" || field.field_type === "RADIO") && field.dropdown_options) {
       try {
         const parsed = JSON.parse(field.dropdown_options);
         opts = Array.isArray(parsed) ? parsed.join(", ") : "";
@@ -370,7 +414,7 @@ export default function TemplateMaster() {
     if (!name) return;
 
     let dropdownOpts = null;
-    if (newFieldType === "DROPDOWN") {
+    if (newFieldType === "DROPDOWN" || newFieldType === "RADIO") {
       dropdownOpts = (newDropdownOptions || "")
         .split(",")
         .map((x) => x.trim())
@@ -385,7 +429,7 @@ export default function TemplateMaster() {
         field_type: newFieldType,
         is_mandatory: Boolean(newIsMandatory),
         sort_order: fields.length,
-        dropdown_options: newFieldType === "DROPDOWN" ? dropdownOpts : undefined,
+        dropdown_options: (newFieldType === "DROPDOWN" || newFieldType === "RADIO") ? dropdownOpts : undefined,
       },
     });
 
@@ -403,7 +447,7 @@ export default function TemplateMaster() {
     if (!name) return;
 
     let dropdownOpts = null;
-    if (editFieldType === "DROPDOWN") {
+    if (editFieldType === "DROPDOWN" || editFieldType === "RADIO") {
       dropdownOpts = (editDropdownOptions || "")
         .split(",")
         .map((x) => x.trim())
@@ -417,7 +461,7 @@ export default function TemplateMaster() {
         field_name: name,
         field_type: editFieldType,
         is_mandatory: Boolean(editIsMandatory),
-        dropdown_options: editFieldType === "DROPDOWN" ? dropdownOpts : undefined,
+        dropdown_options: (editFieldType === "DROPDOWN" || editFieldType === "RADIO") ? dropdownOpts : undefined,
       },
     });
 
@@ -443,7 +487,7 @@ export default function TemplateMaster() {
     if (!name) return;
 
     let dropdownOpts = null;
-    if (newFieldType === "DROPDOWN") {
+    if (newFieldType === "DROPDOWN" || newFieldType === "RADIO") {
       dropdownOpts = (newDropdownOptions || "")
         .split(",")
         .map((x) => x.trim())
@@ -498,8 +542,8 @@ export default function TemplateMaster() {
         is_mandatory: f.is_mandatory,
         sort_order: i,
       };
-      // Only include dropdown_options for DROPDOWN fields
-      if (f.field_type === "DROPDOWN" && f.dropdown_options && f.dropdown_options.length > 0) {
+      // Only include dropdown_options for DROPDOWN and RADIO fields
+      if ((f.field_type === "DROPDOWN" || f.field_type === "RADIO") && f.dropdown_options && f.dropdown_options.length > 0) {
         payload.dropdown_options = f.dropdown_options;
       }
       // eslint-disable-next-line no-await-in-loop
@@ -950,10 +994,10 @@ export default function TemplateMaster() {
                           </select>
                         </div>
 
-                        {newFieldType === "DROPDOWN" && (
+                        {(newFieldType === "DROPDOWN" || newFieldType === "RADIO") && (
                           <div className="sm:col-span-2">
                             <label className="block text-xs font-medium text-gray-600">
-                              Dropdown Options{" "}
+                              {newFieldType === "RADIO" ? "Radio Options" : "Dropdown Options"}{" "}
                               <span className="text-red-500">*</span>
                             </label>
                             <input
@@ -1308,11 +1352,11 @@ export default function TemplateMaster() {
                           )}
                         </div>
 
-                        {(editingFieldId ? editFieldType : newFieldType) ===
-                          "DROPDOWN" && (
+                        {((editingFieldId ? editFieldType : newFieldType) ===
+                          "DROPDOWN" || (editingFieldId ? editFieldType : newFieldType) === "RADIO") && (
                           <div className="sm:col-span-3">
                             <label className="block text-xs font-medium text-gray-600">
-                              Dropdown Options{" "}
+                              {(editingFieldId ? editFieldType : newFieldType) === "RADIO" ? "Radio Options" : "Dropdown Options"}{" "}
                               <span className="text-red-500">*</span>
                             </label>
                             <input

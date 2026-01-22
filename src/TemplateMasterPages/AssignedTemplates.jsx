@@ -12,6 +12,7 @@ const FIELD_TYPES = {
   NUMBER: "Number",
   CHECKBOX: "Checkbox",
   DROPDOWN: "Dropdown",
+  RADIO: "Radio Buttons",
   DATE: "Date",
   TEXTAREA: "Text Area",
   IMAGE: "Image Uploader",
@@ -270,6 +271,33 @@ export default function AssignedTemplates() {
                 </option>
               ))}
             </select>
+          );
+        }
+      case "RADIO":
+        {
+          let opts = [];
+          try {
+            opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
+          } catch {
+            opts = [];
+          }
+          return (
+            <div className="mt-2 space-y-2">
+              {opts.map((o) => (
+                <label key={o} className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="radio"
+                    name={key}
+                    value={o}
+                    checked={formik.values[key] === o}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span>{o}</span>
+                </label>
+              ))}
+            </div>
           );
         }
       case "DATE":
