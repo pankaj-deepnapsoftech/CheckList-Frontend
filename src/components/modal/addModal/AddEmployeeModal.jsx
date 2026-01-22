@@ -229,47 +229,6 @@ console.log(formik.values?.hod_id);
                 </div>
               </Field>
             )}
-            <Field>
-              <div className="flex flex-col gap-1">
-                <label
-                  htmlFor="is_hod"
-                  className="flex items-center gap-3 text-sm font-medium text-gray-700 cursor-pointer"
-                >
-                  <span>HOD</span>
-                  <input
-                    id="is_hod"
-                    name="is_hod"
-                    type="checkbox"
-                    disabled={isView}
-                    checked={formik.values.is_hod}
-                    onChange={(e) => {
-                      formik.setFieldValue("is_hod", e.target.checked);
-                       if (e.target.checked) {
-                         formik.setFieldValue("hod_id", null);
-                       }
-                    }}
-                    onBlur={formik.handleBlur}
-                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
-                  />
-                </label>
-
-                <SearchableDropdown
-                  placeholder="Search hod"
-                  options={getAllHOD?.data || []}
-                  value={formik.values?.hod_id}
-                  disabled={isView || formik.values.is_hod}
-                  getOptionLabel={(r) => r.full_name}
-                  getOptionValue={(r) => r._id}
-                  onChange={(val) => {
-                    formik.setFieldValue("hod_id", val);
-                  }}
-                  onBlur={() => {
-                    formik.setFieldTouched("hod_id", true);
-                  }}
-                  error={formik.touched.hod_id && formik.errors.hod_id}
-                />
-              </div>
-            </Field>
 
             {/* Designation */}
             <Field label="Designation">
@@ -414,6 +373,47 @@ console.log(formik.values?.hod_id);
               )}
             </div> */}
 
+            <Field>
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="is_hod"
+                  className="flex items-center gap-3 text-sm font-medium text-gray-700 cursor-pointer"
+                >
+                  <span>HOD</span>
+                  <input
+                    id="is_hod"
+                    name="is_hod"
+                    type="checkbox"
+                    disabled={isView}
+                    checked={formik.values.is_hod}
+                    onChange={(e) => {
+                      formik.setFieldValue("is_hod", e.target.checked);
+                      if (e.target.checked) {
+                        formik.setFieldValue("hod_id", null);
+                      }
+                    }}
+                    onBlur={formik.handleBlur}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                  />
+                </label>
+
+                <SearchableDropdown
+                  placeholder="Search hod"
+                  options={getAllHOD?.data || []}
+                  value={formik.values?.hod_id}
+                  disabled={isView || formik.values.is_hod}
+                  getOptionLabel={(r) => r.full_name}
+                  getOptionValue={(r) => r._id}
+                  onChange={(val) => {
+                    formik.setFieldValue("hod_id", val);
+                  }}
+                  onBlur={() => {
+                    formik.setFieldTouched("hod_id", true);
+                  }}
+                  error={formik.touched.hod_id && formik.errors.hod_id}
+                />
+              </div>
+            </Field>
             {/* Submit */}
             {!isView && (
               <button
