@@ -377,11 +377,11 @@ export default function AssignedTemplates() {
               <p className="text-gray-500">No templates assigned to you yet.</p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-1">
               {templates.map((template) => (
                 <div
                   key={template._id}
-                  className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-shadow"
+                  className="rounded-xl border border-blue-200 bg-blue-50 p-5 shadow-sm hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -395,16 +395,16 @@ export default function AssignedTemplates() {
                       )}
                       {template.fields && (
                         <p className="mt-1 text-xs text-gray-400">
-                          {template.fields.length} field(s)
+                         Total Field: {template.fields.length}
                         </p>
                       )}
                     </div>
                     <button
                       onClick={() => openView(template)}
-                      className="ml-2 rounded-lg p-2 text-blue-600 hover:bg-blue-50 transition-colors"
+                      className="ml-2 rounded-lg mt-4 p-2 border bg-green-50 border-green-300 flex items-center cursor-pointer  text-green-600 hover:bg-blue-50 transition-colors"
                       title="View Template"
                     >
-                      <Eye size={20} />
+                      <Eye size={20} /> &nbsp;View
                     </button>
                   </div>
                 </div>
@@ -500,7 +500,7 @@ export default function AssignedTemplates() {
                   </div>
 
                   <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
-                    <button
+                    {/* <button
                       type="button"
                       onClick={formik.handleSubmit}
                       disabled={createSubmission.isPending || updateSubmission.isPending}
@@ -508,12 +508,12 @@ export default function AssignedTemplates() {
                     >
                       <Save size={18} />
                       {currentSubmissionId ? "Save Draft" : "Save as Draft"}
-                    </button>
+                    </button> */}
                     <button
                       type="button"
                       onClick={handleSubmit}
                       disabled={createSubmission.isPending || updateSubmission.isPending || submitSubmission.isPending}
-                      className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                     >
                       <Send size={18} />
                       {submitSubmission.isPending ? "Submitting..." : "Submit"}

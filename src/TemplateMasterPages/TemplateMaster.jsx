@@ -11,7 +11,8 @@ const FIELD_TYPES = [
   { label: "Dropdown", value: "DROPDOWN" },
   { label: "Date", value: "DATE" },
   { label: "Text Area", value: "TEXTAREA" },
-  { label: "Image Uploader", value: "IMAGE" },
+  { label: "Attach File", value: "IMAGE" },
+  { label: "Radio Buttons", value: "RADIO" }
 ];
 
 const TEMPLATE_TYPES = [
