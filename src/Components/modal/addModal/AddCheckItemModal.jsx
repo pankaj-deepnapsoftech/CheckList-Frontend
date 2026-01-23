@@ -615,7 +615,7 @@ export default function AddCheckItemModal({
 }
 
 /* FIELD WRAPPER */
-function Field({ label, children }) {
+ export function Field({ label, children }) {
   return (
     <div>
       <label className="text-sm text-gray-700 font-medium">{label}</label>

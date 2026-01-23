@@ -9,6 +9,7 @@ import ViewEmployeeModal from "../components/modal/ViewModal/ViewEmployee";
 import NoDataFound from "../components/NoDataFound/NoDataFound";
 
 const Employee = () => {
+  const [hodvales, setHodValues] = useState(false);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
@@ -22,13 +23,21 @@ const Employee = () => {
   const searchValue = search ? value : "";
 
   const { getAllEmployee, searchEmployee, toggleTerminateEmployee } =
-    RegisterEmployee(selectedCompany, selectedPlant, searchValue, page, limit);
+    RegisterEmployee(
+      hodvales,
+      selectedCompany,
+      selectedPlant,
+      searchValue,
+      page,
+      limit,
+    );
 
-  const hasfilter = selectedPlant || selectedCompany || search;
+  const hasfilter = hodvales || selectedPlant || selectedCompany || search;
 
   const filteredEmployees = useMemo(
-    () => (hasfilter ? searchEmployee?.data ?? [] : getAllEmployee?.data ?? []),
-    [hasfilter, searchEmployee?.data, getAllEmployee?.data]
+    () =>
+      hasfilter ? (searchEmployee?.data ?? []) : (getAllEmployee?.data ?? []),
+    [hasfilter, searchEmployee?.data, getAllEmployee?.data],
   );
 
   const [showRefresh, setShowRefresh] = useState(false);
@@ -51,10 +60,10 @@ const Employee = () => {
       {
         onSuccess: () => {
           console.log(
-            `Employee ${emp.full_name} terminate = ${!emp.terminate}`
+            `Employee ${emp.full_name} terminate = ${!emp.terminate}`,
           );
         },
-      }
+      },
     );
   };
 
@@ -63,7 +72,7 @@ const Employee = () => {
       (getAllEmployee?.data || [])
         .map((emp) => emp?.plant)
         .filter(Boolean)
-        .map((plant) => [plant._id, plant])
+        .map((plant) => [plant._id, plant]),
     ).values(),
   ];
 
@@ -72,7 +81,7 @@ const Employee = () => {
       (getAllEmployee?.data || [])
         .map((emp) => emp?.company)
         .filter(Boolean)
-        .map((company) => [company._id, company])
+        .map((company) => [company._id, company]),
     ).values(),
   ];
 
@@ -166,8 +175,12 @@ const Employee = () => {
             {filteredEmployees.length} Employees Found
           </h2>
 
-          {/* Show Dropdown */}
           <div className="flex items-center gap-4 text-gray-600">
+            <h1>Hod</h1>
+            <input
+              type="checkbox"
+              onChange={(e) => setHodValues(e.target.checked)}
+            />
             <span>Show:</span>
             <select
               className="border border-gray-200 rounded-lg px-2 py-1 cursor-pointer focus:outline-none focus:ring-0 "
@@ -298,10 +311,11 @@ const Employee = () => {
                   filteredEmployees.map((emp, i) => (
                     <tr
                       key={i}
-                      className={`border-b border-gray-200 transition ${emp.terminate
-                        ? "opacity-50 bg-gray-50"
-                        : "hover:bg-blue-50/40"
-                        }`}
+                      className={`border-b border-gray-200 transition ${
+                        emp.terminate
+                          ? "opacity-50 bg-gray-50"
+                          : "hover:bg-blue-50/40"
+                      }`}
                     >
                       <td className="px-5 py-4 whitespace-nowrap">
                         {emp.user_id || "N/A"}

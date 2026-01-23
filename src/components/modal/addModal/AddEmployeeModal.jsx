@@ -23,10 +23,9 @@ export default function AddEmployeeModal({
 
   const { AllCompanyData } = useCompanies(null, null, open);
   const { AllRolesData } = useUserRole();
-  const { createEmployee, updateEmployee } = RegisterEmployee();
+  const { createEmployee, updateEmployee, getAllHOD } = RegisterEmployee();
   const [showPassword, setShowPassword] = useState(false);
   const { getAllDepartmentData } = useDepartment();
-
 
   const validationSchema = Yup.object({
     user_id: Yup.string().required("Employee code is required"),
@@ -41,6 +40,11 @@ export default function AddEmployeeModal({
     employee_company: Yup.string().required("Company is required"),
     department_id: Yup.string().required("Department is required"),
     Employee_plant: Yup.string().required("Plant is required"),
+    hod_id: Yup.mixed().when("is_hod", {
+      is: false,
+      then: (schema) => schema.required("HOD is required"),
+      otherwise: (schema) => schema.nullable(),
+    }),
   });
 
   const formik = useFormik({
@@ -55,6 +59,8 @@ export default function AddEmployeeModal({
       Employee_plant: initialData?.plant?._id || "",
       department_id: initialData?.department_id || "",
       assambly_line: initialData?.assambly_line?.map((l) => l._id) || [],
+      is_hod: initialData?.is_hod || "",
+      hod_id: initialData?.is_hod || "",
     },
     enableReinitialize: true,
     validationSchema,
@@ -69,6 +75,8 @@ export default function AddEmployeeModal({
         department_id: values.department_id,
         role: values.role,
         assambly_line: values.assambly_line,
+        is_hod: values.is_hod,
+        hod_id: values.hod_id,
       };
 
       // ADD password only in ADD mode
@@ -89,10 +97,8 @@ export default function AddEmployeeModal({
       formik.resetForm();
       onClose();
     },
-  })
-
-
-
+  });
+console.log(formik.values?.hod_id);
   const plantsQuery = usePlantsByCompany(formik.values.employee_company);
 
   if (!open) return null;
@@ -117,7 +123,6 @@ export default function AddEmployeeModal({
         {/* FORM */}
         <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-4">
-
             <input
               type="text"
               name="username"
@@ -139,13 +144,12 @@ export default function AddEmployeeModal({
               <input
                 name="user_id"
                 type="search"
-                autoComplete="new-password"   // 🔥 important
+                autoComplete="new-password" // 🔥 important
                 value={formik.values.user_id}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className="input"
               />
-
 
               {formik.touched.user_id && formik.errors.user_id && (
                 <p className="text-red-500 text-sm mt-1">
@@ -303,14 +307,12 @@ export default function AddEmployeeModal({
                   formik.setFieldTouched("department_id", true);
                 }}
                 error={
-                  formik.touched.department_id &&
-                  formik.errors.department_id
+                  formik.touched.department_id && formik.errors.department_id
                 }
                 getOptionLabel={(d) => d.name}
                 getOptionValue={(d) => d._id}
               />
             </Field>
-
 
             <Field label="Plant">
               <span className="text-red-500">*</span>
@@ -327,8 +329,7 @@ export default function AddEmployeeModal({
                   formik.setFieldTouched("Employee_plant", true);
                 }}
                 error={
-                  formik.touched.Employee_plant &&
-                  formik.errors.Employee_plant
+                  formik.touched.Employee_plant && formik.errors.Employee_plant
                 }
               />
             </Field>
@@ -372,6 +373,47 @@ export default function AddEmployeeModal({
               )}
             </div> */}
 
+            <Field>
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="is_hod"
+                  className="flex items-center gap-3 text-sm font-medium text-gray-700 cursor-pointer"
+                >
+                  <span>HOD</span>
+                  <input
+                    id="is_hod"
+                    name="is_hod"
+                    type="checkbox"
+                    disabled={isView}
+                    checked={formik.values.is_hod}
+                    onChange={(e) => {
+                      formik.setFieldValue("is_hod", e.target.checked);
+                      if (e.target.checked) {
+                        formik.setFieldValue("hod_id", null);
+                      }
+                    }}
+                    onBlur={formik.handleBlur}
+                    className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                  />
+                </label>
+
+                <SearchableDropdown
+                  placeholder="Search hod"
+                  options={getAllHOD?.data || []}
+                  value={formik.values?.hod_id}
+                  disabled={isView || formik.values.is_hod}
+                  getOptionLabel={(r) => r.full_name}
+                  getOptionValue={(r) => r._id}
+                  onChange={(val) => {
+                    formik.setFieldValue("hod_id", val);
+                  }}
+                  onBlur={() => {
+                    formik.setFieldTouched("hod_id", true);
+                  }}
+                  error={formik.touched.hod_id && formik.errors.hod_id}
+                />
+              </div>
+            </Field>
             {/* Submit */}
             {!isView && (
               <button

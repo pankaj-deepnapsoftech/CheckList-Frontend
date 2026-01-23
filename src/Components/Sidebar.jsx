@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import React, { useState } from "react";
 import {
   LayoutDashboard,
@@ -22,12 +22,16 @@ import {
   ChevronDown,
   WorkflowIcon,
   GraduationCap,
+  Cpu,
+  Activity,
+  FileText,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
 const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const { logedinUser, logOutUser } = useLogin();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const user = logedinUser?.data;
   const permissions = user?.userRole?.permissions || [];
@@ -72,12 +76,36 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     },
 
     {
-      name: "Template Module                                                                     ",
+      name: "Template Module",
       icon: <GraduationCap size={20} />,
       children: [
         { name: "Manage Template", path: "/template-master", icon: <LayoutTemplate size={18} /> },
         { name: "Manage Release Group", path: "/release-group", icon: <Repeat2 size={18} /> },
         { name: "Manage Workflow", path: "/workflow", icon: <WorkflowIcon size={18} /> },
+        { name: "Manage Documents", path: "/document-management", icon: <FileText size={18} /> },
+      ],
+    },
+
+    !IsSuper && {
+      name: "My Templates",
+      path: "/assigned-templates",
+      icon: <LayoutTemplate size={20} />,
+    },
+
+    {
+      name: "Plc-Data",
+      icon: <Cpu size={20} />,
+      children: [
+        {
+          name: "Live-Data",
+          path: "/plc-data/live",
+          icon: <Activity size={18} />,
+        },
+        {
+          name: "Stoppage",
+          path: "/plc-data/stoppage",
+          icon: <Activity size={18} />,
+        },
       ],
     },
 
@@ -95,14 +123,25 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   ].filter(Boolean);
 
   // ================= PERMISSION =================
+  // User-specific pages that should always be visible to non-admin users
+  const userSpecificPaths = [
+    "/assigned-assembly-lines",
+    "/daily-assembly-check",
+  ];
+
   const allowedMenu = IsSuper
     ? allMenu
-    : allMenu.filter((i) =>
-        i.children
+    : allMenu.filter((i) => {
+        // Always show user-specific pages for non-admin users
+        if (i.path && userSpecificPaths.includes(i.path)) {
+          return true;
+        }
+        // For other items (including "My Templates"), check permissions
+        return i.children
           ? i.children.some((c) => permissions.includes(c.path)) ||
-            permissions.includes(i.path)
-          : permissions.includes(i.path)
-      );
+              permissions.includes(i.path)
+          : permissions.includes(i.path);
+      });
 
   const handleLogout = () => {
     logOutUser.mutate();
@@ -119,18 +158,18 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
               <div className="flex items-center justify-between">
                 <button
                   onClick={() => toggleMenu(item.name)}
-                  className="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 flex-1"
+                  className="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 flex-1 whitespace-nowrap"
                 >
                   {item.icon}
-                  {item.name}
+                  <span className="truncate">{item.name}</span>
                 </button>
+
 
                 <button onClick={() => toggleMenu(item.name)} className="p-2">
                   <ChevronDown
                     size={16}
-                    className={`transition ${
-                      openMenu === item.name ? "rotate-180" : ""
-                    }`}
+                    className={`transition ${openMenu === item.name ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
               </div>
@@ -144,10 +183,9 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                       onClick={closeMobile}
                       className={({ isActive }) =>
                         `flex items-center gap-2 p-2 rounded-md text-sm
-                        ${
-                          isActive
-                            ? "bg-blue-100 text-blue-600 font-medium"
-                            : "text-gray-600 hover:bg-gray-100"
+                        ${isActive
+                          ? "bg-blue-100 text-blue-600 font-normal"
+                          : "text-gray-600 hover:bg-gray-100"
                         }`
                       }
                     >
@@ -161,23 +199,25 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           );
         }
 
+        const isActive = location.pathname === item.path;
         return (
-          <NavLink
+          <button
             key={item.name}
-            to={item.path}
-            onClick={closeMobile}
-            className={({ isActive }) =>
-              `flex items-center gap-3 p-2 rounded-lg
-              ${
-                isActive
-                  ? "bg-blue-100 text-blue-600 font-medium"
-                  : "text-gray-700 hover:bg-gray-100"
-              }`
-            }
+            onClick={() => {
+              closeMobile();
+              if (item.path) {
+                navigate(item.path);
+              }
+            }}
+            className={`flex items-center gap-3 p-2 rounded-lg w-full text-left
+              ${isActive
+                ? "bg-blue-100 text-blue-600 font-medium"
+                : "text-gray-700 hover:bg-gray-100"
+              }`}
           >
             {item.icon}
             {item.name}
-          </NavLink>
+          </button>
         );
       })}
     </nav>
