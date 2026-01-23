@@ -120,7 +120,7 @@ export default function UserRoleModal({
       description: initialData?.description || "",
       permissions: initialData?.permissions
         ? initialData.permissions.map((path) => PATH_TO_KEY_MAP[path])
-        : mode === "add" ? Object.keys(PERMISSION_MAP) : [],
+        : [],
     },
     enableReinitialize: true,
     validationSchema,
