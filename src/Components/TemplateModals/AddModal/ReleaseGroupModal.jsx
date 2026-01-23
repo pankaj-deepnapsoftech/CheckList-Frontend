@@ -38,7 +38,10 @@ const AddReleaseGroupModal = ({
   const plantMap = React.useMemo(() => {
     const map = {};
     PLANT_OPTIONS.forEach((p) => {
-      map[p._id] = p.plant_name;
+      map[p._id] = {
+        name: p.plant_name,
+        code: p.plant_code,
+      };
     });
     return map;
   }, [PLANT_OPTIONS]);
@@ -90,7 +93,7 @@ const AddReleaseGroupModal = ({
       }
     },
   });
-  console.log(editData);
+
   const { values, handleChange, handleSubmit, setFieldValue } = formik;
 
   const handleAddUserPlant = () => {
@@ -135,44 +138,29 @@ const AddReleaseGroupModal = ({
     );
   };
 
-  const filteredPlantOptions = React.useMemo(() => {
-    if (mode === "edit" && values.selectedUser) {
-      const currentUser = values.users.find(
-        (u) => u.user_id === values.selectedUser,
-      );
-
-      const otherUsedPlants = values.users
-        .filter((u) => u.user_id !== values.selectedUser)
-        .flatMap((u) => u.plants_id || []);
-
-      return PLANT_OPTIONS.filter(
-        (p) =>
-          !otherUsedPlants.includes(p._id) ||
-          currentUser?.plants_id.includes(p._id),
-      );
-    }
-
-    const usedPlants = values.users.flatMap((u) => u.plants_id || []);
-    return PLANT_OPTIONS.filter((p) => !usedPlants.includes(p._id));
-  }, [PLANT_OPTIONS, values.users, values.selectedUser, mode]);
-
-  React.useEffect(() => {
-    if (
-      values.selectedUser &&
-      values.selectedPlant &&
-      !values.users.some(
-        (u) =>
-          u.user_id === values.selectedUser &&
-          u.plants_id.includes(values.selectedPlant),
-      )
-    ) {
-      handleAddUserPlant();
-    }
-  }, [values.selectedPlant]);
-
-  if (!openModal) return null;
 
  
+
+
+const filteredPlantOptions = React.useMemo(() => {
+  if (!values.selectedUser) return PLANT_OPTIONS;
+
+  const currentUser = values.users.find(
+    (u) => u.user_id === values.selectedUser,
+  );
+
+  const assignedPlantsOfCurrentUser = currentUser?.plants_id || [];
+
+  return PLANT_OPTIONS.filter(
+    (plant) => !assignedPlantsOfCurrentUser.includes(plant._id),
+  );
+}, [PLANT_OPTIONS, values.selectedUser, values.users]);
+
+
+
+
+
+  if (!openModal) return null;
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex justify-end">
@@ -226,7 +214,11 @@ const AddReleaseGroupModal = ({
               !values.selectedUser ||
               filteredPlantOptions.length === 0
             }
-            getLabel={(opt) => opt.plant_name}
+            getLabel={(opt) => (
+              <p>
+                {opt?.plant_name} ({opt?.plant_code})
+              </p>
+            )}
           />
 
           {!isView && (
@@ -266,8 +258,11 @@ const AddReleaseGroupModal = ({
                     className="flex items-center gap-2 bg-white border px-3 py-1 rounded-full text-sm"
                   >
                     <Wand size={14} className="text-green-600" />
-                    <span>{plantMap[plantId]}</span>
+                    <span>
+                      {plantMap[plantId]?.name} ({plantMap[plantId]?.code})
+                    </span>
 
+                 
                     {!isView && (
                       <button
                         type="button"
@@ -283,7 +278,7 @@ const AddReleaseGroupModal = ({
                           }
 
                           setFieldValue("users", updatedUsers);
-                          setFieldValue("selectedPlant", ""); 
+                          setFieldValue("selectedPlant", "");
                         }}
                         className="text-gray-400 hover:text-red-500"
                       >
@@ -309,7 +304,6 @@ const AddReleaseGroupModal = ({
     </div>
   );
 };
-
 
 const Input = ({ label, ...props }) => (
   <label className="block mb-4">
