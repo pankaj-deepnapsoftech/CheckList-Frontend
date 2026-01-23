@@ -1,22 +1,8 @@
 import { X, ShieldCheck, Calendar, Layers } from "lucide-react";
-import { PERMISSION_MAP } from "../addModal/AddUserRoleModal";
+import { PERMISSION_MAP, PERMISSION_MODULES } from "../addModal/AddUserRoleModal";
 
 const ViewUserRole = ({ open, onClose, data }) => {
   if (!open || !data) return null;
-
-  const PERMISSION_MAP = {
-    Dashboard: "/",
-    Company: "/company",
-    "Plant Name": "/plant-name",
-    "User Role": "/user-role",
-    Employee: "/employee",
-    Part: "/parts",
-    Process: "/process",
-    "Assembly Line": "/assembly-line",
-    "Check Item": "/checkitem",
-    "CheckItem Data": "/checkitem-data",
-    "Assembly Line Status": "/assembly-line-status",
-  };
 
   const permissions =
     data.permissions?.map(
