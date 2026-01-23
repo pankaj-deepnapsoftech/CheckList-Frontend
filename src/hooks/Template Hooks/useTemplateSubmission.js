@@ -59,10 +59,19 @@ export const useTemplateSubmission = (templateId = null) => {
     },
   });
 
+  const getLatestSubmission = useMutation({
+    mutationFn: async (templateId) => {
+      if (!templateId) return null;
+      const res = await axiosHandler.get(`/template-submission/latest/${templateId}`);
+      return res?.data?.data;
+    },
+  });
+
   return {
     getUserSubmissions,
     createSubmission,
     updateSubmission,
     submitSubmission,
+    getLatestSubmission,
   };
 };

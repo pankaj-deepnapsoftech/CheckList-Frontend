@@ -1,8 +1,10 @@
 import React, { useMemo, useState } from "react";
-import { Edit2, Eye, Plus, Trash2, X } from "lucide-react";
+import { Edit2, Eye, Plus, Trash2, X, UserCheck } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
+import { useWorkflow } from "../hooks/useWorkflow";
 import SearchableDropdown from "../Components/SearchableDropDown/SearchableDropdown";
+import AssignWorkflowModal from "../Components/modal/addModal/AssignWorkflowModal";
 
 const FIELD_TYPES = [
   { label: "Text Input", value: "TEXT" },
@@ -26,6 +28,8 @@ export default function TemplateMaster() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [selectedTemplateForAssign, setSelectedTemplateForAssign] = useState(null);
   const [viewingTemplateId, setViewingTemplateId] = useState("");
   const [editingTemplateId, setEditingTemplateId] = useState("");
   const [editTemplateName, setEditTemplateName] = useState("");
@@ -49,10 +53,11 @@ export default function TemplateMaster() {
   const [editDropdownOptions, setEditDropdownOptions] = useState("");
   const [editingFieldId, setEditingFieldId] = useState("");
 
-  const { templatesQuery, templateQuery, createTemplate, addField, updateField, deleteField, updateTemplate, deleteTemplate } =
+  const { templatesQuery, templateQuery, createTemplate, addField, updateField, deleteField, updateTemplate, deleteTemplate, assignWorkflow } =
     useTemplateMaster(selectedTemplateId);
   
   const { AllEmpData } = RegisterEmployee();
+  const { listQuery: workflowsQuery } = useWorkflow("", 1, 1000);
 
   const templates = templatesQuery.data || [];
   const selectedTemplate = templateQuery.data;
@@ -614,6 +619,11 @@ export default function TemplateMaster() {
                         <div className="text-[14px] text-gray-500">
                           {t.template_type || "—"}
                         </div>
+                        {t.workflow && (
+                          <div className="text-[12px] text-purple-600 font-medium mt-1">
+                            Workflow: {t.workflow.name}
+                          </div>
+                        )}
                       </button>
                       <div className="flex items-center gap-1 ">
                         <button
@@ -635,6 +645,17 @@ export default function TemplateMaster() {
                           title="Edit Template"
                         >
                           <Edit2 size={18} />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedTemplateForAssign(t);
+                            setIsAssignModalOpen(true);
+                          }}
+                          className="rounded p-1 hover:bg-purple-100 text-purple-600"
+                          title="Assign Workflow"
+                        >
+                          <UserCheck size={18} />
                         </button>
                         <button
                           onClick={(e) => {
@@ -1697,6 +1718,16 @@ export default function TemplateMaster() {
                             </div>
                           </>
                         )}
+                        {selectedTemplate.workflow && (
+                          <>
+                            <div className="mt-2 text-xs font-semibold text-gray-700">
+                              Assigned Workflow
+                            </div>
+                            <div className="mt-1 text-sm text-purple-600 font-medium">
+                              {selectedTemplate.workflow.name}
+                            </div>
+                          </>
+                        )}
                       </div>
 
                       {fields.length === 0 ? (
@@ -1748,6 +1779,14 @@ export default function TemplateMaster() {
           </div>
         </div>
       )}
+      <AssignWorkflowModal
+        openModal={isAssignModalOpen}
+        setOpenModal={setIsAssignModalOpen}
+        template={selectedTemplateForAssign}
+        assignWorkflow={assignWorkflow}
+        workflows={workflowsQuery?.data || []}
+        isLoading={workflowsQuery?.isLoading}
+      />
     </div>
   );
 };

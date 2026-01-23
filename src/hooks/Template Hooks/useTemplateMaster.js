@@ -112,6 +112,23 @@ export const useTemplateMaster = (selectedTemplateId) => {
     },
   });
 
+  const assignWorkflow = useMutation({
+    mutationFn: async ({ templateId, workflowId }) => {
+      const res = await axiosHandler.post(`/template-master/templates/${templateId}/assign-workflow`, {
+        workflowId,
+      });
+      return res?.data;
+    },
+    onSuccess: (data) => {
+      toast.success(data?.message || "Workflow assigned successfully");
+      qc.invalidateQueries({ queryKey: ["template-master", "templates"] });
+      qc.invalidateQueries({ queryKey: ["template-master", "template"] });
+    },
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || "Failed to assign workflow");
+    },
+  });
+
   return {
     templatesQuery,
     templateQuery,
@@ -121,6 +138,7 @@ export const useTemplateMaster = (selectedTemplateId) => {
     deleteField,
     updateTemplate,
     deleteTemplate,
+    assignWorkflow,
   };
 };
 
