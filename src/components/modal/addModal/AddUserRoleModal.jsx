@@ -4,34 +4,41 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useUserRole } from "../../../hooks/useUserRole";
 
+export const PERMISSION_MODULES = {
+  Administration: {
+    Dashboard: "/",
+    "User Role": "/user-role",
+    Employee: "/employee",
+  },
+  "Master Data": {
+    Company: "/company",
+    "Plant Name": "/plant-name",
+    Part: "/parts",
+    Process: "/process",
+  },
+  "CheckItem Module": {
+    "Check Item": "/checkitem",
+    "Inspection Data": "/checkitem-data",
+  },
+  "Assembly Line Module": {
+    "Assembly Line": "/assembly-line",
+    "Assembly Line Status": "/assembly-line-status",
+    "Assigned Assembly Lines": "/assigned-assembly-lines",
+    "Daily Assembly Check": "/daily-assembly-check",
+    "Assembly Line Error": "/assembly-line/error",
+  },
+};
 
-
- export  const PERMISSION_MAP = {
-   Dashboard: "/",
-   Company: "/company",
-   "Plant Name": "/plant-name",
-   "User Role": "/user-role",
-   Employee: "/employee",
-   Part: "/parts",
-   Process: "/process",
-   "Assembly Line": "/assembly-line",
-   "Check Item": "/checkitem",
-   "Inspection Data": "/checkitem-data",
-   "Assembly Line Status": "/assembly-line-status",
-   "Assigned Assembly Lines": "/assigned-assembly-lines",
-   "Daily Assembly Check": "/daily-assembly-check",
-   "Assembly Line Error": "/assembly-line/error",
-   "My Templates": "/assigned-templates",
-   "Manage Template": "/template-master",
-   "Manage Release Group": "/release-group",
-   "Manage WorkFlow": "/workflow",
-   "Manage Documents": "/document-management",
- };
+// Flatten for backward compatibility
+export const PERMISSION_MAP = Object.values(PERMISSION_MODULES).reduce(
+  (acc, module) => ({ ...acc, ...module }),
+  {},
+);
 
 const SIDEBAR_PAGES = Object.keys(PERMISSION_MAP);
 
 const PATH_TO_KEY_MAP = Object.fromEntries(
-  Object.entries(PERMISSION_MAP).map(([key, value]) => [value, key])
+  Object.entries(PERMISSION_MAP).map(([key, value]) => [value, key]),
 );
 
 const validationSchema = Yup.object({
@@ -41,6 +48,47 @@ const validationSchema = Yup.object({
     .min(1, "At least one permission is required")
     .required("Permission is required"),
 });
+
+const ModuleSection = ({
+  moduleName,
+  permissions,
+  selectedPermissions,
+  onToggle,
+}) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="mb-2">
+      <div
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center justify-between px-3 py-2 bg-gray-100 hover:bg-gray-200 cursor-pointer rounded-lg"
+      >
+        <span className="text-sm font-semibold text-gray-700">
+          {moduleName}
+        </span>
+        {expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+      </div>
+
+      {expanded && (
+        <div className="ml-4 mt-1 space-y-1">
+          {Object.entries(permissions).map(([permName, path]) => (
+            <label
+              key={permName}
+              className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer rounded"
+            >
+              <input
+                type="checkbox"
+                checked={selectedPermissions.includes(permName)}
+                onChange={() => onToggle(permName)}
+              />
+              <span className="text-sm">{permName}</span>
+            </label>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function UserRoleModal({
   open,
@@ -67,7 +115,7 @@ export default function UserRoleModal({
     validationSchema,
     onSubmit: (values) => {
       const backendPermissions = values.permissions.map(
-        (key) => PERMISSION_MAP[key]
+        (key) => PERMISSION_MAP[key],
       );
 
       const payload = {
@@ -125,7 +173,7 @@ export default function UserRoleModal({
     if (permissions.includes(key)) {
       formik.setFieldValue(
         "permissions",
-        permissions.filter((p) => p !== key)
+        permissions.filter((p) => p !== key),
       );
     } else {
       formik.setFieldValue("permissions", [...permissions, key]);
@@ -136,7 +184,7 @@ export default function UserRoleModal({
     if (isView) return;
     formik.setFieldValue(
       "permissions",
-      formik.values.permissions.filter((p) => p !== page)
+      formik.values.permissions.filter((p) => p !== page),
     );
   };
 
@@ -159,8 +207,8 @@ export default function UserRoleModal({
             {mode === "add"
               ? "Add New Role"
               : mode === "edit"
-              ? "Edit Role"
-              : "View Role"}
+                ? "Edit Role"
+                : "View Role"}
           </h2>
 
           <button
@@ -283,22 +331,24 @@ export default function UserRoleModal({
                 </div>
 
                 <div className="max-h-56 overflow-auto p-2">
-                  {SIDEBAR_PAGES.map((page) => (
-                    <label
-                      key={page}
-                      className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 cursor-pointer"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formik.values.permissions.includes(page)}
-                        onChange={() => {
+                  {Object.entries(PERMISSION_MODULES)
+                    .filter(([moduleName]) =>
+                      moduleName
+                        .toLowerCase()
+                        .includes(searchPage.toLowerCase()),
+                    )
+                    .map(([moduleName, permissions]) => (
+                      <ModuleSection
+                        key={moduleName}
+                        moduleName={moduleName}
+                        permissions={permissions}
+                        selectedPermissions={formik.values.permissions}
+                        onToggle={(page) => {
                           togglePermission(page);
                           formik.setFieldTouched("permissions", true);
                         }}
                       />
-                      <span className="text-sm">{page}</span>
-                    </label>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}
@@ -311,7 +361,7 @@ export default function UserRoleModal({
             >
               {mode === "add" ? "Create Role" : "Update Role"}
             </button>
-          )} 
+          )}
           {isView && (
             <>
               {/* CREATED ON */}
