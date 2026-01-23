@@ -13,6 +13,7 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
   if (!open || !data) return null;
 
 
+
   return (
     <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex justify-end">
       {/* PANEL */}
@@ -52,6 +53,10 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
               value={data.designation || data.desigination}
             />
             <Info label="Role" value={data?.userRole?.name} />
+            {
+              data?.is_hod === true ? <Info label="isHod" value="Yes" /> : <Info label="isHod" value="No" />
+            }
+             
           </ColoredSection>
 
           {/* ORGANIZATION */}
