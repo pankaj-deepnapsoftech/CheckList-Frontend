@@ -27,6 +27,17 @@ export const PERMISSION_MODULES = {
     "Daily Assembly Check": "/daily-assembly-check",
     "Assembly Line Error": "/assembly-line/error",
   },
+  "Template Module": {
+    "Manage Template": "/template-master",
+    "Manage Release Group": "/release-group",
+    "Manage Workflow": "/workflow",
+    "Manage Documents": "/document-management",
+    "My Templates": "/assigned-templates",
+  },
+  "Plc-Data": {
+    "Live-Data": "/plc-data/live",
+    "Stoppage": "/plc-data/stoppage",
+  },
 };
 
 // Flatten for backward compatibility
@@ -109,7 +120,7 @@ export default function UserRoleModal({
       description: initialData?.description || "",
       permissions: initialData?.permissions
         ? initialData.permissions.map((path) => PATH_TO_KEY_MAP[path])
-        : [],
+        : mode === "add" ? Object.keys(PERMISSION_MAP) : [],
     },
     enableReinitialize: true,
     validationSchema,
