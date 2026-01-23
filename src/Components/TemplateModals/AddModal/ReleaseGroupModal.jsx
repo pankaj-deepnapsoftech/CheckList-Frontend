@@ -15,6 +15,8 @@ const AddReleaseGroupModal = ({
   const { getAllEmployee } = RegisterEmployee();
   const { getAllPlantName } = UsePlantName();
   const { postReleaseGroup, updateReleaseGroup } = useReleaseGroup();
+  const [plantOpen, setPlantOpen] = React.useState(false);
+  const plantRef = React.useRef(null);
 
   const USER_OPTIONS = getAllEmployee?.data || [];
   const PLANT_OPTIONS = getAllPlantName?.data || [];
@@ -61,7 +63,7 @@ const AddReleaseGroupModal = ({
       group_department: editData?.group_department ?? "",
       users: normalizeUsers(editData?.users),
       selectedUser: "",
-      selectedPlant: "",
+      selectedPlants: [],
     },
 
     enableReinitialize: true,
@@ -97,38 +99,32 @@ const AddReleaseGroupModal = ({
   const { values, handleChange, handleSubmit, setFieldValue } = formik;
 
   const handleAddUserPlant = () => {
-    const { selectedUser, selectedPlant, users } = values;
+    const { selectedUser, selectedPlants, users } = values;
 
-    if (!selectedUser || !selectedPlant) return;
+    if (!selectedUser || selectedPlants.length === 0) return;
 
     const userIndex = users.findIndex((u) => u.user_id === selectedUser);
 
     if (userIndex !== -1) {
-      const user = users[userIndex];
-
-      if (user.plants_id.includes(selectedPlant)) {
-        alert("This plant is already added for this user");
-        return;
-      }
-
       const updatedUsers = [...users];
-      updatedUsers[userIndex] = {
-        ...user,
-        plants_id: [...user.plants_id, selectedPlant],
-      };
-
+      updatedUsers[userIndex].plants_id = Array.from(
+        new Set([...updatedUsers[userIndex].plants_id, ...selectedPlants]),
+      );
       setFieldValue("users", updatedUsers);
     } else {
       setFieldValue("users", [
         ...users,
         {
           user_id: selectedUser,
-          plants_id: [selectedPlant],
+          plants_id: selectedPlants,
         },
       ]);
     }
 
-    setFieldValue("selectedPlant", "");
+    setFieldValue("selectedUser", "");
+    setFieldValue("selectedPlants", []);
+    setPlantOpen(false);
+    
   };
 
   const handleRemove = (index) => {
@@ -139,25 +135,28 @@ const AddReleaseGroupModal = ({
   };
 
 
- 
 
 
-const filteredPlantOptions = React.useMemo(() => {
-  if (!values.selectedUser) return PLANT_OPTIONS;
+  const filteredPlantOptions = React.useMemo(() => {
+    if (mode === "edit" && values.selectedUser) {
+      const currentUser = values.users.find(
+        (u) => u.user_id === values.selectedUser,
+      );
 
-  const currentUser = values.users.find(
-    (u) => u.user_id === values.selectedUser,
-  );
+      const otherUsedPlants = values.users
+        .filter((u) => u.user_id !== values.selectedUser)
+        .flatMap((u) => u.plants_id || []);
 
-  const assignedPlantsOfCurrentUser = currentUser?.plants_id || [];
+      return PLANT_OPTIONS.filter(
+        (p) =>
+          !otherUsedPlants.includes(p._id) ||
+          currentUser?.plants_id.includes(p._id),
+      );
+    }
 
-  return PLANT_OPTIONS.filter(
-    (plant) => !assignedPlantsOfCurrentUser.includes(plant._id),
-  );
-}, [PLANT_OPTIONS, values.selectedUser, values.users]);
-
-
-
+    const usedPlants = values.users.flatMap((u) => u.plants_id || []);
+    return PLANT_OPTIONS.filter((p) => !usedPlants.includes(p._id));
+  }, [PLANT_OPTIONS, values.users, values.selectedUser, mode]);
 
 
   if (!openModal) return null;
@@ -203,29 +202,112 @@ const filteredPlantOptions = React.useMemo(() => {
             getLabel={(opt) => opt.full_name}
           />
 
-          <Select
-            label="Plant"
-            name="selectedPlant"
-            value={values.selectedPlant}
-            onChange={handleChange}
-            options={filteredPlantOptions}
-            disabled={
-              isView ||
-              !values.selectedUser ||
-              filteredPlantOptions.length === 0
-            }
-            getLabel={(opt) => (
-              <p>
-                {opt?.plant_name} ({opt?.plant_code})
-              </p>
+          <div className="relative mb-4 w-full" ref={plantRef}>
+            <label className="font-medium text-gray-700">Plant</label>
+
+          
+            <div
+              onClick={() => !isView && setPlantOpen(!plantOpen)}
+              className={`mt-2 min-h-[52px] border rounded-lg px-3 py-2 cursor-pointer flex items-center justify-between
+      ${plantOpen ? "ring-2 ring-blue-200 border-blue-500" : "border-gray-300"}
+      ${isView && "bg-gray-100 cursor-not-allowed"}
+    `}
+            >
+              <div className="flex flex-wrap gap-2 max-w-[85%]">
+                {values.selectedPlants.length === 0 && (
+                  <span className="text-gray-400 text-sm">Select plants</span>
+                )}
+
+                {values.selectedPlants.map((pid) => (
+                  <span
+                    key={pid}
+                    className="flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-100"
+                  >
+                    {plantMap[pid]?.name} ({plantMap[pid]?.code})
+                    {!isView && (
+                      <X
+                        size={14}
+                        className="cursor-pointer hover:text-red-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFieldValue(
+                            "selectedPlants",
+                            values.selectedPlants.filter((p) => p !== pid),
+                          );
+                        }}
+                      />
+                    )}
+                  </span>
+                ))}
+              </div>
+
+           
+              {!isView && (
+                <svg
+                  className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
+                    plantOpen ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              )}
+            </div>
+
+            
+            {plantOpen && !isView && (
+              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                {filteredPlantOptions.length === 0 ? (
+                  <div className="p-3 text-gray-400 text-sm">
+                    No plants available
+                  </div>
+                ) : (
+                  filteredPlantOptions.map((plant) => (
+                    <label
+                      key={plant._id}
+                      className="flex items-center gap-2 px-3 py-2 hover:bg-blue-50 cursor-pointer transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={values.selectedPlants.includes(plant._id)}
+                        onChange={() => {
+                          const exists = values.selectedPlants.includes(
+                            plant._id,
+                          );
+                          setFieldValue(
+                            "selectedPlants",
+                            exists
+                              ? values.selectedPlants.filter(
+                                  (p) => p !== plant._id,
+                                )
+                              : [...values.selectedPlants, plant._id],
+                          );
+                        }}
+                        className="accent-blue-600"
+                      />
+                      <span className="text-gray-700 text-sm font-medium">
+                        {plant.plant_name} ({plant.plant_code})
+                      </span>
+                    </label>
+                  ))
+                )}
+              </div>
             )}
-          />
+          </div>
 
           {!isView && (
             <div className="flex justify-end mb-4">
               <button
                 type="button"
                 onClick={handleAddUserPlant}
+
                 className="bg-blue-600 text-white py-2 px-4 rounded-lg"
               >
                 Add User & Plant
@@ -262,7 +344,6 @@ const filteredPlantOptions = React.useMemo(() => {
                       {plantMap[plantId]?.name} ({plantMap[plantId]?.code})
                     </span>
 
-                 
                     {!isView && (
                       <button
                         type="button"
@@ -320,6 +401,7 @@ const Select = ({ label, options, getLabel, ...props }) => (
     <span className="font-medium">{label}</span>
     <select
       {...props}
+      multiple={props.multiple}
       className="mt-2 w-full px-4 py-3 border border-gray-200 rounded-lg"
     >
       <option value="">
