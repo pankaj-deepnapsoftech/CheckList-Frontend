@@ -25,6 +25,8 @@ import {
   Cpu,
   Activity,
   FileText,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -80,6 +82,8 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       icon: <GraduationCap size={20} />,
       children: [
         { name: "Manage Template", path: "/template-master", icon: <LayoutTemplate size={18} /> },
+        { name: "Template Status", path: "/template-status", icon: <CheckCircle2 size={18} /> },
+        { name: "Template Approval", path: "/template-approve-reject", icon: <XCircle size={18} /> },
         { name: "Manage Release Group", path: "/release-group", icon: <Repeat2 size={18} /> },
         { name: "Manage Workflow", path: "/workflow", icon: <WorkflowIcon size={18} /> },
         { name: "Manage Documents", path: "/document-management", icon: <FileText size={18} /> },
