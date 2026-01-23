@@ -1,46 +1,1753 @@
-import React from "react";
-import { motion } from "framer-motion";
-import { Rocket } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Edit2, Eye, Plus, Trash2, X } from "lucide-react";
+import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
+import { RegisterEmployee } from "../hooks/useRegisterEmployee";
+import SearchableDropdown from "../Components/SearchableDropDown/SearchableDropdown";
+
+const FIELD_TYPES = [
+  { label: "Text Input", value: "TEXT" },
+  { label: "Number", value: "NUMBER" },
+  { label: "Checkbox", value: "CHECKBOX" },
+  { label: "Dropdown", value: "DROPDOWN" },
+  { label: "Date", value: "DATE" },
+  { label: "Text Area", value: "TEXTAREA" },
+  { label: "Attach File", value: "IMAGE" },
+  { label: "Radio Buttons", value: "RADIO" }
+];
+
+const TEMPLATE_TYPES = [
+  { label: "New", value: "NEW" },
+  { label: "Amendment", value: "AMENDMENT" },
+];
 
 export default function TemplateMaster() {
+  const [selectedTemplateId, setSelectedTemplateId] = useState("");
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
+  const [viewingTemplateId, setViewingTemplateId] = useState("");
+  const [editingTemplateId, setEditingTemplateId] = useState("");
+  const [editTemplateName, setEditTemplateName] = useState("");
+  const [editTemplateType, setEditTemplateType] = useState("");
+  const [editAssignedUser, setEditAssignedUser] = useState("");
+  const [newTemplateName, setNewTemplateName] = useState("");
+  const [newTemplateType, setNewTemplateType] = useState("");
+  const [assignedUser, setAssignedUser] = useState("");
+
+  const [newFieldName, setNewFieldName] = useState("");
+  const [newFieldType, setNewFieldType] = useState("TEXT");
+  const [newIsMandatory, setNewIsMandatory] = useState(false);
+  const [newDropdownOptions, setNewDropdownOptions] = useState("");
+  const [draftFields, setDraftFields] = useState([]);
+  const [draftPreviewValues, setDraftPreviewValues] = useState({});
+
+  // Edit modal field states
+  const [editFieldName, setEditFieldName] = useState("");
+  const [editFieldType, setEditFieldType] = useState("TEXT");
+  const [editIsMandatory, setEditIsMandatory] = useState(false);
+  const [editDropdownOptions, setEditDropdownOptions] = useState("");
+  const [editingFieldId, setEditingFieldId] = useState("");
+
+  const { templatesQuery, templateQuery, createTemplate, addField, updateField, deleteField, updateTemplate, deleteTemplate } =
+    useTemplateMaster(selectedTemplateId);
+  
+  const { AllEmpData } = RegisterEmployee();
+
+  const templates = templatesQuery.data || [];
+  const selectedTemplate = templateQuery.data;
+  const fields = useMemo(() => selectedTemplate?.fields || [], [selectedTemplate]);
+  const [previewValues, setPreviewValues] = useState({});
+
+  const setPreviewValue = (key, value) => {
+    setPreviewValues((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const renderPreviewInput = (f) => {
+    const key = f?._id || f?.field_name;
+    const commonClass =
+      "mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
+
+    switch (f.field_type) {
+      case "NUMBER":
+        return (
+          <input
+            type="number"
+            value={previewValues[key] ?? ""}
+            onChange={(e) => setPreviewValue(key, e.target.value)}
+            className={commonClass}
+            placeholder={`Enter ${f.field_name}`}
+          />
+        );
+      case "CHECKBOX":
+        return (
+          <label className="mt-2 inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={Boolean(previewValues[key])}
+              onChange={(e) => setPreviewValue(key, e.target.checked)}
+            />
+            {f.field_name}
+          </label>
+        );
+      case "DROPDOWN":
+        {
+          let opts = [];
+          try {
+            opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
+          } catch {
+            opts = [];
+          }
+          return (
+          <select
+            value={previewValues[key] ?? ""}
+            onChange={(e) => setPreviewValue(key, e.target.value)}
+            className={commonClass}
+          >
+            <option value="">Select</option>
+            {opts.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+          );
+        }
+      case "RADIO":
+        {
+          let opts = [];
+          try {
+            opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
+          } catch {
+            opts = [];
+          }
+          return (
+            <div className="mt-2 space-y-2">
+              {opts.map((o) => (
+                <label key={o} className="flex items-center gap-2 text-sm text-gray-700">
+                  <input
+                    type="radio"
+                    name={key}
+                    value={o}
+                    checked={previewValues[key] === o}
+                    onChange={(e) => setPreviewValue(key, e.target.value)}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                  />
+                  <span>{o}</span>
+                </label>
+              ))}
+            </div>
+          );
+        }
+      case "DATE":
+        return (
+          <input
+            type="date"
+            value={previewValues[key] ?? ""}
+            onChange={(e) => setPreviewValue(key, e.target.value)}
+            className={commonClass}
+          />
+        );
+      case "TEXTAREA":
+        return (
+          <textarea
+            value={previewValues[key] ?? ""}
+            onChange={(e) => setPreviewValue(key, e.target.value)}
+            className={commonClass}
+            rows={3}
+            placeholder={`Enter ${f.field_name}`}
+          />
+        );
+      case "IMAGE":
+        const imageUrl = previewValues[key];
+        return (
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setPreviewValue(key, reader.result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+              className={commonClass}
+            />
+            {imageUrl && (
+              <div className="mt-2">
+                <img
+                  src={imageUrl}
+                  alt="Preview"
+                  className="max-w-full h-auto max-h-48 rounded-lg border border-gray-200"
+                />
+              </div>
+            )}
+          </div>
+        );
+      case "TEXT":
+      default:
+        return (
+          <input
+            type="text"
+            value={previewValues[key] ?? ""}
+            onChange={(e) => setPreviewValue(key, e.target.value)}
+            className={commonClass}
+            placeholder={`Enter ${f.field_name}`}
+          />
+        );
+    }
+  };
+
+  const setDraftPreviewValue = (key, value) => {
+    setDraftPreviewValues((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const renderDraftPreviewInput = (f) => {
+    const key = f?._tmpId || f?.field_name;
+    const commonClass =
+      "mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
+
+    switch (f.field_type) {
+      case "NUMBER":
+        return (
+          <input
+            type="number"
+            value={draftPreviewValues[key] ?? ""}
+            onChange={(e) => setDraftPreviewValue(key, e.target.value)}
+            className={commonClass}
+            placeholder={`Enter ${f.field_name}`}
+          />
+        );
+      case "CHECKBOX":
+        return (
+          <label className="mt-2 inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              type="checkbox"
+              checked={Boolean(draftPreviewValues[key])}
+              onChange={(e) => setDraftPreviewValue(key, e.target.checked)}
+            />
+            {f.field_name}
+            {f.is_mandatory && <span className="text-red-500">*</span>}
+          </label>
+        );
+      case "DROPDOWN":
+        return (
+          <select
+            value={draftPreviewValues[key] ?? ""}
+            onChange={(e) => setDraftPreviewValue(key, e.target.value)}
+            className={commonClass}
+          >
+            <option value="">Select</option>
+            {(f.dropdown_options || []).map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </select>
+        );
+      case "RADIO":
+        return (
+          <div className="mt-2 space-y-2">
+            {(f.dropdown_options || []).map((o) => (
+              <label key={o} className="flex items-center gap-2 text-sm text-gray-700">
+                <input
+                  type="radio"
+                  name={key}
+                  value={o}
+                  checked={draftPreviewValues[key] === o}
+                  onChange={(e) => setDraftPreviewValue(key, e.target.value)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                />
+                <span>{o}</span>
+              </label>
+            ))}
+          </div>
+        );
+      case "DATE":
+        return (
+          <input
+            type="date"
+            value={draftPreviewValues[key] ?? ""}
+            onChange={(e) => setDraftPreviewValue(key, e.target.value)}
+            className={commonClass}
+          />
+        );
+      case "TEXTAREA":
+        return (
+          <textarea
+            value={draftPreviewValues[key] ?? ""}
+            onChange={(e) => setDraftPreviewValue(key, e.target.value)}
+            className={commonClass}
+            rows={3}
+            placeholder={`Enter ${f.field_name}`}
+          />
+        );
+      case "IMAGE":
+        const draftImageUrl = draftPreviewValues[key];
+        return (
+          <div>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onloadend = () => {
+                    setDraftPreviewValue(key, reader.result);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+              className={commonClass}
+            />
+            {draftImageUrl && (
+              <div className="mt-2">
+                <img
+                  src={draftImageUrl}
+                  alt="Preview"
+                  className="max-w-full h-auto max-h-48 rounded-lg border border-gray-200"
+                />
+              </div>
+            )}
+          </div>
+        );
+      case "TEXT":
+      default:
+        return (
+          <input
+            type="text"
+            value={draftPreviewValues[key] ?? ""}
+            onChange={(e) => setDraftPreviewValue(key, e.target.value)}
+            className={commonClass}
+            placeholder={`Enter ${f.field_name}`}
+          />
+        );
+    }
+  };
+
+  const openCreate = () => {
+    setIsCreateOpen(true);
+    setNewTemplateName("");
+    setNewTemplateType("");
+    setAssignedUser("");
+    setDraftFields([]);
+    setDraftPreviewValues({});
+    setNewFieldName("");
+    setNewFieldType("TEXT");
+    setNewIsMandatory(false);
+    setNewDropdownOptions("");
+  };
+
+  const closeCreate = () => {
+    setIsCreateOpen(false);
+  };
+
+  const openView = (template) => {
+    setViewingTemplateId(template._id);
+    setIsViewOpen(true);
+    // Select template to load its fields
+    setSelectedTemplateId(template._id);
+  };
+
+  const closeView = () => {
+    setIsViewOpen(false);
+    setViewingTemplateId("");
+  };
+
+  const openEdit = (template) => {
+    setEditingTemplateId(template._id);
+    setEditTemplateName(template.template_name);
+    setEditTemplateType(template.template_type || "");
+    setEditAssignedUser(template.assignedUser?._id || template.assigned_user?._id || template.assigned_user || "");
+    setIsEditOpen(true);
+    // Select template to load its fields
+    setSelectedTemplateId(template._id);
+  };
+
+  const closeEdit = () => {
+    setIsEditOpen(false);
+    setEditingTemplateId("");
+    setEditTemplateName("");
+    setEditTemplateType("");
+    setEditAssignedUser("");
+    setEditingFieldId("");
+    setEditFieldName("");
+    setEditFieldType("TEXT");
+    setEditIsMandatory(false);
+    setEditDropdownOptions("");
+  };
+
+  const startEditField = (field) => {
+    setEditingFieldId(field._id);
+    setEditFieldName(field.field_name);
+    setEditFieldType(field.field_type);
+    setEditIsMandatory(field.is_mandatory);
+    let opts = "";
+    if ((field.field_type === "DROPDOWN" || field.field_type === "RADIO") && field.dropdown_options) {
+      try {
+        const parsed = JSON.parse(field.dropdown_options);
+        opts = Array.isArray(parsed) ? parsed.join(", ") : "";
+      } catch {
+        opts = "";
+      }
+    }
+    setEditDropdownOptions(opts);
+  };
+
+  const cancelEditField = () => {
+    setEditingFieldId("");
+    setEditFieldName("");
+    setEditFieldType("TEXT");
+    setEditIsMandatory(false);
+    setEditDropdownOptions("");
+  };
+
+  const handleAddFieldInEdit = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const name = (newFieldName || "").trim();
+    if (!name) return;
+
+    let dropdownOpts = null;
+    if (newFieldType === "DROPDOWN" || newFieldType === "RADIO") {
+      dropdownOpts = (newDropdownOptions || "")
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean);
+      if (dropdownOpts.length === 0) return;
+    }
+
+    await addField.mutateAsync({
+      templateId: editingTemplateId,
+      payload: {
+        field_name: name,
+        field_type: newFieldType,
+        is_mandatory: Boolean(newIsMandatory),
+        sort_order: fields.length,
+        dropdown_options: (newFieldType === "DROPDOWN" || newFieldType === "RADIO") ? dropdownOpts : undefined,
+      },
+    });
+
+    // Reset form fields after adding
+    setNewFieldName("");
+    setNewFieldType("TEXT");
+    setNewIsMandatory(false);
+    setNewDropdownOptions("");
+  };
+
+  const handleUpdateField = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const name = (editFieldName || "").trim();
+    if (!name) return;
+
+    let dropdownOpts = null;
+    if (editFieldType === "DROPDOWN" || editFieldType === "RADIO") {
+      dropdownOpts = (editDropdownOptions || "")
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean);
+      if (dropdownOpts.length === 0) return;
+    }
+
+    await updateField.mutateAsync({
+      fieldId: editingFieldId,
+      payload: {
+        field_name: name,
+        field_type: editFieldType,
+        is_mandatory: Boolean(editIsMandatory),
+        dropdown_options: (editFieldType === "DROPDOWN" || editFieldType === "RADIO") ? dropdownOpts : undefined,
+      },
+    });
+
+    cancelEditField();
+  };
+
+  const handleUpdateTemplate = async (e) => {
+    e.preventDefault();
+    await updateTemplate.mutateAsync({
+      templateId: editingTemplateId,
+      payload: {
+        template_name: editTemplateName,
+        template_type: editTemplateType || null,
+        assigned_user: editAssignedUser || null,
+      },
+    });
+    closeEdit();
+  };
+
+  const addDraftField = (e) => {
+    e.preventDefault();
+    const name = (newFieldName || "").trim();
+    if (!name) return;
+
+    let dropdownOpts = null;
+    if (newFieldType === "DROPDOWN" || newFieldType === "RADIO") {
+      dropdownOpts = (newDropdownOptions || "")
+        .split(",")
+        .map((x) => x.trim())
+        .filter(Boolean);
+      if (dropdownOpts.length === 0) return;
+    }
+
+    setDraftFields((prev) => [
+      ...prev,
+      {
+        _tmpId: crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+        field_name: name,
+        field_type: newFieldType,
+        is_mandatory: Boolean(newIsMandatory),
+        dropdown_options: dropdownOpts,
+      },
+    ]);
+
+    setNewFieldName("");
+    setNewFieldType("TEXT");
+    setNewIsMandatory(false);
+    setNewDropdownOptions("");
+  };
+
+  const removeDraftField = (tmpId) => {
+    setDraftFields((prev) => prev.filter((f) => f._tmpId !== tmpId));
+    setDraftPreviewValues((prev) => {
+      const next = { ...prev };
+      delete next[tmpId];
+      return next;
+    });
+  };
+
+  const saveNewTemplateWithFields = async (e) => {
+    e.preventDefault();
+
+    const res = await createTemplate.mutateAsync({
+      template_name: newTemplateName,
+      template_type: newTemplateType || null,
+      assigned_user: assignedUser || null,
+    });
+
+    const createdId = res?.data?._id;
+    if (!createdId) return;
+
+    // create fields after template is created
+    for (let i = 0; i < draftFields.length; i += 1) {
+      const f = draftFields[i];
+      const payload = {
+        field_name: f.field_name,
+        field_type: f.field_type,
+        is_mandatory: f.is_mandatory,
+        sort_order: i,
+      };
+      // Only include dropdown_options for DROPDOWN and RADIO fields
+      if ((f.field_type === "DROPDOWN" || f.field_type === "RADIO") && f.dropdown_options && f.dropdown_options.length > 0) {
+        payload.dropdown_options = f.dropdown_options;
+      }
+      // eslint-disable-next-line no-await-in-loop
+      await addField.mutateAsync({
+        templateId: createdId,
+        payload,
+      });
+    }
+
+    setSelectedTemplateId(createdId);
+    closeCreate();
+  };
+
   return (
-    <div className="min-h-full bg-gradient-to-br from-blue-50 via-white to-blue-100 flex items-center justify-center px-4">
+    <div className="min-h-full bg-gray-50 ">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Manage Template
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Create templates and dynamically add fields for users to fill.
+            </p>
+          </div>
+          <button
+            onClick={openCreate}
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            <Plus size={18} />
+            Create New Template
+          </button>
+        </div>
 
-      {/* FLOATING BACKGROUND SHAPES */}
-      <div className="absolute top-20 left-20 w-64 h-64 bg-blue-200/40 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-20 right-20 w-64 h-64 bg-blue-300/30 rounded-full blur-3xl animate-pulse" />
+        <div className="mt-6 grid gap-4 ">
+          {/* LEFT: Templates list */}
+          <div className="lg:col-span-1">
+            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h2 className="text-md font-semibold text-gray-800">
+                  Templates
+                </h2>
+                {templatesQuery.isLoading && (
+                  <span className="text-xs text-gray-400">Loading...</span>
+                )}
+              </div>
 
-      {/* CARD */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: "easeOut" }}
-        className="relative z-10 bg-white border border-blue-100 shadow-xl rounded-3xl p-10 max-w-xl w-full text-center"
-      >
-        {/* ICON */}
-        <motion.div
-          animate={{ y: [0, -8, 0] }}
-          transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-          className="mx-auto mb-6 w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center"
-        >
-          <Rocket className="w-8 h-8 text-blue-600" />
-        </motion.div>
+              <div className="mt-3 space-y-2">
+                {templates.length === 0 && !templatesQuery.isLoading ? (
+                  <div className="text-sm text-gray-500">No templates yet.</div>
+                ) : (
+                  templates.map((t) => (
+                    <div
+                      key={t._id}
+                      className={`group flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm ${
+                        selectedTemplateId === t._id
+                          ? "border-blue-200 bg-blue-50 text-blue-700"
+                          : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      <button
+                        onClick={() => setSelectedTemplateId(t._id)}
+                        className="flex-1 text-left"
+                      >
+                        <div className="font-semibold text-[18px]">
+                          {t.template_name}
+                        </div>
+                        <div className="text-[14px] text-gray-500">
+                          {t.template_type || "—"}
+                        </div>
+                      </button>
+                      <div className="flex items-center gap-1 ">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openView(t);
+                          }}
+                          className="rounded p-1 hover:bg-green-100 text-green-600"
+                          title="View Template"
+                        >
+                          <Eye size={18} />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openEdit(t);
+                          }}
+                          className="rounded p-1 hover:bg-blue-100 text-blue-600"
+                          title="Edit Template"
+                        >
+                          <Edit2 size={18} />
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (
+                              window.confirm(
+                                `Are you sure you want to delete "${t.template_name}"? This will also delete all its fields.`,
+                              )
+                            ) {
+                              deleteTemplate.mutate(
+                                { templateId: t._id },
+                                {
+                                  onSuccess: () => {
+                                    if (selectedTemplateId === t._id) {
+                                      setSelectedTemplateId("");
+                                    }
+                                  },
+                                },
+                              );
+                            }
+                          }}
+                          className="rounded p-1 hover:bg-rose-100 text-rose-600"
+                          title="Delete Template"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
 
-        {/* TITLE */}
-        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900">
-          Coming
-          <span className="text-blue-600"> Soon</span>
-        </h1>
+          {/* MIDDLE: Field Builder */}
+          {/* <div className="lg:col-span-1">
+            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-800">Dynamic Field Builder</h2>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Select a template and click “Add Field”.
+                  </p>
+                </div>
+                {templateQuery.isFetching && selectedTemplateId && (
+                  <span className="text-xs text-gray-400">Loading...</span>
+                )}
+              </div>
 
-        {/* SUBTITLE */}
-        <p className="text-gray-600 mt-4 text-sm sm:text-base">
-          We’re working hard to bring you something amazing.  
-          This feature will be available very soon.
-        </p>
+              {!selectedTemplateId ? (
+                <div className="mt-4 rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-500">
+                  Select a template from the left to start adding fields.
+                </div>
+              ) : (
+                <>
+                  <div className="mt-4 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
+                    <div className="text-xs text-gray-500">Selected Template</div>
+                    <div className="text-sm font-semibold text-gray-800">
+                      {selectedTemplate?.template_name || "—"}
+                    </div>
+                  </div>
 
-        {/* DIVIDER */}
-        <div className="w-20 h-1 bg-blue-500 rounded-full mx-auto my-6" />
-      </motion.div>
+                  <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-700">
+                    For new templates, use <b>Create New Template</b>. Here you can maintain fields of an existing template.
+                  </div>
+
+                  <div className="mt-5 overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200 text-sm">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                            Field Name
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                            Type
+                          </th>
+                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                            Mandatory
+                          </th>
+                          <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500">
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 bg-white">
+                        {fields.length === 0 ? (
+                          <tr>
+                            <td className="px-3 py-3 text-sm text-gray-500" colSpan={4}>
+                              No fields added yet.
+                            </td>
+                          </tr>
+                        ) : (
+                          fields.map((f) => (
+                            <tr key={f._id} className="hover:bg-gray-50">
+                              <td className="px-3 py-2 text-sm text-gray-800 font-semibold">
+                                {f.field_name}
+                              </td>
+                              <td className="px-3 py-2 text-sm text-gray-700">{f.field_type}</td>
+                              <td className="px-3 py-2 text-sm text-gray-700">
+                                {f.is_mandatory ? "Yes" : "No"}
+                              </td>
+                              <td className="px-3 py-2 text-right">
+                                <button
+                                  onClick={() =>
+                                    deleteField.mutate({ fieldId: f._id })
+                                  }
+                                  className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100"
+                                >
+                                  <Trash2 size={14} />
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </div>
+          </div> */}
+
+          {/* RIGHT: Form Preview */}
+          {/* <div className="lg:col-span-1">
+            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-sm font-semibold text-gray-800">Form Preview</h2>
+                  <p className="mt-1 text-xs text-gray-500">
+                    Ye preview user ko form fill karte time dikhega.
+                  </p>
+                </div>
+              </div>
+
+              {!selectedTemplateId ? (
+                <div className="mt-4 rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-500">
+                  Select a template to see form preview.
+                </div>
+              ) : fields.length === 0 ? (
+                <div className="mt-4 rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-500">
+                  No fields in this template yet.
+                </div>
+              ) : (
+                <div className="mt-4 space-y-4">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <div className="text-xs font-semibold text-gray-700">Template Name</div>
+                    <div className="mt-1 text-sm font-semibold text-gray-900">
+                      {selectedTemplate?.template_name || "—"}
+                    </div>
+                    {selectedTemplate?.template_type && (
+                      <>
+                        <div className="mt-2 text-xs font-semibold text-gray-700">Template Type</div>
+                        <div className="mt-1 text-sm text-gray-800">
+                          {selectedTemplate.template_type}
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {fields.map((f) => (
+                    <div key={f._id}>
+                      {f.field_type !== "CHECKBOX" && (
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          {f.field_name}
+                          {f.is_mandatory && <span className="text-red-500"> *</span>}
+                        </label>
+                      )}
+                      {renderPreviewInput(f)}
+                    </div>
+                  ))}
+
+                  <div className="pt-2 flex justify-end">
+                    <button
+                      type="button"
+                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white opacity-60 cursor-not-allowed"
+                      title="Preview only (submission will be part of execution module)"
+                    >
+                      Submit (Preview)
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div> */}
+        </div>
+      </div>
+
+      {/* RIGHT DRAWER: Create New Template */}
+      {isCreateOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={closeCreate} />
+          <div className="absolute right-0 top-0 h-full w-full max-w-[90%] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b  border-gray-200 px-5 py-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Create New Template
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Fill Template details and add fields, then save.
+                </p>
+              </div>
+              <button
+                onClick={closeCreate}
+                className="rounded-lg cursor-pointer p-2 hover:bg-gray-100"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form
+              onSubmit={saveNewTemplateWithFields}
+              className="h-full pt-5 overflow-y-auto px-5 py-4"
+            >
+              <div className="space-y-4">
+                {/* Two Column Layout: Template Fields + Add Field Section (Left) and Form Preview (Right) */}
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {/* LEFT: Template Name, Template Type, and Add Field Section */}
+                  <div className="rounded-xl border border-gray-300 bg-white p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-md font-semibold text-green-800">
+                          Form Preview
+                        </h3>
+                      </div>
+                    </div>
+
+                    <div className="mt-4">
+                      {/* Template Name & Type - Always visible */}
+                      {(newTemplateName || newTemplateType) && (
+                        <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                          {/* <div className="text-xs font-semibold text-gray-700">
+                            Template Name
+                          </div> */}
+                          <div className="mt-1 text-sm font-semibold text-gray-900">
+                            {newTemplateName || "—"}
+                          </div>
+                          {newTemplateType && (
+                            <>
+                              {/* <div className="mt-2 text-xs font-semibold text-gray-700">
+                                Template Type
+                              </div> */}
+                              <div className="mt-1 text-sm text-gray-800">
+                                {newTemplateType}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Fields Preview */}
+                      {draftFields.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
+                          {newTemplateName
+                            ? "Add fields to see the form preview."
+                            : "Enter template name and add fields to see the form preview."}
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {draftFields.map((f) => (
+                            <div key={f._tmpId}>
+                              {f.field_type !== "CHECKBOX" && (
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  {f.field_name}
+                                  {f.is_mandatory && (
+                                    <span className="text-red-500"> *</span>
+                                  )}
+                                </label>
+                              )}
+                              {renderDraftPreviewInput(f)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">
+                        Template Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        value={newTemplateName}
+                        onChange={(e) => setNewTemplateName(e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                        placeholder="e.g., Item Master – General"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">
+                        Template Type
+                      </label>
+                      <input
+                        type="text"
+                        value={newTemplateType}
+                        onChange={(e) => setNewTemplateType(e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                        placeholder="e.g., New / Amendment / Item Master – General"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">
+                        Assign User
+                      </label>
+                      <div className="mt-1">
+                        <SearchableDropdown
+                          placeholder="Search Employee"
+                          options={AllEmpData?.data || []}
+                          value={assignedUser}
+                          getOptionLabel={(emp) => `${emp.full_name} (${emp.user_id || emp.email || ""})`}
+                          getOptionValue={(emp) => emp._id}
+                          onChange={(val) => setAssignedUser(val)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Add Field Section */}
+                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-gray-800">
+                          Add Field
+                        </h3>
+                        <span className="text-xs text-yellow-600">
+                          Total: {draftFields.length}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                        <div className="sm:col-span-1">
+                          <label className="block text-xs font-medium text-gray-600">
+                            Field Name <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            value={newFieldName}
+                            onChange={(e) => setNewFieldName(e.target.value)}
+                            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                            placeholder="e.g., Part Number"
+                          />
+                        </div>
+                        <div className="sm:col-span-1">
+                          <label className="block text-xs font-medium text-gray-600">
+                            Field Type
+                          </label>
+                          <select
+                            value={newFieldType}
+                            onChange={(e) => setNewFieldType(e.target.value)}
+                            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                          >
+                            {FIELD_TYPES.map((t) => (
+                              <option key={t.value} value={t.value}>
+                                {t.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {(newFieldType === "DROPDOWN" || newFieldType === "RADIO") && (
+                          <div className="sm:col-span-2">
+                            <label className="block text-xs font-medium text-gray-600">
+                              {newFieldType === "RADIO" ? "Radio Options" : "Dropdown Options"}{" "}
+                              <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              value={newDropdownOptions}
+                              onChange={(e) =>
+                                setNewDropdownOptions(e.target.value)
+                              }
+                              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                              placeholder="Comma separated e.g. OK,Not OK,NA"
+                            />
+                            <p className="mt-1 text-[11px] text-gray-500">
+                              Example: <b>Yes, No, NA</b>
+                            </p>
+                          </div>
+                        )}
+                        <div className="sm:col-span-1 flex items-end justify-between gap-3">
+                          <label className="flex items-center gap-2 text-sm text-gray-700">
+                            <input
+                              type="checkbox"
+                              checked={newIsMandatory}
+                              onChange={(e) =>
+                                setNewIsMandatory(e.target.checked)
+                              }
+                            />
+                            Mandatory
+                          </label>
+                          <button
+                            onClick={addDraftField}
+                            type="button"
+                            className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200 text-sm">
+                          <thead className="bg-white">
+                            <tr>
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                                Field
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                                Type
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                                Mandatory
+                              </th>
+                              <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500">
+                                Action
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100 bg-white">
+                            {draftFields.length === 0 ? (
+                              <tr>
+                                <td
+                                  className="px-3 py-3 text-sm text-gray-500"
+                                  colSpan={4}
+                                >
+                                  No draft fields added.
+                                </td>
+                              </tr>
+                            ) : (
+                              draftFields.map((f) => (
+                                <tr key={f._tmpId} className="hover:bg-gray-50">
+                                  <td className="px-3 py-2 text-sm font-semibold text-gray-800">
+                                    {f.field_name}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-700">
+                                    {f.field_type}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-700">
+                                    {f.is_mandatory ? "Yes" : "No"}
+                                  </td>
+                                  <td className="px-3 py-2 text-right">
+                                    <button
+                                      type="button"
+                                      onClick={() => removeDraftField(f._tmpId)}
+                                      className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100"
+                                    >
+                                      <Trash2 size={14} />
+                                      Remove
+                                    </button>
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* RIGHT: LIVE FORM PREVIEW (DRAFT) */}
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 mt-6 mb-20  bg-white py-4">
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={closeCreate}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={createTemplate.isPending || addField.isPending}
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                  >
+                    {createTemplate.isPending || addField.isPending
+                      ? "Saving..."
+                      : "Save Template"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* RIGHT DRAWER: Edit Template */}
+      {isEditOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={closeEdit} />
+          <div className="absolute right-0 top-0 h-full w-full max-w-[90%] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Edit Template
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Update template name, type and fields.
+                </p>
+              </div>
+              <button
+                onClick={closeEdit}
+                className="rounded-lg p-2 hover:bg-gray-100"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form
+              onSubmit={handleUpdateTemplate}
+              className="h-full overflow-y-auto px-5 py-4"
+            >
+              <div className="space-y-4">
+                {/* Two Column Layout: Template Fields + Add Field Section (Left) and Form Preview (Right) */}
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {/* RIGHT: LIVE FORM PREVIEW (EDIT MODE) */}
+                  <div className="rounded-xl border border-gray-300 bg-white p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-md font-semibold text-green-800">
+                          Form Preview
+                        </h3>
+                      </div>
+                    </div>
+
+                    <div className="mt-4">
+                      {/* Template Name & Type */}
+                      {(editTemplateName || editTemplateType) && (
+                        <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                          {/* <div className="text-xs font-semibold text-gray-700">
+                            Template Name
+                          </div> */}
+                          <div className="mt-1 text-sm font-semibold text-gray-900">
+                            {editTemplateName || "—"}
+                          </div>
+                          {editTemplateType && (
+                            <>
+                              {/* <div className="mt-2 text-xs font-semibold text-gray-700">
+                                Template Type
+                              </div> */}
+                              <div className="mt-1 text-sm text-gray-800">
+                                {editTemplateType}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Fields Preview */}
+                      {fields.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
+                          No fields in this template yet. Add fields to see the
+                          form preview.
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {fields.map((f) => (
+                            <div key={f._id}>
+                              {f.field_type !== "CHECKBOX" && (
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  {f.field_name}
+                                  {f.is_mandatory && (
+                                    <span className="text-red-500"> *</span>
+                                  )}
+                                </label>
+                              )}
+                              {renderPreviewInput(f)}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {/* LEFT: Template Name, Template Type, and Add/Edit Field Section */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">
+                        Template Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        value={editTemplateName}
+                        onChange={(e) => setEditTemplateName(e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                        placeholder="e.g., Item Master – General"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">
+                        Template Type
+                      </label>
+                      <input
+                        type="text"
+                        value={editTemplateType}
+                        onChange={(e) => setEditTemplateType(e.target.value)}
+                        className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                        placeholder="e.g., New / Amendment / Item Master – General"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-600">
+                        Assign User
+                      </label>
+                      <div className="mt-1">
+                        <SearchableDropdown
+                          placeholder="Search Employee"
+                          options={AllEmpData?.data || []}
+                          value={editAssignedUser}
+                          getOptionLabel={(emp) => `${emp.full_name} (${emp.user_id || emp.email || ""})`}
+                          getOptionValue={(emp) => emp._id}
+                          onChange={(val) => setEditAssignedUser(val)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Add/Edit Field Section */}
+                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-semibold text-gray-800">
+                          {editingFieldId ? "Edit Field" : "Add Field"}
+                        </h3>
+                        <span className="text-xs text-yellow-600">
+                          Total: {fields.length}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 grid gap-2 sm:grid-cols-3 pr-10">
+                        <div className="sm:col-span-1">
+                          <label className="block text-xs font-medium text-gray-600">
+                            Field Name <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            value={
+                              editingFieldId ? editFieldName : newFieldName
+                            }
+                            onChange={(e) =>
+                              editingFieldId
+                                ? setEditFieldName(e.target.value)
+                                : setNewFieldName(e.target.value)
+                            }
+                            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                            placeholder="e.g., Part Number"
+                          />
+                        </div>
+                        <div className="sm:col-span-1">
+                          <label className="block text-xs font-medium text-gray-600">
+                            Field Type
+                          </label>
+                          <select
+                            value={
+                              editingFieldId ? editFieldType : newFieldType
+                            }
+                            onChange={(e) =>
+                              editingFieldId
+                                ? setEditFieldType(e.target.value)
+                                : setNewFieldType(e.target.value)
+                            }
+                            className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                          >
+                            {FIELD_TYPES.map((t) => (
+                              <option key={t.value} value={t.value}>
+                                {t.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="sm:col-span-1 flex items-end justify-between gap-3">
+                          <label className="flex items-center gap-1 text-sm text-gray-700">
+                            <input
+                              type="checkbox"
+                              checked={
+                                editingFieldId
+                                  ? editIsMandatory
+                                  : newIsMandatory
+                              }
+                              onChange={(e) =>
+                                editingFieldId
+                                  ? setEditIsMandatory(e.target.checked)
+                                  : setNewIsMandatory(e.target.checked)
+                              }
+                            />
+                            Mandatory
+                          </label>
+                          {editingFieldId ? (
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={cancelEditField}
+                                className="rounded-lg border border-gray-300 px-1 py-1 text-xs font-small text-gray-700 hover:bg-gray-50"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleUpdateField}
+                                disabled={updateField.isPending}
+                                className="rounded-lg bg-blue-600 px-2 py-2 text-xs font-small text-white hover:bg-blue-700 disabled:opacity-60"
+                              >
+                                {updateField.isPending
+                                  ? "Updating..."
+                                  : "Update"}
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={handleAddFieldInEdit}
+                              disabled={addField.isPending}
+                              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+                            >
+                              {addField.isPending ? "Adding..." : "Add"}
+                            </button>
+                          )}
+                        </div>
+
+                        {((editingFieldId ? editFieldType : newFieldType) ===
+                          "DROPDOWN" || (editingFieldId ? editFieldType : newFieldType) === "RADIO") && (
+                          <div className="sm:col-span-3">
+                            <label className="block text-xs font-medium text-gray-600">
+                              {(editingFieldId ? editFieldType : newFieldType) === "RADIO" ? "Radio Options" : "Dropdown Options"}{" "}
+                              <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              value={
+                                editingFieldId
+                                  ? editDropdownOptions
+                                  : newDropdownOptions
+                              }
+                              onChange={(e) =>
+                                editingFieldId
+                                  ? setEditDropdownOptions(e.target.value)
+                                  : setNewDropdownOptions(e.target.value)
+                              }
+                              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                              placeholder="Comma separated e.g. OK,Not OK,NA"
+                            />
+                            <p className="mt-1 text-[11px] text-gray-500">
+                              Example: <b>Yes, No, NA</b>
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Fields List */}
+                      <div className="mt-4 overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200 text-sm">
+                          <thead className="bg-white">
+                            <tr>
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                                Field
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                                Type
+                              </th>
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                                Mandatory
+                              </th>
+                              <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500">
+                                Action
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100 bg-white">
+                            {fields.length === 0 ? (
+                              <tr>
+                                <td
+                                  className="px-3 py-3 text-sm text-gray-500"
+                                  colSpan={4}
+                                >
+                                  No fields in this template.
+                                </td>
+                              </tr>
+                            ) : (
+                              fields.map((f) => (
+                                <tr
+                                  key={f._id}
+                                  className={`hover:bg-gray-50 ${
+                                    editingFieldId === f._id ? "bg-blue-50" : ""
+                                  }`}
+                                >
+                                  <td className="px-3 py-2 text-sm font-semibold text-gray-800">
+                                    {f.field_name}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-700">
+                                    {f.field_type}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-700">
+                                    {f.is_mandatory ? "Yes" : "No"}
+                                  </td>
+                                  <td className="px-3 py-2 text-right">
+                                    <div className="flex items-center justify-end gap-2">
+                                      {editingFieldId === f._id ? (
+                                        <span className="text-xs text-blue-600">
+                                          Editing...
+                                        </span>
+                                      ) : (
+                                        <>
+                                          <button
+                                            type="button"
+                                            onClick={() => startEditField(f)}
+                                            className="inline-flex items-center gap-1 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100"
+                                          >
+                                            <Edit2 size={12} />
+                                            Edit
+                                          </button>
+                                          <button
+                                            type="button"
+                                            onClick={() =>
+                                              deleteField.mutate({
+                                                fieldId: f._id,
+                                              })
+                                            }
+                                            className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-rose-50 px-2.5 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-100"
+                                          >
+                                            <Trash2 size={12} />
+                                            Delete
+                                          </button>
+                                        </>
+                                      )}
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="sticky bottom-0 mt-6 mb-20 border-t border-gray-200  bg-white py-4">
+                <div className="flex items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={closeEdit}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={updateTemplate.isPending}
+                    className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-60"
+                  >
+                    {updateTemplate.isPending
+                      ? "Updating..."
+                      : "Update Template"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* RIGHT DRAWER: View Template */}
+      {isViewOpen && (
+        <div className="fixed inset-0 z-50">
+          <div className="absolute inset-0 bg-black/40" onClick={closeView} />
+          <div className="absolute right-0 top-0 h-full w-full max-w-[90%] bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  View Template
+                </h2>
+              </div>
+              <button
+                onClick={closeView}
+                className="rounded-lg p-2 hover:bg-gray-100"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="h-full overflow-y-auto px-5 py-4">
+              {templateQuery.isLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <span className="text-sm text-gray-500">
+                    Loading template...
+                  </span>
+                </div>
+              ) : selectedTemplate ? (
+                <div className="space-y-4">
+                  {/* Template Info */}
+                  {/* <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <div className="text-xs font-semibold text-gray-700">
+                      Template Name
+                    </div>
+                    <div className="mt-1 text-md font-semibold text-gray-900">
+                      {selectedTemplate.template_name || "—"}
+                    </div>
+                    {selectedTemplate.template_type && (
+                      <>
+                        <div className="mt-3 text-xs font-semibold text-gray-700">
+                          Template Type
+                        </div>
+                        <div className="mt-1 text-sm text-gray-800">
+                          {selectedTemplate.template_type}
+                        </div>
+                      </>
+                    )}
+                    {selectedTemplate.assignedUser && (
+                      <>
+                        <div className="mt-3 text-xs font-semibold text-gray-700">
+                          Assigned User
+                        </div>
+                        <div className="mt-1 text-sm text-gray-800">
+                          {selectedTemplate.assignedUser?.full_name || selectedTemplate.assignedUser?.name || "—"}
+                          {selectedTemplate.assignedUser?.user_id && (
+                            <span className="text-gray-500 ml-1">
+                              ({selectedTemplate.assignedUser.user_id})
+                            </span>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div> */}
+
+                  {/* Fields List */}
+                  <div className="rounded-xl border border-gray-100 bg-white p-4">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-gray-800">
+                        Template Fields
+                      </h3>
+                      <span className="text-xs text-yellow-500">
+                        Total: {fields.length}
+                      </span>
+                    </div>
+
+                    <div className="mt-4 overflow-x-auto">
+                      <table className="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                              Field Name
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                              Type
+                            </th>
+                            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                              Mandatory
+                            </th>
+                            {fields.some(
+                              (f) => f.field_type === "DROPDOWN",
+                            ) && (
+                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                                Options
+                              </th>
+                            )}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100 bg-white">
+                          {fields.length === 0 ? (
+                            <tr>
+                              <td
+                                className="px-3 py-3 text-sm text-gray-500"
+                                colSpan={
+                                  fields.some(
+                                    (f) => f.field_type === "DROPDOWN",
+                                  )
+                                    ? 4
+                                    : 3
+                                }
+                              >
+                                No fields in this template.
+                              </td>
+                            </tr>
+                          ) : (
+                            fields.map((f) => {
+                              let dropdownOpts = [];
+                              if (
+                                f.field_type === "DROPDOWN" &&
+                                f.dropdown_options
+                              ) {
+                                try {
+                                  dropdownOpts = JSON.parse(f.dropdown_options);
+                                } catch {
+                                  dropdownOpts = [];
+                                }
+                              }
+                              return (
+                                <tr key={f._id} className="hover:bg-gray-50">
+                                  <td className="px-3 py-2 text-sm font-semibold text-gray-800">
+                                    {f.field_name}
+                                    {f.is_mandatory && (
+                                      <span className="ml-1 text-red-500">
+                                        *
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-700">
+                                    {f.field_type}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-700">
+                                    {f.is_mandatory ? "Yes" : "No"}
+                                  </td>
+                                  {fields.some(
+                                    (f) => f.field_type === "DROPDOWN",
+                                  ) && (
+                                    <td className="px-3 py-2 text-sm text-gray-700">
+                                      {f.field_type === "DROPDOWN" &&
+                                      dropdownOpts.length > 0
+                                        ? dropdownOpts.join(", ")
+                                        : "—"}
+                                    </td>
+                                  )}
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Form Preview (Read-only) */}
+                  <div className="rounded-xl border border-gray-100 bg-white p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-md font-semibold text-green-700">
+                          Form Preview
+                        </h3>
+                      </div>
+                    </div>
+
+                    <div className="mt-4">
+                      <div className="mb-4 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                        {/* <div className="text-xs font-semibold text-gray-700">
+                          Template Name
+                        </div> */}
+                        <div className="mt-1 text-md font-semibold text-gray-900">
+                          {selectedTemplate.template_name || "—"}
+                        </div>
+                        {selectedTemplate.template_type && (
+                          <>
+                            {/* <div className="mt-2 text-xs font-semibold text-gray-700">
+                              Template Type
+                            </div> */}
+                            <div className="mt-1 text-sm text-gray-800">
+                              {selectedTemplate.template_type}
+                            </div>
+                          </>
+                        )}
+                        {selectedTemplate.assignedUser && (
+                          <>
+                            <div className="mt-2 text-xs font-semibold text-gray-700">
+                              Assigned User
+                            </div>
+                            <div className="mt-1 text-sm text-gray-800">
+                              {selectedTemplate.assignedUser?.full_name || selectedTemplate.assignedUser?.name || "—"}
+                              {selectedTemplate.assignedUser?.user_id && (
+                                <span className="text-gray-500 ml-1">
+                                  ({selectedTemplate.assignedUser.user_id})
+                                </span>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {fields.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
+                          No fields in this template.
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {fields.map((f) => (
+                            <div key={f._id}>
+                              {f.field_type !== "CHECKBOX" && (
+                                <label className="block text-xs font-medium text-gray-600 mb-1">
+                                  {f.field_name}
+                                  {f.is_mandatory && (
+                                    <span className="text-red-500"> *</span>
+                                  )}
+                                </label>
+                              )}
+                              <div className="opacity-60 pointer-events-none">
+                                {renderPreviewInput(f)}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center py-8">
+                  <span className="text-sm text-gray-500">
+                    Template not found.
+                  </span>
+                </div>
+              )}
+
+              <div className="sticky bottom-0 mt-6 mb-20 border-t border-gray-200  bg-white py-4">
+                <div className="flex items-center justify-end">
+                  <button
+                    type="button"
+                    onClick={closeView}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
