@@ -4,6 +4,7 @@ import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useWorkflow } from "../hooks/useWorkflow";
 import SearchableDropdown from "../Components/SearchableDropDown/SearchableDropdown";
+import MultiSelectDropdown from "../Components/SearchableDropDown/MultiSelectDropdown";
 import AssignWorkflowModal from "../Components/modal/addModal/AssignWorkflowModal";
 
 const FIELD_TYPES = [
@@ -34,10 +35,10 @@ export default function TemplateMaster() {
   const [editingTemplateId, setEditingTemplateId] = useState("");
   const [editTemplateName, setEditTemplateName] = useState("");
   const [editTemplateType, setEditTemplateType] = useState("");
-  const [editAssignedUser, setEditAssignedUser] = useState("");
+  const [editAssignedUser, setEditAssignedUser] = useState([]);
   const [newTemplateName, setNewTemplateName] = useState("");
   const [newTemplateType, setNewTemplateType] = useState("");
-  const [assignedUser, setAssignedUser] = useState("");
+  const [assignedUser, setAssignedUser] = useState([]);
 
   const [newFieldName, setNewFieldName] = useState("");
   const [newFieldType, setNewFieldType] = useState("TEXT");
@@ -339,7 +340,7 @@ export default function TemplateMaster() {
     setIsCreateOpen(true);
     setNewTemplateName("");
     setNewTemplateType("");
-    setAssignedUser("");
+    setAssignedUser([]);
     setDraftFields([]);
     setDraftPreviewValues({});
     setNewFieldName("");
@@ -368,7 +369,15 @@ export default function TemplateMaster() {
     setEditingTemplateId(template._id);
     setEditTemplateName(template.template_name);
     setEditTemplateType(template.template_type || "");
-    setEditAssignedUser(template.assignedUser?._id || template.assigned_user?._id || template.assigned_user || "");
+    // Handle both single user (backward compatibility) and array of users
+    if (template.assigned_users && Array.isArray(template.assigned_users)) {
+      setEditAssignedUser(template.assigned_users);
+    } else if (template.assignedUser?._id || template.assigned_user?._id || template.assigned_user) {
+      const userId = template.assignedUser?._id || template.assigned_user?._id || template.assigned_user;
+      setEditAssignedUser([userId]);
+    } else {
+      setEditAssignedUser([]);
+    }
     setIsEditOpen(true);
     // Select template to load its fields
     setSelectedTemplateId(template._id);
@@ -379,7 +388,7 @@ export default function TemplateMaster() {
     setEditingTemplateId("");
     setEditTemplateName("");
     setEditTemplateType("");
-    setEditAssignedUser("");
+    setEditAssignedUser([]);
     setEditingFieldId("");
     setEditFieldName("");
     setEditFieldType("TEXT");
@@ -480,7 +489,7 @@ export default function TemplateMaster() {
       payload: {
         template_name: editTemplateName,
         template_type: editTemplateType || null,
-        assigned_user: editAssignedUser || null,
+        assigned_users: Array.isArray(editAssignedUser) && editAssignedUser.length > 0 ? editAssignedUser : null,
       },
     });
     closeEdit();
@@ -532,7 +541,7 @@ export default function TemplateMaster() {
     const res = await createTemplate.mutateAsync({
       template_name: newTemplateName,
       template_type: newTemplateType || null,
-      assigned_user: assignedUser || null,
+      assigned_users: Array.isArray(assignedUser) && assignedUser.length > 0 ? assignedUser : null,
     });
 
     const createdId = res?.data?._id;
@@ -964,13 +973,14 @@ export default function TemplateMaster() {
                         Assign User
                       </label>
                       <div className="mt-1">
-                        <SearchableDropdown
-                          placeholder="Search Employee"
+                        <MultiSelectDropdown
+                          placeholder="Search and select employees"
                           options={AllEmpData?.data || []}
                           value={assignedUser}
                           getOptionLabel={(emp) => `${emp.full_name} (${emp.user_id || emp.email || ""})`}
                           getOptionValue={(emp) => emp._id}
                           onChange={(val) => setAssignedUser(val)}
+                          searchFields={['full_name', 'user_id', 'email']}
                         />
                       </div>
                     </div>
@@ -1262,13 +1272,14 @@ export default function TemplateMaster() {
                         Assign User
                       </label>
                       <div className="mt-1">
-                        <SearchableDropdown
-                          placeholder="Search Employee"
+                        <MultiSelectDropdown
+                          placeholder="Search and select employees"
                           options={AllEmpData?.data || []}
                           value={editAssignedUser}
                           getOptionLabel={(emp) => `${emp.full_name} (${emp.user_id || emp.email || ""})`}
                           getOptionValue={(emp) => emp._id}
                           onChange={(val) => setEditAssignedUser(val)}
+                          searchFields={['full_name', 'user_id', 'email']}
                         />
                       </div>
                     </div>
