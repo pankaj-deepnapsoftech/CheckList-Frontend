@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from "react";
-import { Eye, RefreshCw, Save, Send } from "lucide-react";
+import { Eye, RefreshCw, Save, Send, Edit } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
 import { useAssignedTemplates } from "../hooks/Template Hooks/useAssignedTemplates";
@@ -26,6 +26,8 @@ export default function AssignedTemplates() {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [viewingTemplateId, setViewingTemplateId] = useState("");
   const [currentSubmissionId, setCurrentSubmissionId] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [viewingSubmission, setViewingSubmission] = useState(null);
 
   const { templateQuery } = useTemplateMaster(viewingTemplateId);
   // Fetch all submissions for the user (not filtered by template_id initially)
@@ -57,7 +59,10 @@ export default function AssignedTemplates() {
   // Initialize formik with existing submission data or empty
   const getInitialFormValues = () => {
     if (viewingTemplateId && existingSubmissions.length > 0) {
-      const submission = existingSubmissions.find(sub => sub.template_id === viewingTemplateId && sub.status === "DRAFT");
+      // First check for DRAFT, then SUBMITTED
+      const draftSubmission = existingSubmissions.find(sub => sub.template_id === viewingTemplateId && sub.status === "DRAFT");
+      const submittedSubmission = existingSubmissions.find(sub => sub.template_id === viewingTemplateId && sub.status === "SUBMITTED");
+      const submission = draftSubmission || submittedSubmission;
       if (submission?.form_data) {
         return submission.form_data;
       }
@@ -113,15 +118,24 @@ export default function AssignedTemplates() {
   // Update form when submissions are loaded
   useEffect(() => {
     if (viewingTemplateId && existingSubmissions.length > 0 && fields.length > 0) {
-      const submission = existingSubmissions.find(sub => sub.template_id === viewingTemplateId && sub.status === "DRAFT");
+      // First check for DRAFT, then SUBMITTED
+      const draftSubmission = existingSubmissions.find(sub => sub.template_id === viewingTemplateId && sub.status === "DRAFT");
+      const submittedSubmission = existingSubmissions.find(sub => sub.template_id === viewingTemplateId && sub.status === "SUBMITTED");
+      const submission = draftSubmission || submittedSubmission;
+      
       if (submission) {
         setCurrentSubmissionId(submission._id);
+        setViewingSubmission(submission);
         // Set form values from existing submission
         if (submission.form_data) {
           formik.setValues(submission.form_data);
         }
+        // Set edit mode based on submission status
+        setIsEditMode(submission.status === "DRAFT");
       } else {
         setCurrentSubmissionId(null);
+        setViewingSubmission(null);
+        setIsEditMode(false);
         // Reset form when no existing submission
         const initialValues = {};
         fields.forEach((field) => {
@@ -136,6 +150,8 @@ export default function AssignedTemplates() {
       }
     } else if (viewingTemplateId && fields.length > 0 && existingSubmissions.length === 0) {
       setCurrentSubmissionId(null);
+      setViewingSubmission(null);
+      setIsEditMode(false);
       // Initialize empty form
       const initialValues = {};
       fields.forEach((field) => {
@@ -159,13 +175,36 @@ export default function AssignedTemplates() {
   const openView = (template) => {
     setViewingTemplateId(template._id);
     setIsViewOpen(true);
+    setIsEditMode(false);
   };
 
   const closeView = () => {
     setIsViewOpen(false);
     setViewingTemplateId("");
     setCurrentSubmissionId(null);
+    setViewingSubmission(null);
+    setIsEditMode(false);
     formik.resetForm();
+  };
+
+  const handleEdit = async () => {
+    setIsEditMode(true);
+    // If there's a submitted submission, update it to DRAFT status
+    if (viewingSubmission && viewingSubmission.status === "SUBMITTED" && currentSubmissionId) {
+      try {
+        await updateSubmission.mutateAsync({
+          id: currentSubmissionId,
+          payload: {
+            form_data: viewingSubmission.form_data,
+            status: "DRAFT",
+          },
+        });
+        // Refetch submissions to get updated status
+        getUserSubmissions.refetch();
+      } catch (error) {
+        console.error("Error updating submission:", error);
+      }
+    }
   };
 
   const handleSubmit = async () => {
@@ -210,6 +249,8 @@ export default function AssignedTemplates() {
       // Submit the form
       if (submissionId) {
         await submitSubmission.mutateAsync(submissionId);
+        // Refetch submissions to get updated status
+        await getUserSubmissions.refetch();
         closeView();
       }
     } catch (error) {
@@ -217,10 +258,10 @@ export default function AssignedTemplates() {
     }
   };
 
-  const renderPreviewInput = (f) => {
+  const renderPreviewInput = (f, readOnly = false) => {
     const key = f?._id || f?.field_name;
     const commonClass =
-      "mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none";
+      `mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`;
 
     switch (f.field_type) {
       case "NUMBER":
@@ -233,16 +274,19 @@ export default function AssignedTemplates() {
             onBlur={formik.handleBlur}
             className={commonClass}
             placeholder={`Enter ${f.field_name}`}
+            disabled={readOnly}
+            readOnly={readOnly}
           />
         );
       case "CHECKBOX":
         return (
-          <label className="mt-2 inline-flex items-center gap-2 text-sm text-gray-700">
+          <label className={`mt-2 inline-flex items-center gap-2 text-sm text-gray-700 ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}>
             <input
               type="checkbox"
               name={key}
               checked={Boolean(formik.values[key])}
               onChange={formik.handleChange}
+              disabled={readOnly}
             />
             {f.field_name}
             {f.is_mandatory && <span className="text-red-500">*</span>}
@@ -263,6 +307,7 @@ export default function AssignedTemplates() {
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               className={commonClass}
+              disabled={readOnly}
             >
               <option value="">Select</option>
               {opts.map((o) => (
@@ -284,7 +329,7 @@ export default function AssignedTemplates() {
           return (
             <div className="mt-2 space-y-2">
               {opts.map((o) => (
-                <label key={o} className="flex items-center gap-2 text-sm text-gray-700">
+                <label key={o} className={`flex items-center gap-2 text-sm text-gray-700 ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}>
                   <input
                     type="radio"
                     name={key}
@@ -293,6 +338,7 @@ export default function AssignedTemplates() {
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                    disabled={readOnly}
                   />
                   <span>{o}</span>
                 </label>
@@ -309,6 +355,8 @@ export default function AssignedTemplates() {
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
             className={commonClass}
+            disabled={readOnly}
+            readOnly={readOnly}
           />
         );
       case "TEXTAREA":
@@ -321,10 +369,20 @@ export default function AssignedTemplates() {
             className={commonClass}
             rows={3}
             placeholder={`Enter ${f.field_name}`}
+            disabled={readOnly}
+            readOnly={readOnly}
           />
         );
       case "IMAGE":
-        return (
+        return readOnly ? (
+          formik.values[key] ? (
+            <div className="mt-2">
+              <img src={formik.values[key]} alt={f.field_name} className="max-w-xs rounded-lg border border-gray-300" />
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500">No image uploaded</p>
+          )
+        ) : (
           <input
             type="file"
             accept="image/*"
@@ -353,6 +411,8 @@ export default function AssignedTemplates() {
             onBlur={formik.handleBlur}
             className={commonClass}
             placeholder={`Enter ${f.field_name}`}
+            disabled={readOnly}
+            readOnly={readOnly}
           />
         );
     }
@@ -446,28 +506,51 @@ export default function AssignedTemplates() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
             <div className="w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl bg-white shadow-xl">
               <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  {selectedTemplate.template_name}
-                </h2>
-                <button
-                  onClick={closeView}
-                  className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
+                <div className="flex items-center gap-3">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    {selectedTemplate.template_name}
+                  </h2>
+                  {viewingSubmission && viewingSubmission.status === "SUBMITTED" && !isEditMode && (
+                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+                      Submitted
+                    </span>
+                  )}
+                  {viewingSubmission && viewingSubmission.status === "DRAFT" && (
+                    <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
+                      Draft
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  {viewingSubmission && viewingSubmission.status === "SUBMITTED" && !isEditMode && (
+                    <button
+                      onClick={handleEdit}
+                      className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    >
+                      <Edit size={18} />
+                      Edit
+                    </button>
+                  )}
+                  <button
+                    onClick={closeView}
+                    className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
               </div>
 
               <div className="p-6">
@@ -516,7 +599,7 @@ export default function AssignedTemplates() {
                                   {FIELD_TYPES[field.field_type] || field.field_type}
                                 </span>
                               </div>
-                              {renderPreviewInput(field)}
+                              {renderPreviewInput(field, !isEditMode && viewingSubmission?.status === "SUBMITTED")}
                               {formik.touched[key] && formik.errors[key] && (
                                 <p className="text-red-500 text-xs mt-1">{formik.errors[key]}</p>
                               )}
@@ -527,26 +610,19 @@ export default function AssignedTemplates() {
                     )}
                   </div>
 
-                  <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
-                    {/* <button
-                      type="button"
-                      onClick={formik.handleSubmit}
-                      disabled={createSubmission.isPending || updateSubmission.isPending}
-                      className="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200 disabled:opacity-50"
-                    >
-                      <Save size={18} />
-                      {currentSubmissionId ? "Save Draft" : "Save as Draft"}
-                    </button> */}
-                    <button
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={createSubmission.isPending || updateSubmission.isPending || submitSubmission.isPending}
-                      className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
-                    >
-                      <Send size={18} />
-                      {submitSubmission.isPending ? "Submitting..." : "Submit"}
-                    </button>
-                  </div>
+                  {isEditMode || !viewingSubmission || viewingSubmission.status === "DRAFT" ? (
+                    <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
+                      <button
+                        type="button"
+                        onClick={handleSubmit}
+                        disabled={createSubmission.isPending || updateSubmission.isPending || submitSubmission.isPending}
+                        className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        <Send size={18} />
+                        {submitSubmission.isPending ? "Submitting..." : "Submit"}
+                      </button>
+                    </div>
+                  ) : null}
                 </form>
               </div>
             </div>
