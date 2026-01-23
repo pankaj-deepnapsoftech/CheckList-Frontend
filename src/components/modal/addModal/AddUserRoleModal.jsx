@@ -19,9 +19,13 @@ import { useUserRole } from "../../../hooks/useUserRole";
    "Inspection Data": "/checkitem-data",
    "Assembly Line Status": "/assembly-line-status",
    "Assigned Assembly Lines": "/assigned-assembly-lines",
-   "Daily Assembly Check" : "/daily-assembly-check",
+   "Daily Assembly Check": "/daily-assembly-check",
    "Assembly Line Error": "/assembly-line/error",
    "My Templates": "/assigned-templates",
+   "Manage Template": "/template-master",
+   "Manage Release Group": "/release-group",
+   "Manage WorkFlow": "/workflow",
+   "Manage Documents": "/document-management",
  };
 
 const SIDEBAR_PAGES = Object.keys(PERMISSION_MAP);
