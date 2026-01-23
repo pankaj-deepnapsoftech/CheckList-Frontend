@@ -30,6 +30,8 @@ import PlcLiveData from "../pages/PlcLiveData";
 import PlcStoppage from "../pages/PlcStoppage";
 import ManageDocument from "../TemplateMasterPages/ManageDocument";
 import AssignedTemplates from "../TemplateMasterPages/AssignedTemplates";
+import TemplateStatus from "../TemplateMasterPages/TemplateStatus";
+import TemplateApproveReject from "../TemplateMasterPages/TemplateApproveReject";
 
 
 export const AppRoute = () => {
@@ -63,6 +65,8 @@ export const AppRoute = () => {
     { path: "/assembly-line", element: withProtection(AssemblyLine) },
     { path: "/release-group", element: withProtection(ReleaseGroups) },
     { path: "/template-master", element:withProtection(TemplateMaster) },
+    { path: "/template-status", element:withProtection(TemplateStatus) },
+    { path: "/template-approve-reject", element:withProtection(TemplateApproveReject) },
     { path: "/workflow", element:withProtection(ManageWorkflow) },
     { path: "/document-management", element:withProtection(ManageDocument) },
     
