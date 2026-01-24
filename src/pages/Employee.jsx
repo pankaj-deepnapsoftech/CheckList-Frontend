@@ -316,7 +316,7 @@ const Employee = () => {
                     Company
                   </th>
                   <th className="px-5 py-3 text-left text-sm font-semibold text-gray-700">
-                    Department
+                    Email
                   </th>
                   <th className="px-5 py-3 text-center text-sm font-semibold text-gray-700">
                     Actions
@@ -356,7 +356,7 @@ const Employee = () => {
                         {emp?.company?.company_name || "N/A"}
                       </td>
                       <td className="px-5 py-4 text-nowrap">
-                        {emp?.department?.name || "N/A"}
+                        {emp?.email || "N/A"}
                       </td>
 
                       {/* Actions */}
