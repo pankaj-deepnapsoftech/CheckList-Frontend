@@ -62,7 +62,10 @@ export default function TemplateMaster() {
 
   const templates = templatesQuery.data || [];
   const selectedTemplate = templateQuery.data;
-  const fields = useMemo(() => selectedTemplate?.fields || [], [selectedTemplate]);
+  const fields = useMemo(() => {
+    const f = selectedTemplate?.fields || [];
+    return [...f].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  }, [selectedTemplate]);
   const [previewValues, setPreviewValues] = useState({});
 
   const setPreviewValue = (key, value) => {

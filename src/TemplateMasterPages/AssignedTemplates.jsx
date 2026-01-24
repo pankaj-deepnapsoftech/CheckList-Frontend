@@ -54,7 +54,10 @@ export default function AssignedTemplates() {
   const templates = assignedTemplatesQuery.data || [];
   const selectedTemplate = templateQuery.data;
   const existingSubmissions = getUserSubmissions.data || [];
-  const fields = useMemo(() => selectedTemplate?.fields || [], [selectedTemplate]);
+  const fields = useMemo(() => {
+    const f = selectedTemplate?.fields || [];
+    return [...f].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  }, [selectedTemplate]);
 
   // Initialize formik with existing submission data or empty
   const getInitialFormValues = () => {
