@@ -65,6 +65,8 @@ export default function TemplateStatus() {
         formatStatusDisplay(r.status),
         r.workflow_name,
         r.user_name,
+        r.employee_user_id,
+        r.email,
       ]
         .filter(Boolean)
         .map((s) => String(s).toLowerCase());
@@ -89,7 +91,7 @@ export default function TemplateStatus() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by template, type, status, user, workflow..."
+              placeholder="Search by template, type, status, user, user ID, email, workflow..."
               className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-3 text-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
@@ -147,26 +149,20 @@ export default function TemplateStatus() {
                       Assigned User
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                      User ID
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                      Email
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
                       Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                      Submitted Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                      Approved By
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                      Approved Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                      Remarks
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
                   {filteredData.length === 0 ? (
                     <tr>
-                      <td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-500">
+                      <td colSpan={6} className="px-6 py-8 text-center text-sm text-gray-500">
                         No records found. Try different search or status filter.
                       </td>
                     </tr>
@@ -184,6 +180,12 @@ export default function TemplateStatus() {
                         <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
                           {r.user_name || "—"}
                         </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+                          {r.employee_user_id || "—"}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+                          {r.email || "—"}
+                        </td>
                         <td className="whitespace-nowrap px-6 py-4 text-sm">
                           <span
                             className={`inline-flex rounded-lg px-2 py-1.5 text-xs font-medium ${getStatusBadge(r.status)}`}
@@ -191,10 +193,6 @@ export default function TemplateStatus() {
                             {formatStatusDisplay(r.status || "pending")}
                           </span>
                         </td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">—</td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">—</td>
-                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">—</td>
-                        <td className="px-6 py-4 text-sm text-gray-700">—</td>
                       </tr>
                     ))
                   )}
