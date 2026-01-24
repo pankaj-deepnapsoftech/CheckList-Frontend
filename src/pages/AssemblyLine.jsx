@@ -125,8 +125,6 @@ export default function AssemblyLine() {
           />
         </div>
         <div className="flex flex-col sm:flex-row gap-3 w-full flex-wrap sm:w-auto">
-
-
           <select
             value={selectedCompany}
             onChange={(e) => setSelectedCompany(e.target.value)}
@@ -283,7 +281,9 @@ export default function AssemblyLine() {
             <table className="w-full min-w-[800px] text-left">
               <thead>
                 <tr className="bg-gray-100 border-b border-gray-200 text-gray-700 text-sm">
-                  <th className="px-5 py-3 font-semibold text-nowrap">Assembly Line No.</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Assembly Line No.
+                  </th>
                   <th className="px-5 py-3 font-semibold text-nowrap">
                     Assembly Line Name
                   </th>
@@ -325,7 +325,7 @@ export default function AssemblyLine() {
                         {item?.company?.company_name}
                       </td>
                       <td className="px-5 py-4 text-sm text-nowrap">
-                        {item?.plant?.plant_name}
+                        {item?.plant?.plant_name} ({item?.plant?.plant_code})
                       </td>
                       <td className="px-5 py-4 text-sm text-nowrap">
                         {item?.responsibleUser?.full_name}

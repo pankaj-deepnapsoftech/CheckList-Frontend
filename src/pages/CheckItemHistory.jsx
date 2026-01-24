@@ -77,12 +77,12 @@ export default function CheckItemHistory({ open, onClose, data }) {
           <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <p className="text-sm text-slate-500 font-medium">Plant</p>
             <p className="font-semibold text-slate-800 text-lg">
-              {data?.plant?.plant_name || "—"}
+              {data?.plant?.plant_name || "—"} ({data?.plant?.plant_code})
             </p>
             <p className="text-sm text-slate-400 mt-1">
               {data?.plant?.plant_address || "—"}
             </p>
-          </div> 
+          </div>
 
           <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
             <p className="text-sm text-slate-500 font-medium">Responsible</p>
@@ -132,7 +132,7 @@ export default function CheckItemHistory({ open, onClose, data }) {
                             <p className="text-sm text-slate-600">
                               Time:{" "}
                               <span className="font-medium">
-                                {cli?.check_list_time || "—"}    
+                                {cli?.check_list_time || "—"}
                               </span>
                             </p>
                           </div>
