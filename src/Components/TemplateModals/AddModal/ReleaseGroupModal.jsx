@@ -225,7 +225,7 @@ console.log(values);
             onChange={handleChange}
             options={USER_OPTIONS}
             disabled={isView}
-            getLabel={(opt) => opt.full_name}
+            getLabel={(opt) => `${opt.full_name} (${opt.user_id})`}
           />
 
           <div className="relative mb-4 w-full" ref={plantRef}>
@@ -268,8 +268,9 @@ console.log(values);
 
               {!isView && (
                 <svg
-                  className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${plantOpen ? "rotate-180" : ""
-                    }`}
+                  className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
+                    plantOpen ? "rotate-180" : ""
+                  }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -286,7 +287,6 @@ console.log(values);
 
             {plantOpen && !isView && (
               <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-
                 {filteredPlantOptions.length === 0 ? (
                   <div className="p-3 text-gray-400 text-sm">
                     No plants available
@@ -308,8 +308,8 @@ console.log(values);
                             "selectedPlants",
                             exists
                               ? values.selectedPlants.filter(
-                                (p) => p !== plant._id,
-                              )
+                                  (p) => p !== plant._id,
+                                )
                               : [...values.selectedPlants, plant._id],
                           );
                         }}
@@ -372,7 +372,6 @@ console.log(values);
                         onClick={(e) => {
                           e.stopPropagation();
 
-                       
                           if (
                             mode === "edit" &&
                             values.users.length === 1 &&
