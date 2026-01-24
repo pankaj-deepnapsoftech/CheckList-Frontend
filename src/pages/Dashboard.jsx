@@ -459,13 +459,14 @@ export default function ChecklistDashboard() {
       const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
 
       const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
-
-      return {
+    console.log(item)
+      return { 
         id: item._id,
         date: new Date(item.createdAt).toLocaleDateString(),
 
         company: item.company?.company_name || "—",
         plant: item.plant?.plant_name || "—",
+        plant_code: item.plant?.plant_code || "—",
 
         line: `${item.assembly_number} / ${item.assembly_name}`,
 
@@ -1234,7 +1235,7 @@ export default function ChecklistDashboard() {
                   <tr key={i} className="hover:bg-slate-50/80 cursor-pointer">
                     <Td>{r.date}</Td>
                     <Td>{r.company}</Td>
-                    <Td>{r.plant}</Td>
+                    <Td>{r.plant} ({r?.plant_code}) </Td>
                     <Td>{r.line}</Td>
 
                     <Td>

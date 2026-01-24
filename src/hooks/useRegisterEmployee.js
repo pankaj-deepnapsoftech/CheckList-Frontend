@@ -36,6 +36,14 @@ export const RegisterEmployee = (
       return res?.data?.data;
     },
   });
+  const getAllHODWithUser = useQuery({
+    queryKey: ["employees"],
+    queryFn: async () => {
+      const res = await axiosHandler.get(`users/get-with-hods-users`);
+      return res?.data?.data;
+    },
+  });
+
 
   const createEmployee = useMutation({
     mutationFn: async (data) => {
@@ -128,5 +136,6 @@ export const RegisterEmployee = (
     toggleTerminateEmployee,
     AllEmpData,
     getAllHOD,
+    getAllHODWithUser,
   };
 };
