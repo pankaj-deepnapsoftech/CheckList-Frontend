@@ -232,7 +232,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   return (
     <>
       {/* DESKTOP */}
-      <aside className="hidden md:flex w-64 bg-white shadow-xl p-5 flex-col h-screen">
+      <aside className="hidden md:flex w-[20%] bg-white shadow-xl p-5 flex-col h-screen">
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* LOGO */}
           <div
@@ -266,23 +266,73 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       </aside>
 
       {/* MOBILE */}
+      {/* {isMobileOpen && (
+        <div className="mt-[25px] pt-40">
+          <div className="md:hidden fixed inset-0 z-50 flex">
+            <div className="fixed inset-0 bg-black/40" onClick={closeMobile} />
+
+            <aside className="relative w-64 bg-white p-4 flex flex-col h-full">
+              <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+                {renderMenu()}
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="mt-4 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5"
+              >
+                <LogOut size={18} />
+                Logout
+              </button>
+            </aside>
+          </div>
+        </div>
+      )} */}
+
       {isMobileOpen && (
-        <div className="md:hidden fixed inset-0 z-50 flex">
-          <div className="fixed inset-0 bg-black/40" onClick={closeMobile} />
+        <div className="mt-[25px] pt-40">
+          <div className="md:hidden fixed inset-0 z-50 flex">
+            {/* Backdrop */}
+            <div className="fixed inset-0 bg-black/40" onClick={closeMobile} />
 
-          <aside className="relative w-64 bg-white p-4 flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
-              {renderMenu()}
-            </div>
+            {/* Sidebar */}
+            <aside className="relative w-[70%] bg-white flex flex-col h-full shadow-2xl">
+              {/* Logo + Company Name Section */}
+              <div className="p-2 mt-15 border-b border-gray-200">
+                <div
+                  className="flex flex-col items-center cursor-pointer"
+                  onClick={() => {
+                    closeMobile();
+                    navigate("/");
+                  }}
+                >
+                  <img
+                    src="https://jpmgroup.co.in/assets/svg/logo-color.svg"
+                    alt="JP Minda Group Logo"
+                    className="h-16 w-auto object-contain"
+                  />
+                  <p className="text-[#2e4c99] font-bold text-lg mt-3 tracking-wide">
+                    JP MINDA GROUP
+                  </p>
+                </div>
+              </div>
 
-            <button
-              onClick={handleLogout}
-              className="mt-4 flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5"
-            >
-              <LogOut size={18} />
-              Logout
-            </button>
-          </aside>
+              {/* Menu Items */}
+              <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                {renderMenu()}
+              </div>
+
+              {/* Logout Button */}
+              <div className="p-4 border-t border-gray-200">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg py-3 font-medium shadow-sm transition-all"
+                >
+                  <LogOut size={18} />
+                  Logout
+                </button>
+              </div>
+            </aside>
+          </div>
         </div>
       )}
     </>

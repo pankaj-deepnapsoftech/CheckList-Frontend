@@ -1,9 +1,20 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
-import { X, Eye, FileText, MapPin, Loader2, Sparkles } from "lucide-react";
+import {
+  X,
+  Eye,
+  FileText,
+  MapPin,
+  Loader2,
+  Sparkles,
+  Clock,
+  Calendar,
+} from "lucide-react";
 
-// Demo card – hamesha dikhega, View pe timeline (image jaisa) open hoga
+// ──────────────────────────────────────────────────────────────
+// Demo Data (same as yours)
+// ──────────────────────────────────────────────────────────────
 const DEMO_CARD = {
   _id: "demo",
   template_name: "Demo Template (Activity Timeline)",
@@ -11,7 +22,6 @@ const DEMO_CARD = {
   isDemo: true,
 };
 
-// Dummy timeline events (adapt when backend has template history API)
 const getDummyTimelineForTemplate = (templateName) => [
   {
     id: 1,
@@ -23,7 +33,7 @@ const getDummyTimelineForTemplate = (templateName) => [
     detail: templateName || "Template",
     subDetail: "Deepnap Softech",
     hasNotes: true,
-    badge: "89%",
+   
   },
   {
     id: 2,
@@ -44,7 +54,8 @@ const getDummyTimelineForTemplate = (templateName) => [
     textColor: "text-amber-600",
     time: "Yesterday 02:38 PM",
     detail: "Waiting - 23 mins",
-    address: "88JX+99W, IMT Main Rd, Sector 69, Faridabad, Haryana 121004, India",
+    address:
+      "88JX+99W, IMT Main Rd, Sector 69, Faridabad, Haryana 121004, India",
     timeRange: "(Yesterday 02:15 PM - Yesterday 02:38 PM)",
   },
   {
@@ -66,9 +77,10 @@ const getDummyTimelineForTemplate = (templateName) => [
     textColor: "text-sky-600",
     time: "Yesterday 03:02 PM",
     detail: "Checked In",
-    address: "11/12 Chawla Colony, Ballabhgarh, Faridabad, Haryana 121004, India",
+    address:
+      "11/12 Chawla Colony, Ballabhgarh, Faridabad, Haryana 121004, India",
     hasNotes: true,
-    badge: "58%",
+   
     hasInfo: true,
   },
   {
@@ -79,127 +91,143 @@ const getDummyTimelineForTemplate = (templateName) => [
     textColor: "text-sky-600",
     time: "Yesterday 03:07 PM",
     detail: "Checked Out",
-    address: "11/12 Chawla Colony, Ballabhgarh, Faridabad, Haryana 121004, India",
-    badge: "57%",
+    address:
+      "11/12 Chawla Colony, Ballabhgarh, Faridabad, Haryana 121004, India",
+   
   },
 ];
 
+// ──────────────────────────────────────────────────────────────
+// Enhanced Timeline Modal
+// ──────────────────────────────────────────────────────────────
 function TimelineViewModal({ isOpen, onClose, template }) {
   if (!isOpen) return null;
 
   const timeline = getDummyTimelineForTemplate(template?.template_name);
+  const isDemo = template?.isDemo;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop with blur */}
       <div
-        className="absolute inset-0 bg-black/40"
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl">
+
+      {/* Modal Content - Glassmorphism */}
+      <div
+        className={`
+          relative w-full max-w-3xl max-h-[92vh] overflow-hidden 
+          rounded-2xl border border-white/20 
+          bg-white/80 backdrop-blur-xl shadow-2xl
+          transition-all duration-300
+          ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"}
+        `}
+      >
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white px-5 py-4">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-white/90 backdrop-blur-md px-6 py-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">
-              Template History
+            <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+              Activity Timeline
             </h2>
-            <p className="text-sm text-gray-500 mt-0.5">
-              {template?.template_name || "Template"}
+            <p className="text-sm text-gray-600 mt-0.5 font-medium">
+              {template?.template_name || "Selected Template"}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+            className="rounded-full p-2 text-gray-500 hover:bg-gray-100/80 hover:text-gray-700 transition-colors"
           >
-            <X size={20} />
+            <X size={22} />
           </button>
         </div>
 
-        {/* Timeline */}
-        <div className="overflow-y-auto p-5">
-          <div className="relative">
-            {/* Vertical line */}
-            <div
-              className="absolute left-[19px] top-2 bottom-2 w-0.5 bg-gray-200"
-              aria-hidden="true"
-            />
+        {/* Timeline Content */}
+        <div className="overflow-y-auto p-6 space-y-8">
+          <div className="relative pl-10">
+            {/* Animated vertical line */}
+            <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-gradient-to-b from-gray-300 via-gray-200 to-gray-300" />
 
             {timeline.map((event, index) => (
               <div
                 key={event.id}
-                className="relative flex gap-4 pb-6 last:pb-0"
+                className="relative flex gap-6 pb-10 last:pb-0 group"
               >
-                {/* Left: date/time */}
-                <div className="w-28 flex-shrink-0 text-right">
+                {/* Time */}
+                <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2">
+                  <div
+                    className={`w-3.5 h-3.5 rounded-full ${event.color} ring-4 ring-white shadow-md group-hover:ring-blue-100 transition-all duration-300`}
+                  />
+                </div>
+
+                {/* Time label */}
+                <div className="w-28 flex-shrink-0 text-right pt-1.5">
                   <p className="text-xs font-medium text-gray-500">
                     {event.time.split(" ")[0]}
                   </p>
-                  <p className="text-sm font-medium text-gray-800">
+                  <p className="text-sm font-semibold text-gray-700">
                     {event.time.split(" ").slice(1).join(" ")}
                   </p>
                 </div>
 
-                {/* Middle: icon */}
-                <div className="relative z-10 flex-shrink-0">
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full ${event.color} text-white font-semibold shadow`}
-                  >
-                    {event.letter}
-                  </div>
-                </div>
-
-                {/* Right: content */}
-                <div className="min-w-0 flex-1 rounded-lg border border-gray-100 bg-gray-50/80 p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <span
-                      className={`text-sm font-semibold ${event.textColor}`}
-                    >
-                      {event.detail}
-                      {event.hasInfo && (
-                        <span className="ml-1 inline-flex text-red-500">
-                          <svg
-                            className="h-3.5 w-3.5"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
+                {/* Card */}
+                <div
+                  className={`
+                  flex-1 rounded-xl border border-gray-200/60 
+                  bg-white/70 backdrop-blur-sm shadow-sm 
+                  p-4 transition-all duration-300
+                  group-hover:shadow-md group-hover:-translate-y-0.5
+                  group-hover:border-blue-200/50
+                `}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`flex h-9 w-9 items-center justify-center rounded-lg ${event.color} text-white font-bold shadow-sm`}
+                      >
+                        {event.letter}
+                      </div>
+                      <div>
+                        <span className={`font-semibold ${event.textColor}`}>
+                          {event.detail}
                         </span>
-                      )}
-                    </span>
+                        {event.subDetail && (
+                          <p className="text-sm text-gray-600 mt-0.5">
+                            {event.subDetail}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
                     {event.badge && (
-                      <span className="rounded bg-gray-200 px-2 py-0.5 text-xs font-medium text-gray-700">
+                      <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
                         {event.badge}
                       </span>
                     )}
                   </div>
-                  {event.subDetail && (
-                    <p className="mt-1 text-sm text-gray-700">
-                      {event.subDetail}
-                    </p>
-                  )}
+
                   {event.address && (
-                    <div className="mt-2 flex items-start gap-1.5 text-xs text-gray-600">
-                      <MapPin size={14} className="mt-0.5 flex-shrink-0" />
+                    <div className="mt-3 flex items-start gap-2 text-sm text-gray-600">
+                      <MapPin
+                        size={16}
+                        className="mt-0.5 flex-shrink-0 text-gray-500"
+                      />
                       <span>{event.address}</span>
                     </div>
                   )}
+
                   {event.timeRange && (
-                    <p className="mt-1 text-xs text-gray-500">
-                      {event.timeRange}
-                    </p>
+                    <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+                      <Clock size={14} />
+                      <span>{event.timeRange}</span>
+                    </div>
                   )}
+
                   {event.hasNotes && (
-                    <button
-                      type="button"
-                      className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
-                    >
+                    <button className="mt-4 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors">
                       <FileText size={14} />
-                      Notes
+                      View Notes
                     </button>
                   )}
                 </div>
@@ -212,6 +240,9 @@ function TimelineViewModal({ isOpen, onClose, template }) {
   );
 }
 
+// ──────────────────────────────────────────────────────────────
+// Enhanced Template Card
+// ──────────────────────────────────────────────────────────────
 function TemplateCard({ template, onView }) {
   const isDemo = template?.isDemo;
   return (
@@ -245,7 +276,8 @@ function TemplateCard({ template, onView }) {
           )}
           {isDemo && (
             <p className="mt-1 text-xs text-amber-600">
-              Click View to see activity timeline (Logged In, Waiting, Checked In/Out)
+              Click View to see activity timeline (Logged In, Waiting, Checked
+              In/Out)
             </p>
           )}
         </div>
@@ -261,6 +293,9 @@ function TemplateCard({ template, onView }) {
   );
 }
 
+// ──────────────────────────────────────────────────────────────
+// Main Component
+// ──────────────────────────────────────────────────────────────
 export default function TemplateModuleHistory() {
   const [viewingTemplate, setViewingTemplate] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -284,40 +319,48 @@ export default function TemplateModuleHistory() {
   };
 
   return (
-    <div className="min-h-full bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Template Module History
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            View history and activity timeline for each template
-          </p>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 p-3 text-white shadow-lg">
+              <Calendar size={28} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+                Template Activity History
+              </h1>
+              <p className="mt-2 text-gray-600">
+                Track usage, check-ins, waiting times and activity timeline for
+                every template
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Demo card – hamesha pehle, View pe image jaisa timeline dikhega */}
-          <TemplateCard
-            key="demo"
-            template={DEMO_CARD}
-            onView={handleView}
-          />
+        {/* Grid */}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <TemplateCard key="demo" template={DEMO_CARD} onView={handleView} />
+
           {isLoading ? (
-            <div className="flex items-center justify-center rounded-xl border border-gray-200 bg-white p-8">
-              <Loader2 size={24} className="animate-spin text-gray-400" />
+            <div className="col-span-full flex items-center justify-center py-20">
+              <div className="flex items-center gap-3 rounded-xl bg-white/80 px-6 py-4 shadow-md">
+                <Loader2 size={24} className="animate-spin text-blue-600" />
+                <span className="text-gray-700 font-medium">
+                  Loading templates...
+                </span>
+              </div>
             </div>
           ) : (
             templates.map((t) => (
-              <TemplateCard
-                key={t._id}
-                template={t}
-                onView={handleView}
-              />
+              <TemplateCard key={t._id} template={t} onView={handleView} />
             ))
           )}
         </div>
       </div>
 
+      {/* Modal */}
       <TimelineViewModal
         isOpen={modalOpen}
         onClose={handleCloseModal}
