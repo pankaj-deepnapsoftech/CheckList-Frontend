@@ -62,7 +62,10 @@ export default function TemplateMaster() {
 
   const templates = templatesQuery.data || [];
   const selectedTemplate = templateQuery.data;
-  const fields = useMemo(() => selectedTemplate?.fields || [], [selectedTemplate]);
+  const fields = useMemo(() => {
+    const f = selectedTemplate?.fields || [];
+    return [...f].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+  }, [selectedTemplate]);
   const [previewValues, setPreviewValues] = useState({});
 
   const setPreviewValue = (key, value) => {
@@ -369,9 +372,12 @@ export default function TemplateMaster() {
     setEditingTemplateId(template._id);
     setEditTemplateName(template.template_name);
     setEditTemplateType(template.template_type || "");
-    // Handle both single user (backward compatibility) and array of users
+    // assigned_users: [{ user_id, status }] – extract user_ids for multiselect
     if (template.assigned_users && Array.isArray(template.assigned_users)) {
-      setEditAssignedUser(template.assigned_users);
+      const ids = template.assigned_users
+        .map((a) => (a && typeof a === "object" && a.user_id != null ? a.user_id : typeof a === "string" ? a : null))
+        .filter(Boolean);
+      setEditAssignedUser(ids);
     } else if (template.assignedUser?._id || template.assigned_user?._id || template.assigned_user) {
       const userId = template.assignedUser?._id || template.assigned_user?._id || template.assigned_user;
       setEditAssignedUser([userId]);

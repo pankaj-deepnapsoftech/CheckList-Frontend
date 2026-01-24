@@ -32,6 +32,7 @@ import ManageDocument from "../TemplateMasterPages/ManageDocument";
 import AssignedTemplates from "../TemplateMasterPages/AssignedTemplates";
 import TemplateStatus from "../TemplateMasterPages/TemplateStatus";
 import TemplateApproveReject from "../TemplateMasterPages/TemplateApproveReject";
+import TemplateModuleHistory from "../TemplateMasterPages/TemplateModuleHistory";
 
 
 export const AppRoute = () => {
@@ -65,8 +66,9 @@ export const AppRoute = () => {
     { path: "/assembly-line", element: withProtection(AssemblyLine) },
     { path: "/release-group", element: withProtection(ReleaseGroups) },
     { path: "/template-master", element:withProtection(TemplateMaster) },
-    { path: "/template-status", element:withProtection(TemplateStatus) },
+    { path: "/template-status", element: withProtection(TemplateStatus) },
     { path: "/template-approve-reject", element:withProtection(TemplateApproveReject) },
+    { path: "/template-module-history", element:withProtection(TemplateModuleHistory) },
     { path: "/workflow", element:withProtection(ManageWorkflow) },
     { path: "/document-management", element:withProtection(ManageDocument) },
     
