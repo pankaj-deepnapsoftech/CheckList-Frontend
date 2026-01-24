@@ -128,6 +128,7 @@ const AddReleaseGroupModal = ({
   };
 
   const handleRemove = (index) => {
+    console.log("index",index)
     setFieldValue(
       "users",
       values.users.filter((_, i) => i !== index),
@@ -154,9 +155,9 @@ const AddReleaseGroupModal = ({
   }, [plantOpen]);
 
 
-
+console.log(values);
   const filteredPlantOptions = React.useMemo(() => {
-    if (mode === "edit" && values.selectedUser) {
+    if (mode === "edit" && editData?.users?.length === 1) {
       const currentUser = values.users.find(
         (u) => u.user_id === values.selectedUser,
       );
@@ -175,6 +176,13 @@ const AddReleaseGroupModal = ({
     const usedPlants = values.users.flatMap((u) => u.plants_id || []);
     return PLANT_OPTIONS.filter((p) => !usedPlants.includes(p._id));
   }, [PLANT_OPTIONS, values.users, values.selectedUser, mode]);
+
+
+  React.useEffect(() => {
+    if (mode === "edit" && editData?.users?.length === 1) {
+      setFieldValue("selectedUser", editData.users[0].user_id);
+    }
+  }, [mode, editData]);
 
 
   if (!openModal) return null;
@@ -223,7 +231,6 @@ const AddReleaseGroupModal = ({
           <div className="relative mb-4 w-full" ref={plantRef}>
             <label className="font-medium text-gray-700">Plant</label>
 
-
             <div
               onClick={() => !isView && setPlantOpen(!plantOpen)}
               className={`mt-2 min-h-[52px] border rounded-lg px-3 py-2 cursor-pointer flex items-center justify-between
@@ -259,7 +266,6 @@ const AddReleaseGroupModal = ({
                 ))}
               </div>
 
-
               {!isView && (
                 <svg
                   className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${plantOpen ? "rotate-180" : ""
@@ -277,7 +283,6 @@ const AddReleaseGroupModal = ({
                 </svg>
               )}
             </div>
-
 
             {plantOpen && !isView && (
               <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
@@ -325,7 +330,6 @@ const AddReleaseGroupModal = ({
               <button
                 type="button"
                 onClick={handleAddUserPlant}
-
                 className="bg-blue-600 text-white py-2 px-4 rounded-lg"
               >
                 Add User & Plant
@@ -352,9 +356,9 @@ const AddReleaseGroupModal = ({
                 </button>
               )}
               <div className="flex flex-wrap gap-2 ml-6">
-                {user.plants_id.map((plantId, plantIndex) => (
+                {user?.plants_id?.map((plantId, plantIndex) => (
                   <div
-                    key={plantId}
+                    key={`${user?.user_id}-${plantId}`}
                     className="flex items-center gap-2 bg-white border px-3 py-1 rounded-full text-sm"
                   >
                     <Wand size={14} className="text-green-600" />
@@ -365,19 +369,36 @@ const AddReleaseGroupModal = ({
                     {!isView && (
                       <button
                         type="button"
-                        onClick={() => {
-                          const updatedUsers = [...values.users];
+                        onClick={(e) => {
+                          e.stopPropagation();
 
-                          updatedUsers[userIndex].plants_id = updatedUsers[
-                            userIndex
-                          ].plants_id.filter((_, i) => i !== plantIndex);
-
-                          if (updatedUsers[userIndex].plants_id.length === 0) {
-                            updatedUsers.splice(userIndex, 1);
+                       
+                          if (
+                            mode === "edit" &&
+                            values.users.length === 1 &&
+                            user.plants_id.length === 1
+                          ) {
+                            alert("At least one user is mandatory");
+                            return;
                           }
 
+                          const updatedUsers = values.users
+                            .map((u, idx) => {
+                              if (idx !== userIndex) return u;
+
+                              const newPlants = u.plants_id.filter(
+                                (p) => p !== plantId,
+                              );
+
+                              return {
+                                ...u,
+                                plants_id: newPlants,
+                              };
+                            })
+                            .filter((u) => u.plants_id.length > 0);
+
                           setFieldValue("users", updatedUsers);
-                          setFieldValue("selectedPlant", "");
+                          setFieldValue("selectedPlants", []);
                         }}
                         className="text-gray-400 hover:text-red-500"
                       >
