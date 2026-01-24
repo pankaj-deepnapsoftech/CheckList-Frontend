@@ -27,6 +27,7 @@ import {
   FileText,
   CheckCircle2,
   XCircle,
+  CircleOff,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -108,7 +109,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         {
           name: "Stoppage",
           path: "/plc-data/stoppage",
-          icon: <Activity size={18} />,
+          icon: <CircleOff size={18} />,
         },
       ],
     },
@@ -136,16 +137,16 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
   const allowedMenu = IsSuper
     ? allMenu
     : allMenu.filter((i) => {
-        // Always show user-specific pages for non-admin users
-        if (i.path && userSpecificPaths.includes(i.path)) {
-          return true;
-        }
-        // For other items (including "My Templates"), check permissions
-        return i.children
-          ? i.children.some((c) => permissions.includes(c.path)) ||
-              permissions.includes(i.path)
-          : permissions.includes(i.path);
-      });
+      // Always show user-specific pages for non-admin users
+      if (i.path && userSpecificPaths.includes(i.path)) {
+        return true;
+      }
+      // For other items (including "My Templates"), check permissions
+      return i.children
+        ? i.children.some((c) => permissions.includes(c.path)) ||
+        permissions.includes(i.path)
+        : permissions.includes(i.path);
+    });
 
   const handleLogout = () => {
     logOutUser.mutate();
@@ -187,14 +188,18 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
                       onClick={closeMobile}
                       className={({ isActive }) =>
                         `flex items-center gap-2 p-2 rounded-md text-sm
-                        ${isActive
+   whitespace-nowrap overflow-hidden
+   ${isActive
                           ? "bg-blue-100 text-blue-600 font-normal"
                           : "text-gray-600 hover:bg-gray-100"
                         }`
                       }
+
                     >
                       {child.icon}
-                      {child.name}
+                      <span className="truncate max-w-[160px]">
+                        {child.name}
+                      </span>
                     </NavLink>
                   ))}
                 </div>

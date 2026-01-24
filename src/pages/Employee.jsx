@@ -91,79 +91,104 @@ const Employee = () => {
   return (
     <div className="w-full p-4 relative">
       {/* HEADER */}
-      <div>
+      <div className="mb-4">
         <h1 className="text-2xl sm:text-3xl font-semibold">Employees</h1>
         <p className="text-gray-500 text-sm">Manage Employees</p>
       </div>
 
       {/* Search + Buttons */}
-      <div className="bg-white shadow-[0_4px_12px_rgba(0,0,0,0.06)] rounded-2xl p-4 mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 flex-wrap">
-        {/* Search Box */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-          {/* Search */}
-          <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
-            <Search size={20} className="text-gray-500" />
-            <input
-              type="text"
-              placeholder="Search employees..."
-              className="w-full outline-none text-gray-700"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+      <div className="bg-white rounded-xl shadow p-4">
+        <div className="flex items-center justify-between gap-4 flex-nowrap min-h-[72px]">
+
+          {/* Search Box */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+            {/* Search */}
+            <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
+              <Search size={20} className="text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search employees..."
+                className="w-full outline-none text-gray-700"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              {/* Company Filter */}
+              <select
+                value={selectedCompany}
+                onChange={(e) => setSelectedCompany(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              >
+                <option value="">All Companies</option>
+                {companyOptions.map((company) => (
+                  <option key={company._id} value={company._id}>
+                    {company.company_name}
+                  </option>
+                ))}
+              </select>
+
+              {/* Plant Filter */}
+              <div className="w-[220px] max-w-[220px]">
+                <select
+                  value={selectedPlant}
+                  onChange={(e) => setSelectedPlant(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2
+               whitespace-nowrap overflow-hidden text-ellipsis
+               focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+
+                  <option value="">All Plants</option>
+                  {plantOptions.map((plant, i) => (
+                    <option key={i} value={plant?._id}>
+                      {plant?.plant_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-            {/* Company Filter */}
-            <select
-              value={selectedCompany}
-              onChange={(e) => setSelectedCompany(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            >
-              <option value="">All Companies</option>
-              {companyOptions.map((company) => (
-                <option key={company._id} value={company._id}>
-                  {company.company_name}
-                </option>
-              ))}
-            </select>
+          {/* Buttons */}
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
 
-            {/* Plant Filter */}
-            <select
-              value={selectedPlant}
-              onChange={(e) => setSelectedPlant(e.target.value)}
-              className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            >
-              <option value="">All Plants</option>
-              {plantOptions.map((plant, i) => (
-                <option key={i} value={plant?._id}>
-                  {plant?.plant_name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Buttons */}
-        <div className="flex flex-col sm:flex-row w-full sm:w-auto gap-3 self-center">
-          <div className="flex justify-between items-center ">
+            {/* Add Employee */}
             <button
               onClick={() => {
                 setModalMode("add");
                 setSelectedEmployee(null);
                 setModalOpen(true);
               }}
-              className="px-5 py-2 cursor-pointer bg-blue-500 text-white rounded-lg w-full justify-center hover:bg-blue-600 flex items-center gap-2"
+              className="
+      flex items-center justify-center gap-2
+      h-[44px] px-5
+      bg-blue-500 text-white rounded-lg
+      hover:bg-blue-600 transition
+      w-full sm:w-auto
+    "
             >
-              <Plus size={18} /> Add New Employee
+              <Plus size={18} />
+              <span className="whitespace-nowrap">Add New Employee</span>
             </button>
+
+            {/* Refresh */}
+            <button
+              onClick={handleRefresh}
+              className="
+      flex items-center justify-center gap-2
+      h-[44px] px-4
+      border border-gray-200 rounded-lg
+      text-gray-700 hover:bg-gray-100 transition
+      w-[44px] sm:w-auto
+    "
+            >
+              <RefreshCw size={18} />
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+
           </div>
 
-          <button
-            className="border cursor-pointer border-gray-200 w-full sm:w-auto px-4 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-100 text-gray-700"
-            onClick={handleRefresh}
-          >
-            <RefreshCw size={18} /> Refresh
-          </button>
         </div>
       </div>
 
@@ -311,11 +336,10 @@ const Employee = () => {
                   filteredEmployees.map((emp, i) => (
                     <tr
                       key={i}
-                      className={`border-b border-gray-200 transition ${
-                        emp.terminate
-                          ? "opacity-50 bg-gray-50"
-                          : "hover:bg-blue-50/40"
-                      }`}
+                      className={`border-b border-gray-200 transition ${emp.terminate
+                        ? "opacity-50 bg-gray-50"
+                        : "hover:bg-blue-50/40"
+                        }`}
                     >
                       <td className="px-5 py-4 whitespace-nowrap">
                         {emp.user_id || "N/A"}

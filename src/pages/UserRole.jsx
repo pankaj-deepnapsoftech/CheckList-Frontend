@@ -23,8 +23,9 @@ export default function UserRoles() {
   const [viewOpen, setViewOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState(null);
 
-  const {  value } = useDebounce(search);
-  const { UserlistQuery, removeUser, SearchUserList } = useUserRole(
+
+  const { value } = useDebounce(search);
+  const { UserlistQuery, SearchUserList } = useUserRole(
     value,
     page,
     limit
@@ -35,11 +36,12 @@ export default function UserRoles() {
     ? (SearchUserList?.data ?? [])
     : (UserlistQuery?.data ?? []);
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this data?")) {
-      removeUser.mutate(id);
-    }
-  };
+  // const handleDelete = (id) => {
+  //   if (window.confirm("Are you sure you want to delete this data?")) {
+  //     removeUser.mutate(id);
+  //   }
+  // };
+
 
   const handleRefresh = async () => {
     setPage(1);
@@ -235,19 +237,32 @@ export default function UserRoles() {
                     >
                       <td className="px-5 py-4 text-nowrap">{item?.name}</td>
                       <td className="px-5 py-4">
-                        <div className="flex flex-wrap gap-2 max-w-[280px]">
-                          {formatPermissions(item?.permissions).map(
-                            (perm, idx) => (
-                              <span
-                                key={idx}
-                                className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
-                              >
-                                {PATH_TO_KEY_MAP[perm]}
-                              </span>
-                            )
-                          )}
-                        </div>
+                        {(() => {
+                          const permissions = formatPermissions(item?.permissions);
+                          const visiblePermissions = permissions.slice(0, 3);
+                          const remainingCount = permissions.length - 3;
+
+                          return (
+                            <div className="flex flex-wrap gap-2 max-w-[280px]">
+                              {visiblePermissions.map((perm, idx) => (
+                                <span
+                                  key={idx}
+                                  className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap"
+                                >
+                                  {PATH_TO_KEY_MAP[perm]}
+                                </span>
+                              ))}
+
+                              {remainingCount > 0 && (
+                                <span className="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
+                                  +{remainingCount} more
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </td>
+
 
                       <td className="px-5 py-4 max-w-[250px] truncate">
                         {item.description}
