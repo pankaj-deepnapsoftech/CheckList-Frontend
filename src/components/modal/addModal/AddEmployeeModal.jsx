@@ -46,7 +46,6 @@ export default function AddEmployeeModal({
     //   otherwise: (schema) => schema.nullable(),
     // }),
   });
-
   const formik = useFormik({
     initialValues: {
       user_id: initialData?.user_id || "",
@@ -60,7 +59,7 @@ export default function AddEmployeeModal({
       department_id: initialData?.department_id || "",
       assambly_line: initialData?.assambly_line?.map((l) => l._id) || [],
       is_hod: initialData?.is_hod || false,
-      hod_id: initialData?.is_hod || null,
+      hod_id: initialData?.hod_id || null,
     },
     enableReinitialize: true,
     validationSchema,
