@@ -66,7 +66,7 @@ export const AppRoute = () => {
     { path: "/assembly-line", element: withProtection(AssemblyLine) },
     { path: "/release-group", element: withProtection(ReleaseGroups) },
     { path: "/template-master", element:withProtection(TemplateMaster) },
-    { path: "/template-status", element:withProtection(TemplateStatus) },
+    { path: "/template-status", element: withProtection(TemplateStatus) },
     { path: "/template-approve-reject", element:withProtection(TemplateApproveReject) },
     { path: "/template-module-history", element:withProtection(TemplateModuleHistory) },
     { path: "/workflow", element:withProtection(ManageWorkflow) },
