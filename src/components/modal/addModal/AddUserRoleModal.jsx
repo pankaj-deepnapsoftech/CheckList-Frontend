@@ -29,6 +29,8 @@ export const PERMISSION_MODULES = {
   },
   "Template Module": {
     "Manage Template": "/template-master",
+    "Template Status": "/template-status",
+    "Template Approval": "/template-approve-reject",
     "Manage Release Group": "/release-group",
     "Manage Workflow": "/workflow",
     "Manage Documents": "/document-management",

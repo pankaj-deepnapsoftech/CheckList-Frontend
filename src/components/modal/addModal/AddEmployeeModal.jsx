@@ -40,13 +40,12 @@ export default function AddEmployeeModal({
     employee_company: Yup.string().required("Company is required"),
     department_id: Yup.string().required("Department is required"),
     Employee_plant: Yup.string().required("Plant is required"),
-    hod_id: Yup.mixed().when("is_hod", {
-      is: false,
-      then: (schema) => schema.required("HOD is required"),
-      otherwise: (schema) => schema.nullable(),
-    }),
+    // hod_id: Yup.mixed().when("is_hod", {
+    //   is: false,
+    //   then: (schema) => schema.required("HOD is required"),
+    //   otherwise: (schema) => schema.nullable(),
+    // }),
   });
-
   const formik = useFormik({
     initialValues: {
       user_id: initialData?.user_id || "",
@@ -59,8 +58,8 @@ export default function AddEmployeeModal({
       Employee_plant: initialData?.plant?._id || "",
       department_id: initialData?.department_id || "",
       assambly_line: initialData?.assambly_line?.map((l) => l._id) || [],
-      is_hod: initialData?.is_hod || "",
-      hod_id: initialData?.is_hod || "",
+      is_hod: initialData?.is_hod || false,
+      hod_id: initialData?.hod_id || null,
     },
     enableReinitialize: true,
     validationSchema,
@@ -98,7 +97,7 @@ export default function AddEmployeeModal({
       onClose();
     },
   });
-console.log(formik.values?.hod_id);
+
   const plantsQuery = usePlantsByCompany(formik.values.employee_company);
 
   if (!open) return null;
@@ -406,6 +405,9 @@ console.log(formik.values?.hod_id);
                   getOptionValue={(r) => r._id}
                   onChange={(val) => {
                     formik.setFieldValue("hod_id", val);
+                    if (formik.values?.hod_id) {
+                      formik.setFieldValue("is_hod", false);
+                    }
                   }}
                   onBlur={() => {
                     formik.setFieldTouched("hod_id", true);
@@ -426,8 +428,7 @@ console.log(formik.values?.hod_id);
           </div>
         </form>
       </div>
-
-      {/* ANIMATION */}
+      ;{/* ANIMATION */}
       <style>{`
         @keyframes slideLeft {
           from { transform: translateX(100%); }

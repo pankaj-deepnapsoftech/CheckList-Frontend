@@ -124,7 +124,7 @@ const AddReleaseGroupModal = ({
     setFieldValue("selectedUser", "");
     setFieldValue("selectedPlants", []);
     setPlantOpen(false);
-    
+
   };
 
   const handleRemove = (index) => {
@@ -132,9 +132,27 @@ const AddReleaseGroupModal = ({
     setFieldValue(
       "users",
       values.users.filter((_, i) => i !== index),
-    );
+    ); 
   };
 
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        plantRef.current &&
+        !plantRef.current.contains(event.target)
+      ) {
+        setPlantOpen(false);
+      }
+    };
+
+    if (plantOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [plantOpen]);
 
 
 console.log(values);
@@ -173,7 +191,7 @@ console.log(values);
     <div className="fixed inset-0 bg-black/40 z-50 flex justify-end">
       <div className="absolute inset-0" onClick={() => setOpenModal(false)} />
 
-      <div className="relative h-full w-full max-w-md bg-white shadow-xl p-6">
+      <div className="relative h-full w-full max-w-md bg-white shadow-xl p-6 overflow-y-auto">
         <button
           className="absolute right-4 top-4 text-gray-600 hover:text-black"
           onClick={() => setOpenModal(false)}
@@ -250,9 +268,8 @@ console.log(values);
 
               {!isView && (
                 <svg
-                  className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
-                    plantOpen ? "rotate-180" : ""
-                  }`}
+                  className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${plantOpen ? "rotate-180" : ""
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -268,7 +285,8 @@ console.log(values);
             </div>
 
             {plantOpen && !isView && (
-              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+              <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+
                 {filteredPlantOptions.length === 0 ? (
                   <div className="p-3 text-gray-400 text-sm">
                     No plants available
@@ -290,8 +308,8 @@ console.log(values);
                             "selectedPlants",
                             exists
                               ? values.selectedPlants.filter(
-                                  (p) => p !== plant._id,
-                                )
+                                (p) => p !== plant._id,
+                              )
                               : [...values.selectedPlants, plant._id],
                           );
                         }}
