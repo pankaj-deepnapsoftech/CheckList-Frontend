@@ -1,187 +1,207 @@
-import React, { useState } from "react";
-import { CheckCircle2, XCircle, Clock, AlertCircle } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Search, Loader2 } from "lucide-react";
+import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
+
+const STATUS_OPTIONS = [
+  { value: "", label: "All Status" },
+  { value: "pending", label: "Pending" },
+  { value: "in-progress", label: "In Progress" },
+  { value: "re-assign", label: "Re-assign" },
+  { value: "completed", label: "Approved" },
+  { value: "rejected", label: "Rejected" },
+];
+
+function formatStatusDisplay(raw) {
+  const map = {
+    pending: "Pending",
+    "in-progress": "In Progress",
+    "re-assign": "Re-assign",
+    completed: "Approved",
+    rejected: "Rejected",
+  };
+  return map[raw] || raw || "—";
+}
+
+function getStatusBadge(status) {
+  switch (status) {
+    case "completed":
+    case "Approved":
+      return "bg-green-100 text-green-800";
+    case "rejected":
+    case "Rejected":
+      return "bg-red-100 text-red-800";
+    case "re-assign":
+    case "Re-assign":
+      return "bg-orange-100 text-orange-800";
+    case "in-progress":
+    case "In Progress":
+      return "bg-blue-100 text-blue-800";
+    case "pending":
+    case "Pending":
+      return "bg-yellow-100 text-yellow-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+}
 
 export default function TemplateStatus() {
-  // Dummy data for template statuses
-  const [statusData] = useState([
-    {
-      id: 1,
-      template_name: "Quality Inspection Form",
-      template_type: "NEW",
-      status: "Approved",
-      submitted_by: "John Doe",
-      submitted_date: "2026-01-20",
-      approved_by: "Admin User",
-      approved_date: "2026-01-21",
-      remarks: "All fields verified and approved",
-    },
-    {
-      id: 2,
-      template_name: "Safety Checklist",
-      template_type: "AMENDMENT",
-      status: "Pending",
-      submitted_by: "Jane Smith",
-      submitted_date: "2026-01-22",
-      approved_by: "-",
-      approved_date: "-",
-      remarks: "Awaiting review",
-    },
-    {
-      id: 3,
-      template_name: "Production Report",
-      template_type: "NEW",
-      status: "Rejected",
-      submitted_by: "Mike Johnson",
-      submitted_date: "2026-01-19",
-      approved_by: "Admin User",
-      approved_date: "2026-01-20",
-      remarks: "Missing mandatory fields",
-    },
-    {
-      id: 4,
-      template_name: "Maintenance Log",
-      template_type: "AMENDMENT",
-      status: "Pending",
-      submitted_by: "Sarah Williams",
-      submitted_date: "2026-01-23",
-      approved_by: "-",
-      approved_date: "-",
-      remarks: "Under review",
-    },
-    {
-      id: 5,
-      template_name: "Compliance Form",
-      template_type: "NEW",
-      status: "Approved",
-      submitted_by: "David Brown",
-      submitted_date: "2026-01-18",
-      approved_by: "Admin User",
-      approved_date: "2026-01-19",
-      remarks: "Compliant with standards",
-    },
-    {
-      id: 6,
-      template_name: "Audit Checklist",
-      template_type: "NEW",
-      status: "Rejected",
-      submitted_by: "Emily Davis",
-      submitted_date: "2026-01-21",
-      approved_by: "Admin User",
-      approved_date: "2026-01-22",
-      remarks: "Incomplete documentation",
-    },
-  ]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "Approved":
-        return <CheckCircle2 size={18} className="text-green-600" />;
-      case "Rejected":
-        return <XCircle size={18} className="text-red-600" />;
-      case "Pending":
-        return <Clock size={18} className="text-yellow-600" />;
-      default:
-        return <AlertCircle size={18} className="text-gray-600" />;
-    }
-  };
+  const { templateStatusListQuery } = useTemplateMaster("");
+  const statusList = templateStatusListQuery.data || [];
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case "Approved":
-        return "bg-green-100 text-green-800";
-      case "Rejected":
-        return "bg-red-100 text-red-800";
-      case "Pending":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  const filteredData = useMemo(() => {
+    const q = (searchQuery || "").trim().toLowerCase();
+    const st = (statusFilter || "").trim();
+    return statusList.filter((r) => {
+      const matchStatus = !st || (r.status || "").toLowerCase() === st.toLowerCase();
+      if (!matchStatus) return false;
+      if (!q) return true;
+      const searchable = [
+        r.template_name,
+        r.template_type,
+        r.status,
+        formatStatusDisplay(r.status),
+        r.workflow_name,
+        r.user_name,
+      ]
+        .filter(Boolean)
+        .map((s) => String(s).toLowerCase());
+      return searchable.some((s) => s.includes(q));
+    });
+  }, [statusList, searchQuery, statusFilter]);
 
   return (
     <div className="min-h-full bg-gray-50">
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">
-            Template Status
-          </h1>
+          <h1 className="text-2xl font-semibold text-gray-900">Template Status</h1>
           <p className="mt-1 text-sm text-gray-500">
-            View and track the status of all template submissions
+            Har assigned user ka status (assigned_users ke andar wala status)
           </p>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                    Template Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                    Type
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                    Submitted By
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                    Submitted Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                    Approved By
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                    Approved Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
-                    Remarks
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {statusData.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                      {item.template_name}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
-                        {item.template_type}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium ${getStatusBadge(
-                          item.status
-                        )}`}
-                      >
-                        {getStatusIcon(item.status)}
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                      {item.submitted_by}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                      {item.submitted_date}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                      {item.approved_by}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
-                      {item.approved_date}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {item.remarks}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[200px] max-w-sm">
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by template, type, status, user, workflow..."
+              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-3 text-sm placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
           </div>
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">Status:</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="min-w-[160px] rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              {STATUS_OPTIONS.map((opt) => (
+                <option key={opt.value || "all"} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          {(searchQuery || statusFilter) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setStatusFilter("");
+              }}
+              className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div className="rounded-xl border border-gray-200 bg-white shadow-sm">
+          {templateStatusListQuery.isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 size={24} className="animate-spin text-gray-400" />
+            </div>
+          ) : templateStatusListQuery.isError ? (
+            <div className="px-6 py-8 text-center text-sm text-red-600">
+              {templateStatusListQuery.error?.response?.data?.message ||
+                templateStatusListQuery.error?.message ||
+                "Failed to load template status."}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                      Template Name
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                      Type
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                      Assigned User
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                      Status
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                      Submitted Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                      Approved By
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                      Approved Date
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-700">
+                      Remarks
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {filteredData.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-8 text-center text-sm text-gray-500">
+                        No records found. Try different search or status filter.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredData.map((r) => (
+                      <tr key={`${r.template_id}-${r.user_id}`} className="hover:bg-gray-50">
+                        <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                          {r.template_name}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+                          <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+                            {r.template_type || "—"}
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">
+                          {r.user_name || "—"}
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm">
+                          <span
+                            className={`inline-flex rounded-lg px-2 py-1.5 text-xs font-medium ${getStatusBadge(r.status)}`}
+                          >
+                            {formatStatusDisplay(r.status || "pending")}
+                          </span>
+                        </td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">—</td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">—</td>
+                        <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-700">—</td>
+                        <td className="px-6 py-4 text-sm text-gray-700">—</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </div>

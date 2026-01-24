@@ -13,6 +13,14 @@ export const useTemplateMaster = (selectedTemplateId) => {
     },
   });
 
+  const templateStatusListQuery = useQuery({
+    queryKey: ["template-master", "template-status"],
+    queryFn: async () => {
+      const res = await axiosHandler.get("/template-master/template-status");
+      return res?.data?.data || [];
+    },
+  });
+
   const templateQuery = useQuery({
     queryKey: ["template-master", "template", selectedTemplateId],
     enabled: Boolean(selectedTemplateId),
@@ -131,6 +139,7 @@ export const useTemplateMaster = (selectedTemplateId) => {
 
   return {
     templatesQuery,
+    templateStatusListQuery,
     templateQuery,
     createTemplate,
     addField,
