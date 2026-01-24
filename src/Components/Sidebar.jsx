@@ -27,6 +27,7 @@ import {
   FileText,
   CheckCircle2,
   XCircle,
+  CircleOff,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -108,7 +109,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         {
           name: "Stoppage",
           path: "/plc-data/stoppage",
-          icon: <Activity size={18} />,
+          icon: <CircleOff size={18} />,
         },
       ],
     },
