@@ -86,7 +86,7 @@ export default function Login() {
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  type="email"
+                  type="text"
                   name="email"
                   placeholder="Username"
                   className="w-full pl-12 py-3 rounded-lg bg-white text-black focus:ring-2 focus:ring-blue-500 outline-none"

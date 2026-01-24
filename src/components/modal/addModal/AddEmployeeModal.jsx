@@ -402,7 +402,7 @@ console.log(formik.values?.hod_id);
                   options={getAllHOD?.data || []}
                   value={formik.values?.hod_id}
                   disabled={isView || formik.values.is_hod}
-                  getOptionLabel={(r) => r.full_name}
+                  getOptionLabel={(r) => `${r?.full_name} (${r?.user_id})`}
                   getOptionValue={(r) => r._id}
                   onChange={(val) => {
                     formik.setFieldValue("hod_id", val);
