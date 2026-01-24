@@ -115,17 +115,19 @@ function TimelineViewModal({ isOpen, onClose, template }) {
         aria-hidden="true"
       />
 
-      {/* Modal Content - Glassmorphism */}
+      {/* Modal Content */}
       <div
         className={`
-          relative w-full max-w-3xl max-h-[92vh] overflow-hidden 
+          relative w-full max-w-3xl max-h-[92vh] 
           rounded-2xl border border-white/20 
           bg-white/80 backdrop-blur-xl shadow-2xl
           transition-all duration-300
           ${isOpen ? "scale-100 opacity-100" : "scale-95 opacity-0"}
+          flex flex-col          // <-- Important: flex column layout
+          overflow-hidden        // Keep this on outer container
         `}
       >
-        {/* Header */}
+        {/* Header - always sticky */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-white/90 backdrop-blur-md px-6 py-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900 tracking-tight">
@@ -143,10 +145,10 @@ function TimelineViewModal({ isOpen, onClose, template }) {
           </button>
         </div>
 
-        {/* Timeline Content */}
-        <div className="overflow-y-auto p-6 space-y-8">
+        {/* Scrollable Timeline Content */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           <div className="relative pl-10">
-            {/* Animated vertical line */}
+            {/* Vertical line */}
             <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-gradient-to-b from-gray-300 via-gray-200 to-gray-300" />
 
             {timeline.map((event, index) => (
@@ -154,7 +156,7 @@ function TimelineViewModal({ isOpen, onClose, template }) {
                 key={event.id}
                 className="relative flex gap-6 pb-10 last:pb-0 group"
               >
-                {/* Time */}
+                {/* Timeline dot */}
                 <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2">
                   <div
                     className={`w-3.5 h-3.5 rounded-full ${event.color} ring-4 ring-white shadow-md group-hover:ring-blue-100 transition-all duration-300`}
@@ -171,15 +173,15 @@ function TimelineViewModal({ isOpen, onClose, template }) {
                   </p>
                 </div>
 
-                {/* Card */}
+                {/* Event Card */}
                 <div
                   className={`
-                  flex-1 rounded-xl border border-gray-200/60 
-                  bg-white/70 backdrop-blur-sm shadow-sm 
-                  p-4 transition-all duration-300
-                  group-hover:shadow-md group-hover:-translate-y-0.5
-                  group-hover:border-blue-200/50
-                `}
+                    flex-1 rounded-xl border border-gray-200/60 
+                    bg-white/70 backdrop-blur-sm shadow-sm 
+                    p-4 transition-all duration-300
+                    group-hover:shadow-md group-hover:-translate-y-0.5
+                    group-hover:border-blue-200/50
+                  `}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
@@ -209,10 +211,7 @@ function TimelineViewModal({ isOpen, onClose, template }) {
 
                   {event.address && (
                     <div className="mt-3 flex items-start gap-2 text-sm text-gray-600">
-                      <MapPin
-                        size={16}
-                        className="mt-0.5 flex-shrink-0 text-gray-500"
-                      />
+                      <MapPin size={16} className="mt-0.5 flex-shrink-0 text-gray-500" />
                       <span>{event.address}</span>
                     </div>
                   )}
