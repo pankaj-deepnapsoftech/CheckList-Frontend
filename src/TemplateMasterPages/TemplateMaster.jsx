@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Edit2, Eye, Plus, Trash2, X, UserCheck } from "lucide-react";
+import { Edit2, Eye, Plus, Trash2, X, WorkflowIcon } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useWorkflow } from "../hooks/useWorkflow";
@@ -56,7 +56,7 @@ export default function TemplateMaster() {
 
   const { templatesQuery, templateQuery, createTemplate, addField, updateField, deleteField, updateTemplate, deleteTemplate, assignWorkflow } =
     useTemplateMaster(selectedTemplateId);
-  
+
   const { AllEmpData } = RegisterEmployee();
   const { listQuery: workflowsQuery } = useWorkflow("", 1, 1000);
 
@@ -105,18 +105,18 @@ export default function TemplateMaster() {
             opts = [];
           }
           return (
-          <select
-            value={previewValues[key] ?? ""}
-            onChange={(e) => setPreviewValue(key, e.target.value)}
-            className={commonClass}
-          >
-            <option value="">Select</option>
-            {opts.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
+            <select
+              value={previewValues[key] ?? ""}
+              onChange={(e) => setPreviewValue(key, e.target.value)}
+              className={commonClass}
+            >
+              <option value="">Select</option>
+              {opts.map((o) => (
+                <option key={o} value={o}>
+                  {o}
+                </option>
+              ))}
+            </select>
           );
         }
       case "RADIO":
@@ -612,11 +612,10 @@ export default function TemplateMaster() {
                   templates.map((t) => (
                     <div
                       key={t._id}
-                      className={`group flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm ${
-                        selectedTemplateId === t._id
+                      className={`group flex items-center gap-2 rounded-lg border px-3 py-2 text-left text-sm ${selectedTemplateId === t._id
                           ? "border-blue-200 bg-blue-50 text-blue-700"
                           : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       <button
                         onClick={() => setSelectedTemplateId(t._id)}
@@ -664,7 +663,7 @@ export default function TemplateMaster() {
                           className="rounded p-1 hover:bg-purple-100 text-purple-600"
                           title="Assign Workflow"
                         >
-                          <UserCheck size={18} />
+                          <WorkflowIcon size={18} />
                         </button>
                         <button
                           onClick={(e) => {
@@ -1386,30 +1385,30 @@ export default function TemplateMaster() {
 
                         {((editingFieldId ? editFieldType : newFieldType) ===
                           "DROPDOWN" || (editingFieldId ? editFieldType : newFieldType) === "RADIO") && (
-                          <div className="sm:col-span-3">
-                            <label className="block text-xs font-medium text-gray-600">
-                              {(editingFieldId ? editFieldType : newFieldType) === "RADIO" ? "Radio Options" : "Dropdown Options"}{" "}
-                              <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                              value={
-                                editingFieldId
-                                  ? editDropdownOptions
-                                  : newDropdownOptions
-                              }
-                              onChange={(e) =>
-                                editingFieldId
-                                  ? setEditDropdownOptions(e.target.value)
-                                  : setNewDropdownOptions(e.target.value)
-                              }
-                              className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
-                              placeholder="Comma separated e.g. OK,Not OK,NA"
-                            />
-                            <p className="mt-1 text-[11px] text-gray-500">
-                              Example: <b>Yes, No, NA</b>
-                            </p>
-                          </div>
-                        )}
+                            <div className="sm:col-span-3">
+                              <label className="block text-xs font-medium text-gray-600">
+                                {(editingFieldId ? editFieldType : newFieldType) === "RADIO" ? "Radio Options" : "Dropdown Options"}{" "}
+                                <span className="text-red-500">*</span>
+                              </label>
+                              <input
+                                value={
+                                  editingFieldId
+                                    ? editDropdownOptions
+                                    : newDropdownOptions
+                                }
+                                onChange={(e) =>
+                                  editingFieldId
+                                    ? setEditDropdownOptions(e.target.value)
+                                    : setNewDropdownOptions(e.target.value)
+                                }
+                                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                                placeholder="Comma separated e.g. OK,Not OK,NA"
+                              />
+                              <p className="mt-1 text-[11px] text-gray-500">
+                                Example: <b>Yes, No, NA</b>
+                              </p>
+                            </div>
+                          )}
                       </div>
 
                       {/* Fields List */}
@@ -1445,9 +1444,8 @@ export default function TemplateMaster() {
                               fields.map((f) => (
                                 <tr
                                   key={f._id}
-                                  className={`hover:bg-gray-50 ${
-                                    editingFieldId === f._id ? "bg-blue-50" : ""
-                                  }`}
+                                  className={`hover:bg-gray-50 ${editingFieldId === f._id ? "bg-blue-50" : ""
+                                    }`}
                                 >
                                   <td className="px-3 py-2 text-sm font-semibold text-gray-800">
                                     {f.field_name}
@@ -1616,10 +1614,10 @@ export default function TemplateMaster() {
                             {fields.some(
                               (f) => f.field_type === "DROPDOWN",
                             ) && (
-                              <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
-                                Options
-                              </th>
-                            )}
+                                <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
+                                  Options
+                                </th>
+                              )}
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100 bg-white">
@@ -1670,13 +1668,13 @@ export default function TemplateMaster() {
                                   {fields.some(
                                     (f) => f.field_type === "DROPDOWN",
                                   ) && (
-                                    <td className="px-3 py-2 text-sm text-gray-700">
-                                      {f.field_type === "DROPDOWN" &&
-                                      dropdownOpts.length > 0
-                                        ? dropdownOpts.join(", ")
-                                        : "—"}
-                                    </td>
-                                  )}
+                                      <td className="px-3 py-2 text-sm text-gray-700">
+                                        {f.field_type === "DROPDOWN" &&
+                                          dropdownOpts.length > 0
+                                          ? dropdownOpts.join(", ")
+                                          : "—"}
+                                      </td>
+                                    )}
                                 </tr>
                               );
                             })
