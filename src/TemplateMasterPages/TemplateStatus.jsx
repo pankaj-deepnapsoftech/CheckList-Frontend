@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Search, Loader2, Eye } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 import { X,  FileText, MapPin, Clock } from "lucide-react";
@@ -135,8 +135,8 @@ function TimelineViewModal({ isOpen, onClose, templateName }) {
       {/* Modal */}
       <div
         className={`
-          relative w-full max-w-3xl max-h-[92vh] 
-          rounded-2xl border border-white/20 
+          relative w-full max-w-3xl max-h-[92vh]
+          rounded-2xl border border-white/20
           bg-white/80 backdrop-blur-xl shadow-2xl
           transition-all duration-300 scale-100 opacity-100
           flex flex-col overflow-hidden
@@ -162,34 +162,42 @@ function TimelineViewModal({ isOpen, onClose, templateName }) {
 
         {/* Scrollable Timeline */}
         <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-          <div className="relative pl-10">
+          <div className="relative pl-12">
             {timeline.map((event, index) => {
               const isFirst = index === 0;
+              const isLast = index === timeline.length - 1;
 
               return (
                 <div
                   key={event.id}
-                  className="relative flex gap-6 pb-10 last:pb-0 group"
+                  className="relative flex gap-6 pb-12 last:pb-0 group"
                 >
                   {/* Timeline Dot */}
-                  <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-10">
+                  <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
                     <div
-                      className={`w-4 h-4 rounded-full ${event.color} ring-4 ring-white shadow-md group-hover:ring-blue-100 transition-all duration-300`}
+                      className={`w-5 h-5 rounded-full ${event.color} ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
                     />
                   </div>
 
-                  {/* Colored Connecting Line (from previous dot to this one) */}
+                  {/* Vertical colored line - connects PREVIOUS dot to CURRENT dot */}
                   {!isFirst && (
                     <div
-                      className="absolute left-[18px] top-[-40px] bottom-[-40px] w-1 z-0"
+                      className={`absolute  w-1 ${event.color}  z-10 rounded-full`}
                       style={{
-                        background: `linear-gradient(to bottom, ${event.color.replace("bg-", "")}cc, ${event.color.replace("bg-", "")}40)`,
+                        // Start from center of previous dot
+                        top: "-160px",
+                        // Go all the way to center of current dot
+                        height: "calc(100% + 60px)",
+                        // Use the COLOR OF THE CURRENT DOT (the one below)
+                        // background: event.color.replace("bg-", ""),
+                        // Optional: nice gradient effect
+                        // background: `linear-gradient(to bottom, ${event.color.replace("bg-", "")}cc, ${event.color.replace("bg-", "")}66)`,
                       }}
                     />
                   )}
 
                   {/* Time Label */}
-                  <div className="w-28 flex-shrink-0 text-right pt-1.5">
+                  <div className="w-28 flex-shrink-0 text-right pt-2">
                     <p className="text-xs font-medium text-gray-500">
                       {event.time.split(" ")[0]}
                     </p>
@@ -201,17 +209,17 @@ function TimelineViewModal({ isOpen, onClose, templateName }) {
                   {/* Event Card */}
                   <div
                     className={`
-                      flex-1 rounded-xl border border-gray-200/60 
-                      bg-white/70 backdrop-blur-sm shadow-sm 
-                      p-4 transition-all duration-300
+                      flex-1 rounded-xl border border-gray-200/60
+                      bg-white/80 backdrop-blur-sm shadow-sm
+                      p-5 transition-all duration-300
                       group-hover:shadow-md group-hover:-translate-y-0.5
-                      group-hover:border-blue-200/50
+                      group-hover:border-blue-200/50 whitespace-nowrap
                     `}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
                         <div
-                          className={`flex h-9 w-9 items-center justify-center rounded-lg ${event.color} text-white font-bold shadow-sm`}
+                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${event.color} text-white font-bold shadow-md`}
                         >
                           {event.letter}
                         </div>
