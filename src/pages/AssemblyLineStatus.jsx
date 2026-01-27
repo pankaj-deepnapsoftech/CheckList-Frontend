@@ -53,6 +53,7 @@ export default function AssemblyLineStatus() {
         assemblyName: item?.assembly_name || "—",
         companyName: item?.company?.company_name || "—",
         plantName: item?.plant?.plant_name || "—",
+        plant_code: item?.plant?.plant_code || "—",
         raw: item,
 
         //  Status
@@ -124,6 +125,9 @@ export default function AssemblyLineStatus() {
     showLimit === "ALL"
       ? currentTableData
       : currentTableData.slice((page - 1) * showLimit, page * showLimit);
+
+
+   console.log(paginatedTableData);
 
   return (
     <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
@@ -332,17 +336,20 @@ export default function AssemblyLineStatus() {
                         </div>
                       </td>
                       <td className="px-4 py-3 sm:px-6 sm:py-4">
-                        <div className="text-slate-900">{row.companyName}</div>
+                        <div className="text-slate-900">{row?.companyName}</div>
                       </td>
                       <td className="px-4 py-3 sm:px-6 sm:py-4 hidden md:table-cell">
-                        <div className="text-slate-900">{row.plantName}</div>
+                        <div className="text-slate-900">
+                          {row?.plantName} ({row?.plant_code})
+                        </div>
                       </td>
                       <td className="px-4 py-3 sm:px-6 sm:py-4">
                         <span
-                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-sm ${row.status === "CHECKED"
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-semibold shadow-sm ${
+                            row.status === "CHECKED"
                               ? "bg-emerald-50 text-emerald-600 border-emerald-200"
                               : "bg-amber-50 text-amber-600 border-amber-200"
-                            }`}
+                          }`}
                         >
                           {row.status === "CHECKED" ? (
                             <CheckCircle2 size={14} />

@@ -53,17 +53,16 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
 
   if (!open) return null;
   return (
-    <div className={`${openModal ? "translate-x-0" : "translate-x-full"}
- fixed inset-0 bg-black/40  z-50 flex justify-end`}>
-
+    <div
+      className={`${openModal ? "translate-x-0" : "translate-x-full"}
+ fixed inset-0 bg-black/40  z-50 flex justify-end`}
+    >
       <div
         className="absolute inset-0 bg-black/30 backdrop-blur-sm"
         onClick={() => setOpenModal(false)}
       />
 
-
       <div className="ml-auto h-full w-full max-w-md bg-white shadow-xl p-6 relative animate-slideLeft overflow-y-auto">
-
         <button
           className="absolute cursor-pointer right-4 top-4 text-gray-600 hover:text-black"
           onClick={() => setOpenModal(false)}
@@ -72,7 +71,6 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
         </button>
 
         <h2 className="text-xl font-semibold mb-6">{title[mode]}</h2>
-
 
         <form onSubmit={formik.handleSubmit}>
           {/* <label className="block mb-4">
@@ -94,7 +92,6 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
             }
           </label> */}
 
-
           <label className="block mb-4">
             <span className="text-gray-700 font-medium">Process Name</span>
             <input
@@ -107,15 +104,17 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
               placeholder="Enter Process Name"
               className="mt-2 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
             />
-            {
-              formik.touched.process_name && formik.errors.process_name && (
-                <p className="text-sm text-red-500">{formik.errors.process_name}</p>
-              )
-            }
+            {formik.touched.process_name && formik.errors.process_name && (
+              <p className="text-sm text-red-500">
+                {formik.errors.process_name}
+              </p>
+            )}
           </label>
 
           <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Company
+            </label>
             <SearchableDropdown
               placeholder="Search Company"
               options={AllCompanyData?.data || []}
@@ -131,15 +130,14 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
               onBlur={() => {
                 formik.setFieldTouched("company_id", true);
               }}
-              error={
-                formik.touched.company_id &&
-                formik.errors.company_id
-              }
+              error={formik.touched.company_id && formik.errors.company_id}
             />
           </div>
 
           <div className="mb-5">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Plant</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Plant
+            </label>
             <SearchableDropdown
               placeholder={
                 formik.values.company_id
@@ -148,7 +146,7 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
               }
               options={PlantData?.data || []}
               value={formik.values.plant_id}
-              getOptionLabel={(p) => p.plant_name}
+              getOptionLabel={(p) => `${p?.plant_name} (${p?.plant_code})`}
               getOptionValue={(p) => p._id}
               onChange={(val) => {
                 formik.setFieldValue("plant_id", val);
@@ -156,15 +154,15 @@ export default function AddProcessModal({ openModal, setOpenModal, editTable, vi
               onBlur={() => {
                 formik.setFieldTouched("plant_id", true);
               }}
-              error={
-                formik.touched.plant_id &&
-                formik.errors.plant_id
-              }
+              error={formik.touched.plant_id && formik.errors.plant_id}
             />
           </div>
 
-
-          <button disabled={isView} type="submit" className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+          <button
+            disabled={isView}
+            type="submit"
+            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium"
+          >
             {title[mode]}
           </button>
         </form>

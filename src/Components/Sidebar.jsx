@@ -330,7 +330,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
               <div className="p-4 border-t border-gray-200">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg py-3 font-medium shadow-sm transition-all"
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg py-3 font-medium shadow-sm transition-all"
                 >
                   <LogOut size={18} />
                   Logout

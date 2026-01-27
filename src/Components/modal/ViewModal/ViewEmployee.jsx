@@ -28,7 +28,7 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
               Complete employee information (read only)
             </p>
           </div>
- 
+
           <button
             onClick={onClose}
             className="p-2 rounded-full hover:bg-gray-100 transition"
@@ -53,10 +53,11 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
               value={data.designation || data.desigination}
             />
             <Info label="Role" value={data?.userRole?.name} />
-            {
-              data?.is_hod === true ? <Info label="isHod" value="Yes" /> : <Info label="isHod" value="No" />
-            }
-             
+            {data?.is_hod === true ? (
+              <Info label="isHod" value="Yes" />
+            ) : (
+              <Info label="isHod" value="No" />
+            )}
           </ColoredSection>
 
           {/* ORGANIZATION */}
@@ -66,7 +67,10 @@ export default function ViewEmployeeModal({ open, onClose, data }) {
             icon={<Building2 size={18} />}
           >
             <Info label="Company" value={data.company?.company_name} />
-            <Info label="Plant" value={data.plant?.plant_name} />
+            <Info
+              label="Plant"
+              value={`${data?.plant?.plant_name} (${data?.plant?.plant_code})`}
+            />
             <Info label="Department" value={data.department?.name} />
           </ColoredSection>
 

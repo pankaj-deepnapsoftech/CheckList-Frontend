@@ -12,15 +12,14 @@ const AddReleaseGroupModal = ({
   editData = null,
   mode = "add",
 }) => {
-  const { getAllEmployee } = RegisterEmployee();
+  const { getAllEmployee, getAllHODWithUser } = RegisterEmployee();
   const { getAllPlantName } = UsePlantName();
   const { postReleaseGroup, updateReleaseGroup } = useReleaseGroup();
   const [plantOpen, setPlantOpen] = React.useState(false);
   const plantRef = React.useRef(null);
 
-  const USER_OPTIONS = getAllEmployee?.data || [];
+  const USER_OPTIONS = getAllHODWithUser?.data || [];
   const PLANT_OPTIONS = getAllPlantName?.data || [];
-
   const isView = mode === "view";
 
   const titleMap = {

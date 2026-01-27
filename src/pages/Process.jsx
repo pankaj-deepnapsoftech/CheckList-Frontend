@@ -143,7 +143,7 @@ const Process = () => {
                         setViewModal(pro);
                       }}
                     >
-                      <Eye size={18} /> 
+                      <Eye size={18} />
                     </button>
 
                     <button
@@ -181,12 +181,24 @@ const Process = () => {
             <table className="w-full min-w-[700px] text-left whitespace-nowrap">
               <thead>
                 <tr className="bg-gray-100/80 border-b border-gray-200 text-gray-700 text-sm text-center">
-                  <th className="px-5 py-3 font-semibold text-nowrap">Process No.</th>
-                  <th className="px-5 py-3 font-semibold text-nowrap">Process Name</th>
-                  <th className="px-5 py-3 font-semibold text-nowrap">Compnay Name</th>
-                  <th className="px-5 py-3 font-semibold text-nowrap">Plant Name</th>
-                  <th className="px-5 py-3 font-semibold text-nowrap">Created At</th>
-                  <th className="px-5 py-3 font-semibold text-nowrap">Updated At</th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Process No.
+                  </th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Process Name
+                  </th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Compnay Name
+                  </th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Plant Name
+                  </th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Created At
+                  </th>
+                  <th className="px-5 py-3 font-semibold text-nowrap">
+                    Updated At
+                  </th>
                   <th className="px-5 py-3 font-semibold text-center">
                     Actions
                   </th>
@@ -207,10 +219,18 @@ const Process = () => {
                       className="border-b border-gray-200 hover:bg-blue-50/40 transition-all duration-200 text-center"
                     >
                       <td className="px-5 py-4">{pro.process_no}</td>
-                      <td className="px-5 py-4 "><span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">{pro.process_name}</span></td>
+                      <td className="px-5 py-4 ">
+                        <span className="inline-flex items-center justify-center bg-blue-500 text-white px-3 py-1.5 rounded-full text-xs font-medium shadow-sm text-nowrap">
+                          {pro.process_name}
+                        </span>
+                      </td>
 
-                      <td className="px-5 py-4">{pro?.company?.company_name}</td>
-                      <td className="px-5 py-4">{pro?.plant?.plant_name}</td>
+                      <td className="px-5 py-4">
+                        {pro?.company?.company_name}
+                      </td>
+                      <td className="px-5 py-4">
+                        {pro?.plant?.plant_name} ({pro?.plant?.plant_code})
+                      </td>
                       <td className="px-5 py-4">
                         <span className="px-5 py-4 text-nowrap">
                           {formatDateDMY(pro.createdAt)}
