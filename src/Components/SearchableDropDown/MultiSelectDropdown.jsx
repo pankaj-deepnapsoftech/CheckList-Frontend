@@ -171,10 +171,7 @@ const MultiSelectDropdown = ({
               return (
                 <li
                   key={optValue}
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleToggle(optValue);
-                  }}
+                  onClick={() => handleToggle(optValue)}
                   className={`px-4 py-2 cursor-pointer flex items-center gap-2 ${
                     isSelected(optValue)
                       ? "bg-blue-100 text-blue-800"
@@ -184,8 +181,9 @@ const MultiSelectDropdown = ({
                   <input
                     type="checkbox"
                     checked={isSelected(optValue)}
-                    onChange={() => handleToggle(optValue)}
-                    className="w-4 h-4 text-blue-600"
+                    readOnly
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-4 h-4 text-blue-600 pointer-events-none"
                   />
                   <span>{optLabel}</span>
                 </li>
