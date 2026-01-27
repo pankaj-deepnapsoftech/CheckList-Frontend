@@ -28,13 +28,14 @@ export default function TemplateApproveReject() {
           ...t,
           user_id: user?.user_id,
           user_db_id: user?._id,
+          full_name: user?.full_name,
+          email: user?.email,
         })) || [],
     ) || [];
 
   const filteredTemplates = assignedTemplates.filter((t) =>
     t.template_name?.toLowerCase().includes(searchText.toLowerCase()),
   );
-
 
   const formik = useFormik({
     initialValues: {
@@ -125,6 +126,17 @@ export default function TemplateApproveReject() {
                 {template?.template_name}
               </h3>
 
+              <div className="mt-2 mb-3 space-y-1">
+                <p className="text-sm text-gray-700">
+                  <span className="font-medium">Employee:</span>{" "}
+                  {template?.full_name || "N/A"}
+                </p>
+                <p className="text-xs text-gray-600">
+                  <span className="font-medium">Email:</span>{" "}
+                  {template?.email || "N/A"}
+                </p>
+              </div>
+
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
                   {template?.template_type}
@@ -166,7 +178,7 @@ export default function TemplateApproveReject() {
                     setIsApprovalOpen(true);
                     setApprovalTemplate(template);
                   }}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl
+                  className="flex-1 flex items-center justify-center gap-1 rounded-xl
                            bg-gradient-to-r from-emerald-500 to-green-600
                            py-2 text-sm font-medium text-white
                            hover:from-emerald-600 hover:to-green-700"
@@ -177,7 +189,7 @@ export default function TemplateApproveReject() {
 
                 <button
                   onClick={() => handleReject(template.template_id)}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl
+                  className="flex-1 flex items-center justify-center gap-1 rounded-xl
                            bg-gradient-to-r from-rose-500 to-red-600
                            py-2 text-sm font-medium text-white
                            hover:from-rose-600 hover:to-red-700"
