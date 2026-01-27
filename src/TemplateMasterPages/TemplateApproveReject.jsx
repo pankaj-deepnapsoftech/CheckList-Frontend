@@ -1,67 +1,78 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Eye, Search, X } from "lucide-react";
+import { RegisterEmployee } from "../hooks/useRegisterEmployee";
+import { useFormik } from "formik";
 
+const InfoItem = ({ label, value }) => (
+  <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+    <p className="text-xs font-semibold uppercase text-gray-500 mb-1">
+      {label}
+    </p>
+    <p className="text-sm font-medium text-gray-900">{value || "-"}</p>
+  </div>
+);
+
+/* -------------------- Main Component -------------------- */
 export default function TemplateApproveReject() {
-  // Dummy data for pending templates
-  const [templates] = useState([
-    {
-      id: 1,
-      template_name: "Quality Inspection Form",
-      template_type: "NEW",
-      submitted_by: "John Doe",
-      submitted_date: "2026-01-22",
-      fields_count: 8,
-      description: "Form for quality inspection of products",
-    },
-    {
-      id: 2,
-      template_name: "Safety Checklist",
-      template_type: "AMENDMENT",
-      submitted_by: "Jane Smith",
-      submitted_date: "2026-01-23",
-      fields_count: 12,
-      description: "Updated safety checklist with new requirements",
-    },
-    {
-      id: 3,
-      template_name: "Production Report",
-      template_type: "NEW",
-      submitted_by: "Mike Johnson",
-      submitted_date: "2026-01-23",
-      fields_count: 15,
-      description: "Daily production reporting template",
-    },
-    {
-      id: 4,
-      template_name: "Maintenance Log",
-      template_type: "AMENDMENT",
-      submitted_by: "Sarah Williams",
-      submitted_date: "2026-01-24",
-      fields_count: 10,
-      description: "Equipment maintenance tracking form",
-    },
-  ]);
+  const { getAllAssignedTemp, PostHistorTem } = RegisterEmployee();
+  const [approvalTemplate, setApprovalTemplate] = useState(null);
 
   const [searchText, setSearchText] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isApprovalOpen, setIsApprovalOpen] = useState(false);
+  const assignedTemplates =
+    getAllAssignedTemp?.data?.flatMap(
+      (user) =>
+        user?.assigned_templates?.map((t) => ({
+          ...t,
+          user_id: user?.user_id,
+          user_db_id: user?._id,
+        })) || [],
+    ) || [];
 
-  const filteredTemplates = templates.filter((template) =>
-    template.template_name.toLowerCase().includes(searchText.toLowerCase()) ||
-    template.submitted_by.toLowerCase().includes(searchText.toLowerCase())
+  const filteredTemplates = assignedTemplates.filter((t) =>
+    t.template_name?.toLowerCase().includes(searchText.toLowerCase()),
   );
 
-  const handleApprove = (templateId) => {
-    alert(`Template "${templates.find((t) => t.id === templateId)?.template_name}" has been approved!`);
-    // In real implementation, this would call an API
-  };
 
-  const handleReject = (templateId) => {
-    const reason = prompt("Please provide a reason for rejection:");
-    if (reason) {
-      alert(`Template "${templates.find((t) => t.id === templateId)?.template_name}" has been rejected.\nReason: ${reason}`);
-      // In real implementation, this would call an API
+  const formik = useFormik({
+    initialValues: {
+      current_stage: 0,
+      reassign_stage: null,
+      workflow_id: "",
+      status: "",
+      remarks: "",
+      user_id: "",
+      template_id: "",
+    },
+    onSubmit: (values) => {
+      PostHistorTem.mutate(values, {
+        onSuccess: () => {
+          setIsApprovalOpen(false);
+          formik.resetForm();
+        },
+      });
+    },
+  });
+
+  useEffect(() => {
+    if (approvalTemplate) {
+      formik.setValues({
+        current_stage: approvalTemplate?.approvals?.length || 0,
+        reassign_stage: null,
+        workflow_id: approvalTemplate?.workflow?.workflow_id || "",
+        status: "approved",
+        remarks: "",
+        user_id: approvalTemplate?.user_db_id || "",
+        template_id: approvalTemplate?.template_id || "",
+      });
     }
+  }, [approvalTemplate]);
+
+  const handleReject = (id) => {
+    const reason = prompt("Reason for rejection:");
+    if (reason) alert(`Rejected: ${reason}`);
   };
 
   const openViewModal = (template) => {
@@ -70,94 +81,106 @@ export default function TemplateApproveReject() {
   };
 
   const closeViewModal = () => {
-    setIsViewModalOpen(false);
     setSelectedTemplate(null);
+    setIsViewModalOpen(false);
   };
 
   return (
-    <div className="min-h-full bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        {/* Header */}
+        <div className="mb-8 flex flex-col gap-1">
+          <h1 className="text-3xl font-bold tracking-tight text-gray-900">
             Template Approval
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Review and approve or reject template submissions
+          <p className="text-sm text-gray-600">
+            Review, validate, and manage submitted templates
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative max-w-md">
-            <Search
-              className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400"
-              size={20}
-            />
-            <input
-              type="text"
-              placeholder="Search by template name or submitted by..."
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              className="w-full rounded-lg border border-gray-300 bg-white px-10 py-2 pl-10 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-            />
-          </div>
+        {/* Search */}
+        <div className="mb-8 max-w-md relative">
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-400"
+            size={18}
+          />
+          <input
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="Search templates..."
+            className="w-full rounded-xl border border-indigo-100 bg-white px-10 py-2.5 text-sm shadow-sm
+                     focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400"
+          />
         </div>
 
-        {/* Templates Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredTemplates.map((template) => (
+        {/* Template Cards */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {filteredTemplates?.map((template) => (
             <div
-              key={template.id}
-              className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+              key={template.template_id}
+              className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm
+                       transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
-              <div className="mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {template.template_name}
-                </h3>
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
-                    {template.template_type}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                    {template.fields_count} fields
-                  </span>
-                </div>
+              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition">
+                {template?.template_name}
+              </h3>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
+                  {template?.template_type}
+                </span>
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-700">
+                  {Object.keys(template?.submission?.form_data || {}).length}{" "}
+                  fields
+                </span>
               </div>
 
-              <div className="mb-4 space-y-2 text-sm text-gray-600">
-                <div>
-                  <span className="font-medium">Submitted By:</span>{" "}
-                  {template.submitted_by}
-                </div>
-                <div>
-                  <span className="font-medium">Date:</span>{" "}
-                  {template.submitted_date}
-                </div>
-                {template.description && (
-                  <div className="mt-2 text-xs text-gray-500">
-                    {template.description}
-                  </div>
-                )}
+              <div className="mt-4 space-y-1 text-sm text-gray-600">
+                <p>
+                  <span className="font-medium text-gray-800">Status:</span>{" "}
+                  <span className="capitalize">
+                    {template?.submission?.status}
+                  </span>
+                </p>
+                <p>
+                  <span className="font-medium text-gray-800">Submitted:</span>{" "}
+                  {new Date(
+                    template?.submission?.submitted_at,
+                  ).toLocaleString()}
+                </p>
               </div>
 
-              <div className="flex gap-2">
+              <div className="mt-6 flex gap-2">
                 <button
                   onClick={() => openViewModal(template)}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl border
+                           bg-white py-2 text-sm font-medium text-gray-700
+                           hover:bg-indigo-50 hover:text-indigo-700"
                 >
                   <Eye size={16} />
                   View
                 </button>
+
                 <button
-                  onClick={() => handleApprove(template.id)}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
+                  onClick={() => {
+                    setIsApprovalOpen(true);
+                    setApprovalTemplate(template);
+                  }}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl
+                           bg-gradient-to-r from-emerald-500 to-green-600
+                           py-2 text-sm font-medium text-white
+                           hover:from-emerald-600 hover:to-green-700"
                 >
                   <CheckCircle2 size={16} />
                   Approve
                 </button>
+
                 <button
-                  onClick={() => handleReject(template.id)}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white hover:bg-red-700"
+                  onClick={() => handleReject(template.template_id)}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl
+                           bg-gradient-to-r from-rose-500 to-red-600
+                           py-2 text-sm font-medium text-white
+                           hover:from-rose-600 hover:to-red-700"
                 >
                   <XCircle size={16} />
                   Reject
@@ -167,103 +190,150 @@ export default function TemplateApproveReject() {
           ))}
         </div>
 
-        {filteredTemplates.length === 0 && (
-          <div className="rounded-xl border border-gray-200 bg-white p-8 text-center">
-            <p className="text-gray-500">No templates found</p>
+        {filteredTemplates?.length === 0 && (
+          <div className="mt-16 text-center text-gray-500">
+            No templates found
           </div>
         )}
 
-        {/* View Modal */}
         {isViewModalOpen && selectedTemplate && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-3xl rounded-xl bg-white shadow-xl">
-              <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  {selectedTemplate.template_name}
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl">
+              {/* Header */}
+              <div className="flex justify-between items-center border-b px-6 py-4">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {selectedTemplate?.template_name}
                 </h2>
                 <button
                   onClick={closeViewModal}
-                  className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  className="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
                 >
-                  <X size={24} />
+                  <X size={22} />
                 </button>
               </div>
 
-              <div className="p-6">
-                <div className="space-y-4">
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">
-                      Template Type:
-                    </span>{" "}
-                    <span className="text-sm text-gray-900">
-                      {selectedTemplate.template_type}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">
-                      Submitted By:
-                    </span>{" "}
-                    <span className="text-sm text-gray-900">
-                      {selectedTemplate.submitted_by}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">
-                      Submitted Date:
-                    </span>{" "}
-                    <span className="text-sm text-gray-900">
-                      {selectedTemplate.submitted_date}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-sm font-medium text-gray-700">
-                      Total Fields:
-                    </span>{" "}
-                    <span className="text-sm text-gray-900">
-                      {selectedTemplate.fields_count}
-                    </span>
-                  </div>
-                  {selectedTemplate.description && (
-                    <div>
-                      <span className="text-sm font-medium text-gray-700">
-                        Description:
-                      </span>{" "}
-                      <span className="text-sm text-gray-900">
-                        {selectedTemplate.description}
-                      </span>
-                    </div>
-                  )}
+              {/* Body */}
+              <div className="p-6 space-y-6">
+                {/* Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <InfoItem
+                    label="Template Type"
+                    value={selectedTemplate?.template_type}
+                  />
+                  <InfoItem
+                    label="Submission Status"
+                    value={selectedTemplate?.submission?.status}
+                  />
+                  <InfoItem
+                    label="Submitted At"
+                    value={new Date(
+                      selectedTemplate?.submission?.submitted_at,
+                    ).toLocaleString()}
+                  />
+                  <InfoItem
+                    label="Workflow"
+                    value={selectedTemplate?.workflow?.workflow_name}
+                  />
                 </div>
 
-                <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
+                {/* Form Data */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                    Submitted Form Data
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(
+                      selectedTemplate?.submission?.form_data || {},
+                    ).map(([key, value]) => (
+                      <div
+                        key={key}
+                        className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4"
+                      >
+                        <p className="text-xs font-semibold uppercase text-indigo-600 mb-1">
+                          {key}
+                        </p>
+                        <p className="text-sm font-medium text-gray-900">
+                          {String(value)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="flex justify-end gap-3 border-t pt-4">
                   <button
                     onClick={closeViewModal}
-                    className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50"
                   >
                     Close
                   </button>
+
                   <button
                     onClick={() => {
-                      handleReject(selectedTemplate.id);
+                      handleReject(selectedTemplate?.template_id);
                       closeViewModal();
                     }}
-                    className="flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                    className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
                   >
                     <XCircle size={16} />
                     Reject
                   </button>
+
                   <button
                     onClick={() => {
-                      handleApprove(selectedTemplate.id);
+                      handleApprove(selectedTemplate?.template_id);
                       closeViewModal();
                     }}
-                    className="flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+                    className="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
                   >
                     <CheckCircle2 size={16} />
                     Approve
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {isApprovalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                Approval Remarks
+              </h2>
+
+              <form onSubmit={formik.handleSubmit}>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
+                    Remarks
+                  </label>
+                  <textarea
+                    name="remarks"
+                    value={formik.values.remarks}
+                    onChange={formik.handleChange}
+                    rows={4}
+                    placeholder="Enter your remarks here..."
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setIsApprovalOpen(false)}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

@@ -43,8 +43,29 @@ export const RegisterEmployee = (
       return res?.data?.data;
     },
   });
+  const getAllAssignedTemp = useQuery({
+    queryKey: ["get-assign-template"],
+    queryFn: async () => {
+      const res = await axiosHandler.get(`/users/get-assign-template`);
+      return res?.data?.data;
+    },
+  });
 
-
+  const PostHistorTem = useMutation({
+    mutationFn: async (data) => {
+      const res = await axiosHandler.post("/status-history/create", data);
+      return res?.data;
+    },
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ["get-assign-template"] });
+      toast.success(data?.message);
+    },
+    onError: (error) => {
+      toast.error(
+        error?.response?.data?.message,
+      );
+    },
+  });
   const createEmployee = useMutation({
     mutationFn: async (data) => {
       const res = await axiosHandler.post("/users/register-user", data);
@@ -137,5 +158,7 @@ export const RegisterEmployee = (
     AllEmpData,
     getAllHOD,
     getAllHODWithUser,
+    getAllAssignedTemp,
+    PostHistorTem,
   };
 };
