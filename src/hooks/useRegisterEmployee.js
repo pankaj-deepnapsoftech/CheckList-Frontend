@@ -37,7 +37,7 @@ export const RegisterEmployee = (
     },
   });
   const getAllHODWithUser = useQuery({
-    queryKey: ["employees"],
+    queryKey: ["employees-without"],
     queryFn: async () => {
       const res = await axiosHandler.get(`users/get-with-hods-users`);
       return res?.data?.data;
