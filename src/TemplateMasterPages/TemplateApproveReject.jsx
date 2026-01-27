@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Eye, Search, X } from "lucide-react";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useFormik } from "formik";
+import { useLogin } from "../hooks/useLogin";
 
 const InfoItem = ({ label, value }) => (
   <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
@@ -16,7 +17,7 @@ const InfoItem = ({ label, value }) => (
 export default function TemplateApproveReject() {
   const { getAllAssignedTemp, PostHistorTem } = RegisterEmployee();
   const [approvalTemplate, setApprovalTemplate] = useState(null);
-
+  const { logedinUser } = useLogin();
   const [searchText, setSearchText] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -30,12 +31,30 @@ export default function TemplateApproveReject() {
           user_db_id: user?._id,
           full_name: user?.full_name,
           email: user?.email,
+          employee_plant: user?.employee_plant,
         })) || [],
     ) || [];
 
-  const filteredTemplates = assignedTemplates.filter((t) =>
-    t.template_name?.toLowerCase().includes(searchText.toLowerCase()),
-  );
+  const currentUserId = logedinUser?.data?._id;
+
+  const filteredTemplates = assignedTemplates.filter((t) => {
+  
+    if (!t?.template_name?.toLowerCase().includes(searchText.toLowerCase())) {
+      return false;
+    }
+    const currentStage = t?.approvals?.length || 0;
+    const workflowStage = t?.workflow?.workflow?.[currentStage];
+
+    if (!workflowStage) return false;
+    if (workflowStage?.group === "HOD") {
+      return true;
+    }
+
+    const groupUsers = workflowStage?.group_users || [];
+    return groupUsers.some((gu) => gu?.user_id === currentUserId);
+  });
+
+
 
   const formik = useFormik({
     initialValues: {
