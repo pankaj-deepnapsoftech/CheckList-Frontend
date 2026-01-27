@@ -1,7 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Search, Loader2, Eye } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Search, Loader2, Eye, X } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
-import { X,  FileText, MapPin, Clock } from "lucide-react";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All Status" },
@@ -27,9 +26,11 @@ function getStatusBadge(status) {
   switch (status) {
     case "completed":
     case "Approved":
+    case "approved":
       return "bg-green-100 text-green-800";
     case "rejected":
     case "Rejected":
+    case "reject":
       return "bg-red-100 text-red-800";
     case "re-assign":
     case "Re-assign":
@@ -45,94 +46,33 @@ function getStatusBadge(status) {
   }
 }
 
-const getDummyTimelineForTemplate = (templateName) => [
-  {
-    id: 1,
-    type: "Logged In",
-    letter: "L",
-    color: "bg-emerald-500",
-    textColor: "text-emerald-600",
-    time: "Yesterday 10:49 AM",
-    detail:  "Template",
-    subDetail: "Deepnap Softech",
-    hasNotes: true,
-  },
-  {
-    id: 2,
-    type: "Waiting",
-    letter: "W",
-    color: "bg-amber-500",
-    textColor: "text-amber-600",
-    time: "Yesterday 01:46 PM",
-    detail: "Waiting - 2hrs 56m",
-    address: "4A, HSIDC, Sector 31, Faridabad, Haryana 121003, India",
-    timeRange: "(Yesterday 10:49 AM - Yesterday 01:46 PM)",
-  },
-  {
-    id: 3,
-    type: "Waiting",
-    letter: "W",
-    color: "bg-amber-500",
-    textColor: "text-amber-600",
-    time: "Yesterday 02:38 PM",
-    detail: "Waiting - 23 mins",
-    address:
-      "88JX+99W, IMT Main Rd, Sector 69, Faridabad, Haryana 121004, India",
-    timeRange: "(Yesterday 02:15 PM - Yesterday 02:38 PM)",
-  },
-  {
-    id: 4,
-    type: "Waiting",
-    letter: "W",
-    color: "bg-amber-500",
-    textColor: "text-amber-600",
-    time: "Yesterday 02:45 PM",
-    detail: "Waiting - 5 mins",
-    address: "62, Sector 59, Faridabad, Haryana 121004, India",
-    timeRange: "(Yesterday 02:40 PM - Yesterday 02:45 PM)",
-  },
-  {
-    id: 5,
-    type: "Checked In",
-    letter: "C",
-    color: "bg-sky-500",
-    textColor: "text-sky-600",
-    time: "Yesterday 03:02 PM",
-    detail: "Checked In",
-    address:
-      "11/12 Chawla Colony, Ballabhgarh, Faridabad, Haryana 121004, India",
-    hasNotes: true,
-    hasInfo: true,
-  },
-  {
-    id: 6,
-    type: "Checked Out",
-    letter: "C",
-    color: "bg-sky-500",
-    textColor: "text-sky-600",
-    time: "Yesterday 03:07 PM",
-    detail: "Checked Out",
-    address:
-      "11/12 Chawla Colony, Ballabhgarh, Faridabad, Haryana 121004, India",
-  },
-];
+function getWorkflowStatusLabel(status) {
+  if (!status) return "Pending";
+  const s = String(status).toLowerCase();
+  if (s === "approved") return "Approved";
+  if (s === "reject") return "Rejected";
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
-
-function TimelineViewModal({ isOpen, onClose, templateName }) {
+function WorkflowStatusViewModal({
+  isOpen,
+  onClose,
+  templateName,
+  workflowName,
+  chain = [],
+  isLoading,
+  isError,
+  errorMessage,
+}) {
   if (!isOpen) return null;
-
-  const timeline = getDummyTimelineForTemplate(templateName);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
-
-      {/* Modal */}
       <div
         className={`
           relative w-full max-w-3xl max-h-[92vh]
@@ -142,14 +82,14 @@ function TimelineViewModal({ isOpen, onClose, templateName }) {
           flex flex-col overflow-hidden
         `}
       >
-        {/* Sticky Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-white/90 backdrop-blur-md px-6 py-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900 tracking-tight">
-              Activity Timeline
+              Workflow Status
             </h2>
             <p className="text-sm text-gray-600 mt-0.5 font-medium">
               {templateName || "Selected Template"}
+              {workflowName ? ` · ${workflowName}` : ""}
             </p>
           </div>
           <button
@@ -160,110 +100,71 @@ function TimelineViewModal({ isOpen, onClose, templateName }) {
           </button>
         </div>
 
-        {/* Scrollable Timeline */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-          <div className="relative pl-12">
-            {timeline.map((event, index) => {
-              const isFirst = index === 0;
-              const isLast = index === timeline.length - 1;
-
-              return (
-                <div
-                  key={event.id}
-                  className="relative flex gap-6 pb-12 last:pb-0 group"
-                >
-                  {/* Timeline Dot */}
-                  <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
-                    <div
-                      className={`w-5 h-5 rounded-full ${event.color} ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
-                    />
-                  </div>
-
-                  {/* Vertical colored line - connects PREVIOUS dot to CURRENT dot */}
-                  {!isFirst && (
-                    <div
-                      className={`absolute  w-1 ${event.color}  z-10 rounded-full`}
-                      style={{
-                        // Start from center of previous dot
-                        top: "-160px",
-                        // Go all the way to center of current dot
-                        height: "calc(100% + 60px)",
-                        // Use the COLOR OF THE CURRENT DOT (the one below)
-                        // background: event.color.replace("bg-", ""),
-                        // Optional: nice gradient effect
-                        // background: `linear-gradient(to bottom, ${event.color.replace("bg-", "")}cc, ${event.color.replace("bg-", "")}66)`,
-                      }}
-                    />
+        <div className="flex-1 overflow-y-auto p-6">
+          {isLoading && (
+            <div className="flex items-center justify-center gap-2 py-12 text-gray-500">
+              <Loader2 size={24} className="animate-spin" />
+              <span>Loading workflow status…</span>
+            </div>
+          )}
+          {isError && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
+              {errorMessage || "Failed to load workflow status."}
+            </div>
+          )}
+          {!isLoading && !isError && (!chain || chain.length === 0) && (
+            <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-8 text-center text-gray-600">
+              No workflow assigned or no approval steps defined.
+            </div>
+          )}
+          {!isLoading && !isError && chain && chain.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              {chain.map((item, index) => (
+                <React.Fragment key={item.stage_index ?? index}>
+                  {index > 0 && (
+                    <span className="text-gray-400 font-medium select-none" aria-hidden>
+                      →
+                    </span>
                   )}
-
-                  {/* Time Label */}
-                  <div className="w-28 flex-shrink-0 text-right pt-2">
-                    <p className="text-xs font-medium text-gray-500">
-                      {event.time.split(" ")[0]}
-                    </p>
-                    <p className="text-sm font-semibold text-gray-700">
-                      {event.time.split(" ").slice(1).join(" ")}
-                    </p>
-                  </div>
-
-                  {/* Event Card */}
                   <div
                     className={`
-                      flex-1 rounded-xl border border-gray-200/60
-                      bg-white/80 backdrop-blur-sm shadow-sm
-                      p-5 transition-all duration-300
-                      group-hover:shadow-md group-hover:-translate-y-0.5
-                      group-hover:border-blue-200/50 whitespace-nowrap
+                      inline-flex flex-col gap-1 rounded-xl border border-gray-200/60
+                      bg-white shadow-sm px-4 py-3 min-w-[120px]
+                      ${item.type === "HOD" ? "ring-1 ring-blue-200/60" : ""}
                     `}
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${event.color} text-white font-bold shadow-md`}
-                        >
-                          {event.letter}
-                        </div>
-                        <div>
-                          <span className={`font-semibold ${event.textColor}`}>
-                            {event.detail}
-                          </span>
-                          {event.subDetail && (
-                            <p className="text-sm text-gray-600 mt-0.5">
-                              {event.subDetail}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {event.address && (
-                      <div className="mt-3 flex items-start gap-2 text-sm text-gray-600">
-                        <MapPin
-                          size={16}
-                          className="mt-0.5 flex-shrink-0 text-gray-500"
-                        />
-                        <span>{event.address}</span>
-                      </div>
+                    <span
+                      className={`text-xs font-medium uppercase tracking-wider ${
+                        item.type === "HOD" ? "text-blue-600" : "text-gray-600"
+                      }`}
+                    >
+                      {item.type === "HOD" ? "HOD" : "User"}
+                    </span>
+                    <span className="font-semibold text-gray-900 truncate max-w-[160px]" title={item.label}>
+                      {item.label || "—"}
+                    </span>
+                    <span
+                      className={`inline-flex w-fit rounded-lg px-2 py-1 text-xs font-medium ${getStatusBadge(
+                        item.status
+                      )}`}
+                    >
+                      {getWorkflowStatusLabel(item.status)}
+                    </span>
+                    {item.approved_at && (
+                      <span className="text-xs text-gray-500">
+                        {new Date(item.approved_at).toLocaleString()}
+                      </span>
                     )}
-
-                    {event.timeRange && (
-                      <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
-                        <Clock size={14} />
-                        <span>{event.timeRange}</span>
-                      </div>
-                    )}
-
-                    {event.hasNotes && (
-                      <button className="mt-4 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors">
-                        <FileText size={14} />
-                        View Notes
-                      </button>
+                    {item.remarks && (
+                      <p className="text-xs text-gray-600 mt-1 border-t border-gray-100 pt-1" title={item.remarks}>
+                        {item.remarks.length > 40 ? `${item.remarks.slice(0, 40)}…` : item.remarks}
+                      </p>
                     )}
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                </React.Fragment>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -281,11 +182,15 @@ function TimelineViewModal({ isOpen, onClose, templateName }) {
 export default function TemplateStatus() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
 
-  const { templateStatusListQuery } = useTemplateMaster("");
+  const { templateStatusListQuery, workflowStatusQuery } = useTemplateMaster(
+    "",
+    selectedRow?.template_id ?? null
+  );
   const statusList = templateStatusListQuery.data || [];
+  const workflowData = workflowStatusQuery.data;
 
   const filteredData = useMemo(() => {
     const q = (searchQuery || "").trim().toLowerCase();
@@ -443,7 +348,10 @@ export default function TemplateStatus() {
 
                         <td className="px-4 py-3 text-center">
                           <button
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => {
+                              setSelectedRow(r);
+                              setIsModalOpen(true);
+                            }}
                             className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md active:scale-95"
                           >
                             <Eye size={16} />
@@ -456,10 +364,21 @@ export default function TemplateStatus() {
                 </tbody>
               </table>
 
-              <TimelineViewModal
+              <WorkflowStatusViewModal
                 isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                // templateName={templateName}
+                onClose={() => {
+                  setIsModalOpen(false);
+                  setSelectedRow(null);
+                }}
+                templateName={selectedRow?.template_name}
+                workflowName={workflowData?.workflow_name}
+                chain={workflowData?.chain}
+                isLoading={workflowStatusQuery.isLoading}
+                isError={workflowStatusQuery.isError}
+                errorMessage={
+                  workflowStatusQuery.error?.response?.data?.message ||
+                  workflowStatusQuery.error?.message
+                }
               />
             </div>
           )}
