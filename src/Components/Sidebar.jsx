@@ -136,19 +136,34 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
     "/daily-assembly-check",
   ];
 
-  const allowedMenu = IsSuper
-    ? allMenu
-    : allMenu.filter((i) => {
-      // Always show user-specific pages for non-admin users
-      if (i.path && userSpecificPaths.includes(i.path)) {
-        return true;
-      }
-      // For other items (including "My Templates"), check permissions
-      return i.children
-        ? i.children.some((c) => permissions.includes(c.path)) ||
-        permissions.includes(i.path)
-        : permissions.includes(i.path);
-    });
+const allowedMenu = IsSuper
+  ? allMenu
+  : allMenu
+      .map((item) => {
+        if (item?.children) {
+          const allowedChildren = item?.children.filter((child) =>
+            permissions.includes(child?.path),
+          );
+          if (allowedChildren?.length === 0) return null;
+
+          return {
+            ...item,
+            children: allowedChildren,
+          };
+        }
+        if (item?.path && permissions.includes(item?.path)) {
+          return item;
+        }
+        if (item?.path && userSpecificPaths.includes(item?.path)) {
+          return item;
+        }
+
+        return null;
+      })
+      .filter(Boolean);
+
+
+
 
   const handleLogout = () => {
     logOutUser.mutate();
@@ -162,7 +177,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         if (item.children) {
           return (
             <div key={item.name}>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between ">
                 <button
                   onClick={() => toggleMenu(item.name)}
                   className="flex items-center gap-3 p-2 rounded-lg text-gray-700 hover:bg-gray-100 flex-1 whitespace-nowrap"
@@ -182,7 +197,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
               </div>
 
               {openMenu === item.name && (
-                <div className="ml-6 flex flex-col gap-1">
+                <div className="ml-6 flex flex-col gap-1 ">
                   {item.children.map((child) => (
                     <NavLink
                       key={child.name}
@@ -330,7 +345,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
               <div className="p-4 border-t border-gray-200">
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg py-3 font-medium shadow-sm transition-all"
+                  className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg py-3 font-medium shadow-sm transition-all"
                 >
                   <LogOut size={18} />
                   Logout
