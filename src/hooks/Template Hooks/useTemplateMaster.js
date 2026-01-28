@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axiosHandler from "../../config/axiosconfig";
 
-export const useTemplateMaster = (selectedTemplateId) => {
+export const useTemplateMaster = (selectedTemplateId, workflowStatusTemplateId) => {
   const qc = useQueryClient();
 
   const templatesQuery = useQuery({
@@ -26,6 +26,17 @@ export const useTemplateMaster = (selectedTemplateId) => {
     enabled: Boolean(selectedTemplateId),
     queryFn: async () => {
       const res = await axiosHandler.get(`/template-master/templates/${selectedTemplateId}`);
+      return res?.data?.data;
+    },
+  });
+
+  const workflowStatusQuery = useQuery({
+    queryKey: ["template-master", "workflow-status", workflowStatusTemplateId],
+    enabled: Boolean(workflowStatusTemplateId),
+    queryFn: async () => {
+      const res = await axiosHandler.get(
+        `/template-master/templates/${workflowStatusTemplateId}/workflow-status`
+      );
       return res?.data?.data;
     },
   });
@@ -141,6 +152,7 @@ export const useTemplateMaster = (selectedTemplateId) => {
     templatesQuery,
     templateStatusListQuery,
     templateQuery,
+    workflowStatusQuery,
     createTemplate,
     addField,
     updateField,
