@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { Search, Loader2, Eye, X, FileText, MapPin, Clock } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
-import { X,  FileText, MapPin, Clock } from "lucide-react";
+
 
 const STATUS_OPTIONS = [
   { value: "", label: "All Status" },
@@ -134,123 +134,6 @@ function getWorkflowStatusLabel(status) {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-// function WorkflowStatusViewModal({
-//   isOpen,
-//   onClose,
-//   templateName,
-//   workflowName,
-//   chain = [],
-//   isLoading,
-//   isError,
-//   errorMessage,
-// }) {
-//   if (!isOpen) return null;
-
-//   return (
-//     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-//       <div
-//         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-//         onClick={onClose}
-//         aria-hidden="true"
-//       />
-//       <div
-//         className={`
-//           relative w-full max-w-3xl max-h-[92vh]
-//           rounded-2xl border border-white/20
-//           bg-white/80 backdrop-blur-xl shadow-2xl
-//           transition-all duration-300 scale-100 opacity-100
-//           flex flex-col overflow-hidden
-//         `}
-//       >
-//         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-white/90 backdrop-blur-md px-6 py-4">
-//           <div>
-//             <h2 className="text-xl font-bold text-gray-900 tracking-tight">
-//               Workflow Status
-//             </h2>
-//             <p className="text-sm text-gray-600 mt-0.5 font-medium">
-//               {templateName || "Selected Template"}
-//               {workflowName ? ` · ${workflowName}` : ""}
-//             </p>
-//           </div>
-//           <button
-//             onClick={onClose}
-//             className="rounded-full p-2 text-gray-500 hover:bg-gray-100/80 hover:text-gray-700 transition-colors"
-//           >
-//             <X size={22} />
-//           </button>
-//         </div>
-
-//         <div className="flex-1 overflow-y-auto p-6">
-//           {isLoading && (
-//             <div className="flex items-center justify-center gap-2 py-12 text-gray-500">
-//               <Loader2 size={24} className="animate-spin" />
-//               <span>Loading workflow status…</span>
-//             </div>
-//           )}
-//           {isError && (
-//             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
-//               {errorMessage || "Failed to load workflow status."}
-//             </div>
-//           )}
-//           {!isLoading && !isError && (!chain || chain.length === 0) && (
-//             <div className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-8 text-center text-gray-600">
-//               No workflow assigned or no approval steps defined.
-//             </div>
-//           )}
-//           {!isLoading && !isError && chain && chain.length > 0 && (
-//             <div className="flex flex-wrap items-center gap-2">
-//               {chain.map((item, index) => (
-//                 <React.Fragment key={item.stage_index ?? index}>
-//                   {index > 0 && (
-//                     <span className="text-gray-400 font-medium select-none" aria-hidden>
-//                       →
-//                     </span>
-//                   )}
-//                   <div
-//                     className={`
-//                       inline-flex flex-col gap-1 rounded-xl border border-gray-200/60
-//                       bg-white shadow-sm px-4 py-3 min-w-[120px]
-//                       ${item.type === "HOD" ? "ring-1 ring-blue-200/60" : ""}
-//                     `}
-//                   >
-//                     <span
-//                       className={`text-xs font-medium uppercase tracking-wider ${
-//                         item.type === "HOD" ? "text-blue-600" : "text-gray-600"
-//                       }`}
-//                     >
-//                       {item.type === "HOD" ? "HOD" : "User"}
-//                     </span>
-//                     <span className="font-semibold text-gray-900 truncate max-w-[160px]" title={item.label}>
-//                       {item.label || "—"}
-//                     </span>
-//                     <span
-//                       className={`inline-flex w-fit rounded-lg px-2 py-1 text-xs font-medium ${getStatusBadge(
-//                         item.status
-//                       )}`}
-//                     >
-//                       {getWorkflowStatusLabel(item.status)}
-//                     </span>
-//                     {item.approved_at && (
-//                       <span className="text-xs text-gray-500">
-//                         {new Date(item.approved_at).toLocaleString()}
-//                       </span>
-//                     )}
-//                     {item.remarks && (
-//                       <p className="text-xs text-gray-600 mt-1 border-t border-gray-100 pt-1" title={item.remarks}>
-//                         {item.remarks.length > 40 ? `${item.remarks.slice(0, 40)}…` : item.remarks}
-//                       </p>
-//                     )}
-//                   </div>
-//                 </React.Fragment>
-//               ))}
-//             </div>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
 
 
 
@@ -289,7 +172,7 @@ function WorkflowStatusViewModal({
   const timeline = getDummyTimelineForTemplate(templateName);
 
 
-  const workflowItem = ArrayOfWorkFlowData?.[index];
+  const workflowItem = ArrayOfWorkFlowData?.length[0];
   
 const letter =
   workflowItem?.groupDetail?.full_name?.charAt(0)?.toUpperCase() || "?";
@@ -444,77 +327,6 @@ const letter =
   );
 }
 
-const getDummyTimelineForTemplate = (templateName) => [
-  {
-    id: 1,
-    type: "Logged In",
-    letter: "L",
-    color: "bg-emerald-500",
-    textColor: "text-emerald-600",
-    time: "Yesterday 10:49 AM",
-    detail:  "Template",
-    subDetail: "Deepnap Softech",
-    hasNotes: true,
-  },
-  {
-    id: 2,
-    type: "Waiting",
-    letter: "W",
-    color: "bg-amber-500",
-    textColor: "text-amber-600",
-    time: "Yesterday 01:46 PM",
-    detail: "Waiting - 2hrs 56m",
-    address: "4A, HSIDC, Sector 31, Faridabad, Haryana 121003, India",
-    timeRange: "(Yesterday 10:49 AM - Yesterday 01:46 PM)",
-  },
-  {
-    id: 3,
-    type: "Waiting",
-    letter: "W",
-    color: "bg-amber-500",
-    textColor: "text-amber-600",
-    time: "Yesterday 02:38 PM",
-    detail: "Waiting - 23 mins",
-    address:
-      "88JX+99W, IMT Main Rd, Sector 69, Faridabad, Haryana 121004, India",
-    timeRange: "(Yesterday 02:15 PM - Yesterday 02:38 PM)",
-  },
-  {
-    id: 4,
-    type: "Waiting",
-    letter: "W",
-    color: "bg-amber-500",
-    textColor: "text-amber-600",
-    time: "Yesterday 02:45 PM",
-    detail: "Waiting - 5 mins",
-    address: "62, Sector 59, Faridabad, Haryana 121004, India",
-    timeRange: "(Yesterday 02:40 PM - Yesterday 02:45 PM)",
-  },
-  {
-    id: 5,
-    type: "Checked In",
-    letter: "C",
-    color: "bg-sky-500",
-    textColor: "text-sky-600",
-    time: "Yesterday 03:02 PM",
-    detail: "Checked In",
-    address:
-      "11/12 Chawla Colony, Ballabhgarh, Faridabad, Haryana 121004, India",
-    hasNotes: true,
-    hasInfo: true,
-  },
-  {
-    id: 6,
-    type: "Checked Out",
-    letter: "C",
-    color: "bg-sky-500",
-    textColor: "text-sky-600",
-    time: "Yesterday 03:07 PM",
-    detail: "Checked Out",
-    address:
-      "11/12 Chawla Colony, Ballabhgarh, Faridabad, Haryana 121004, India",
-  },
-];
 
 
 function TimelineViewModal({ isOpen, onClose, templateName }) {
