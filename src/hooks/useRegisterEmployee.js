@@ -149,6 +149,15 @@ export const RegisterEmployee = (
     },
   });
 
+
+    const WithoutHodEmpData = useQuery({
+      queryKey: ["get-without-hods"],
+      queryFn: async () => {
+        const res = await axiosHandler.get("/users/get-user-by-hod");
+        return res?.data?.data;
+      },
+    });
+
   return {
     getAllEmployee,
     createEmployee,
@@ -160,5 +169,6 @@ export const RegisterEmployee = (
     getAllHODWithUser,
     getAllAssignedTemp,
     PostHistorTem,
+    WithoutHodEmpData,
   };
 };

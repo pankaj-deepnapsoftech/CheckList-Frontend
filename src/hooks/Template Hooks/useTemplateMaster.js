@@ -2,7 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axiosHandler from "../../config/axiosconfig";
 
-export const useTemplateMaster = (selectedTemplateId) => {
+export const useTemplateMaster = (
+  selectedTemplateId,
+  workflowStatusTemplateId,
+  workflowStatusAssignedUserId
+) => {
   const qc = useQueryClient();
 
   const templatesQuery = useQuery({
@@ -26,6 +30,24 @@ export const useTemplateMaster = (selectedTemplateId) => {
     enabled: Boolean(selectedTemplateId),
     queryFn: async () => {
       const res = await axiosHandler.get(`/template-master/templates/${selectedTemplateId}`);
+      return res?.data?.data;
+    },
+  });
+
+  const workflowStatusQuery = useQuery({
+    queryKey: [
+      "template-master",
+      "workflow-status",
+      workflowStatusTemplateId,
+      workflowStatusAssignedUserId || "",
+    ],
+    enabled: Boolean(workflowStatusTemplateId),
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (workflowStatusAssignedUserId) params.set("assigned_user_id", workflowStatusAssignedUserId);
+      const qs = params.toString();
+      const url = `/template-master/templates/${workflowStatusTemplateId}/workflow-status${qs ? `?${qs}` : ""}`;
+      const res = await axiosHandler.get(url);
       return res?.data?.data;
     },
   });
@@ -137,10 +159,25 @@ export const useTemplateMaster = (selectedTemplateId) => {
     },
   });
 
+
+
+      const getTemplateStatusData = useQuery({
+        queryKey: ["get-template-data-status"],
+        queryFn: async () => {
+          const res = await axiosHandler.get(
+            "/template-master/template-status",
+          );
+          return res?.data?.data;
+        },
+      });
+
+
+
   return {
     templatesQuery,
     templateStatusListQuery,
     templateQuery,
+    workflowStatusQuery,
     createTemplate,
     addField,
     updateField,
@@ -148,6 +185,7 @@ export const useTemplateMaster = (selectedTemplateId) => {
     updateTemplate,
     deleteTemplate,
     assignWorkflow,
+    getTemplateStatusData,
   };
 };
 

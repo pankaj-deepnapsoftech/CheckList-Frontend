@@ -28,6 +28,7 @@ import ReleaseGroups from "../TemplateMasterPages/ReleaseGroups";
 import ManageWorkflow from "../TemplateMasterPages/ManageWorkflow";
 import PlcLiveData from "../pages/PlcLiveData";
 import PlcStoppage from "../pages/PlcStoppage";
+import PlcProducts from "../pages/PlcProducts";
 import ManageDocument from "../TemplateMasterPages/ManageDocument";
 import AssignedTemplates from "../TemplateMasterPages/AssignedTemplates";
 import TemplateStatus from "../TemplateMasterPages/TemplateStatus";
@@ -68,7 +69,7 @@ export const AppRoute = () => {
     { path: "/template-master", element:withProtection(TemplateMaster) },
     { path: "/template-status", element: withProtection(TemplateStatus) },
     { path: "/template-approve-reject", element:withProtection(TemplateApproveReject) },
-    { path: "/template-module-history", element:withProtection(TemplateModuleHistory) },
+    // { path: "/template-module-history", element:withProtection(TemplateModuleHistory) },
     { path: "/workflow", element:withProtection(ManageWorkflow) },
     { path: "/document-management", element:withProtection(ManageDocument) },
     
@@ -79,6 +80,10 @@ export const AppRoute = () => {
     {
       path: "/plc-data/live",
       element: withProtection(PlcLiveData),
+    },
+    {
+      path: "/plc-data/products",
+      element: withProtection(PlcProducts),
     },
     {
       path: "/plc-data/stoppage",
