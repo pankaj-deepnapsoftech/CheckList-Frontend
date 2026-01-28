@@ -62,7 +62,7 @@ export const RegisterEmployee = (
     },
     onError: (error) => {
       toast.error(
-        error?.response?.data?.message,
+        error?.response?.data?.message || "Failed to submit",
       );
     },
   });

@@ -17,11 +17,13 @@ const InfoItem = ({ label, value }) => (
 export default function TemplateApproveReject() {
   const { getAllAssignedTemp, PostHistorTem } = RegisterEmployee();
   const [approvalTemplate, setApprovalTemplate] = useState(null);
+  const [rejectionTemplate, setRejectionTemplate] = useState(null)
   const { logedinUser } = useLogin();
   const [searchText, setSearchText] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isApprovalOpen, setIsApprovalOpen] = useState(false);
+  const [isRejectionOpen, setIsRejectionOpen] = useState(false);
   const assignedTemplates =
     getAllAssignedTemp?.data?.flatMap(
       (user) =>
@@ -67,9 +69,13 @@ export default function TemplateApproveReject() {
       template_id: "",
     },
     onSubmit: (values) => {
+        console.log("SUBMIT PAYLOAD", values);
       PostHistorTem.mutate(values, {
         onSuccess: () => {
           setIsApprovalOpen(false);
+          setIsRejectionOpen(false);
+          setApprovalTemplate(null);
+          setRejectionTemplate(null);
           formik.resetForm();
         },
       });
@@ -89,6 +95,20 @@ export default function TemplateApproveReject() {
       });
     }
   }, [approvalTemplate]);
+
+  useEffect(() => {
+    if (rejectionTemplate) {
+      formik.setValues({
+        current_stage: rejectionTemplate?.approvals?.length || 0,
+        reassign_stage: null,
+        workflow_id: rejectionTemplate?.workflow?.workflow_id || "",
+        status: "rejected",
+        remarks: "",
+        user_id: rejectionTemplate?.user_db_id || "",
+        template_id: rejectionTemplate?.template_id || "",
+      });
+    }
+  }, [rejectionTemplate]);
 
   const handleReject = (id) => {
     const reason = prompt("Reason for rejection:");
@@ -207,7 +227,11 @@ export default function TemplateApproveReject() {
                 </button>
 
                 <button
-                  onClick={() => handleReject(template.template_id)}
+                  onClick={() => {
+                    setIsRejectionOpen(true);
+                    setRejectionTemplate(template);
+                    //  handleReject(template.template_id)
+                  }}
                   className="flex-1 flex items-center justify-center gap-1 rounded-xl
                            bg-gradient-to-r from-rose-500 to-red-600
                            py-2 text-sm font-medium text-white
@@ -331,7 +355,7 @@ export default function TemplateApproveReject() {
         {isApprovalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              <h2 className="text-xl font-semibold text-green-600 mb-4">
                 Approval Remarks
               </h2>
 
@@ -352,7 +376,50 @@ export default function TemplateApproveReject() {
 
                 <div className="flex justify-end gap-3">
                   <button
+                    type="button"
                     onClick={() => setIsApprovalOpen(false)}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {isRejectionOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
+              <h2 className="text-xl font-semibold text-red-600 mb-4">
+                Rejection Remarks
+              </h2>
+
+              <form onSubmit={formik.handleSubmit}>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
+                    Remarks
+                  </label>
+                  <textarea
+                    name="remarks"
+                    value={formik.values.remarks}
+                    onChange={formik.handleChange}
+                    rows={4}
+                    placeholder="Enter your remarks here..."
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsRejectionOpen(false)}
                     className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
                     Cancel
