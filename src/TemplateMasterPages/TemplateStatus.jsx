@@ -146,50 +146,50 @@ function WorkflowStatusViewModal({
   workflowName,
   ArrayOfWorkFlowData,
 }) {
-
-  console.log("this is my get work flow data", ArrayOfWorkFlowData);
-
   const isoDate = WorkFlowDate;
-
   const date = new Date(isoDate);
-
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();
-
   let hours = date.getHours();
   const minutes = String(date.getMinutes()).padStart(2, "0");
-
   const ampm = hours >= 12 ? "pm" : "am";
-  hours = hours % 12 || 12; // 0 ko 12 banane ke liye
-
-  const WorkflowDate = `${day}-${month}-${year}`;
-
-  const WorkflowTime = `${hours}:${minutes} ${ampm}`;
+  hours = hours % 12 || 12;
+  const formattedWorkflowDate = `${day}-${month}-${year}`;
+  const formattedWorkflowTime = `${hours}:${minutes} ${ampm}`;
 
   if (!isOpen) return null;
 
-  const timeline = getDummyTimelineForTemplate(templateName);
+  // Use real workflow steps when available; approval length 0 => status "Pending"
+  const workflowSteps = Array.isArray(ArrayOfWorkFlowData) && ArrayOfWorkFlowData.length > 0
+    ? ArrayOfWorkFlowData
+    : [];
 
+  const getStepStatus = (step) => {
+    if (!step.approvals || step.approvals.length === 0) return "Pending";
+    const first = step.approvals[0];
+    const status = first?.status;
+    if (!status) return "Pending";
+    return getWorkflowStatusLabel(status);
+  };
 
-  const workflowItem = ArrayOfWorkFlowData?.length[0];
-  
-const letter =
-  workflowItem?.groupDetail?.full_name?.charAt(0)?.toUpperCase() || "?";
-
-  const detail =
-    workflowItem?.approvals?.length === 0 ? "Pending" : event.detail;
+  const getStepStatusBadgeClass = (step) => {
+    if (!step.approvals || step.approvals.length === 0) return "bg-yellow-100 text-yellow-800";
+    const status = (step.approvals[0]?.status || "").toLowerCase();
+    if (status === "approved" || status === "completed") return "bg-green-100 text-green-800";
+    if (status === "reject" || status === "rejected") return "bg-red-100 text-red-800";
+    if (status === "re-assign") return "bg-orange-100 text-orange-800";
+    if (status === "in-progress") return "bg-blue-100 text-blue-800";
+    return "bg-gray-100 text-gray-800";
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
-
-      {/* Modal */}
       <div
         className={`
           relative w-full max-w-3xl max-h-[92vh]
@@ -199,7 +199,6 @@ const letter =
           flex flex-col overflow-hidden
         `}
       >
-        {/* Sticky Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-white/90 backdrop-blur-md px-6 py-4">
           <div>
             <h2 className="text-xl font-bold text-gray-900 tracking-tight">
@@ -217,109 +216,82 @@ const letter =
           </button>
         </div>
 
-        {/* Scrollable Timeline */}
         <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
           <div className="relative pl-12">
-            {timeline.map((event, index) => {
-              const isFirst = index === 0;
-              const isLast = index === timeline.length - 1;
+            {workflowSteps.length === 0 ? (
+              <p className="text-sm text-gray-500 py-4">No workflow steps to show.</p>
+            ) : (
+              workflowSteps.map((step, index) => {
+                const isFirst = index === 0;
+                const stepStatus = getStepStatus(step);
+                const badgeClass = getStepStatusBadgeClass(step);
+                const label = step.group_name || step.group || "Stage";
+                const letter = (step.groupDetail?.full_name?.charAt(0) || label?.charAt(0) || "?").toUpperCase();
+                const isPending = !step.approvals || step.approvals.length === 0;
 
-              return (
-                <div
-                  key={event.id}
-                  className="relative flex gap-6 pb-12 last:pb-0 group"
-                >
-                  {/* Timeline Dot */}
-                  <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
-                    <div
-                      className={`w-5 h-5 rounded-full ${event.color} ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
-                    />
-                  </div>
-
-                  {/* Vertical colored line - connects PREVIOUS dot to CURRENT dot */}
-                  {!isFirst && (
-                    <div
-                      className={`absolute  w-1 ${event.color}  z-10 rounded-full`}
-                      style={{
-                        // Start from center of previous dot
-                        top: "-160px",
-                        // Go all the way to center of current dot
-                        height: "calc(100% + 60px)",
-                        // Use the COLOR OF THE CURRENT DOT (the one below)
-                        // background: event.color.replace("bg-", ""),
-                        // Optional: nice gradient effect
-                        // background: `linear-gradient(to bottom, ${event.color.replace("bg-", "")}cc, ${event.color.replace("bg-", "")}66)`,
-                      }}
-                    />
-                  )}
-
-                  {/* Time Label */}
-                  <div className="w-28 flex-shrink-0 text-right pt-2">
-                    <p className="text-xs font-medium text-gray-500">
-                      {WorkflowDate}
-                    </p>
-                    <p className="text-sm font-semibold text-gray-700">
-                      {WorkflowTime}
-                    </p>
-                  </div>
-
-                  {/* Event Card */}
+                return (
                   <div
-                    className={`
-                      flex-1 rounded-xl border border-gray-200/60
-                      bg-white/80 backdrop-blur-sm shadow-sm
-                      p-5 transition-all duration-300
-                      group-hover:shadow-md group-hover:-translate-y-0.5
-                      group-hover:border-blue-200/50 whitespace-nowrap
-                    `}
+                    key={`${index}-${label}`}
+                    className="relative flex gap-6 pb-12 last:pb-0 group"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${event.color} text-white font-bold shadow-md`}
-                        >
-                          {letter}
-                        </div>
-                        <div>
-                          <span className={`font-semibold ${event.textColor}`}>
-                            {detail}
-                          </span>
-                          {event.subDetail && (
-                            <p className="text-sm text-gray-600 mt-0.5">
-                              {event.subDetail}
-                            </p>
-                          )}
-                        </div>
-                      </div>
+                    <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
+                      <div
+                        className={`w-5 h-5 rounded-full ${isPending ? "bg-amber-500" : "bg-sky-500"} ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
+                      />
+                    </div>
+                    {!isFirst && (
+                      <div
+                        className="absolute w-1 bg-gray-200 z-10 rounded-full"
+                        style={{ top: "-160px", height: "calc(100% + 60px)" }}
+                      />
+                    )}
+
+                    <div className="w-28 flex-shrink-0 text-right pt-2">
+                      <p className="text-xs font-medium text-gray-500">{formattedWorkflowDate}</p>
+                      <p className="text-sm font-semibold text-gray-700">{formattedWorkflowTime}</p>
                     </div>
 
-                    {event.address && (
-                      <div className="mt-3 flex items-start gap-2 text-sm text-gray-600">
-                        <MapPin
-                          size={16}
-                          className="mt-0.5 flex-shrink-0 text-gray-500"
-                        />
-                        <span>{event.address}</span>
+                    <div
+                      className="flex-1 rounded-xl border border-gray-200/60 bg-white/80 backdrop-blur-sm shadow-sm p-5 transition-all duration-300 group-hover:shadow-md group-hover:-translate-y-0.5 group-hover:border-blue-200/50 whitespace-nowrap"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`flex h-10 w-10 items-center justify-center rounded-lg ${isPending ? "bg-amber-500" : "bg-sky-500"} text-white font-bold shadow-md`}
+                          >
+                            {letter}
+                          </div>
+                          <div>
+                            <span className="font-semibold text-gray-800">
+                              {label}
+                            </span>
+                            {step.group_department && (
+                              <p className="text-sm text-gray-600 mt-0.5">{step.group_department}</p>
+                            )}
+                          </div>
+                        </div>
+                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass}`}>
+                          {stepStatus}
+                        </span>
                       </div>
-                    )}
-
-                    {event.timeRange && (
-                      <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
-                        <Clock size={14} />
-                        <span>{event.timeRange}</span>
-                      </div>
-                    )}
-
-                    {event.hasNotes && (
-                      <button className="mt-4 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors">
-                        <FileText size={14} />
-                        View Notes
-                      </button>
-                    )}
+                      {/* Remarks - from approvals */}
+                      {step.approvals?.length > 0 && (
+                        <div className="mt-3 flex items-start gap-2 rounded-lg bg-gray-50 border border-gray-100 px-3 py-2">
+                          <FileText size={14} className="mt-0.5 flex-shrink-0 text-gray-500" />
+                          <div className="text-sm text-gray-700 min-w-0">
+                            <span className="font-medium text-gray-600">Remarks: </span>
+                            {step.approvals
+                              .map((a) => a?.remarks)
+                              .filter(Boolean)
+                              .join(" · ") || <span className="text-gray-500 italic">—</span>}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </div>
       </div>
