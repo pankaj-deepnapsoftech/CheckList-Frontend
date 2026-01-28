@@ -21,7 +21,7 @@ const FIELD_TYPES = [
 const TEMPLATE_TYPES = [
   { label: "New", value: "NEW" },
   { label: "Amendment", value: "AMENDMENT" },
-];
+];  
 
 export default function TemplateMaster() {
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
@@ -671,7 +671,7 @@ export default function TemplateMaster() {
                         >
                           <WorkflowIcon size={18} />
                         </button>
-                        <button
+                        {/* <button
                           onClick={(e) => {
                             e.stopPropagation();
                             if (
@@ -695,7 +695,7 @@ export default function TemplateMaster() {
                           title="Delete Template"
                         >
                           <Trash2 size={18} />
-                        </button>
+                        </button> */}
                       </div>
                     </div>
                   ))
