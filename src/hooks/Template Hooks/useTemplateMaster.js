@@ -2,7 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axiosHandler from "../../config/axiosconfig";
 
-export const useTemplateMaster = (selectedTemplateId, workflowStatusTemplateId) => {
+export const useTemplateMaster = (
+  selectedTemplateId,
+  workflowStatusTemplateId,
+  workflowStatusAssignedUserId
+) => {
   const qc = useQueryClient();
 
   const templatesQuery = useQuery({
@@ -31,12 +35,19 @@ export const useTemplateMaster = (selectedTemplateId, workflowStatusTemplateId) 
   });
 
   const workflowStatusQuery = useQuery({
-    queryKey: ["template-master", "workflow-status", workflowStatusTemplateId],
+    queryKey: [
+      "template-master",
+      "workflow-status",
+      workflowStatusTemplateId,
+      workflowStatusAssignedUserId || "",
+    ],
     enabled: Boolean(workflowStatusTemplateId),
     queryFn: async () => {
-      const res = await axiosHandler.get(
-        `/template-master/templates/${workflowStatusTemplateId}/workflow-status`
-      );
+      const params = new URLSearchParams();
+      if (workflowStatusAssignedUserId) params.set("assigned_user_id", workflowStatusAssignedUserId);
+      const qs = params.toString();
+      const url = `/template-master/templates/${workflowStatusTemplateId}/workflow-status${qs ? `?${qs}` : ""}`;
+      const res = await axiosHandler.get(url);
       return res?.data?.data;
     },
   });
