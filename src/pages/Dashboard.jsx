@@ -51,13 +51,13 @@ const ASSEMBLY_BAR = [
 /* ---------------- Helpers ---------------- */
 
 function getMinMax(arr, key) {
-  const vals = arr.map((r) => r[key]);
+  const vals = arr?.map((r) => r[key]);
   return [Math.min(...vals), Math.max(...vals)];
 }
 
 // eslint-disable-next-line no-unused-vars
 function toPolylinePoints(data, key, width = 700, height = 150, pad = 24) {
-  const count = data.length;
+  const count = data?.length;
   const stepX = (width - pad * 2) / Math.max(1, count - 1);
   const [min, max] = getMinMax(data, key);
   const range = Math.max(1, max - min);
@@ -459,7 +459,6 @@ export default function ChecklistDashboard() {
       const issueStatus = item.error ? "ERROR" : "NO-ISSUE";
 
       const resolutionStatus = item.error ? "OPEN" : "RESOLVED";
-    console.log(item)
       return { 
         id: item._id,
         date: new Date(item.createdAt).toLocaleDateString(),
@@ -540,7 +539,6 @@ export default function ChecklistDashboard() {
   const openErrors = data?.summary?.stillErrorAssemblies || 0;
   const resolvedErrors = data?.summary?.resolvedAssemblies || 0;
   const totalErrors = openErrors + resolvedErrors;
-  // console.log(data?.summary)
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">

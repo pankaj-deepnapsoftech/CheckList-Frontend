@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { ArrowUp, ArrowDown, Loader2 } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
+import { usePlcProduct } from "../hooks/usePlcProduct";
 
 function SummaryCard({ card }) {
   const isUpTrend = card.trend === "up";
@@ -41,7 +42,7 @@ function SummaryCard({ card }) {
   );
 }
 
-function PlcMachineCard({ machine }) {
+function PlcMachineCard({ machine, products = [] }) {
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -65,6 +66,31 @@ function PlcMachineCard({ machine }) {
           <p className="text-xs text-gray-500 mt-0.5">Model: {machine.model || "N/A"}</p>
         </div>
       </div>
+
+      {/* Product fields (MATERIAL_CODE, PART_NO, MODEL_CODE) for this machine */}
+      {products.length > 0 && (
+        <div className="rounded-lg bg-slate-50 border border-slate-200 p-2 space-y-1.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+            Products on this machine
+          </p>
+          {products.map((p, i) => (
+            <div key={p._id || i} className="text-xs space-y-0.5 border-b border-slate-200 last:border-0 last:pb-0 pb-1.5 last:pb-0">
+              <p className="text-gray-700">
+                <span className="text-gray-500">Material Code:</span>{" "}
+                <span className="font-medium">{p.material_code || "—"}</span>
+              </p>
+              <p className="text-gray-700">
+                <span className="text-gray-500">Part No:</span>{" "}
+                <span className="font-medium">{p.part_no || "—"}</span>
+              </p>
+              <p className="text-gray-700">
+                <span className="text-gray-500">Model Code:</span>{" "}
+                <span className="font-medium">{p.model_code || "—"}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-2 text-xs mt-1">
         <div className="space-y-1">
@@ -120,7 +146,9 @@ export default function PlcLiveData() {
   }, [selectedDevice, selectedModel]);
 
   const { getAllPlcData } = usePlcData(filters);
+  const { getAllPlcProducts } = usePlcProduct({});
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
+  const productsList = getAllPlcProducts.data || [];
 
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
@@ -184,6 +212,18 @@ export default function PlcLiveData() {
 
     return Array.from(deviceMap.values());
   }, [plcDataList]);
+
+  // Products grouped by machine_name (device_id) for machine cards
+  const productsByMachine = useMemo(() => {
+    const map = {};
+    productsList.forEach((p) => {
+      const key = (p.machine_name || "").trim();
+      if (!key) return;
+      if (!map[key]) map[key] = [];
+      map[key].push(p);
+    });
+    return map;
+  }, [productsList]);
 
   // Get unique devices and models for filters
   const uniqueDevices = useMemo(() => {
@@ -482,7 +522,11 @@ export default function PlcLiveData() {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {latestPerDevice.map((machine, index) => (
-                <PlcMachineCard key={machine._id || index} machine={machine} />
+                <PlcMachineCard
+                  key={machine._id || index}
+                  machine={machine}
+                  products={productsByMachine[machine.device_id] || []}
+                />
               ))}
             </div>
           )}

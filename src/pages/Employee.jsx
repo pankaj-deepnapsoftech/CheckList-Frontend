@@ -98,10 +98,9 @@ const Employee = () => {
 
       {/* Search + Buttons */}
       <div className="bg-white rounded-xl shadow p-4">
-        <div className="flex items-center justify-between gap-4 flex-nowrap min-h-[72px]">
-
-          {/* Search Box */}
-          <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+          {/* Left side: Search + Filters */}
+          <div className="flex flex-col gap-3 w-full">
             {/* Search */}
             <div className="flex items-center gap-3 w-full sm:max-w-[300px] border border-gray-200 rounded-lg px-3 py-2">
               <Search size={20} className="text-gray-500" />
@@ -114,12 +113,14 @@ const Employee = () => {
               />
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {/* Filters */}
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
               {/* Company Filter */}
               <select
                 value={selectedCompany}
                 onChange={(e) => setSelectedCompany(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-auto
+                     focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               >
                 <option value="">All Companies</option>
                 {companyOptions.map((company) => (
@@ -130,29 +131,25 @@ const Employee = () => {
               </select>
 
               {/* Plant Filter */}
-              <div className="w-[220px] max-w-[220px]">
-                <select
-                  value={selectedPlant}
-                  onChange={(e) => setSelectedPlant(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2
-               whitespace-nowrap overflow-hidden text-ellipsis
-               focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-
-                  <option value="">All Plants</option>
-                  {plantOptions.map((plant, i) => (
-                    <option key={i} value={plant?._id}>
-                      {plant?.plant_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <select
+                value={selectedPlant}
+                onChange={(e) => setSelectedPlant(e.target.value)}
+                className="border border-gray-300 rounded-lg px-3 py-2 text-gray-700 w-full sm:w-[220px]
+                     whitespace-nowrap overflow-hidden text-ellipsis
+                     focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">All Plants</option>
+                {plantOptions.map((plant, i) => (
+                  <option key={i} value={plant?._id}>
+                    {plant?.plant_name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* Buttons */}
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-
+          {/* Right side: Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             {/* Add Employee */}
             <button
               onClick={() => {
@@ -160,13 +157,9 @@ const Employee = () => {
                 setSelectedEmployee(null);
                 setModalOpen(true);
               }}
-              className="
-      flex items-center justify-center gap-2
-      h-[44px] px-5
-      bg-blue-500 text-white rounded-lg
-      hover:bg-blue-600 transition
-      w-full sm:w-auto
-    "
+              className="flex items-center justify-center gap-2 h-[44px] px-5
+                   bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition
+                   w-full sm:w-auto"
             >
               <Plus size={18} />
               <span className="whitespace-nowrap">Add New Employee</span>
@@ -175,20 +168,14 @@ const Employee = () => {
             {/* Refresh */}
             <button
               onClick={handleRefresh}
-              className="
-      flex items-center justify-center gap-2
-      h-[44px] px-4
-      border border-gray-200 rounded-lg
-      text-gray-700 hover:bg-gray-100 transition
-      w-[44px] sm:w-auto
-    "
+              className="flex items-center justify-center gap-2 h-[44px] px-4
+                   border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-100 transition
+                   w-full "
             >
               <RefreshCw size={18} />
-              <span className="hidden sm:inline">Refresh</span>
+              <span >Refresh</span>
             </button>
-
           </div>
-
         </div>
       </div>
 
@@ -336,10 +323,11 @@ const Employee = () => {
                   filteredEmployees.map((emp, i) => (
                     <tr
                       key={i}
-                      className={`border-b border-gray-200 transition ${emp.terminate
-                        ? "opacity-50 bg-gray-50"
-                        : "hover:bg-blue-50/40"
-                        }`}
+                      className={`border-b border-gray-200 transition ${
+                        emp.terminate
+                          ? "opacity-50 bg-gray-50"
+                          : "hover:bg-blue-50/40"
+                      }`}
                     >
                       <td className="px-5 py-4 whitespace-nowrap">
                         {emp.user_id || "N/A"}
