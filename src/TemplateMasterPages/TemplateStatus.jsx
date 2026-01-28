@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from "react";
-import { Search, Loader2, Eye, X } from "lucide-react";
+import React, { useEffect, useMemo, useState } from "react";
+import { Search, Loader2, Eye } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
+import { X,  FileText, MapPin, Clock } from "lucide-react";
 
 const STATUS_OPTIONS = [
   { value: "", label: "All Status" },
@@ -65,41 +66,22 @@ function WorkflowStatusViewModal({
   errorMessage,
 }) {
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      <div
-        className={`
-          relative w-full max-w-3xl max-h-[92vh]
-          rounded-2xl border border-white/20
-          bg-white/80 backdrop-blur-xl shadow-2xl
-          transition-all duration-300 scale-100 opacity-100
-          flex flex-col overflow-hidden
-        `}
-      >
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} aria-hidden="true" />
+      <div className="relative w-full max-w-3xl max-h-[92vh] rounded-2xl border border-white/20 bg-white/80 backdrop-blur-xl shadow-2xl flex flex-col overflow-hidden">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-white/90 backdrop-blur-md px-6 py-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900 tracking-tight">
-              Workflow Status
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900 tracking-tight">Workflow Status</h2>
             <p className="text-sm text-gray-600 mt-0.5 font-medium">
               {templateName || "Selected Template"}
               {workflowName ? ` · ${workflowName}` : ""}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-full p-2 text-gray-500 hover:bg-gray-100/80 hover:text-gray-700 transition-colors"
-          >
+          <button onClick={onClose} className="rounded-full p-2 text-gray-500 hover:bg-gray-100/80 hover:text-gray-700">
             <X size={22} />
           </button>
         </div>
-
         <div className="flex-1 overflow-y-auto p-6">
           {isLoading && (
             <div className="flex items-center justify-center gap-2 py-12 text-gray-500">
@@ -121,39 +103,21 @@ function WorkflowStatusViewModal({
             <div className="flex flex-wrap items-center gap-2">
               {chain.map((item, index) => (
                 <React.Fragment key={item.stage_index ?? index}>
-                  {index > 0 && (
-                    <span className="text-gray-400 font-medium select-none" aria-hidden>
-                      →
-                    </span>
-                  )}
+                  {index > 0 && <span className="text-gray-400 font-medium select-none">→</span>}
                   <div
-                    className={`
-                      inline-flex flex-col gap-1 rounded-xl border border-gray-200/60
-                      bg-white shadow-sm px-4 py-3 min-w-[120px]
-                      ${item.type === "HOD" ? "ring-1 ring-blue-200/60" : ""}
-                    `}
+                    className={`inline-flex flex-col gap-1 rounded-xl border border-gray-200/60 bg-white shadow-sm px-4 py-3 min-w-[120px] ${item.type === "HOD" ? "ring-1 ring-blue-200/60" : ""}`}
                   >
-                    <span
-                      className={`text-xs font-medium uppercase tracking-wider ${
-                        item.type === "HOD" ? "text-blue-600" : "text-gray-600"
-                      }`}
-                    >
+                    <span className={`text-xs font-medium uppercase tracking-wider ${item.type === "HOD" ? "text-blue-600" : "text-gray-600"}`}>
                       {item.type === "HOD" ? "HOD" : "User"}
                     </span>
                     <span className="font-semibold text-gray-900 truncate max-w-[160px]" title={item.label}>
                       {item.label || "—"}
                     </span>
-                    <span
-                      className={`inline-flex w-fit rounded-lg px-2 py-1 text-xs font-medium ${getStatusBadge(
-                        item.status
-                      )}`}
-                    >
+                    <span className={`inline-flex w-fit rounded-lg px-2 py-1 text-xs font-medium ${getStatusBadge(item.status)}`}>
                       {getWorkflowStatusLabel(item.status)}
                     </span>
                     {item.approved_at && (
-                      <span className="text-xs text-gray-500">
-                        {new Date(item.approved_at).toLocaleString()}
-                      </span>
+                      <span className="text-xs text-gray-500">{new Date(item.approved_at).toLocaleString()}</span>
                     )}
                     {item.remarks && (
                       <p className="text-xs text-gray-600 mt-1 border-t border-gray-100 pt-1" title={item.remarks}>
@@ -165,6 +129,231 @@ function WorkflowStatusViewModal({
               ))}
             </div>
           )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const getDummyTimelineForTemplate = (templateName) => [
+  {
+    id: 1,
+    type: "Logged In",
+    letter: "L",
+    color: "bg-emerald-500",
+    textColor: "text-emerald-600",
+    time: "Yesterday 10:49 AM",
+    detail:  "Template",
+    subDetail: "Deepnap Softech",
+    hasNotes: true,
+  },
+  {
+    id: 2,
+    type: "Waiting",
+    letter: "W",
+    color: "bg-amber-500",
+    textColor: "text-amber-600",
+    time: "Yesterday 01:46 PM",
+    detail: "Waiting - 2hrs 56m",
+    address: "4A, HSIDC, Sector 31, Faridabad, Haryana 121003, India",
+    timeRange: "(Yesterday 10:49 AM - Yesterday 01:46 PM)",
+  },
+  {
+    id: 3,
+    type: "Waiting",
+    letter: "W",
+    color: "bg-amber-500",
+    textColor: "text-amber-600",
+    time: "Yesterday 02:38 PM",
+    detail: "Waiting - 23 mins",
+    address:
+      "88JX+99W, IMT Main Rd, Sector 69, Faridabad, Haryana 121004, India",
+    timeRange: "(Yesterday 02:15 PM - Yesterday 02:38 PM)",
+  },
+  {
+    id: 4,
+    type: "Waiting",
+    letter: "W",
+    color: "bg-amber-500",
+    textColor: "text-amber-600",
+    time: "Yesterday 02:45 PM",
+    detail: "Waiting - 5 mins",
+    address: "62, Sector 59, Faridabad, Haryana 121004, India",
+    timeRange: "(Yesterday 02:40 PM - Yesterday 02:45 PM)",
+  },
+  {
+    id: 5,
+    type: "Checked In",
+    letter: "C",
+    color: "bg-sky-500",
+    textColor: "text-sky-600",
+    time: "Yesterday 03:02 PM",
+    detail: "Checked In",
+    address:
+      "11/12 Chawla Colony, Ballabhgarh, Faridabad, Haryana 121004, India",
+    hasNotes: true,
+    hasInfo: true,
+  },
+  {
+    id: 6,
+    type: "Checked Out",
+    letter: "C",
+    color: "bg-sky-500",
+    textColor: "text-sky-600",
+    time: "Yesterday 03:07 PM",
+    detail: "Checked Out",
+    address:
+      "11/12 Chawla Colony, Ballabhgarh, Faridabad, Haryana 121004, India",
+  },
+];
+
+
+function TimelineViewModal({ isOpen, onClose, templateName }) {
+  if (!isOpen) return null;
+
+  const timeline = getDummyTimelineForTemplate(templateName);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Modal */}
+      <div
+        className={`
+          relative w-full max-w-3xl max-h-[92vh]
+          rounded-2xl border border-white/20
+          bg-white/80 backdrop-blur-xl shadow-2xl
+          transition-all duration-300 scale-100 opacity-100
+          flex flex-col overflow-hidden
+        `}
+      >
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200/50 bg-white/90 backdrop-blur-md px-6 py-4">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+              Activity Timeline
+            </h2>
+            <p className="text-sm text-gray-600 mt-0.5 font-medium">
+              {templateName || "Selected Template"}
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-gray-500 hover:bg-gray-100/80 hover:text-gray-700 transition-colors"
+          >
+            <X size={22} />
+          </button>
+        </div>
+
+        {/* Scrollable Timeline */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+          <div className="relative pl-12">
+            {timeline.map((event, index) => {
+              const isFirst = index === 0;
+              const isLast = index === timeline.length - 1;
+
+              return (
+                <div
+                  key={event.id}
+                  className="relative flex gap-6 pb-12 last:pb-0 group"
+                >
+                  {/* Timeline Dot */}
+                  <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
+                    <div
+                      className={`w-5 h-5 rounded-full ${event.color} ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
+                    />
+                  </div>
+
+                  {/* Vertical colored line - connects PREVIOUS dot to CURRENT dot */}
+                  {!isFirst && (
+                    <div
+                      className={`absolute  w-1 ${event.color}  z-10 rounded-full`}
+                      style={{
+                        // Start from center of previous dot
+                        top: "-160px",
+                        // Go all the way to center of current dot
+                        height: "calc(100% + 60px)",
+                        // Use the COLOR OF THE CURRENT DOT (the one below)
+                        // background: event.color.replace("bg-", ""),
+                        // Optional: nice gradient effect
+                        // background: `linear-gradient(to bottom, ${event.color.replace("bg-", "")}cc, ${event.color.replace("bg-", "")}66)`,
+                      }}
+                    />
+                  )}
+
+                  {/* Time Label */}
+                  <div className="w-28 flex-shrink-0 text-right pt-2">
+                    <p className="text-xs font-medium text-gray-500">
+                      {event.time.split(" ")[0]}
+                    </p>
+                    <p className="text-sm font-semibold text-gray-700">
+                      {event.time.split(" ").slice(1).join(" ")}
+                    </p>
+                  </div>
+
+                  {/* Event Card */}
+                  <div
+                    className={`
+                      flex-1 rounded-xl border border-gray-200/60
+                      bg-white/80 backdrop-blur-sm shadow-sm
+                      p-5 transition-all duration-300
+                      group-hover:shadow-md group-hover:-translate-y-0.5
+                      group-hover:border-blue-200/50 whitespace-nowrap
+                    `}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex h-10 w-10 items-center justify-center rounded-lg ${event.color} text-white font-bold shadow-md`}
+                        >
+                          {event.letter}
+                        </div>
+                        <div>
+                          <span className={`font-semibold ${event.textColor}`}>
+                            {event.detail}
+                          </span>
+                          {event.subDetail && (
+                            <p className="text-sm text-gray-600 mt-0.5">
+                              {event.subDetail}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {event.address && (
+                      <div className="mt-3 flex items-start gap-2 text-sm text-gray-600">
+                        <MapPin
+                          size={16}
+                          className="mt-0.5 flex-shrink-0 text-gray-500"
+                        />
+                        <span>{event.address}</span>
+                      </div>
+                    )}
+
+                    {event.timeRange && (
+                      <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+                        <Clock size={14} />
+                        <span>{event.timeRange}</span>
+                      </div>
+                    )}
+
+                    {event.hasNotes && (
+                      <button className="mt-4 inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors">
+                        <FileText size={14} />
+                        View Notes
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
@@ -187,7 +376,8 @@ export default function TemplateStatus() {
 
   const { templateStatusListQuery, workflowStatusQuery } = useTemplateMaster(
     "",
-    selectedRow?.template_id ?? null
+    selectedRow != null ? selectedRow.template_id : null,
+    selectedRow != null ? selectedRow.user_id : null
   );
   const statusList = templateStatusListQuery.data || [];
   const workflowData = workflowStatusQuery.data;
@@ -370,14 +560,16 @@ export default function TemplateStatus() {
                   setIsModalOpen(false);
                   setSelectedRow(null);
                 }}
-                templateName={selectedRow?.template_name}
-                workflowName={workflowData?.workflow_name}
-                chain={workflowData?.chain}
+                templateName={selectedRow != null ? selectedRow.template_name : null}
+                workflowName={workflowData != null ? workflowData.workflow_name : null}
+                chain={workflowData != null ? workflowData.chain : null}
                 isLoading={workflowStatusQuery.isLoading}
                 isError={workflowStatusQuery.isError}
                 errorMessage={
-                  workflowStatusQuery.error?.response?.data?.message ||
-                  workflowStatusQuery.error?.message
+                  workflowStatusQuery.error != null
+                    ? (workflowStatusQuery.error.response && workflowStatusQuery.error.response.data && workflowStatusQuery.error.response.data.message) ||
+                      workflowStatusQuery.error.message
+                    : null
                 }
               />
             </div>
