@@ -56,15 +56,35 @@ function PlcMachineCard({ machine, products = [] }) {
     });
   };
 
+  const statusVal = (machine.status || "").trim() || "—";
+  const statusLower = statusVal.toLowerCase();
+  const isRunning = statusLower === "running";
+  const isStopped = statusLower === "stopped";
+  const isIdle = statusLower === "idle" || statusLower === "—";
+  const statusStyles = isRunning
+    ? "bg-emerald-500/12 text-emerald-700 border-emerald-200"
+    : isStopped
+    ? "bg-rose-500/12 text-rose-700 border-rose-200"
+    : isIdle
+    ? "bg-slate-500/10 text-slate-600 border-slate-200"
+    : "bg-amber-500/12 text-amber-700 border-amber-200";
+  const dotColor = isRunning ? "bg-emerald-500" : isStopped ? "bg-rose-500" : "bg-slate-400";
+
   return (
-    <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50/60 via-white to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col gap-3">
-      <div className="flex items-start justify-between pb-2 border-b border-blue-100/60">
-        <div>
+    <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50/60 via-white to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col gap-3 relative">
+      <div className="flex items-start justify-between pb-2 border-b border-blue-100/60 gap-3">
+        <div className="min-w-0 flex-1">
           <h3 className="text-lg font-semibold text-gray-800">
             {machine.device_id || "N/A"}
           </h3>
           <p className="text-xs text-gray-500 mt-0.5">Model: {machine.model || "N/A"}</p>
         </div>
+        <span
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyles}`}
+        >
+          {isRunning && <span className={`h-1.5 w-1.5 rounded-full ${dotColor} animate-pulse`} />}
+          {statusVal}
+        </span>
       </div>
 
       {/* Product fields (MATERIAL_CODE, PART_NO, MODEL_CODE) for this machine */}

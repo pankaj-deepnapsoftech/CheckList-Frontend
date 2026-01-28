@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { Edit2, Eye, Plus, Trash2, X, WorkflowIcon } from "lucide-react";
+import { Edit2, Eye, Plus, Trash2, X, WorkflowIcon, GripVertical } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useWorkflow } from "../hooks/useWorkflow";
@@ -46,6 +46,7 @@ export default function TemplateMaster() {
   const [newDropdownOptions, setNewDropdownOptions] = useState("");
   const [draftFields, setDraftFields] = useState([]);
   const [draftPreviewValues, setDraftPreviewValues] = useState({});
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
   // Edit modal field states
   const [editFieldName, setEditFieldName] = useState("");
@@ -543,6 +544,17 @@ export default function TemplateMaster() {
     });
   };
 
+  const reorderDraftFields = (fromIndex, toIndex) => {
+    if (fromIndex === toIndex) return;
+    setDraftFields((prev) => {
+      const next = [...prev];
+      const [removed] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, removed);
+      return next;
+    });
+    setDragOverIndex(null);
+  };
+
   const saveNewTemplateWithFields = async (e) => {
     e.preventDefault();
 
@@ -923,7 +935,7 @@ export default function TemplateMaster() {
                         </div>
                       )}
 
-                      {/* Fields Preview */}
+                      {/* Fields Preview – drag handle se upar/neeche reorder */}
                       {draftFields.length === 0 ? (
                         <div className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
                           {newTemplateName
@@ -932,17 +944,51 @@ export default function TemplateMaster() {
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          {draftFields.map((f) => (
-                            <div key={f._tmpId}>
-                              {f.field_type !== "CHECKBOX" && (
-                                <label className="block text-xs font-medium text-gray-600 mb-1">
-                                  {f.field_name}
-                                  {f.is_mandatory && (
-                                    <span className="text-red-500"> *</span>
-                                  )}
-                                </label>
-                              )}
-                              {renderDraftPreviewInput(f)}
+                          {draftFields.map((f, index) => (
+                            <div
+                              key={f._tmpId}
+                              className={`flex items-start gap-2 rounded-lg border p-3 transition-colors ${
+                                dragOverIndex === index
+                                  ? "border-blue-400 bg-blue-50/50"
+                                  : "border-gray-200 bg-white"
+                              }`}
+                              onDragOver={(e) => {
+                                e.preventDefault();
+                                e.dataTransfer.dropEffect = "move";
+                                setDragOverIndex(index);
+                              }}
+                              onDragLeave={() => setDragOverIndex(null)}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+                                if (Number.isNaN(fromIndex)) return;
+                                reorderDraftFields(fromIndex, index);
+                                setDragOverIndex(null);
+                              }}
+                            >
+                              <div
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData("text/plain", String(index));
+                                  e.dataTransfer.effectAllowed = "move";
+                                }}
+                                onDragEnd={() => setDragOverIndex(null)}
+                                className="cursor-grab active:cursor-grabbing mt-1 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                                title="Drag to reorder field up/down"
+                              >
+                                <GripVertical size={18} />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                {f.field_type !== "CHECKBOX" && (
+                                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                                    {f.field_name}
+                                    {f.is_mandatory && (
+                                      <span className="text-red-500"> *</span>
+                                    )}
+                                  </label>
+                                )}
+                                {renderDraftPreviewInput(f)}
+                              </div>
                             </div>
                           ))}
                         </div>
