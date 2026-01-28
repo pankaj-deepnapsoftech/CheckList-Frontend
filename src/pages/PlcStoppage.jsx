@@ -1,56 +1,77 @@
 import { useMemo } from "react";
+import { Loader2, RefreshCw } from "lucide-react";
+import { usePlcData } from "../hooks/usePlcData";
 
-const demoStoppages = [
-  {
-    id: 1,
-    machine: "Siemens S7-1200",
-    code: "MCH-01",
-    startTime: "18/01/2026 14:10:23",
-    stopTime: "18/01/2026 14:25:48",
-    durationMinutes: 15,
-    reason: "Emergency stop triggered",
-    status: "Stopped",
-  },
-  {
-    id: 2,
-    machine: "Weinview MT8102iE",
-    code: "MCH-02",
-    startTime: "18/01/2026 13:05:10",
-    stopTime: "18/01/2026 13:18:40",
-    durationMinutes: 13,
-    reason: "PLC communication loss",
-    status: "Resolved",
-  },
-  {
-    id: 3,
-    machine: "Omron NX-Series",
-    code: "MCH-03",
-    startTime: "18/01/2026 11:32:05",
-    stopTime: "18/01/2026 11:50:15",
-    durationMinutes: 18,
-    reason: "High temperature alarm",
-    status: "Investigating",
-  },
-  {
-    id: 4,
-    machine: "Siemens S7-1200",
-    code: "MCH-01",
-    startTime: "18/01/2026 09:10:00",
-    stopTime: "18/01/2026 09:20:30",
-    durationMinutes: 10,
-    reason: "Operator break",
-    status: "Resolved",
-  },
-];
+function formatDateTime(isoStr) {
+  if (!isoStr) return "—";
+  try {
+    const d = new Date(isoStr);
+    if (Number.isNaN(d.getTime())) return "—";
+    // Show the time exactly as UTC (jo PLC se aa raha hai),
+    // browser ka local timezone shift ignore karne ke liye UTC getters use kiye hain.
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const year = d.getUTCFullYear();
+    const h = String(d.getUTCHours()).padStart(2, "0");
+    const m = String(d.getUTCMinutes()).padStart(2, "0");
+    const s = String(d.getUTCSeconds()).padStart(2, "0");
+    return `${day}/${month}/${year} ${h}:${m}:${s}`;
+  } catch {
+    return "—";
+  }
+}
+
+function durationMinutes(startTime, stopTime) {
+  if (!startTime || !stopTime) return 0;
+  const start = new Date(startTime).getTime();
+  const stop = new Date(stopTime).getTime();
+  if (Number.isNaN(start) || Number.isNaN(stop)) return 0;
+  return Math.max(0, Math.round((stop - start) / 60000));
+}
 
 export default function PlcStoppage() {
-  const totalStoppages = demoStoppages.length;
+  const { getAllPlcData } = usePlcData({});
+  const plcList = getAllPlcData.data || [];
+  const isLoading = getAllPlcData.isLoading;
+  const isError = getAllPlcData.isError;
+  const refetch = getAllPlcData.refetch;
+
+  const stoppages = useMemo(() => {
+    return plcList
+      .filter((row) => row.start_time || row.stop_time)
+      .map((row) => {
+        const start = row.start_time || row.timestamp;
+        const stop = row.stop_time || row.timestamp;
+        const mins = durationMinutes(start, stop);
+        return {
+          id: row._id,
+          machine: row.model || row.device_id || "—",
+          code: row.device_id || "—",
+          startTime: formatDateTime(start),
+          stopTime: formatDateTime(stop),
+          durationMinutes: mins,
+          reason: row.reason || "—",
+          status: "Recorded",
+        };
+      })
+      .sort((a, b) => {
+        const da = plcList.find((r) => r._id === a.id);
+        const db = plcList.find((r) => r._id === b.id);
+        const tA = (da?.start_time || da?.timestamp || "").toString();
+        const tB = (db?.start_time || db?.timestamp || "").toString();
+        return tB.localeCompare(tA);
+      });
+  }, [plcList]);
+
+  const totalStoppages = stoppages.length;
   const totalMinutes = useMemo(
-    () => demoStoppages.reduce((sum, s) => sum + s.durationMinutes, 0),
-    []
+    () => stoppages.reduce((sum, s) => sum + s.durationMinutes, 0),
+    [stoppages]
   );
-  // Demo: assume 3 machines total and 1 currently stopped
-  const runningMachines = 2;
+  const runningMachines = useMemo(() => {
+    const deviceIds = [...new Set((plcList || []).map((r) => r.device_id).filter(Boolean))];
+    return Math.max(0, deviceIds.length);
+  }, [plcList]);
 
   return (
     <div className="min-h-full bg-gray-50">
@@ -61,12 +82,33 @@ export default function PlcStoppage() {
               Machine Stoppage Summary
             </h1>
             <p className="mt-1 text-sm text-gray-500">
-              Track machine start / stop time and stoppage duration.
+              Start / stop times from PLC Data API — machine, duration and status.
             </p>
-            <p className="mt-1 text-xs text-gray-400">Demo data (static)</p>
           </div>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isLoading}
+            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+          >
+            <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+            Refresh
+          </button>
         </div>
 
+        {isLoading && (
+          <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-gray-100 bg-white py-8 text-gray-500">
+            <Loader2 size={24} className="animate-spin" />
+            <span>Loading stoppage data…</span>
+          </div>
+        )}
+        {isError && (
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {getAllPlcData.error?.response?.data?.message || getAllPlcData.error?.message || "Failed to load stoppage data."}
+          </div>
+        )}
+        {!isLoading && !isError && (
+        <>
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3 shadow-sm">
             <p className="text-xs font-medium text-gray-600">Running Machines</p>
@@ -98,7 +140,7 @@ export default function PlcStoppage() {
               Average Duration
             </p>
             <p className="mt-1 text-2xl font-semibold text-emerald-600">
-              {Math.round(totalMinutes / totalStoppages)} min
+              {totalStoppages ? Math.round(totalMinutes / totalStoppages) : 0} min
             </p>
              {/* <p className="mt-1 text-[11px] text-emerald-700">Total Average Duration</p> */}
           </div>
@@ -141,7 +183,7 @@ export default function PlcStoppage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
-                {demoStoppages.map((s) => (
+                {stoppages.map((s) => (
                   <tr key={s.id} className="hover:bg-gray-50">
                     <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
                       <div className="font-semibold">{s.machine}</div>
@@ -166,6 +208,8 @@ export default function PlcStoppage() {
                             ? "bg-rose-50 text-rose-600"
                             : s.status === "Resolved"
                             ? "bg-emerald-50 text-emerald-600"
+                            : s.status === "Recorded"
+                            ? "bg-blue-50 text-blue-600"
                             : "bg-amber-50 text-amber-600"
                         }`}
                       >
@@ -178,6 +222,13 @@ export default function PlcStoppage() {
             </table>
           </div>
         </div>
+        {stoppages.length === 0 && (
+          <div className="mt-6 rounded-xl border border-gray-100 bg-white py-10 text-center text-sm text-gray-500">
+            No stoppage records yet. PLC data with start/stop time will appear here.
+          </div>
+        )}
+        </>
+        )}
       </div>
     </div>
   );

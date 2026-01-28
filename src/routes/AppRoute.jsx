@@ -28,6 +28,7 @@ import ReleaseGroups from "../TemplateMasterPages/ReleaseGroups";
 import ManageWorkflow from "../TemplateMasterPages/ManageWorkflow";
 import PlcLiveData from "../pages/PlcLiveData";
 import PlcStoppage from "../pages/PlcStoppage";
+import PlcProducts from "../pages/PlcProducts";
 import ManageDocument from "../TemplateMasterPages/ManageDocument";
 import AssignedTemplates from "../TemplateMasterPages/AssignedTemplates";
 import TemplateStatus from "../TemplateMasterPages/TemplateStatus";
@@ -79,6 +80,10 @@ export const AppRoute = () => {
     {
       path: "/plc-data/live",
       element: withProtection(PlcLiveData),
+    },
+    {
+      path: "/plc-data/products",
+      element: withProtection(PlcProducts),
     },
     {
       path: "/plc-data/stoppage",

@@ -29,6 +29,7 @@ import {
   CircleOff,
   History,
   CheckCircle2,
+  Boxes,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -107,6 +108,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           name: "Live-Data",
           path: "/plc-data/live",
           icon: <Activity size={18} />,
+        },
+        {
+          name: "Products",
+          path: "/plc-data/products",
+          icon: <Boxes size={18} />,
         },
         {
           name: "Stoppage",
