@@ -148,6 +148,20 @@ export const useTemplateMaster = (selectedTemplateId, workflowStatusTemplateId) 
     },
   });
 
+
+
+      const getTemplateStatusData = useQuery({
+        queryKey: ["get-template-data-status"],
+        queryFn: async () => {
+          const res = await axiosHandler.get(
+            "/template-master/template-status",
+          );
+          return res?.data?.data;
+        },
+      });
+
+
+
   return {
     templatesQuery,
     templateStatusListQuery,
@@ -160,6 +174,7 @@ export const useTemplateMaster = (selectedTemplateId, workflowStatusTemplateId) 
     updateTemplate,
     deleteTemplate,
     assignWorkflow,
+    getTemplateStatusData,
   };
 };
 
