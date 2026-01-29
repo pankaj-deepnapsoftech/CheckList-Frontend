@@ -249,10 +249,14 @@ function WorkflowStatusViewModal({
                     className="relative flex gap-6 pb-12 last:pb-0 group"
                   >
                     <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
+
+                    {/* Status Dot */}
                       <div
                         className={`w-5 h-5 rounded-full ${DotClass}  ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
                       />
                     </div>
+
+                    {/* Verticle-Line */}
                     {!isFirst && (
                       <div
                         className={`absolute w-1 ${DotClass} z-10 rounded-full`}
