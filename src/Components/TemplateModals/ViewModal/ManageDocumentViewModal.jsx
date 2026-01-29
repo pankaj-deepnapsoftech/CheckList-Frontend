@@ -27,7 +27,7 @@ export default function ViewDocumentModal({ open, onClose, data }) {
           </button>
         </div>
 
-        {/* BODY */}
+        {/* BODY */} 
         <div className="px-8 py-6 space-y-6 overflow-y-auto">
           {/* BASIC INFO */}
           <ColoredSection
@@ -46,6 +46,7 @@ export default function ViewDocumentModal({ open, onClose, data }) {
             icon={<Folder size={18} />}
           >
             <Info label="Category Name" value={data.category} />
+            <Info label="Department" value={data.depart_name} />
           </ColoredSection>
 
           {/* EXPIRY */}

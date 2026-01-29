@@ -17,7 +17,7 @@ const InfoItem = ({ label, value }) => (
 export default function TemplateApproveReject() {
   const { getAllAssignedTemp, PostHistorTem } = RegisterEmployee();
   const [approvalTemplate, setApprovalTemplate] = useState(null);
-  const [rejectionTemplate, setRejectionTemplate] = useState(null)
+  const [rejectionTemplate, setRejectionTemplate] = useState(null);
   const { logedinUser } = useLogin();
   const [searchText, setSearchText] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
@@ -38,22 +38,53 @@ export default function TemplateApproveReject() {
     ) || [];
 
   const currentUserId = logedinUser?.data?._id;
-
   const filteredTemplates = assignedTemplates.filter((t) => {
-  
     if (!t?.template_name?.toLowerCase().includes(searchText.toLowerCase())) {
       return false;
     }
-    const currentStage = t?.approvals?.length || 0;
-    const workflowStage = t?.workflow?.workflow?.[currentStage];
 
-    if (!workflowStage) return false;
-    if (workflowStage?.group === "HOD") {
-      return true;
+    const approvals = t?.approvals || [];
+    const workflowSteps = t?.workflow?.workflow || [];
+
+   
+    const lastApprovedStage =
+      approvals.length > 0
+        ? Math.max(...approvals.map((a) => a.current_stage))
+        : -1;
+
+   
+    const nextStageIndex = lastApprovedStage + 1;
+    const nextStage = workflowSteps[nextStageIndex];
+
+    if (!nextStage) return false;
+
+
+    if (nextStage.group === "HOD") {
+      const hodAlreadyApproved = approvals.some(
+        (a) =>
+          a.current_stage === nextStageIndex && a.approved_by === currentUserId,
+      );
+
+      return !hodAlreadyApproved;
     }
 
-    const groupUsers = workflowStage?.group_users || [];
-    return groupUsers.some((gu) => gu?.user_id === currentUserId);
+
+    const groupUsers = nextStage.group_users || [];
+    if (groupUsers.length === 0) return false;
+
+   
+    const stageApprovals = approvals.filter(
+      (a) => a.current_stage === nextStageIndex,
+    );
+
+ 
+    const nextApproverIndex = stageApprovals.length;
+
+    const nextApprover = groupUsers[nextApproverIndex];
+
+    console.log("Next Approver", nextApprover?.user_id);
+
+    return nextApprover?.user_id === currentUserId;
   });
 
 
@@ -69,7 +100,6 @@ export default function TemplateApproveReject() {
       template_id: "",
     },
     onSubmit: (values) => {
-        console.log("SUBMIT PAYLOAD", values);
       PostHistorTem.mutate(values, {
         onSuccess: () => {
           setIsApprovalOpen(false);
