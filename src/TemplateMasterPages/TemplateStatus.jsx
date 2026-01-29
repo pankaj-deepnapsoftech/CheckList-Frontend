@@ -183,6 +183,19 @@ function WorkflowStatusViewModal({
     return "bg-gray-100 text-gray-800";
   };
 
+    const getStepStatusDot = (step) => {
+      if (!step.approvals || step.approvals.length === 0)
+        return "bg-yellow-400 text-yellow-800";
+      const status = (step.approvals[0]?.status || "").toLowerCase();
+      if (status === "approved" || status === "completed")
+        return "bg-green-400 text-green-800";
+      if (status === "reject" || status === "rejected")
+        return "bg-red-400 text-red-800";
+      if (status === "re-assign") return "bg-orange-100 text-orange-800";
+      if (status === "in-progress") return "bg-blue-100 text-blue-800";
+      return "bg-gray-400 text-gray-800";
+    };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
@@ -225,6 +238,7 @@ function WorkflowStatusViewModal({
                 const isFirst = index === 0;
                 const stepStatus = getStepStatus(step);
                 const badgeClass = getStepStatusBadgeClass(step);
+                const DotClass = getStepStatusDot(step);
                 const label = step.group_name || step.group || "Stage";
                 const letter = (step.groupDetail?.full_name?.charAt(0) || label?.charAt(0) || "?").toUpperCase();
                 const isPending = !step.approvals || step.approvals.length === 0;
@@ -236,28 +250,30 @@ function WorkflowStatusViewModal({
                   >
                     <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
                       <div
-                        className={`w-5 h-5 rounded-full ${isPending ? "bg-amber-500" : "bg-sky-500"} ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
+                        className={`w-5 h-5 rounded-full ${DotClass}  ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
                       />
                     </div>
                     {!isFirst && (
                       <div
-                        className="absolute w-1 bg-gray-200 z-10 rounded-full"
+                        className={`absolute w-1 ${DotClass} z-10 rounded-full`}
                         style={{ top: "-160px", height: "calc(100% + 60px)" }}
                       />
                     )}
 
                     <div className="w-28 flex-shrink-0 text-right pt-2">
-                      <p className="text-xs font-medium text-gray-500">{formattedWorkflowDate}</p>
-                      <p className="text-sm font-semibold text-gray-700">{formattedWorkflowTime}</p>
+                      <p className="text-xs font-medium text-gray-500">
+                        {formattedWorkflowDate}
+                      </p>
+                      <p className="text-sm font-semibold text-gray-700">
+                        {formattedWorkflowTime}
+                      </p>
                     </div>
 
-                    <div
-                      className="flex-1 rounded-xl border border-gray-200/60 bg-white/80 backdrop-blur-sm shadow-sm p-5 transition-all duration-300 group-hover:shadow-md group-hover:-translate-y-0.5 group-hover:border-blue-200/50 whitespace-nowrap"
-                    >
+                    <div className="flex-1 rounded-xl border border-gray-200/60 bg-white/80 backdrop-blur-sm shadow-sm p-5 transition-all duration-300 group-hover:shadow-md group-hover:-translate-y-0.5 group-hover:border-blue-200/50 whitespace-nowrap">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <div
-                            className={`flex h-10 w-10 items-center justify-center rounded-lg ${isPending ? "bg-amber-500" : "bg-sky-500"} text-white font-bold shadow-md`}
+                            className={`flex h-10 w-10 items-center justify-center rounded-lg ${DotClass} text-white font-bold shadow-md`}
                           >
                             {letter}
                           </div>
@@ -266,24 +282,35 @@ function WorkflowStatusViewModal({
                               {label}
                             </span>
                             {step.group_department && (
-                              <p className="text-sm text-gray-600 mt-0.5">{step.group_department}</p>
+                              <p className="text-sm text-gray-600 mt-0.5">
+                                {step.group_department}
+                              </p>
                             )}
                           </div>
                         </div>
-                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass}`}>
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass}`}
+                        >
                           {stepStatus}
                         </span>
                       </div>
                       {/* Remarks - from approvals */}
                       {step.approvals?.length > 0 && (
                         <div className="mt-3 flex items-start gap-2 rounded-lg bg-gray-50 border border-gray-100 px-3 py-2">
-                          <FileText size={14} className="mt-0.5 flex-shrink-0 text-gray-500" />
+                          <FileText
+                            size={14}
+                            className="mt-0.5 flex-shrink-0 text-gray-500"
+                          />
                           <div className="text-sm text-gray-700 min-w-0">
-                            <span className="font-medium text-gray-600">Remarks: </span>
+                            <span className="font-medium text-gray-600">
+                              Remarks:{" "}
+                            </span>
                             {step.approvals
                               .map((a) => a?.remarks)
                               .filter(Boolean)
-                              .join(" · ") || <span className="text-gray-500 italic">—</span>}
+                              .join(" · ") || (
+                              <span className="text-gray-500 italic">—</span>
+                            )}
                           </div>
                         </div>
                       )}
@@ -356,7 +383,7 @@ function TimelineViewModal({ isOpen, onClose, templateName }) {
                   className="relative flex gap-6 pb-12 last:pb-0 group"
                 >
                   {/* Timeline Dot */}
-                  <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
+                  <div className="absolute left-0 w-10  h-10 flex items-center justify-center -translate-x-1/2 z-20">
                     <div
                       className={`w-5 h-5 rounded-full ${event.color} ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
                     />
