@@ -39,16 +39,17 @@ const AddDocumentModal = ({
   const formik = useFormik({
     initialValues: {
       doc_name: editData?.doc_name ?? "",
-      department: editData?.department ?? "",
+      depart_name: editData?.depart_name ?? "",
       category: editData?.category ?? "",
       expiry: editData?.expiry ? formatDateForInput(editData.expiry) : "",
       attached_doc: null,
     },
     enableReinitialize: true,
     onSubmit: (values) => {
+      console.log(values)
       let formdata = new FormData();
       formdata.append("attached_doc", values.attached_doc);
-      formdata.append("department", values.department);
+      formdata.append("depart_name", values.depart_name);
       formdata.append("category", values.category);
       formdata.append(
         "expiry",
@@ -142,17 +143,17 @@ const AddDocumentModal = ({
             <SearchableDropdownwithRemove
               placeholder="Select department"
               options={departments}
-              value={formik.values.department}
+              value={formik.values.depart_name}
               getOptionLabel={(o) => o.label}
               getOptionValue={(o) => o.value}
               getOptionId={(o) => o._id}
               onChange={(val) =>
                 formik.setFieldValue(
-                  "department",
+                  "depart_name",
                   typeof val === "object" ? val.value : val
                 )
               }
-              type="department"
+              type="depart_name"
               isDisabled={isView}
             />
           </Field>
