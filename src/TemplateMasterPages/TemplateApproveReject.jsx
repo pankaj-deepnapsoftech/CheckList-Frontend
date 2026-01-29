@@ -46,28 +46,45 @@ export default function TemplateApproveReject() {
     const approvals = t?.approvals || [];
     const workflowSteps = t?.workflow?.workflow || [];
 
+   
     const lastApprovedStage =
       approvals.length > 0
         ? Math.max(...approvals.map((a) => a.current_stage))
         : -1;
 
+   
     const nextStageIndex = lastApprovedStage + 1;
     const nextStage = workflowSteps[nextStageIndex];
 
     if (!nextStage) return false;
 
-    // Remove this block if you want user to still see templates they approved
-    const alreadyApprovedByUser = approvals.some(
-      (a) =>
-        a?.current_stage && a.approved_by === currentUserId,
-    );
-    if (alreadyApprovedByUser) return false;
 
-    if (nextStage.group === "HOD") return true;
+    if (nextStage.group === "HOD") {
+      const hodAlreadyApproved = approvals.some(
+        (a) =>
+          a.current_stage === nextStageIndex && a.approved_by === currentUserId,
+      );
 
-    return (nextStage.group_users || []).some(
-      (u) => u.user_id === currentUserId,
+      return !hodAlreadyApproved;
+    }
+
+
+    const groupUsers = nextStage.group_users || [];
+    if (groupUsers.length === 0) return false;
+
+   
+    const stageApprovals = approvals.filter(
+      (a) => a.current_stage === nextStageIndex,
     );
+
+ 
+    const nextApproverIndex = stageApprovals.length;
+
+    const nextApprover = groupUsers[nextApproverIndex];
+
+    console.log("Next Approver", nextApprover?.user_id);
+
+    return nextApprover?.user_id === currentUserId;
   });
 
 
