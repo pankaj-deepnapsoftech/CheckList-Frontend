@@ -5,6 +5,7 @@ import { useCheckItem } from "../../../hooks/useCheckItem";
 import SearchableDropdownwithRemove from "../../SearchableDropDown/SearchableDropDown2";
 import { Field } from "../../modal/addModal/AddCheckItemModal";
 import { useManageDocuments } from "../../../hooks/Template Hooks/useManageDocuments";
+import { useDepartment } from "../../../hooks/useDepartment";
 
 const AddDocumentModal = ({
   openModal,
@@ -31,9 +32,14 @@ const AddDocumentModal = ({
     view: "View Document",
   };
 
+  const { getAllDepartmentData } = useDepartment();
+  const [departments, setDepartments] = useState([]);
+
+
   const formik = useFormik({
     initialValues: {
       doc_name: editData?.doc_name ?? "",
+      department: editData?.department ?? "",
       category: editData?.category ?? "",
       expiry: editData?.expiry ? formatDateForInput(editData.expiry) : "",
       attached_doc: null,
@@ -42,6 +48,7 @@ const AddDocumentModal = ({
     onSubmit: (values) => {
       let formdata = new FormData();
       formdata.append("attached_doc", values.attached_doc);
+      formdata.append("department", values.department);
       formdata.append("category", values.category);
       formdata.append(
         "expiry",
@@ -82,6 +89,23 @@ const AddDocumentModal = ({
     }
   }, [GetCategory?.data]);
 
+
+ useEffect(() => {
+  if (getAllDepartmentData?.data) {
+    setDepartments(
+      getAllDepartmentData.data.map((item) => ({
+        label: item.name,
+        value: item.name,
+        _id: item._id,
+      }))
+    );
+  }
+}, [getAllDepartmentData?.data]);
+
+
+
+
+
   const { values, handleChange, handleSubmit, setFieldValue } = formik;
 
   if (!openModal) return null;
@@ -112,6 +136,28 @@ const AddDocumentModal = ({
             onChange={handleChange}
             readOnly={isView}
           />
+
+          {/* DEPARTMENT */}
+          <Field label="Department">
+            <SearchableDropdownwithRemove
+              placeholder="Select department"
+              options={departments}
+              value={formik.values.department}
+              getOptionLabel={(o) => o.label}
+              getOptionValue={(o) => o.value}
+              getOptionId={(o) => o._id}
+              onChange={(val) =>
+                formik.setFieldValue(
+                  "department",
+                  typeof val === "object" ? val.value : val
+                )
+              }
+              type="department"
+              isDisabled={isView}
+            />
+          </Field>
+
+
 
           {/* CATEGORY */}
           <Field label="Category">
@@ -291,4 +337,3 @@ const Input = ({ label, ...props }) => (
 );
 
 export default AddDocumentModal;
-        
