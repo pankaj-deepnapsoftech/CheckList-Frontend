@@ -6,6 +6,7 @@ import { useWorkflow } from "../hooks/useWorkflow";
 import SearchableDropdown from "../Components/SearchableDropDown/SearchableDropdown";
 import MultiSelectDropdown from "../Components/SearchableDropDown/MultiSelectDropdown";
 import AssignWorkflowModal from "../Components/modal/addModal/AssignWorkflowModal";
+import Select from "react-select";
 
 const FIELD_TYPES = [
   { label: "Text Input", value: "TEXT" },
@@ -22,6 +23,8 @@ const TEMPLATE_TYPES = [
   { label: "New", value: "NEW" },
   { label: "Amendment", value: "AMENDMENT" },
 ];  
+
+
 
 export default function TemplateMaster() {
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
@@ -54,6 +57,13 @@ export default function TemplateMaster() {
   const [editIsMandatory, setEditIsMandatory] = useState(false);
   const [editDropdownOptions, setEditDropdownOptions] = useState("");
   const [editingFieldId, setEditingFieldId] = useState("");
+
+const getDropdownOptions = (options = []) =>
+  options.map((opt) => ({
+    label: opt,
+    value: opt,
+  }));
+
 
   const { templatesQuery, templateQuery, createTemplate, addField, updateField, deleteField, updateTemplate, deleteTemplate, assignWorkflow } =
     useTemplateMaster(selectedTemplateId);
@@ -102,55 +112,71 @@ export default function TemplateMaster() {
             {f.field_name}
           </label>
         );
-      case "DROPDOWN":
-        {
-          let opts = [];
-          try {
-            opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
-          } catch {
-            opts = [];
-          }
-          return (
-            <select
-              value={previewValues[key] ?? ""}
-              onChange={(e) => setPreviewValue(key, e.target.value)}
-              className={commonClass}
-            >
-              <option value="">Select</option>
-              {opts.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
-          );
+     case "DROPDOWN": {
+  let opts = [];
+  try {
+    opts = f?.dropdown_options
+      ? JSON.parse(f.dropdown_options)
+      : [];
+  } catch {
+    opts = [];
+  }
+
+  const options = opts.map((o) => ({
+    label: o,
+    value: o,
+  }));
+
+  return (
+    <Select
+      options={options}
+      placeholder="Select"
+      isSearchable
+      value={
+        options.find(
+          (opt) => opt.value === draftPreviewValues[key]
+        ) || null
+      }
+      onChange={(selected) =>
+        setDraftPreviewValue(
+          key,
+          selected ? selected.value : ""
+        )
+      }
+      className="mt-1 text-sm"
+      classNamePrefix="react-select"
+    />
+  );
+}
+
+      case "RADIO": {
+        let opts = [];
+        try {
+          opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
+        } catch {
+          opts = [];
         }
-      case "RADIO":
-        {
-          let opts = [];
-          try {
-            opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
-          } catch {
-            opts = [];
-          }
-          return (
-            <div className="mt-2 space-y-2">
-              {opts.map((o) => (
-                <label key={o} className="flex items-center gap-2 text-sm text-gray-700">
-                  <input
-                    type="radio"
-                    name={key}
-                    value={o}
-                    checked={previewValues[key] === o}
-                    onChange={(e) => setPreviewValue(key, e.target.value)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span>{o}</span>
-                </label>
-              ))}
-            </div>
-          );
-        }
+        return (
+          <div className="mt-2 space-y-2">
+            {opts.map((o) => (
+              <label
+                key={o}
+                className="flex items-center gap-2 text-sm text-gray-700"
+              >
+                <input
+                  type="radio"
+                  name={key}
+                  value={o}
+                  checked={previewValues[key] === o}
+                  onChange={(e) => setPreviewValue(key, e.target.value)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                />
+                <span>{o}</span>
+              </label>
+            ))}
+          </div>
+        );
+      }
       case "DATE":
         return (
           <input
@@ -246,26 +272,38 @@ export default function TemplateMaster() {
             {f.is_mandatory && <span className="text-red-500">*</span>}
           </label>
         );
-      case "DROPDOWN":
+      case "DROPDOWN": {
+        const options = (f.dropdown_options || []).map((o) => ({
+          label: o,
+          value: o,
+        }));
+
         return (
-          <select
-            value={draftPreviewValues[key] ?? ""}
-            onChange={(e) => setDraftPreviewValue(key, e.target.value)}
-            className={commonClass}
-          >
-            <option value="">Select</option>
-            {(f.dropdown_options || []).map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
+          <Select
+            options={options}
+            placeholder="Select"
+            isSearchable
+            value={
+              options.find((opt) => opt.value === draftPreviewValues[key]) ||
+              null
+            }
+            onChange={(selected) =>
+              setDraftPreviewValue(key, selected ? selected.value : "")
+            }
+            className="mt-1 text-sm"
+            classNamePrefix="react-select"
+          />
         );
+      }
+
       case "RADIO":
         return (
           <div className="mt-2 space-y-2">
             {(f.dropdown_options || []).map((o) => (
-              <label key={o} className="flex items-center gap-2 text-sm text-gray-700">
+              <label
+                key={o}
+                className="flex items-center gap-2 text-sm text-gray-700"
+              >
                 <input
                   type="radio"
                   name={key}
@@ -1250,6 +1288,7 @@ export default function TemplateMaster() {
                         </h3>
                       </div>
                     </div>
+
 
                     <div className="mt-4">
                       {/* Template Name & Type */}
