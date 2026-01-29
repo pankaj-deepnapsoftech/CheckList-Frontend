@@ -558,7 +558,7 @@ export default function TemplateStatus() {
 
   return (
     <div className="min-h-full bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-full px-4 py-6 sm:px-6 lg:px-8">
         <h1 className="text-2xl font-semibold text-gray-900 mb-6">
           Template Status
         </h1>
