@@ -631,7 +631,7 @@ const getDropdownOptions = (options = []) =>
 
   return (
     <div className="min-h-full bg-gray-50 ">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
