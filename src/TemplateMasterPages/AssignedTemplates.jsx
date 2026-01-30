@@ -6,6 +6,8 @@ import { useAssignedTemplates } from "../hooks/Template Hooks/useAssignedTemplat
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 import { useTemplateSubmission } from "../hooks/Template Hooks/useTemplateSubmission";
 import { useLogin } from "../hooks/useLogin";
+import Select from "react-select";
+
 
 const FIELD_TYPES = {
   TEXT: "Text Input",
@@ -283,7 +285,9 @@ export default function AssignedTemplates() {
         );
       case "CHECKBOX":
         return (
-          <label className={`mt-2 inline-flex items-center gap-2 text-sm text-gray-700 ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}>
+          <label
+            className={`mt-2 inline-flex items-center gap-2 text-sm text-gray-700 ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}
+          >
             <input
               type="checkbox"
               name={key}
@@ -295,60 +299,68 @@ export default function AssignedTemplates() {
             {f.is_mandatory && <span className="text-red-500">*</span>}
           </label>
         );
-      case "DROPDOWN":
-        {
-          let opts = [];
-          try {
-            opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
-          } catch {
-            opts = [];
-          }
-          return (
-            <select
-              name={key}
-              value={formik.values[key] ?? ""}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className={commonClass}
-              disabled={readOnly}
-            >
-              <option value="">Select</option>
-              {opts.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
-          );
+      case "DROPDOWN": {
+        let opts = [];
+        try {
+          opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
+        } catch {
+          opts = [];
         }
-      case "RADIO":
-        {
-          let opts = [];
-          try {
-            opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
-          } catch {
-            opts = [];
-          }
-          return (
-            <div className="mt-2 space-y-2">
-              {opts.map((o) => (
-                <label key={o} className={`flex items-center gap-2 text-sm text-gray-700 ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}>
-                  <input
-                    type="radio"
-                    name={key}
-                    value={o}
-                    checked={formik.values[key] === o}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                    disabled={readOnly}
-                  />
-                  <span>{o}</span>
-                </label>
-              ))}
-            </div>
-          );
+
+        const options = opts.map((o) => ({
+          label: o,
+          value: o,
+        }));
+
+        return (
+          <Select
+            options={options}
+            placeholder="Select"
+            isSearchable
+            isDisabled={readOnly}
+            value={
+              options.find((opt) => opt.value === formik.values[key]) || null
+            }
+            onChange={(selected) =>
+              formik.setFieldValue(key, selected ? selected.value : "")
+            }
+            onBlur={() => formik.setFieldTouched(key, true)}
+            className="mt-1 text-sm"
+            classNamePrefix="react-select"
+          />
+        );
+      }
+
+      case "RADIO": {
+        let opts = [];
+        try {
+          opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
+        } catch {
+          opts = [];
         }
+        return (
+          <div className="mt-2 space-y-2">
+            {opts.map((o) => (
+              <label
+                key={o}
+                className={`flex items-center gap-2 text-sm text-gray-700 ${readOnly ? "cursor-not-allowed opacity-70" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name={key}
+                  value={o}
+                  checked={formik.values[key] === o}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                  disabled={readOnly}
+                />
+                <span>{o}</span>
+              </label>
+            ))}
+          </div>
+        );
+      }
       case "DATE":
         return (
           <input
@@ -380,7 +392,11 @@ export default function AssignedTemplates() {
         return readOnly ? (
           formik.values[key] ? (
             <div className="mt-2">
-              <img src={formik.values[key]} alt={f.field_name} className="max-w-xs rounded-lg border border-gray-300" />
+              <img
+                src={formik.values[key]}
+                alt={f.field_name}
+                className="max-w-xs rounded-lg border border-gray-300"
+              />
             </div>
           ) : (
             <p className="text-sm text-gray-500">No image uploaded</p>

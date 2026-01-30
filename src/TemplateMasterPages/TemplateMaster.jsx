@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from "react";
-import { Edit2, Eye, Plus, Trash2, X, WorkflowIcon } from "lucide-react";
+import { Edit2, Eye, Plus, Trash2, X, WorkflowIcon, GripVertical } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useWorkflow } from "../hooks/useWorkflow";
 import SearchableDropdown from "../Components/SearchableDropDown/SearchableDropdown";
 import MultiSelectDropdown from "../Components/SearchableDropDown/MultiSelectDropdown";
 import AssignWorkflowModal from "../Components/modal/addModal/AssignWorkflowModal";
+import Select from "react-select";
 
 const FIELD_TYPES = [
   { label: "Text Input", value: "TEXT" },
@@ -22,6 +23,8 @@ const TEMPLATE_TYPES = [
   { label: "New", value: "NEW" },
   { label: "Amendment", value: "AMENDMENT" },
 ];  
+
+
 
 export default function TemplateMaster() {
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
@@ -46,6 +49,7 @@ export default function TemplateMaster() {
   const [newDropdownOptions, setNewDropdownOptions] = useState("");
   const [draftFields, setDraftFields] = useState([]);
   const [draftPreviewValues, setDraftPreviewValues] = useState({});
+  const [dragOverIndex, setDragOverIndex] = useState(null);
 
   // Edit modal field states
   const [editFieldName, setEditFieldName] = useState("");
@@ -53,6 +57,13 @@ export default function TemplateMaster() {
   const [editIsMandatory, setEditIsMandatory] = useState(false);
   const [editDropdownOptions, setEditDropdownOptions] = useState("");
   const [editingFieldId, setEditingFieldId] = useState("");
+
+const getDropdownOptions = (options = []) =>
+  options.map((opt) => ({
+    label: opt,
+    value: opt,
+  }));
+
 
   const { templatesQuery, templateQuery, createTemplate, addField, updateField, deleteField, updateTemplate, deleteTemplate, assignWorkflow } =
     useTemplateMaster(selectedTemplateId);
@@ -101,55 +112,71 @@ export default function TemplateMaster() {
             {f.field_name}
           </label>
         );
-      case "DROPDOWN":
-        {
-          let opts = [];
-          try {
-            opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
-          } catch {
-            opts = [];
-          }
-          return (
-            <select
-              value={previewValues[key] ?? ""}
-              onChange={(e) => setPreviewValue(key, e.target.value)}
-              className={commonClass}
-            >
-              <option value="">Select</option>
-              {opts.map((o) => (
-                <option key={o} value={o}>
-                  {o}
-                </option>
-              ))}
-            </select>
-          );
+     case "DROPDOWN": {
+  let opts = [];
+  try {
+    opts = f?.dropdown_options
+      ? JSON.parse(f.dropdown_options)
+      : [];
+  } catch {
+    opts = [];
+  }
+
+  const options = opts.map((o) => ({
+    label: o,
+    value: o,
+  }));
+
+  return (
+    <Select
+      options={options}
+      placeholder="Select"
+      isSearchable
+      value={
+        options.find(
+          (opt) => opt.value === draftPreviewValues[key]
+        ) || null
+      }
+      onChange={(selected) =>
+        setDraftPreviewValue(
+          key,
+          selected ? selected.value : ""
+        )
+      }
+      className="mt-1 text-sm"
+      classNamePrefix="react-select"
+    />
+  );
+}
+
+      case "RADIO": {
+        let opts = [];
+        try {
+          opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
+        } catch {
+          opts = [];
         }
-      case "RADIO":
-        {
-          let opts = [];
-          try {
-            opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
-          } catch {
-            opts = [];
-          }
-          return (
-            <div className="mt-2 space-y-2">
-              {opts.map((o) => (
-                <label key={o} className="flex items-center gap-2 text-sm text-gray-700">
-                  <input
-                    type="radio"
-                    name={key}
-                    value={o}
-                    checked={previewValues[key] === o}
-                    onChange={(e) => setPreviewValue(key, e.target.value)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span>{o}</span>
-                </label>
-              ))}
-            </div>
-          );
-        }
+        return (
+          <div className="mt-2 space-y-2">
+            {opts.map((o) => (
+              <label
+                key={o}
+                className="flex items-center gap-2 text-sm text-gray-700"
+              >
+                <input
+                  type="radio"
+                  name={key}
+                  value={o}
+                  checked={previewValues[key] === o}
+                  onChange={(e) => setPreviewValue(key, e.target.value)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500"
+                />
+                <span>{o}</span>
+              </label>
+            ))}
+          </div>
+        );
+      }
       case "DATE":
         return (
           <input
@@ -245,26 +272,38 @@ export default function TemplateMaster() {
             {f.is_mandatory && <span className="text-red-500">*</span>}
           </label>
         );
-      case "DROPDOWN":
+      case "DROPDOWN": {
+        const options = (f.dropdown_options || []).map((o) => ({
+          label: o,
+          value: o,
+        }));
+
         return (
-          <select
-            value={draftPreviewValues[key] ?? ""}
-            onChange={(e) => setDraftPreviewValue(key, e.target.value)}
-            className={commonClass}
-          >
-            <option value="">Select</option>
-            {(f.dropdown_options || []).map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
+          <Select
+            options={options}
+            placeholder="Select"
+            isSearchable
+            value={
+              options.find((opt) => opt.value === draftPreviewValues[key]) ||
+              null
+            }
+            onChange={(selected) =>
+              setDraftPreviewValue(key, selected ? selected.value : "")
+            }
+            className="mt-1 text-sm"
+            classNamePrefix="react-select"
+          />
         );
+      }
+
       case "RADIO":
         return (
           <div className="mt-2 space-y-2">
             {(f.dropdown_options || []).map((o) => (
-              <label key={o} className="flex items-center gap-2 text-sm text-gray-700">
+              <label
+                key={o}
+                className="flex items-center gap-2 text-sm text-gray-700"
+              >
                 <input
                   type="radio"
                   name={key}
@@ -543,6 +582,17 @@ export default function TemplateMaster() {
     });
   };
 
+  const reorderDraftFields = (fromIndex, toIndex) => {
+    if (fromIndex === toIndex) return;
+    setDraftFields((prev) => {
+      const next = [...prev];
+      const [removed] = next.splice(fromIndex, 1);
+      next.splice(toIndex, 0, removed);
+      return next;
+    });
+    setDragOverIndex(null);
+  };
+
   const saveNewTemplateWithFields = async (e) => {
     e.preventDefault();
 
@@ -581,7 +631,7 @@ export default function TemplateMaster() {
 
   return (
     <div className="min-h-full bg-gray-50 ">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
@@ -923,7 +973,7 @@ export default function TemplateMaster() {
                         </div>
                       )}
 
-                      {/* Fields Preview */}
+                      {/* Fields Preview – drag handle se upar/neeche reorder */}
                       {draftFields.length === 0 ? (
                         <div className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
                           {newTemplateName
@@ -932,17 +982,51 @@ export default function TemplateMaster() {
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          {draftFields.map((f) => (
-                            <div key={f._tmpId}>
-                              {f.field_type !== "CHECKBOX" && (
-                                <label className="block text-xs font-medium text-gray-600 mb-1">
-                                  {f.field_name}
-                                  {f.is_mandatory && (
-                                    <span className="text-red-500"> *</span>
-                                  )}
-                                </label>
-                              )}
-                              {renderDraftPreviewInput(f)}
+                          {draftFields.map((f, index) => (
+                            <div
+                              key={f._tmpId}
+                              className={`flex items-start gap-2 rounded-lg border p-3 transition-colors ${
+                                dragOverIndex === index
+                                  ? "border-blue-400 bg-blue-50/50"
+                                  : "border-gray-200 bg-white"
+                              }`}
+                              onDragOver={(e) => {
+                                e.preventDefault();
+                                e.dataTransfer.dropEffect = "move";
+                                setDragOverIndex(index);
+                              }}
+                              onDragLeave={() => setDragOverIndex(null)}
+                              onDrop={(e) => {
+                                e.preventDefault();
+                                const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+                                if (Number.isNaN(fromIndex)) return;
+                                reorderDraftFields(fromIndex, index);
+                                setDragOverIndex(null);
+                              }}
+                            >
+                              <div
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData("text/plain", String(index));
+                                  e.dataTransfer.effectAllowed = "move";
+                                }}
+                                onDragEnd={() => setDragOverIndex(null)}
+                                className="cursor-grab active:cursor-grabbing mt-1 rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                                title="Drag to reorder field up/down"
+                              >
+                                <GripVertical size={18} />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                {f.field_type !== "CHECKBOX" && (
+                                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                                    {f.field_name}
+                                    {f.is_mandatory && (
+                                      <span className="text-red-500"> *</span>
+                                    )}
+                                  </label>
+                                )}
+                                {renderDraftPreviewInput(f)}
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -1204,6 +1288,7 @@ export default function TemplateMaster() {
                         </h3>
                       </div>
                     </div>
+
 
                     <div className="mt-4">
                       {/* Template Name & Type */}

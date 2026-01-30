@@ -29,19 +29,19 @@ export default function Login() {
       {/* MAX WIDTH CONTAINER */}
       <div className="relative z-10 min-h-screen flex items-center justify-center">
         <div className="w-full max-w-[1440px] flex items-center justify-center lg:justify-between px-6 sm:px-10 lg:px-16">
-          
+
           {/* LEFT CONTENT */}
           <div className="hidden lg:block w-[45%] text-white">
             <h1 className="text-4xl xl:text-5xl font-semibold mb-12 leading-tight">
-              Checklist Management System
+              JPM Group Digitization
             </h1>
 
             <ul className="space-y-6 text-lg xl:text-xl">
               {[
-                "Digitize Your Manual Checklists",
-                "Ensure Accountability & Accuracy",
-                "Track Tasks & Approvals in Real Time",
-                "Improve Operational Efficiency",
+                "Create & Manage Digital Checklist Templates",
+                "Centralized Control Across All PLC & Modules",
+                "Real-Time Task Tracking, Reviews & Approvals",
+                "Improve Compliance, Accuracy & Operational Efficiency",
               ].map((text, i) => (
                 <li key={i} className="flex items-center gap-4">
                   <span className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center font-bold">

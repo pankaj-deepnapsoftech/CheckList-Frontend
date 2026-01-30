@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Eye, Search, X } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Search, X, Pencil, UserPlus } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
+import { useTemplateSubmission } from "../hooks/Template Hooks/useTemplateSubmission";
 import { useFormik } from "formik";
 import { useLogin } from "../hooks/useLogin";
 
@@ -15,13 +17,22 @@ const InfoItem = ({ label, value }) => (
 
 /* -------------------- Main Component -------------------- */
 export default function TemplateApproveReject() {
+  const queryClient = useQueryClient();
   const { getAllAssignedTemp, PostHistorTem } = RegisterEmployee();
+  const { updateSubmission } = useTemplateSubmission();
   const [approvalTemplate, setApprovalTemplate] = useState(null);
+  const [rejectionTemplate, setRejectionTemplate] = useState(null);
+  const [reassignTemplate, setReassignTemplate] = useState(null);
   const { logedinUser } = useLogin();
   const [searchText, setSearchText] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isApprovalOpen, setIsApprovalOpen] = useState(false);
+  const [isRejectionOpen, setIsRejectionOpen] = useState(false);
+  const [isReassignOpen, setIsReassignOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editTemplate, setEditTemplate] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
   const assignedTemplates =
     getAllAssignedTemp?.data?.flatMap(
       (user) =>
@@ -32,27 +43,14 @@ export default function TemplateApproveReject() {
           full_name: user?.full_name,
           email: user?.email,
           employee_plant: user?.employee_plant,
+          hod_id: user?.hod_id,
         })) || [],
     ) || [];
 
-  const currentUserId = logedinUser?.data?._id;
-
-  const filteredTemplates = assignedTemplates.filter((t) => {
-  
-    if (!t?.template_name?.toLowerCase().includes(searchText.toLowerCase())) {
-      return false;
-    }
-    const currentStage = t?.approvals?.length || 0;
-    const workflowStage = t?.workflow?.workflow?.[currentStage];
-
-    if (!workflowStage) return false;
-    if (workflowStage?.group === "HOD") {
-      return true;
-    }
-
-    const groupUsers = workflowStage?.group_users || [];
-    return groupUsers.some((gu) => gu?.user_id === currentUserId);
-  });
+  // Backend already returns only templates where current approver is logged-in user (handles reassign).
+  const filteredTemplates = assignedTemplates.filter((t) =>
+    t?.template_name?.toLowerCase().includes(searchText.toLowerCase())
+  );
 
 
 
@@ -65,11 +63,15 @@ export default function TemplateApproveReject() {
       remarks: "",
       user_id: "",
       template_id: "",
+      reassign_user_id: "",
     },
     onSubmit: (values) => {
       PostHistorTem.mutate(values, {
         onSuccess: () => {
           setIsApprovalOpen(false);
+          setIsRejectionOpen(false);
+          setApprovalTemplate(null);
+          setRejectionTemplate(null);
           formik.resetForm();
         },
       });
@@ -79,20 +81,79 @@ export default function TemplateApproveReject() {
   useEffect(() => {
     if (approvalTemplate) {
       formik.setValues({
-        current_stage: approvalTemplate?.approvals?.length || 0,
+        current_stage: approvalTemplate?.current_approver_stage ?? approvalTemplate?.approvals?.length ?? 0,
         reassign_stage: null,
         workflow_id: approvalTemplate?.workflow?.workflow_id || "",
         status: "approved",
         remarks: "",
         user_id: approvalTemplate?.user_db_id || "",
         template_id: approvalTemplate?.template_id || "",
+        reassign_user_id: "",
       });
     }
   }, [approvalTemplate]);
 
+  useEffect(() => {
+    if (rejectionTemplate) {
+      formik.setValues({
+        current_stage: rejectionTemplate?.current_approver_stage ?? rejectionTemplate?.approvals?.length ?? 0,
+        reassign_stage: null,
+        workflow_id: rejectionTemplate?.workflow?.workflow_id || "",
+        status: "rejected",
+        remarks: "",
+        user_id: rejectionTemplate?.user_db_id || "",
+        template_id: rejectionTemplate?.template_id || "",
+        reassign_user_id: "",
+      });
+    }
+  }, [rejectionTemplate]);
+
+  useEffect(() => {
+    if (reassignTemplate) {
+      formik.setValues({
+        current_stage: reassignTemplate?.current_approver_stage ?? reassignTemplate?.approvals?.length ?? 0,
+        reassign_stage: null,
+        workflow_id: reassignTemplate?.workflow?.workflow_id || "",
+        status: "reassigned",
+        remarks: "",
+        user_id: reassignTemplate?.user_db_id || "",
+        template_id: reassignTemplate?.template_id || "",
+        reassign_user_id: "",
+      });
+    }
+  }, [reassignTemplate]);
+
   const handleReject = (id) => {
-    const reason = prompt("Reason for rejection:");
-    if (reason) alert(`Rejected: ${reason}`);
+    const tpl = assignedTemplates.find((t) => t.template_id === id);
+    if (tpl) {
+      setRejectionTemplate(tpl);
+      setIsRejectionOpen(true);
+    }
+  };
+
+  const handleApprove = (id) => {
+    const tpl = assignedTemplates.find((t) => t.template_id === id);
+    if (tpl) {
+      setApprovalTemplate(tpl);
+      setIsApprovalOpen(true);
+    }
+  };
+
+  const handleReassign = (id) => {
+    const tpl = assignedTemplates.find((t) => t.template_id === id);
+    if (tpl) {
+      setReassignTemplate(tpl);
+      setIsReassignOpen(true);
+    }
+  };
+
+  // Backend sends only previous approvers (who have already approved) as allowed reassign targets. HOD cannot reassign.
+  const getReassignOptions = (template) => {
+    const users = template?.allowed_reassign_users || [];
+    return users.map((u) => ({
+      value: u.user_id,
+      label: u.full_name || u.user_id || "—",
+    }));
   };
 
   const openViewModal = (template) => {
@@ -105,9 +166,58 @@ export default function TemplateApproveReject() {
     setIsViewModalOpen(false);
   };
 
+  const openEditModal = (template) => {
+    if (!template?.submission?.submission_id) return;
+    setEditTemplate(template);
+    setEditFormData({ ...(template.submission?.form_data || {}) });
+    setIsEditOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditTemplate(null);
+    setEditFormData({});
+    setIsEditOpen(false);
+  };
+
+  const handleEditFieldChange = (fieldKey, value) => {
+    setEditFormData((prev) => ({ ...prev, [fieldKey]: value }));
+  };
+
+  const handleEditSave = () => {
+    if (!editTemplate?.submission?.submission_id) return;
+    updateSubmission.mutate(
+      {
+        id: editTemplate.submission.submission_id,
+        payload: {
+          form_data: editFormData,
+          status: editTemplate.submission?.status || "SUBMITTED",
+        },
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["get-assign-template"] });
+          closeEditModal();
+          if (selectedTemplate?.template_id === editTemplate?.template_id) {
+            setSelectedTemplate((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    submission: {
+                      ...prev.submission,
+                      form_data: editFormData,
+                    },
+                  }
+                : null
+            );
+          }
+        },
+      }
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mx-auto max-w-full px-4 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-1">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
@@ -181,41 +291,63 @@ export default function TemplateApproveReject() {
                 </p>
               </div>
 
-              <div className="mt-6 flex gap-2">
+              <div className="mt-6 flex flex-wrap gap-2">
                 <button
                   onClick={() => openViewModal(template)}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl border
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-2 rounded-xl border border-gray-400 cursor-pointer
                            bg-white py-2 text-sm font-medium text-gray-700
                            hover:bg-indigo-50 hover:text-indigo-700"
                 >
                   <Eye size={16} />
                   View
                 </button>
-
+                <button
+                  onClick={() => openEditModal(template)}
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-2 rounded-xl border
+                           border-amber-200 bg-amber-50 py-2 text-sm font-medium text-amber-800
+                           hover:bg-amber-100 hover:border-amber-300"
+                >
+                  <Pencil size={16} />
+                  Edit
+                </button>
                 <button
                   onClick={() => {
                     setIsApprovalOpen(true);
                     setApprovalTemplate(template);
                   }}
-                  className="flex-1 flex items-center justify-center gap-1 rounded-xl
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-1 cursor-pointer rounded-xl
                            bg-gradient-to-r from-emerald-500 to-green-600
-                           py-2 text-sm font-medium text-white
+                           py-2 px-2 text-sm font-medium text-white
                            hover:from-emerald-600 hover:to-green-700"
                 >
                   <CheckCircle2 size={16} />
                   Approve
                 </button>
-
                 <button
-                  onClick={() => handleReject(template.template_id)}
-                  className="flex-1 flex items-center justify-center gap-1 rounded-xl
+                  onClick={() => {
+                    setIsRejectionOpen(true);
+                    setRejectionTemplate(template);
+                  }}
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-1 cursor-pointer rounded-xl
                            bg-gradient-to-r from-rose-500 to-red-600
-                           py-2 text-sm font-medium text-white
+                           py-2 px-2 text-sm font-medium text-white
                            hover:from-rose-600 hover:to-red-700"
                 >
                   <XCircle size={16} />
                   Reject
                 </button>
+                {template?.allowed_reassign_user_ids?.length > 0 && (
+                  <button
+                    onClick={() => handleReassign(template.template_id)}
+                    className="flex-1 min-w-[80px] flex items-center justify-center gap-1 cursor-pointer rounded-xl
+                             bg-gradient-to-r from-violet-500 to-purple-600
+                             py-2 px-2 text-sm font-medium text-white
+                             hover:from-violet-600 hover:to-purple-700"
+                  >
+                    <UserPlus size={16} />
+                    Reassign
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -231,13 +363,13 @@ export default function TemplateApproveReject() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl">
               {/* Header */}
-              <div className="flex justify-between items-center border-b px-6 py-4">
+              <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
                 <h2 className="text-xl font-bold text-gray-900">
                   {selectedTemplate?.template_name}
                 </h2>
                 <button
                   onClick={closeViewModal}
-                  className="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
+                  className="rounded-lg p-1 cursor-pointer text-gray-500 hover:bg-gray-100"
                 >
                   <X size={22} />
                 </button>
@@ -292,36 +424,134 @@ export default function TemplateApproveReject() {
                   </div>
                 </div>
 
+                {/* Template Status / Approval History */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                    Template Status History
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-3">
+                    Kisne kab approve, reject ya reassign kiya
+                  </p>
+                  {selectedTemplate?.approvals?.length > 0 ? (
+                    <div className="overflow-x-auto rounded-xl border border-gray-200">
+                      <table className="min-w-full text-sm">
+                        <thead className="bg-gray-50 border-b border-gray-200">
+                          <tr>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Date</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Stage</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Action</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">By</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Reassign Status</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Remarks</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {selectedTemplate.approvals.map((a, idx) => {
+                            const actionLabel =
+                              (a.status || "").toLowerCase() === "reassigned"
+                                ? `Reassigned to ${a.reassign_to_name || a.reassign_user_id || "—"}`
+                                : (a.status || "").toLowerCase() === "rejected"
+                                ? "Rejected"
+                                : (a.status || "").toLowerCase() === "approved"
+                                ? "Approved"
+                                : a.status || "—";
+                            const reassignStatusLabel =
+                              a.status === "reassigned"
+                                ? a.reassign_status
+                                  ? "Approved by HOD/approver"
+                                  : "Pending"
+                                : "—";
+                            return (
+                              <tr key={a.approval_id || idx} className="hover:bg-gray-50/50">
+                                <td className="px-4 py-2 text-gray-700">
+                                  {a.approved_at
+                                    ? new Date(a.approved_at).toLocaleString()
+                                    : "—"}
+                                </td>
+                                <td className="px-4 py-2 text-gray-700">{a.current_stage ?? "—"}</td>
+                                <td className="px-4 py-2">
+                                  <span
+                                    className={
+                                      a.status === "approved"
+                                        ? "text-green-600 font-medium"
+                                        : a.status === "rejected"
+                                        ? "text-red-600 font-medium"
+                                        : a.status === "reassigned"
+                                        ? "text-violet-600 font-medium"
+                                        : "text-gray-700"
+                                    }
+                                  >
+                                    {actionLabel}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-2 text-gray-700">{a.approved_by_name || "—"}</td>
+                                <td className="px-4 py-2 text-gray-600">{reassignStatusLabel}</td>
+                                <td className="px-4 py-2 text-gray-600 max-w-[200px] truncate" title={a.remarks}>
+                                  {a.remarks || "—"}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 italic">No approval history yet.</p>
+                  )}
+                </div>
+
                 {/* Footer */}
-                <div className="flex justify-end gap-3 border-t pt-4">
+                <div className="flex flex-wrap justify-end gap-3 border-t border-gray-200 pt-4">
                   <button
                     onClick={closeViewModal}
-                    className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50"
+                    className="rounded-xl border cursor-pointer border-gray-400 px-4 py-2 text-sm hover:bg-gray-50"
                   >
                     Close
                   </button>
-
                   <button
                     onClick={() => {
-                      handleReject(selectedTemplate?.template_id);
                       closeViewModal();
+                      openEditModal(selectedTemplate);
                     }}
-                    className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
+                    className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-100"
+                  >
+                    <Pencil size={16} />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      closeViewModal();
+                      setIsRejectionOpen(true);
+                      setRejectionTemplate(selectedTemplate);
+                    }}
+                    className="flex items-center gap-2 cursor-pointer rounded-xl bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
                   >
                     <XCircle size={16} />
                     Reject
                   </button>
-
                   <button
                     onClick={() => {
-                      handleApprove(selectedTemplate?.template_id);
                       closeViewModal();
+                      setIsApprovalOpen(true);
+                      setApprovalTemplate(selectedTemplate);
                     }}
-                    className="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
+                    className="flex items-center gap-2 cursor-pointer rounded-xl bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
                   >
                     <CheckCircle2 size={16} />
                     Approve
                   </button>
+                  {selectedTemplate?.allowed_reassign_user_ids?.length > 0 && (
+                    <button
+                      onClick={() => {
+                        closeViewModal();
+                        handleReassign(selectedTemplate?.template_id);
+                      }}
+                      className="flex items-center gap-2 cursor-pointer rounded-xl bg-violet-600 px-4 py-2 text-sm text-white hover:bg-violet-700"
+                    >
+                      <UserPlus size={16} />
+                      Reassign
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -331,7 +561,7 @@ export default function TemplateApproveReject() {
         {isApprovalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+              <h2 className="text-xl font-semibold text-green-600 mb-4">
                 Approval Remarks
               </h2>
 
@@ -352,6 +582,7 @@ export default function TemplateApproveReject() {
 
                 <div className="flex justify-end gap-3">
                   <button
+                    type="button"
                     onClick={() => setIsApprovalOpen(false)}
                     className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                   >
@@ -365,6 +596,169 @@ export default function TemplateApproveReject() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {isRejectionOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
+              <h2 className="text-xl font-semibold text-red-600 mb-4">
+                Rejection Remarks
+              </h2>
+
+              <form onSubmit={formik.handleSubmit}>
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
+                    Remarks
+                  </label>
+                  <textarea
+                    name="remarks"
+                    value={formik.values.remarks}
+                    onChange={formik.handleChange}
+                    rows={4}
+                    placeholder="Enter your remarks here..."
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsRejectionOpen(false)}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {isReassignOpen && reassignTemplate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
+              <h2 className="text-xl font-semibold text-violet-600 mb-4">
+                Reassign to
+              </h2>
+
+              <form onSubmit={formik.handleSubmit}>
+                <input type="hidden" name="status" value="reassigned" />
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
+                    Reassign to user
+                  </label>
+                  <select
+                    name="reassign_user_id"
+                    value={formik.values.reassign_user_id}
+                    onChange={formik.handleChange}
+                    required
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  >
+                    <option value="">Select user...</option>
+                    {getReassignOptions(reassignTemplate).map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
+                    Remarks (optional)
+                  </label>
+                  <textarea
+                    name="remarks"
+                    value={formik.values.remarks}
+                    onChange={formik.handleChange}
+                    rows={2}
+                    placeholder="Optional remarks..."
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsReassignOpen(false);
+                      setReassignTemplate(null);
+                    }}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-lg bg-violet-600 px-5 py-2 text-sm font-medium text-white hover:bg-violet-700"
+                  >
+                    Reassign
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Edit submission modal */}
+        {isEditOpen && editTemplate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl p-6">
+              <div className="flex justify-between items-center border-b pb-4 mb-4">
+                <h2 className="text-xl font-semibold text-amber-800">
+                  Edit submission — {editTemplate?.template_name}
+                </h2>
+                <button
+                  onClick={closeEditModal}
+                  className="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+              <div className="space-y-4">
+                {Object.keys(editFormData).length === 0 ? (
+                  <p className="text-sm text-gray-500">No form fields to edit.</p>
+                ) : (
+                  Object.entries(editFormData).map(([key, value]) => (
+                    <div key={key} className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase text-gray-500">
+                        {key}
+                      </label>
+                      <input
+                        type="text"
+                        value={value ?? ""}
+                        onChange={(e) => handleEditFieldChange(key, e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEditSave}
+                  disabled={updateSubmission.isPending}
+                  className="rounded-lg bg-amber-600 px-5 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                >
+                  {updateSubmission.isPending ? "Saving..." : "Save"}
+                </button>
+              </div>
             </div>
           </div>
         )}

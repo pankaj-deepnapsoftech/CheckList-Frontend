@@ -29,6 +29,16 @@ function durationMinutes(startTime, stopTime) {
   return Math.max(0, Math.round((stop - start) / 60000));
 }
 
+function formatDurationHoursMinutes(totalMinutes) {
+  const m = totalMinutes != null ? Number(totalMinutes) : NaN;
+  if (Number.isNaN(m) || m < 0) return "—";
+  const hours = Math.floor(m / 60);
+  const mins = Math.round(m % 60);
+  if (hours === 0) return `${mins} min`;
+  if (mins === 0) return `${hours}h`;
+  return `${hours}h ${mins} min`;
+}
+
 export default function PlcStoppage() {
   const { getAllPlcData } = usePlcData({});
   const plcList = getAllPlcData.data || [];
@@ -41,17 +51,18 @@ export default function PlcStoppage() {
       .filter((row) => row.start_time || row.stop_time)
       .map((row) => {
         const start = row.start_time || row.timestamp;
-        const stop = row.stop_time || row.timestamp;
-        const mins = durationMinutes(start, stop);
+        const stop = row.stop_time ?? null;
+        const isRunning = !stop && start;
+        const mins = isRunning ? null : durationMinutes(start, stop);
         return {
           id: row._id,
           machine: row.model || row.device_id || "—",
           code: row.device_id || "—",
           startTime: formatDateTime(start),
-          stopTime: formatDateTime(stop),
+          stopTime: isRunning ? "—" : formatDateTime(stop),
           durationMinutes: mins,
           reason: row.reason || "—",
-          status: "Recorded",
+          status: isRunning ? "Running" : "Recorded",
         };
       })
       .sort((a, b) => {
@@ -64,18 +75,21 @@ export default function PlcStoppage() {
   }, [plcList]);
 
   const totalStoppages = stoppages.length;
+  const completedStoppages = useMemo(
+    () => stoppages.filter((s) => s.durationMinutes != null).length,
+    [stoppages]
+  );
   const totalMinutes = useMemo(
-    () => stoppages.reduce((sum, s) => sum + s.durationMinutes, 0),
+    () => stoppages.reduce((sum, s) => sum + (s.durationMinutes ?? 0), 0),
     [stoppages]
   );
   const runningMachines = useMemo(() => {
-    const deviceIds = [...new Set((plcList || []).map((r) => r.device_id).filter(Boolean))];
-    return Math.max(0, deviceIds.length);
+    return (plcList || []).filter((r) => r.start_time && !r.stop_time).length;
   }, [plcList]);
 
   return (
     <div className="min-h-full bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-semibold text-gray-900">
@@ -131,7 +145,7 @@ export default function PlcStoppage() {
               Total Stoppage Time
             </p>
             <p className="mt-1 text-2xl font-semibold text-amber-600">
-              {totalMinutes} min
+              {formatDurationHoursMinutes(totalMinutes)}
             </p>
             {/* <p className="mt-1 text-[11px] text-emerald-700">Total Time Stoppage</p> */}
           </div>
@@ -140,7 +154,7 @@ export default function PlcStoppage() {
               Average Duration
             </p>
             <p className="mt-1 text-2xl font-semibold text-emerald-600">
-              {totalStoppages ? Math.round(totalMinutes / totalStoppages) : 0} min
+              {completedStoppages ? formatDurationHoursMinutes(Math.round(totalMinutes / completedStoppages)) : "—"}
             </p>
              {/* <p className="mt-1 text-[11px] text-emerald-700">Total Average Duration</p> */}
           </div>
@@ -172,7 +186,7 @@ export default function PlcStoppage() {
                     Stopped Time
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Duration (min)
+                    Duration
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
                     Reason
@@ -196,7 +210,7 @@ export default function PlcStoppage() {
                       {s.stopTime}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
-                      {s.durationMinutes} min
+                      {formatDurationHoursMinutes(s.durationMinutes)}
                     </td>
                     <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
                       {s.reason}
@@ -204,7 +218,9 @@ export default function PlcStoppage() {
                     <td className="whitespace-nowrap px-4 py-2 text-xs">
                       <span
                         className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
-                          s.status === "Stopped"
+                          s.status === "Running"
+                            ? "bg-emerald-50 text-emerald-600"
+                            : s.status === "Stopped"
                             ? "bg-rose-50 text-rose-600"
                             : s.status === "Resolved"
                             ? "bg-emerald-50 text-emerald-600"

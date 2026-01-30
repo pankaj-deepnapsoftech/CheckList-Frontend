@@ -56,15 +56,38 @@ function PlcMachineCard({ machine, products = [] }) {
     });
   };
 
+  const statusVal = (machine.status || "").trim() || "—";
+  const statusLower = statusVal.toLowerCase();
+  const isRunning = statusLower === "running";
+  const isStopped = statusLower === "stopped";
+  const isIdle = statusLower === "idle" || statusLower === "—";
+  const statusStyles = isRunning
+    ? "bg-emerald-500/12 text-emerald-700 border-emerald-200"
+    : isStopped
+    ? "bg-rose-500/12 text-rose-700 border-rose-200"
+    : isIdle
+    ? "bg-slate-500/10 text-slate-600 border-slate-200"
+    : "bg-amber-500/12 text-amber-700 border-amber-200";
+  const dotColor = isRunning ? "bg-emerald-500" : isStopped ? "bg-rose-500" : "bg-slate-400";
+
   return (
-    <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50/60 via-white to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col gap-3">
-      <div className="flex items-start justify-between pb-2 border-b border-blue-100/60">
-        <div>
+    <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50/60 via-white to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col gap-3 relative">
+      <div className="flex items-start justify-between pb-2 border-b border-blue-100/60 gap-3">
+        <div className="min-w-0 flex-1">
           <h3 className="text-lg font-semibold text-gray-800">
             {machine.device_id || "N/A"}
           </h3>
           <p className="text-xs text-gray-500 mt-0.5">Model: {machine.model || "N/A"}</p>
+          {machine.alarm && (
+            <p className="text-xs text-rose-600 mt-1 font-semibold">Alarm: {machine.alarm}</p>
+          )}
         </div>
+        <span
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyles}`}
+        >
+          {isRunning && <span className={`h-1.5 w-1.5 rounded-full ${dotColor} animate-pulse`} />}
+          {statusVal}
+        </span>
       </div>
 
       {/* Product fields (MATERIAL_CODE, PART_NO, MODEL_CODE) for this machine */}
@@ -105,6 +128,18 @@ function PlcMachineCard({ machine, products = [] }) {
             {machine.production_count || 0}
           </p>
         </div>
+          <div className="space-y-1">
+            <p className="text-gray-500">Start Time</p>
+            <p className="font-medium text-gray-800">
+              {formatDate(machine.start_time || machine.Start_time)}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-gray-500">Stop Time</p>
+            <p className="font-medium text-gray-800">
+              {machine.stop_time ? formatDate(machine.stop_time) : (machine.Stop_time ? formatDate(machine.Stop_time) : "—")}
+            </p>
+          </div>
         <div className="space-y-1">
           <p className="text-gray-500">Latch Force</p>
           <p className="font-semibold text-blue-700">{machine.latch_force || 0}</p>
@@ -339,7 +374,7 @@ export default function PlcLiveData() {
 
   return (
     <div className="min-h-full bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
