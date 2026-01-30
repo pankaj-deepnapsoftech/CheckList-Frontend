@@ -78,6 +78,9 @@ function PlcMachineCard({ machine, products = [] }) {
             {machine.device_id || "N/A"}
           </h3>
           <p className="text-xs text-gray-500 mt-0.5">Model: {machine.model || "N/A"}</p>
+          {machine.alarm && (
+            <p className="text-xs text-rose-600 mt-1 font-semibold">Alarm: {machine.alarm}</p>
+          )}
         </div>
         <span
           className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyles}`}
@@ -125,6 +128,18 @@ function PlcMachineCard({ machine, products = [] }) {
             {machine.production_count || 0}
           </p>
         </div>
+          <div className="space-y-1">
+            <p className="text-gray-500">Start Time</p>
+            <p className="font-medium text-gray-800">
+              {formatDate(machine.start_time || machine.Start_time)}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <p className="text-gray-500">Stop Time</p>
+            <p className="font-medium text-gray-800">
+              {machine.stop_time ? formatDate(machine.stop_time) : (machine.Stop_time ? formatDate(machine.Stop_time) : "—")}
+            </p>
+          </div>
         <div className="space-y-1">
           <p className="text-gray-500">Latch Force</p>
           <p className="font-semibold text-blue-700">{machine.latch_force || 0}</p>
