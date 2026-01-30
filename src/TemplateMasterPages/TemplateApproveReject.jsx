@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Eye, Search, X, Pencil } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Search, X, Pencil, UserPlus } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useTemplateSubmission } from "../hooks/Template Hooks/useTemplateSubmission";
@@ -22,12 +22,14 @@ export default function TemplateApproveReject() {
   const { updateSubmission } = useTemplateSubmission();
   const [approvalTemplate, setApprovalTemplate] = useState(null);
   const [rejectionTemplate, setRejectionTemplate] = useState(null);
+  const [reassignTemplate, setReassignTemplate] = useState(null);
   const { logedinUser } = useLogin();
   const [searchText, setSearchText] = useState("");
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isApprovalOpen, setIsApprovalOpen] = useState(false);
   const [isRejectionOpen, setIsRejectionOpen] = useState(false);
+  const [isReassignOpen, setIsReassignOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTemplate, setEditTemplate] = useState(null);
   const [editFormData, setEditFormData] = useState({});
@@ -41,56 +43,14 @@ export default function TemplateApproveReject() {
           full_name: user?.full_name,
           email: user?.email,
           employee_plant: user?.employee_plant,
+          hod_id: user?.hod_id,
         })) || [],
     ) || [];
 
-  const currentUserId = logedinUser?.data?._id;
-  const filteredTemplates = assignedTemplates.filter((t) => {
-    if (!t?.template_name?.toLowerCase().includes(searchText.toLowerCase())) {
-      return false;
-    }
-
-    const approvals = t?.approvals || [];
-    const workflowSteps = t?.workflow?.workflow || [];
-
-   
-    const lastApprovedStage =
-      approvals.length > 0
-        ? Math.max(...approvals.map((a) => a.current_stage))
-        : -1;
-
-   
-    const nextStageIndex = lastApprovedStage + 1;
-    const nextStage = workflowSteps[nextStageIndex];
-
-    if (!nextStage) return false;
-
-
-    if (nextStage.group === "HOD") {
-      const hodAlreadyApproved = approvals.some(
-        (a) =>
-          a.current_stage === nextStageIndex && a.approved_by === currentUserId,
-      );
-
-      return !hodAlreadyApproved;
-    }
-
-
-    const groupUsers = nextStage.group_users || [];
-    if (groupUsers.length === 0) return false;
-
-   
-    const stageApprovals = approvals.filter(
-      (a) => a.current_stage === nextStageIndex,
-    );
-
- 
-    const nextApproverIndex = stageApprovals.length;
-
-    const nextApprover = groupUsers[nextApproverIndex];
-
-    return nextApprover?.user_id === currentUserId;
-  });
+  // Backend already returns only templates where current approver is logged-in user (handles reassign).
+  const filteredTemplates = assignedTemplates.filter((t) =>
+    t?.template_name?.toLowerCase().includes(searchText.toLowerCase())
+  );
 
 
 
@@ -103,6 +63,7 @@ export default function TemplateApproveReject() {
       remarks: "",
       user_id: "",
       template_id: "",
+      reassign_user_id: "",
     },
     onSubmit: (values) => {
       PostHistorTem.mutate(values, {
@@ -120,13 +81,14 @@ export default function TemplateApproveReject() {
   useEffect(() => {
     if (approvalTemplate) {
       formik.setValues({
-        current_stage: approvalTemplate?.approvals?.length || 0,
+        current_stage: approvalTemplate?.current_approver_stage ?? approvalTemplate?.approvals?.length ?? 0,
         reassign_stage: null,
         workflow_id: approvalTemplate?.workflow?.workflow_id || "",
         status: "approved",
         remarks: "",
         user_id: approvalTemplate?.user_db_id || "",
         template_id: approvalTemplate?.template_id || "",
+        reassign_user_id: "",
       });
     }
   }, [approvalTemplate]);
@@ -134,16 +96,32 @@ export default function TemplateApproveReject() {
   useEffect(() => {
     if (rejectionTemplate) {
       formik.setValues({
-        current_stage: rejectionTemplate?.approvals?.length || 0,
+        current_stage: rejectionTemplate?.current_approver_stage ?? rejectionTemplate?.approvals?.length ?? 0,
         reassign_stage: null,
         workflow_id: rejectionTemplate?.workflow?.workflow_id || "",
         status: "rejected",
         remarks: "",
         user_id: rejectionTemplate?.user_db_id || "",
         template_id: rejectionTemplate?.template_id || "",
+        reassign_user_id: "",
       });
     }
   }, [rejectionTemplate]);
+
+  useEffect(() => {
+    if (reassignTemplate) {
+      formik.setValues({
+        current_stage: reassignTemplate?.current_approver_stage ?? reassignTemplate?.approvals?.length ?? 0,
+        reassign_stage: null,
+        workflow_id: reassignTemplate?.workflow?.workflow_id || "",
+        status: "reassigned",
+        remarks: "",
+        user_id: reassignTemplate?.user_db_id || "",
+        template_id: reassignTemplate?.template_id || "",
+        reassign_user_id: "",
+      });
+    }
+  }, [reassignTemplate]);
 
   const handleReject = (id) => {
     const tpl = assignedTemplates.find((t) => t.template_id === id);
@@ -159,6 +137,23 @@ export default function TemplateApproveReject() {
       setApprovalTemplate(tpl);
       setIsApprovalOpen(true);
     }
+  };
+
+  const handleReassign = (id) => {
+    const tpl = assignedTemplates.find((t) => t.template_id === id);
+    if (tpl) {
+      setReassignTemplate(tpl);
+      setIsReassignOpen(true);
+    }
+  };
+
+  // Backend sends only previous approvers (who have already approved) as allowed reassign targets. HOD cannot reassign.
+  const getReassignOptions = (template) => {
+    const users = template?.allowed_reassign_users || [];
+    return users.map((u) => ({
+      value: u.user_id,
+      label: u.full_name || u.user_id || "—",
+    }));
   };
 
   const openViewModal = (template) => {
@@ -341,6 +336,18 @@ export default function TemplateApproveReject() {
                   <XCircle size={16} />
                   Reject
                 </button>
+                {template?.allowed_reassign_user_ids?.length > 0 && (
+                  <button
+                    onClick={() => handleReassign(template.template_id)}
+                    className="flex-1 min-w-[80px] flex items-center justify-center gap-1 cursor-pointer rounded-xl
+                             bg-gradient-to-r from-violet-500 to-purple-600
+                             py-2 px-2 text-sm font-medium text-white
+                             hover:from-violet-600 hover:to-purple-700"
+                  >
+                    <UserPlus size={16} />
+                    Reassign
+                  </button>
+                )}
               </div>
             </div>
           ))}
@@ -417,6 +424,82 @@ export default function TemplateApproveReject() {
                   </div>
                 </div>
 
+                {/* Template Status / Approval History */}
+                <div>
+                  <h3 className="text-lg font-semibold mb-4 text-gray-900">
+                    Template Status History
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-3">
+                    Kisne kab approve, reject ya reassign kiya
+                  </p>
+                  {selectedTemplate?.approvals?.length > 0 ? (
+                    <div className="overflow-x-auto rounded-xl border border-gray-200">
+                      <table className="min-w-full text-sm">
+                        <thead className="bg-gray-50 border-b border-gray-200">
+                          <tr>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Date</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Stage</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Action</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">By</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Reassign Status</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Remarks</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {selectedTemplate.approvals.map((a, idx) => {
+                            const actionLabel =
+                              (a.status || "").toLowerCase() === "reassigned"
+                                ? `Reassigned to ${a.reassign_to_name || a.reassign_user_id || "—"}`
+                                : (a.status || "").toLowerCase() === "rejected"
+                                ? "Rejected"
+                                : (a.status || "").toLowerCase() === "approved"
+                                ? "Approved"
+                                : a.status || "—";
+                            const reassignStatusLabel =
+                              a.status === "reassigned"
+                                ? a.reassign_status
+                                  ? "Approved by HOD/approver"
+                                  : "Pending"
+                                : "—";
+                            return (
+                              <tr key={a.approval_id || idx} className="hover:bg-gray-50/50">
+                                <td className="px-4 py-2 text-gray-700">
+                                  {a.approved_at
+                                    ? new Date(a.approved_at).toLocaleString()
+                                    : "—"}
+                                </td>
+                                <td className="px-4 py-2 text-gray-700">{a.current_stage ?? "—"}</td>
+                                <td className="px-4 py-2">
+                                  <span
+                                    className={
+                                      a.status === "approved"
+                                        ? "text-green-600 font-medium"
+                                        : a.status === "rejected"
+                                        ? "text-red-600 font-medium"
+                                        : a.status === "reassigned"
+                                        ? "text-violet-600 font-medium"
+                                        : "text-gray-700"
+                                    }
+                                  >
+                                    {actionLabel}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-2 text-gray-700">{a.approved_by_name || "—"}</td>
+                                <td className="px-4 py-2 text-gray-600">{reassignStatusLabel}</td>
+                                <td className="px-4 py-2 text-gray-600 max-w-[200px] truncate" title={a.remarks}>
+                                  {a.remarks || "—"}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 italic">No approval history yet.</p>
+                  )}
+                </div>
+
                 {/* Footer */}
                 <div className="flex flex-wrap justify-end gap-3 border-t border-gray-200 pt-4">
                   <button
@@ -457,6 +540,18 @@ export default function TemplateApproveReject() {
                     <CheckCircle2 size={16} />
                     Approve
                   </button>
+                  {selectedTemplate?.allowed_reassign_user_ids?.length > 0 && (
+                    <button
+                      onClick={() => {
+                        closeViewModal();
+                        handleReassign(selectedTemplate?.template_id);
+                      }}
+                      className="flex items-center gap-2 cursor-pointer rounded-xl bg-violet-600 px-4 py-2 text-sm text-white hover:bg-violet-700"
+                    >
+                      <UserPlus size={16} />
+                      Reassign
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -540,6 +635,72 @@ export default function TemplateApproveReject() {
                     className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700"
                   >
                     Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {isReassignOpen && reassignTemplate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
+              <h2 className="text-xl font-semibold text-violet-600 mb-4">
+                Reassign to
+              </h2>
+
+              <form onSubmit={formik.handleSubmit}>
+                <input type="hidden" name="status" value="reassigned" />
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
+                    Reassign to user
+                  </label>
+                  <select
+                    name="reassign_user_id"
+                    value={formik.values.reassign_user_id}
+                    onChange={formik.handleChange}
+                    required
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  >
+                    <option value="">Select user...</option>
+                    {getReassignOptions(reassignTemplate).map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-600 mb-2">
+                    Remarks (optional)
+                  </label>
+                  <textarea
+                    name="remarks"
+                    value={formik.values.remarks}
+                    onChange={formik.handleChange}
+                    rows={2}
+                    placeholder="Optional remarks..."
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsReassignOpen(false);
+                      setReassignTemplate(null);
+                    }}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-lg bg-violet-600 px-5 py-2 text-sm font-medium text-white hover:bg-violet-700"
+                  >
+                    Reassign
                   </button>
                 </div>
               </form>
