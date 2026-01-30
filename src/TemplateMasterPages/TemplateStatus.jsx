@@ -259,7 +259,7 @@ function WorkflowStatusViewModal({
                     {!isFirst && (
                       <div
                         className={`absolute w-1 ${DotClass} z-10 rounded-full`}
-                        style={{ top: "-160px", height: "calc(100% + 60px)" }}
+                        style={{ top: "-160px", height: "calc(100% + 50px)" }}
                       />
                     )}
 
@@ -285,7 +285,7 @@ function WorkflowStatusViewModal({
                               {label}
                             </span>
                             {step.group_department && (
-                              <p className="mt-0.5 max-w-[220px] truncate text-sm text-gray-600">
+                              <p className="mt-0.5 max-w-[350px] truncate text-sm text-gray-600">
                                 {step.group_department}
                               </p>
                             )}
@@ -297,27 +297,28 @@ function WorkflowStatusViewModal({
                           {stepStatus}
                         </span>
                       </div>
-                      
+
                       {/* Remarks - from approvals */}
-                      {step.approvals?.length > 0 && (
+                      {/* {step.approvals?.length > 0 && ( */}
                         <div className="mt-3 flex items-start gap-2 rounded-lg bg-gray-50 border border-gray-100 px-3 py-2">
                           <FileText
                             size={14}
                             className="mt-0.5 flex-shrink-0 text-gray-500"
                           />
-                          <div className="text-sm text-gray-700 min-w-0">
-                            <span className="font-medium text-gray-600">
+                          <div className="text-sm max-w-[400px] truncate text-gray-700 min-w-0">
+                            <span className="font-small  text-gray-600">
                               Remarks:{" "}
                             </span>
-                            {step.approvals
+                           { step.approvals?.length ===0 ? (<span className="font-semibold"> no remarks found*</span>) : (
+                            step.approvals
                               .map((a) => a?.remarks)
                               .filter(Boolean)
                               .join(" · ") || (
                               <span className="text-gray-500 italic">—</span>
-                            )}
+                            )) }
                           </div>
                         </div>
-                      )}
+                      {/* )} */}
                     </div>
                   </div>
                 );
