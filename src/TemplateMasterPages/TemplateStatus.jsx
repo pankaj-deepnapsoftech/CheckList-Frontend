@@ -1,6 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Search, Loader2, Eye, X, FileText, MapPin, Clock } from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
+import { useDebounce } from "../hooks/useDebounce";
+import Pagination from "../Components/Pagination/Pagination";
 
 
 const STATUS_OPTIONS = [
@@ -499,17 +501,27 @@ function TimelineViewModal({ isOpen, onClose, templateName }) {
 export default function TemplateStatus() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
 
-  const { templateStatusListQuery, getTemplateStatusData, workflowStatusQuery } = useTemplateMaster(
+  const { value: debouncedSearch } = useDebounce(searchQuery, 500);
+
+  const { getTemplateStatusData, workflowStatusQuery } = useTemplateMaster(
     "",
-    selectedRow?.template_id ?? null,
+    selectedRow?.template_data?._id ?? null,
+    selectedRow?.user_id ?? null,
+    { page, search: debouncedSearch, status: statusFilter }
   );
 
-  // console.log("this is my get template", getTemplateStatusData?.data?.data  )
+  const response = getTemplateStatusData?.data;
+  const tableData = response?.data ?? [];
+  const pagination = response?.pagination ?? {};
+  const hasNextPage = Boolean(pagination?.hasNextPage);
 
-  const tableData = getTemplateStatusData?.data?.data;
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, statusFilter]);
 
  
 
@@ -609,14 +621,14 @@ export default function TemplateStatus() {
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-          {templateStatusListQuery.isLoading ? (
+          {getTemplateStatusData.isLoading ? (
             <div className="flex items-center justify-center py-16">
               <Loader2 size={32} className="animate-spin text-blue-500" />
             </div>
-          ) : templateStatusListQuery.isError ? (
+          ) : getTemplateStatusData.isError ? (
             <div className="px-8 py-12 text-center text-red-600">
-              {templateStatusListQuery.error?.response?.data?.message ||
-                templateStatusListQuery.error?.message ||
+              {getTemplateStatusData.error?.response?.data?.message ||
+                getTemplateStatusData.error?.message ||
                 "Failed to load template status data."}
             </div>
           ) : (
@@ -660,7 +672,7 @@ export default function TemplateStatus() {
                     </tr>
                   ) : (
                     tableData?.map((r) => (
-                      <tr key={r.id} className="hover:bg-gray-50">
+                      <tr key={`${r?.template_data?._id ?? ""}-${r?.user_id ?? ""}`} className="hover:bg-gray-50">
                         <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                           {r?.template_data?.template_name || "—"}
                         </td>
@@ -703,15 +715,15 @@ export default function TemplateStatus() {
                   )}
                 </tbody>
               </table>
-              {console.log(
-                "this is the data that i passsing in modal bhaiya",
-                selectedRow?.template_data?.workflow?.workflow,
+
+              {tableData?.length > 0 && (
+                <Pagination
+                  page={page}
+                  setPage={setPage}
+                  hasNextpage={hasNextPage}
+                />
               )}
 
-              {/* {console.log(
-                "shi data====>>> ",
-                selectedRow?.template_data?.workflow
-              )} */}
               <WorkflowStatusViewModal
                 isOpen={isModalOpen}
                 onClose={() => {
