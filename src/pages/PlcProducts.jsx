@@ -120,7 +120,7 @@ export default function PlcProducts() {
 
   return (
     <div className="min-h-full bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-full px-4 py-6 sm:px-6 lg:px-8">
         <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="flex items-start gap-3">

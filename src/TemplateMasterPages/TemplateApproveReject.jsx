@@ -222,7 +222,7 @@ export default function TemplateApproveReject() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
-      <div className="mx-auto max-w-7xl px-4 py-8">
+      <div className="mx-auto max-w-full px-4 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-1">
           <h1 className="text-3xl font-bold tracking-tight text-gray-900">
@@ -299,7 +299,7 @@ export default function TemplateApproveReject() {
               <div className="mt-6 flex flex-wrap gap-2">
                 <button
                   onClick={() => openViewModal(template)}
-                  className="flex-1 min-w-[80px] flex items-center justify-center gap-2 rounded-xl border
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-2 rounded-xl border border-gray-400 cursor-pointer
                            bg-white py-2 text-sm font-medium text-gray-700
                            hover:bg-indigo-50 hover:text-indigo-700"
                 >
@@ -320,9 +320,9 @@ export default function TemplateApproveReject() {
                     setIsApprovalOpen(true);
                     setApprovalTemplate(template);
                   }}
-                  className="flex-1 min-w-[80px] flex items-center justify-center gap-1 rounded-xl
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-1 cursor-pointer rounded-xl
                            bg-gradient-to-r from-emerald-500 to-green-600
-                           py-2 text-sm font-medium text-white
+                           py-2 px-2 text-sm font-medium text-white
                            hover:from-emerald-600 hover:to-green-700"
                 >
                   <CheckCircle2 size={16} />
@@ -333,9 +333,9 @@ export default function TemplateApproveReject() {
                     setIsRejectionOpen(true);
                     setRejectionTemplate(template);
                   }}
-                  className="flex-1 min-w-[80px] flex items-center justify-center gap-1 rounded-xl
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-1 cursor-pointer rounded-xl
                            bg-gradient-to-r from-rose-500 to-red-600
-                           py-2 text-sm font-medium text-white
+                           py-2 px-2 text-sm font-medium text-white
                            hover:from-rose-600 hover:to-red-700"
                 >
                   <XCircle size={16} />
@@ -356,13 +356,13 @@ export default function TemplateApproveReject() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl">
               {/* Header */}
-              <div className="flex justify-between items-center border-b px-6 py-4">
+              <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
                 <h2 className="text-xl font-bold text-gray-900">
                   {selectedTemplate?.template_name}
                 </h2>
                 <button
                   onClick={closeViewModal}
-                  className="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
+                  className="rounded-lg p-1 cursor-pointer text-gray-500 hover:bg-gray-100"
                 >
                   <X size={22} />
                 </button>
@@ -418,10 +418,10 @@ export default function TemplateApproveReject() {
                 </div>
 
                 {/* Footer */}
-                <div className="flex flex-wrap justify-end gap-3 border-t pt-4">
+                <div className="flex flex-wrap justify-end gap-3 border-t border-gray-200 pt-4">
                   <button
                     onClick={closeViewModal}
-                    className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50"
+                    className="rounded-xl border cursor-pointer border-gray-400 px-4 py-2 text-sm hover:bg-gray-50"
                   >
                     Close
                   </button>
@@ -437,20 +437,22 @@ export default function TemplateApproveReject() {
                   </button>
                   <button
                     onClick={() => {
-                      handleReject(selectedTemplate?.template_id);
                       closeViewModal();
+                      setIsRejectionOpen(true);
+                      setRejectionTemplate(selectedTemplate);
                     }}
-                    className="flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
+                    className="flex items-center gap-2 cursor-pointer rounded-xl bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700"
                   >
                     <XCircle size={16} />
                     Reject
                   </button>
                   <button
                     onClick={() => {
-                      handleApprove(selectedTemplate?.template_id);
                       closeViewModal();
+                      setIsApprovalOpen(true);
+                      setApprovalTemplate(selectedTemplate);
                     }}
-                    className="flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
+                    className="flex items-center gap-2 cursor-pointer rounded-xl bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
                   >
                     <CheckCircle2 size={16} />
                     Approve

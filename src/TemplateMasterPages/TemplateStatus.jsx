@@ -249,8 +249,7 @@ function WorkflowStatusViewModal({
                     className="relative flex gap-6 pb-12 last:pb-0 group"
                   >
                     <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
-
-                    {/* Status Dot */}
+                      {/* Status Dot */}
                       <div
                         className={`w-5 h-5 rounded-full ${DotClass}  ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
                       />
@@ -286,7 +285,7 @@ function WorkflowStatusViewModal({
                               {label}
                             </span>
                             {step.group_department && (
-                              <p className="text-sm text-gray-600 mt-0.5">
+                              <p className="mt-0.5 max-w-[220px] truncate text-sm text-gray-600">
                                 {step.group_department}
                               </p>
                             )}
@@ -298,6 +297,7 @@ function WorkflowStatusViewModal({
                           {stepStatus}
                         </span>
                       </div>
+                      
                       {/* Remarks - from approvals */}
                       {step.approvals?.length > 0 && (
                         <div className="mt-3 flex items-start gap-2 rounded-lg bg-gray-50 border border-gray-100 px-3 py-2">
@@ -558,7 +558,7 @@ export default function TemplateStatus() {
 
   return (
     <div className="min-h-full bg-gray-50">
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-full px-4 py-6 sm:px-6 lg:px-8">
         <h1 className="text-2xl font-semibold text-gray-900 mb-6">
           Template Status
         </h1>
