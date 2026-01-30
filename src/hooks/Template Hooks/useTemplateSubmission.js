@@ -38,6 +38,7 @@ export const useTemplateSubmission = (templateId = null) => {
     onSuccess: (data) => {
       toast.success(data?.message || "Template updated successfully");
       qc.invalidateQueries({ queryKey: ["template-submissions"] });
+      qc.invalidateQueries({ queryKey: ["get-assign-template"] });
     },
     onError: (error) => {
       toast.error(error?.response?.data?.message || "Failed to update template");

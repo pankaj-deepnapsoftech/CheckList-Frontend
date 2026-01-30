@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Eye, Search, X } from "lucide-react";
+import { CheckCircle2, XCircle, Eye, Search, X, Pencil } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
+import { useTemplateSubmission } from "../hooks/Template Hooks/useTemplateSubmission";
 import { useFormik } from "formik";
 import { useLogin } from "../hooks/useLogin";
 
@@ -15,7 +17,9 @@ const InfoItem = ({ label, value }) => (
 
 /* -------------------- Main Component -------------------- */
 export default function TemplateApproveReject() {
+  const queryClient = useQueryClient();
   const { getAllAssignedTemp, PostHistorTem } = RegisterEmployee();
+  const { updateSubmission } = useTemplateSubmission();
   const [approvalTemplate, setApprovalTemplate] = useState(null);
   const [rejectionTemplate, setRejectionTemplate] = useState(null);
   const { logedinUser } = useLogin();
@@ -24,6 +28,9 @@ export default function TemplateApproveReject() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isApprovalOpen, setIsApprovalOpen] = useState(false);
   const [isRejectionOpen, setIsRejectionOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editTemplate, setEditTemplate] = useState(null);
+  const [editFormData, setEditFormData] = useState({});
   const assignedTemplates =
     getAllAssignedTemp?.data?.flatMap(
       (user) =>
@@ -82,8 +89,6 @@ export default function TemplateApproveReject() {
 
     const nextApprover = groupUsers[nextApproverIndex];
 
-    console.log("Next Approver", nextApprover?.user_id);
-
     return nextApprover?.user_id === currentUserId;
   });
 
@@ -141,8 +146,19 @@ export default function TemplateApproveReject() {
   }, [rejectionTemplate]);
 
   const handleReject = (id) => {
-    const reason = prompt("Reason for rejection:");
-    if (reason) alert(`Rejected: ${reason}`);
+    const tpl = assignedTemplates.find((t) => t.template_id === id);
+    if (tpl) {
+      setRejectionTemplate(tpl);
+      setIsRejectionOpen(true);
+    }
+  };
+
+  const handleApprove = (id) => {
+    const tpl = assignedTemplates.find((t) => t.template_id === id);
+    if (tpl) {
+      setApprovalTemplate(tpl);
+      setIsApprovalOpen(true);
+    }
   };
 
   const openViewModal = (template) => {
@@ -153,6 +169,55 @@ export default function TemplateApproveReject() {
   const closeViewModal = () => {
     setSelectedTemplate(null);
     setIsViewModalOpen(false);
+  };
+
+  const openEditModal = (template) => {
+    if (!template?.submission?.submission_id) return;
+    setEditTemplate(template);
+    setEditFormData({ ...(template.submission?.form_data || {}) });
+    setIsEditOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setEditTemplate(null);
+    setEditFormData({});
+    setIsEditOpen(false);
+  };
+
+  const handleEditFieldChange = (fieldKey, value) => {
+    setEditFormData((prev) => ({ ...prev, [fieldKey]: value }));
+  };
+
+  const handleEditSave = () => {
+    if (!editTemplate?.submission?.submission_id) return;
+    updateSubmission.mutate(
+      {
+        id: editTemplate.submission.submission_id,
+        payload: {
+          form_data: editFormData,
+          status: editTemplate.submission?.status || "SUBMITTED",
+        },
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["get-assign-template"] });
+          closeEditModal();
+          if (selectedTemplate?.template_id === editTemplate?.template_id) {
+            setSelectedTemplate((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    submission: {
+                      ...prev.submission,
+                      form_data: editFormData,
+                    },
+                  }
+                : null
+            );
+          }
+        },
+      }
+    );
   };
 
   return (
@@ -231,23 +296,31 @@ export default function TemplateApproveReject() {
                 </p>
               </div>
 
-              <div className="mt-6 flex gap-2">
+              <div className="mt-6 flex flex-wrap gap-2">
                 <button
                   onClick={() => openViewModal(template)}
-                  className="flex-1 flex items-center justify-center gap-2 rounded-xl border
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-2 rounded-xl border
                            bg-white py-2 text-sm font-medium text-gray-700
                            hover:bg-indigo-50 hover:text-indigo-700"
                 >
                   <Eye size={16} />
                   View
                 </button>
-
+                <button
+                  onClick={() => openEditModal(template)}
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-2 rounded-xl border
+                           border-amber-200 bg-amber-50 py-2 text-sm font-medium text-amber-800
+                           hover:bg-amber-100 hover:border-amber-300"
+                >
+                  <Pencil size={16} />
+                  Edit
+                </button>
                 <button
                   onClick={() => {
                     setIsApprovalOpen(true);
                     setApprovalTemplate(template);
                   }}
-                  className="flex-1 flex items-center justify-center gap-1 rounded-xl
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-1 rounded-xl
                            bg-gradient-to-r from-emerald-500 to-green-600
                            py-2 text-sm font-medium text-white
                            hover:from-emerald-600 hover:to-green-700"
@@ -255,14 +328,12 @@ export default function TemplateApproveReject() {
                   <CheckCircle2 size={16} />
                   Approve
                 </button>
-
                 <button
                   onClick={() => {
                     setIsRejectionOpen(true);
                     setRejectionTemplate(template);
-                    //  handleReject(template.template_id)
                   }}
-                  className="flex-1 flex items-center justify-center gap-1 rounded-xl
+                  className="flex-1 min-w-[80px] flex items-center justify-center gap-1 rounded-xl
                            bg-gradient-to-r from-rose-500 to-red-600
                            py-2 text-sm font-medium text-white
                            hover:from-rose-600 hover:to-red-700"
@@ -347,14 +418,23 @@ export default function TemplateApproveReject() {
                 </div>
 
                 {/* Footer */}
-                <div className="flex justify-end gap-3 border-t pt-4">
+                <div className="flex flex-wrap justify-end gap-3 border-t pt-4">
                   <button
                     onClick={closeViewModal}
                     className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50"
                   >
                     Close
                   </button>
-
+                  <button
+                    onClick={() => {
+                      closeViewModal();
+                      openEditModal(selectedTemplate);
+                    }}
+                    className="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 hover:bg-amber-100"
+                  >
+                    <Pencil size={16} />
+                    Edit
+                  </button>
                   <button
                     onClick={() => {
                       handleReject(selectedTemplate?.template_id);
@@ -365,7 +445,6 @@ export default function TemplateApproveReject() {
                     <XCircle size={16} />
                     Reject
                   </button>
-
                   <button
                     onClick={() => {
                       handleApprove(selectedTemplate?.template_id);
@@ -462,6 +541,61 @@ export default function TemplateApproveReject() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Edit submission modal */}
+        {isEditOpen && editTemplate && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl p-6">
+              <div className="flex justify-between items-center border-b pb-4 mb-4">
+                <h2 className="text-xl font-semibold text-amber-800">
+                  Edit submission — {editTemplate?.template_name}
+                </h2>
+                <button
+                  onClick={closeEditModal}
+                  className="rounded-lg p-1 text-gray-500 hover:bg-gray-100"
+                >
+                  <X size={22} />
+                </button>
+              </div>
+              <div className="space-y-4">
+                {Object.keys(editFormData).length === 0 ? (
+                  <p className="text-sm text-gray-500">No form fields to edit.</p>
+                ) : (
+                  Object.entries(editFormData).map(([key, value]) => (
+                    <div key={key} className="space-y-1">
+                      <label className="block text-xs font-semibold uppercase text-gray-500">
+                        {key}
+                      </label>
+                      <input
+                        type="text"
+                        value={value ?? ""}
+                        onChange={(e) => handleEditFieldChange(key, e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                      />
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleEditSave}
+                  disabled={updateSubmission.isPending}
+                  className="rounded-lg bg-amber-600 px-5 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50"
+                >
+                  {updateSubmission.isPending ? "Saving..." : "Save"}
+                </button>
+              </div>
             </div>
           </div>
         )}
