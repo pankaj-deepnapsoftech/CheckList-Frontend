@@ -49,7 +49,7 @@ export default function AssemblyError() {
 
   return (
     <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl ">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div className="flex items-center gap-3 ">
             <div className="w-10 h-10 rounded-2xl bg-red-100 flex items-center justify-center">
@@ -91,7 +91,7 @@ export default function AssemblyError() {
           </div> */}
         </div>
 
-        <div className="bg-white border relative min-h-[300px] border-slate-200 rounded-3xl shadow-xl overflow-hidden">
+        <div className="bg-white border relative min-h-[300px] h-full border-slate-200 rounded-3xl shadow-xl overflow-hidden">
           <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-slate-200 flex flex-row justify-between w-full items-center gap-4">
             <div className="flex flex-col ">
               <h3 className="text-lg font-semibold text-slate-900">

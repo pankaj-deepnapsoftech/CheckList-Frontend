@@ -258,7 +258,7 @@ const allowedMenu = IsSuper
   return (
     <>
       {/* DESKTOP */}
-      <aside className="hidden md:flex w-[20%] bg-white shadow-xl p-5 flex-col h-screen">
+      <aside className="hidden md:flex w-[19%]  bg-white shadow-xl p-5 flex-col h-screen">
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* LOGO */}
           <div

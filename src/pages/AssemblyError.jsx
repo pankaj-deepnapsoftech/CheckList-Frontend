@@ -41,7 +41,7 @@ export default function AssemblyError() {
   };
 
   return (
-    <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-0">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
           <div className="flex items-center gap-3"> 

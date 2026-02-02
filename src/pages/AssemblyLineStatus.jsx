@@ -130,7 +130,7 @@ export default function AssemblyLineStatus() {
    console.log(paginatedTableData);
 
   return (
-    <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-8 bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen py-6 px-4 sm:px-6 lg:px-0 bg-linear-to-br from-slate-50 via-blue-50 to-indigo-50">
       {/* Header */}
       <div className="w-full max-w-[1920px] mx-auto px-3 sm:px-6 lg:px-8 xl:px-10 2xl:px-12 py-4 space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
