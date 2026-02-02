@@ -534,11 +534,11 @@ export default function AssignedTemplates() {
                       Submitted
                     </span>
                   )}
-                  {viewingSubmission && viewingSubmission.status === "DRAFT" && (
+                  {/* {viewingSubmission && viewingSubmission.status === "DRAFT" && (
                     <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
                       Draft
                     </span>
-                  )}
+                  )} */}
                 </div>
                 <div className="flex items-center gap-2">
                   {viewingSubmission && viewingSubmission.status === "SUBMITTED" && !isEditMode && (

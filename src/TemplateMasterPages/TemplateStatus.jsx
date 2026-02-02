@@ -672,7 +672,10 @@ export default function TemplateStatus() {
                     </tr>
                   ) : (
                     tableData?.map((r) => (
-                      <tr key={`${r?.template_data?._id ?? ""}-${r?.user_id ?? ""}`} className="hover:bg-gray-50">
+                      <tr
+                        key={`${r?.template_data?._id ?? ""}-${r?.user_id ?? ""}`}
+                        className="hover:bg-gray-50"
+                      >
                         <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
                           {r?.template_data?.template_name || "—"}
                         </td>
@@ -716,14 +719,6 @@ export default function TemplateStatus() {
                 </tbody>
               </table>
 
-              {tableData?.length > 0 && (
-                <Pagination
-                  page={page}
-                  setPage={setPage}
-                  hasNextpage={hasNextPage}
-                />
-              )}
-
               <WorkflowStatusViewModal
                 isOpen={isModalOpen}
                 onClose={() => {
@@ -751,6 +746,9 @@ export default function TemplateStatus() {
             </div>
           )}
         </div>
+        {tableData?.length > 0 && (
+          <Pagination page={page} setPage={setPage} hasNextpage={hasNextPage} />
+        )}
       </div>
     </div>
   );

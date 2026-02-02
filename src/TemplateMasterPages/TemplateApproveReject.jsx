@@ -72,6 +72,7 @@ export default function TemplateApproveReject() {
           setIsRejectionOpen(false);
           setApprovalTemplate(null);
           setRejectionTemplate(null);
+          setIsReassignOpen(false);
           formik.resetForm();
         },
       });
