@@ -5,9 +5,11 @@ import axiosHandler from "../../config/axiosconfig";
 export const useTemplateMaster = (
   selectedTemplateId,
   workflowStatusTemplateId,
-  workflowStatusAssignedUserId
+  workflowStatusAssignedUserId,
+  statusListParams = {}
 ) => {
   const qc = useQueryClient();
+  const { page = 1, search = "", status = "" } = statusListParams;
 
   const templatesQuery = useQuery({
     queryKey: ["template-master", "templates"],
@@ -18,10 +20,15 @@ export const useTemplateMaster = (
   });
 
   const templateStatusListQuery = useQuery({
-    queryKey: ["template-master", "template-status"],
+    queryKey: ["template-master", "template-status", page, search, status],
     queryFn: async () => {
-      const res = await axiosHandler.get("/template-master/template-status");
-      return res?.data?.data || [];
+      const params = new URLSearchParams();
+      params.set("page", String(page));
+      params.set("limit", "10");
+      if (search) params.set("search", search);
+      if (status) params.set("status", status);
+      const res = await axiosHandler.get(`/template-master/template-status?${params.toString()}`);
+      return res?.data?.data || { data: [], pagination: {} };
     },
   });
 
@@ -161,17 +168,7 @@ export const useTemplateMaster = (
 
 
 
-      const getTemplateStatusData = useQuery({
-        queryKey: ["get-template-data-status"],
-        queryFn: async () => {
-          const res = await axiosHandler.get(
-            "/template-master/template-status",
-          );
-          return res?.data?.data;
-        },
-      });
-
-
+  const getTemplateStatusData = templateStatusListQuery;
 
   return {
     templatesQuery,

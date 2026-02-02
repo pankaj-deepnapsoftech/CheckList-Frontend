@@ -99,26 +99,42 @@ const NotificationDropdown = ({ innerRef, onClose }) => {
                     key={item._id}
                     className="bg-white border border-gray-200 rounded-lg p-3 space-y-2 hover:bg-gray-50 transition"
                   >
-                    <p className="text-sm text-gray-700 leading-relaxed">
-                      An issue was reported on the <b>{item?.assemblyLine?.assembly_name}</b> assembly
-                      during the <b>{item?.processInfo?.process_name}</b> process by
-                      <b> {item?.sender?.full_name} ({item?.sender?.user_id})</b>.
-                    </p>
-
-
-
-                    <p className="text-sm text-gray-700">
-                      <b>Title:</b> {item?.title}
-                    </p>
-
-                    <p className="text-sm text-gray-600">
-                      <span className="font-medium text-gray-700">Description:</span>{" "}
-                      <span className="italic text-gray-500">
-                        {item?.description?.length > 50
-                          ? `${item.description.slice(0, 50)}...`
-                          : item?.description || "N/A"}
-                      </span>
-                    </p>
+                    {item?.type === "template_approval" ? (
+                      <>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          <b>Template approval required:</b> <b>{item?.template_name || "Template"}</b>
+                          {item?.sender ? (
+                            <> submitted by <b>{item.sender.full_name} ({item.sender.user_id})</b>.</>
+                          ) : (
+                            " has been submitted for approval."
+                          )}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {item?.description?.length > 80
+                            ? `${item.description.slice(0, 80)}...`
+                            : item?.description || "Please approve or reject in your dashboard."}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                          An issue was reported on the <b>{item?.assemblyLine?.assembly_name}</b> assembly
+                          during the <b>{item?.processInfo?.process_name}</b> process by
+                          <b> {item?.sender?.full_name} ({item?.sender?.user_id})</b>.
+                        </p>
+                        <p className="text-sm text-gray-700">
+                          <b>Title:</b> {item?.title}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium text-gray-700">Description:</span>{" "}
+                          <span className="italic text-gray-500">
+                            {item?.description?.length > 50
+                              ? `${item.description.slice(0, 50)}...`
+                              : item?.description || "N/A"}
+                          </span>
+                        </p>
+                      </>
+                    )}
 
                     {item?.status === "send" && (
                       <div className="pt-2 flex justify-end">
