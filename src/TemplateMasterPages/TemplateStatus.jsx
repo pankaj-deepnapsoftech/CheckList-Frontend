@@ -1,9 +1,23 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Search, Loader2, Eye, X, FileText, MapPin, Clock } from "lucide-react";
+import React, {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  Search,
+  Loader2,
+  Eye,
+  X,
+  FileText,
+  MapPin,
+  Clock,
+  ChevronRight,
+} from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 import { useDebounce } from "../hooks/useDebounce";
 import Pagination from "../Components/Pagination/Pagination";
-
 
 const STATUS_OPTIONS = [
   { value: "", label: "All Status" },
@@ -48,10 +62,6 @@ function getStatusBadge(status) {
       return "bg-gray-100 text-gray-800";
   }
 }
-
-
-
-
 
 const getDummyTimelineForTemplate = (templateName) => [
   {
@@ -125,9 +135,6 @@ const getDummyTimelineForTemplate = (templateName) => [
   },
 ];
 
-
-
-
 function getWorkflowStatusLabel(status) {
   if (!status) return "Pending";
   const s = String(status).toLowerCase();
@@ -135,9 +142,6 @@ function getWorkflowStatusLabel(status) {
   if (s === "reject") return "Rejected";
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
-
-
-
 
 function WorkflowStatusViewModal({
   isOpen,
@@ -147,25 +151,34 @@ function WorkflowStatusViewModal({
   WorkFlowDate,
   workflowName,
   ArrayOfWorkFlowData,
+  filteredassigenData,
 }) {
-      const isoDate = WorkFlowDate;
-  const date = new Date(isoDate);
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  let hours = date.getHours();
-  const minutes = String(date.getMinutes()).padStart(2, "0");
-  const ampm = hours >= 12 ? "pm" : "am";
-  hours = hours % 12 || 12;
-  const formattedWorkflowDate = `${day}-${month}-${year}`;
-  const formattedWorkflowTime = `${hours}:${minutes} ${ampm}`;
+  console.log(filteredassigenData);
+  const approvalDotRefs = useRef([]);
+  const [approvalLineHeights, setApprovalLineHeights] = useState([]);
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    const rafId = requestAnimationFrame(() => {
+      const dots = approvalDotRefs.current;
+      const heights = dots.map((dot, i) => {
+        if (!dot || i === 0 || !dots[i - 1]) return 0;
+        const curr = dot.getBoundingClientRect();
+        const prev = dots[i - 1].getBoundingClientRect();
+        return Math.max(0, curr.top - prev.top );
+      });
+      setApprovalLineHeights(heights);
+    });
+    return () => cancelAnimationFrame(rafId);
+  }, [filteredassigenData, isOpen]);
 
   if (!isOpen) return null;
 
   // Use real workflow steps when available; approval length 0 => status "Pending"
-  const workflowSteps = Array.isArray(ArrayOfWorkFlowData) && ArrayOfWorkFlowData.length > 0
-    ? ArrayOfWorkFlowData
-    : [];
+  const workflowSteps =
+    Array.isArray(ArrayOfWorkFlowData) && ArrayOfWorkFlowData.length > 0
+      ? ArrayOfWorkFlowData
+      : [];
 
   const getStepStatus = (step) => {
     if (!step.approvals || step.approvals.length === 0) return "Pending";
@@ -176,27 +189,30 @@ function WorkflowStatusViewModal({
   };
 
   const getStepStatusBadgeClass = (step) => {
-    if (!step.approvals || step.approvals.length === 0) return "bg-yellow-100 text-yellow-800";
+    if (!step.approvals || step.approvals.length === 0)
+      return "bg-yellow-100 text-yellow-800";
     const status = (step.approvals[0]?.status || "").toLowerCase();
-    if (status === "approved" || status === "completed") return "bg-green-100 text-green-800";
-    if (status === "reject" || status === "rejected") return "bg-red-100 text-red-800";
+    if (status === "approved" || status === "completed")
+      return "bg-green-100 text-green-800";
+    if (status === "reject" || status === "rejected")
+      return "bg-red-100 text-red-800";
     if (status === "re-assign") return "bg-orange-100 text-orange-800";
     if (status === "in-progress") return "bg-blue-100 text-blue-800";
     return "bg-gray-100 text-gray-800";
   };
 
-    const getStepStatusDot = (step) => {
-      if (!step.approvals || step.approvals.length === 0)
-        return "bg-yellow-400 text-yellow-800";
-      const status = (step.approvals[0]?.status || "").toLowerCase();
-      if (status === "approved" || status === "completed")
-        return "bg-green-400 text-green-800";
-      if (status === "reject" || status === "rejected")
-        return "bg-red-400 text-red-800";
-      if (status === "re-assign") return "bg-orange-100 text-orange-800";
-      if (status === "in-progress") return "bg-blue-100 text-blue-800";
-      return "bg-gray-400 text-gray-800";
-    };
+  const getStepStatusDot = (step) => {
+    if (!step.approvals || step.approvals.length === 0)
+      return "bg-yellow-400 text-yellow-800";
+    const status = (step.approvals[0]?.status || "").toLowerCase();
+    if (status === "approved" || status === "completed")
+      return "bg-green-400 text-green-800";
+    if (status === "reject" || status === "rejected")
+      return "bg-red-400 text-red-800";
+    if (status === "re-assign") return "bg-orange-100 text-orange-800";
+    if (status === "in-progress") return "bg-blue-100 text-blue-800";
+    return "bg-gray-400 text-gray-800";
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -226,114 +242,249 @@ function WorkflowStatusViewModal({
               {templateName || "Selected Template"}
             </p>
           </div>
-          <button onClick={onClose} className="rounded-full p-2 text-gray-500 hover:bg-gray-100/80 hover:text-gray-700">
+          <button
+            onClick={onClose}
+            className="rounded-full p-2 text-gray-500 hover:bg-gray-100/80 hover:text-gray-700"
+          >
             <X size={22} />
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-          <div className="relative pl-12">
-            {workflowSteps.length === 0 ? (
-              <p className="text-sm text-gray-500 py-4">No workflow steps to show.</p>
-            ) : (
-              workflowSteps.map((step, index) => {
-                const isFirst = index === 0;
-                const stepStatus = getStepStatus(step);
-                const badgeClass = getStepStatusBadgeClass(step);
-                const DotClass = getStepStatusDot(step);
-                const label = step.group_name || step.group || "Stage";
-                const letter = (step.groupDetail?.full_name?.charAt(0) || label?.charAt(0) || "?").toUpperCase();
-                const isPending = !step.approvals || step.approvals.length === 0;
+        <div className="flex-1 overflow-y-auto p-6 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+          <div className="flex flex-col gap-8">
+            {/* Top: Workflow steps (row with arrows) */}
+            <div>
+              <h3 className="mb-4 text-sm font-semibold text-gray-700">
+                Workflow Steps
+              </h3>
+              {workflowSteps.length === 0 ? (
+                <p className="text-sm text-gray-500 py-4">
+                  No workflow steps to show.
+                </p>
+              ) : (
+                <div className="flex items-center gap-4 overflow-x-auto pb-2">
+                  {workflowSteps.map((step, index) => {
+                    const stepStatus = getStepStatus(step);
+                    const badgeClass = getStepStatusBadgeClass(step);
+                    const DotClass = getStepStatusDot(step);
+                    const label = step.group_name || step.group || "Stage";
+                    const letter = (
+                      step.groupDetail?.full_name?.charAt(0) ||
+                      label?.charAt(0) ||
+                      "?"
+                    ).toUpperCase();
+                    const isLast = index === workflowSteps.length - 1;
 
-                return (
-                  <div
-                    key={`${index}-${label}`}
-                    className="relative flex gap-6 pb-12 last:pb-0 group"
-                  >
-                    <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
-                      {/* Status Dot */}
+                    return (
                       <div
-                        className={`w-5 h-5 rounded-full ${DotClass}  ring-4 ring-white shadow-lg group-hover:ring-blue-100/50 transition-all duration-300`}
-                      />
-                    </div>
-
-                    {/* Verticle-Line */}
-                    {!isFirst && (
-                      <div
-                        className={`absolute w-1 ${DotClass} z-10 rounded-full`}
-                        style={{ top: "-160px", height: "calc(100% + 50px)" }}
-                      />
-                    )}
-
-                    <div className="w-28 flex-shrink-0 text-right pt-2">
-                      <p className="text-xs font-medium text-gray-500">
-                        {formattedWorkflowDate}
-                      </p>
-                      <p className="text-sm font-semibold text-gray-700">
-                        {formattedWorkflowTime}
-                      </p>
-                    </div>
-
-                    <div className="flex-1 rounded-xl border border-gray-200/60 bg-white/80 backdrop-blur-sm shadow-sm p-5 transition-all duration-300 group-hover:shadow-md group-hover:-translate-y-0.5 group-hover:border-blue-200/50 whitespace-nowrap">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`flex h-10 w-10 items-center justify-center rounded-lg ${DotClass} text-white font-bold shadow-md`}
-                          >
-                            {letter}
-                          </div>
-                          <div>
-                            <span className="font-semibold text-gray-800">
-                              {label}
-                            </span>
-                            {step.group_department && (
-                              <p className="mt-0.5 max-w-[350px] truncate text-sm text-gray-600">
-                                {step.group_department}
-                              </p>
-                            )}
+                        key={`${index}-${label}`}
+                        className="flex items-center gap-4"
+                      >
+                        <div className="min-w-[120px] rounded-xl border border-gray-200/60 bg-white/80 backdrop-blur-sm shadow-sm p-4 transition-all duration-300 hover:shadow-md">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`flex h-10 w-10 items-center justify-center rounded-lg bg-green-400 text-green-800 text-white font-bold shadow-md`}
+                              >
+                                {letter}
+                              </div>
+                              <div>
+                                <p className="font-semibold text-gray-800">
+                                  {label}
+                                </p>
+                                {step.group_department && (
+                                  <p className="text-xs text-gray-500">
+                                    {step.group_department}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass}`}
-                        >
-                          {stepStatus}
-                        </span>
-                      </div>
 
-                      {/* Remarks - from approvals */}
-                      {/* {step.approvals?.length > 0 && ( */}
-                        <div className="mt-3 flex items-start gap-2 rounded-lg bg-gray-50 border border-gray-100 px-3 py-2">
-                          <FileText
-                            size={14}
-                            className="mt-0.5 flex-shrink-0 text-gray-500"
+                        {!isLast && (
+                          <ChevronRight
+                            size={24}
+                            className="text-gray-400 flex-shrink-0"
                           />
-                          <div className="text-sm max-w-[400px] truncate text-gray-700 min-w-0">
-                            <span className="font-small  text-gray-600">
-                              Remarks:{" "}
-                            </span>
-                           { step.approvals?.length ===0 ? (<span className="font-semibold"> no remarks found*</span>) : (
-                            step.approvals
-                              .map((a) => a?.remarks)
-                              .filter(Boolean)
-                              .join(" · ") || (
-                              <span className="text-gray-500 italic">—</span>
-                            )) }
-                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="relative pl-12">
+              <h3 className="mb-4 text-sm font-bold font-semibold text-gray-700">
+                Approvals
+              </h3>
+              {filteredassigenData.length === 0 ? (
+                <p className="text-sm text-gray-500 py-4">
+                  No approval steps to show.
+                </p>
+              ) : (
+                filteredassigenData
+                  .sort(
+                    (a, b) => new Date(a?.createdAt) - new Date(b?.createdAt),
+                  )
+                  .map((step, index, array) => {
+                    const data = step?.createdAt;
+                    const date = new Date(data);
+                    const day = String(date.getDate()).padStart(2, "0");
+                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                    const year = date.getFullYear();
+                    let hours = date.getHours();
+                    const minutes = String(date.getMinutes()).padStart(2, "0");
+                    const ampm = hours >= 12 ? "pm" : "am";
+                    hours = hours % 12 || 12;
+                    const formattedWorkflowDate = `${day}-${month}-${year}`;
+                    const formattedWorkflowTime = `${hours}:${minutes} ${ampm}`;
+
+                    const isFirst = index === 0;
+                    const approval = step?.workflowWithoutApprovals || {};
+
+                    const groupDetail =
+                      step?.workflowWithoutApprovals?.groupDetail || {};
+
+                    const stepStatus = step.reassign_status
+                      ? "REASSIGNED"
+                      : (step.status || "PENDING").toUpperCase();
+
+                    const badgeClass = step.reassign_status
+                      ? "bg-orange-100 text-orange-800"
+                      : step.status === "approved"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800";
+
+                    const DotClass = step.reassign_status
+                      ? "bg-orange-400"
+                      : step.status === "approved"
+                        ? "bg-green-400"
+                        : "bg-yellow-400";
+
+                    // Get previous step's color for the connecting line
+                    const prevStep = index > 0 ? array[index - 1] : null;
+                    const LineClass = prevStep
+                      ? prevStep.reassign_status
+                        ? "bg-orange-400"
+                        : prevStep.status === "approved"
+                          ? "bg-green-400"
+                          : "bg-yellow-400"
+                      : DotClass;
+
+                    const approverName = groupDetail?.full_name || "Unknown";
+                    const letter = approverName.charAt(0).toUpperCase();
+                    const remarks = step?.remarks;
+                    const lineHeight = approvalLineHeights[index] || 0;
+
+                    return (
+                      <div
+                        key={step._id || index}
+                        className="relative flex gap-6 pb-12 last:pb-0 group"
+                      >
+                        <div className="absolute left-0 w-10 h-10 flex items-center justify-center -translate-x-1/2 z-20">
+                          <div
+                            className={`w-5 h-5 rounded-full ${DotClass} ring-4 ring-white shadow-lg`}
+                            ref={(el) => {
+                              approvalDotRefs.current[index] = el;
+                            }}
+                          />
                         </div>
-                      {/* )} */}
-                    </div>
-                  </div>
-                );
-              })
-            )}
+
+                        {!isFirst && lineHeight > 0 && (
+                          <div
+                            className={`absolute w-1 ${LineClass} z-10 rounded-full -translate-x-1/2`}
+                            style={{
+                              top: `-${lineHeight - 15}px`,
+                              left: "0",
+                              height: `${lineHeight}px`,
+                            }}
+                          />
+                        )}
+
+                        <div className="w-28 flex-shrink-0 text-right pt-2">
+                          <p className="text-xs font-medium text-gray-500">
+                            {formattedWorkflowDate}
+                          </p>
+                          <p className="text-sm font-semibold text-gray-700">
+                            {formattedWorkflowTime}
+                          </p>
+                        </div>
+
+                        <div className="flex-1 rounded-xl border border-gray-200/60 bg-white/80 backdrop-blur-sm shadow-sm p-5 transition-all duration-300 group-hover:shadow-md group-hover:-translate-y-0.5 group-hover:border-blue-200/50">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-center gap-3">
+                              <div
+                                className={`flex h-10 w-10 items-center justify-center rounded-lg ${DotClass} text-white font-bold shadow-md`}
+                              >
+                                {letter}
+                              </div>
+
+                              <div>
+                                <p className="font-semibold text-gray-800">
+                                  {approverName}
+                                </p>
+
+                                <div className="flex flex-col gap-1">
+                                  {approval?.group_name && (
+                                    <p className="text-xs text-gray-400 font-medium">
+                                      Group: {approval.group_name}
+                                    </p>
+                                  )}
+
+                                  {groupDetail?.desigination && (
+                                    <p className="text-xs text-gray-500 font-medium">
+                                      Designation: {groupDetail.desigination}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+
+                            <span
+                              className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${badgeClass}`}
+                            >
+                              {stepStatus}
+                            </span>
+                          </div>
+
+                          <div className="mt-3 flex items-start gap-2 rounded-lg bg-gray-50 border border-gray-100 px-3 py-2">
+                            <FileText
+                              size={14}
+                              className="mt-0.5 flex-shrink-0 text-gray-500"
+                            />
+                            <p className="text-sm text-gray-700">
+                              <span className="text-gray-600">Remarks: </span>
+                              {remarks ? (
+                                remarks
+                              ) : (
+                                <span className="italic text-gray-400">
+                                  No remarks found
+                                </span>
+                              )}
+                            </p>
+                          </div>
+
+                          {step.reassign_status && (
+                            <p className="mt-2 text-xs font-medium text-orange-600">
+                              Reassigned to user ID:{" "}
+                              {step?.reassignUser?.full_name} (
+                              {step?.reassignUser?.user_id})
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-
 
 function TimelineViewModal({ isOpen, onClose, templateName }) {
   if (!isOpen) return null;
@@ -487,17 +638,6 @@ function TimelineViewModal({ isOpen, onClose, templateName }) {
   );
 }
 
-
-
-
-
-
-
-
-
-
-
-
 export default function TemplateStatus() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -507,11 +647,15 @@ export default function TemplateStatus() {
 
   const { value: debouncedSearch } = useDebounce(searchQuery, 500);
 
-  const { getTemplateStatusData, workflowStatusQuery } = useTemplateMaster(
+  const {
+    getTemplateStatusData,
+    workflowStatusQuery,
+    templateStatusListQuery,
+  } = useTemplateMaster(
     "",
     selectedRow?.template_data?._id ?? null,
     selectedRow?.user_id ?? null,
-    { page, search: debouncedSearch, status: statusFilter }
+    { page, search: debouncedSearch, status: statusFilter },
   );
 
   const response = getTemplateStatusData?.data;
@@ -523,51 +667,19 @@ export default function TemplateStatus() {
     setPage(1);
   }, [debouncedSearch, statusFilter]);
 
- 
-
   const workflowData = workflowStatusQuery.data;
 
-  // const filteredData = useMemo(() => {
-  //   const items = templateStatusListQuery.data ?? []; // ← read fresh + nullish coalescing
+  const selectedAssignment = templateStatusListQuery.data?.data?.find(
+    (item) =>
+      item?.user_id === selectedRow?.user_id &&
+      item?.template_data?._id === selectedRow?.template_data?._id,
+  );
 
-  //   if (!Array.isArray(items)) {
-  //     console.warn("templateStatusListQuery.data is not an array:", items);
-  //     return [];
-  //   }
-
-  //   const q = searchQuery.trim().toLowerCase();
-  //   const st = statusFilter.trim().toLowerCase();
-
-  //   return items.filter((r) => {
-  //     // Status filter
-  //     if (st && (r?.status || "").toLowerCase() !== st) {
-  //       return false;
-  //     }
-
-  //     // Search filter
-  //     if (!q) return true;
-
-  //     const searchable = [
-  //       r.template_name,
-  //       r.template_type,
-  //       r.status,
-  //       formatStatusDisplay?.(r.status), // optional chaining in case function missing
-  //       r.workflow_name,
-  //       r.user_name,
-  //       r.employee_user_id,
-  //       r.email,
-  //     ]
-  //       .filter(Boolean)
-  //       .map((s) => String(s).toLowerCase());
-
-  //     return searchable.some((s) => s.includes(q));
-  //   });
-  // }, [
-  //   templateStatusListQuery.data, // ← depend directly on .data
-  //   searchQuery,
-  //   statusFilter,
-  //   // formatStatusDisplay — only if it's not stable
-  // ]);
+  const filteredassigenData = Array.isArray(
+    selectedAssignment?.mapWorkFlowApproval,
+  )
+    ? selectedAssignment?.mapWorkFlowApproval
+    : [];
 
   return (
     <div className="min-h-full bg-gray-50">
@@ -725,6 +837,7 @@ export default function TemplateStatus() {
                   setIsModalOpen(false);
                   setSelectedRow(null);
                 }}
+                filteredassigenData={filteredassigenData}
                 templateName={selectedRow?.template_data?.template_name ?? "—"}
                 WorkFlowDate={
                   selectedRow?.template_data?.workflow?.createdAt ?? "-"
