@@ -55,6 +55,9 @@ function PlcMachineCard({ machine, products = [] }) {
       second: "2-digit",
     });
   };
+  
+    console.log("this is my machine", machine);
+ 
 
   const statusVal = (machine.status || "").trim() || "—";
   const statusLower = statusVal.toLowerCase();
@@ -69,23 +72,39 @@ function PlcMachineCard({ machine, products = [] }) {
     ? "bg-slate-500/10 text-slate-600 border-slate-200"
     : "bg-amber-500/12 text-amber-700 border-amber-200";
   const dotColor = isRunning ? "bg-emerald-500" : isStopped ? "bg-rose-500" : "bg-slate-400";
+  
+  const statusColor = isRunning
+    ? "bg-emerald-400/40 border-emerald-200 "
+    : isStopped
+      ? "bg-rose-400/40 border-rose-200"
+      : "bg-slate-400/40 border-slate-200";
 
   return (
-    <div className="rounded-2xl border border-blue-100 bg-gradient-to-b from-blue-50/60 via-white to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col gap-3 relative">
+    <div
+      className={`rounded-2xl border ${statusColor} bg-gradient-to-b from-blue-50/60 via-white to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col gap-3 relative`}
+    >
       <div className="flex items-start justify-between pb-2 border-b border-blue-100/60 gap-3">
         <div className="min-w-0 flex-1">
           <h3 className="text-lg font-semibold text-gray-800">
             {machine.device_id || "N/A"}
           </h3>
-          <p className="text-xs text-gray-500 mt-0.5">Model: {machine.model || "N/A"}</p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Model: {machine.model || "N/A"}
+          </p>
           {machine.alarm && (
-            <p className="text-xs text-rose-600 mt-1 font-semibold">Alarm: {machine.alarm}</p>
+            <p className="text-xs text-rose-600 mt-1 font-semibold">
+              Alarm: {machine.alarm}
+            </p>
           )}
         </div>
         <span
           className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyles}`}
         >
-          {isRunning && <span className={`h-1.5 w-1.5 rounded-full ${dotColor} animate-pulse`} />}
+          {isRunning && (
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${dotColor} animate-pulse`}
+            />
+          )}
           {statusVal}
         </span>
       </div>
@@ -97,7 +116,11 @@ function PlcMachineCard({ machine, products = [] }) {
             Products on this machine
           </p>
           {products.map((p, i) => (
-            <div key={p._id || i} className="text-xs space-y-0.5 border-b border-slate-200 last:border-0 last:pb-0 pb-1.5 last:pb-0">
+            <div
+              key={p._id || i}
+              className="text-xs space-y-0.5 border-b border-slate-200 last:border-0 last:pb-0 pb-1.5 last:pb-0"
+            >
+              
               <p className="text-gray-700">
                 <span className="text-gray-500">Material Code:</span>{" "}
                 <span className="font-medium">{p.material_code || "—"}</span>
@@ -128,38 +151,77 @@ function PlcMachineCard({ machine, products = [] }) {
             {machine.production_count || 0}
           </p>
         </div>
-          <div className="space-y-1">
-            <p className="text-gray-500">Start Time</p>
+        <div className="space-y-1">
+          <p className="text-gray-500">Start Time</p>
+          <p className="font-medium text-gray-800">
+            {formatDate(machine.start_time || machine.Start_time)}
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-gray-500">Stop Time</p>
+          {machine?.stop_time === null ? (
+            <p className="text-green-600">Running</p>
+          ) : (
             <p className="font-medium text-gray-800">
-              {formatDate(machine.start_time || machine.Start_time)}
+              {machine.stop_time
+                ? formatDate(machine.stop_time)
+                : machine.Stop_time
+                  ? formatDate(machine.Stop_time)
+                  : "—"}
+            </p>
+          )}
+        </div>
+        {machine.latch_force === null ? (
+          ""
+        ) : (
+          <div className="space-y-1">
+            <p className="text-gray-500">Latch Force</p>
+            <p className="font-semibold text-blue-700">
+              {machine.latch_force || 0}
             </p>
           </div>
+        )}
+
+        {machine.claw_force === null ? (
+          ""
+        ) : (
           <div className="space-y-1">
-            <p className="text-gray-500">Stop Time</p>
-            <p className="font-medium text-gray-800">
-              {machine.stop_time ? formatDate(machine.stop_time) : (machine.Stop_time ? formatDate(machine.Stop_time) : "—")}
+            <p className="text-gray-500">Claw Force</p>
+            <p className="font-semibold text-indigo-700">
+              {machine.claw_force || 0}
             </p>
           </div>
-        <div className="space-y-1">
-          <p className="text-gray-500">Latch Force</p>
-          <p className="font-semibold text-blue-700">{machine.latch_force || 0}</p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-gray-500">Claw Force</p>
-          <p className="font-semibold text-indigo-700">{machine.claw_force || 0}</p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-gray-500">Safety Lever</p>
-          <p className="font-semibold text-emerald-700">{machine.safety_lever || 0}</p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-gray-500">Claw Lever</p>
-          <p className="font-semibold text-purple-700">{machine.claw_lever || 0}</p>
-        </div>
-        <div className="space-y-1 col-span-2">
-          <p className="text-gray-500">Stroke</p>
-          <p className="font-semibold text-orange-700">{machine.stroke || 0}</p>
-        </div>
+        )}
+        {machine.safety_lever === null ? (
+          ""
+        ) : (
+          <div className="space-y-1">
+            <p className="text-gray-500">Safety Lever</p>
+            <p className="font-semibold text-emerald-700">
+              {machine.safety_lever || 0}
+            </p>
+          </div>
+        )}
+        {machine.claw_lever === null ? (
+          ""
+        ) : (
+          <div className="space-y-1">
+            <p className="text-gray-500">Claw Lever</p>
+            <p className="font-semibold text-purple-700">
+              {machine.claw_lever || 0}
+            </p>
+          </div>
+        )}
+        {machine.stroke === null ? (
+          ""
+        ) : (
+          <div className="space-y-1 col-span-2">
+            <p className="text-gray-500">Stroke</p>
+            <p className="font-semibold text-orange-700">
+              {machine.stroke || 0}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
