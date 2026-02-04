@@ -604,7 +604,7 @@ export default function PlcLiveData() {
                 <option value="">All Status</option>
                 <option value="Running">Running</option>
                 <option value="Stopped">Stopped</option>
-                <option value="Idle">Idle</option>
+                {/* <option value="Idle">Idle</option> */}
               </select>
             </div>
           </div>
