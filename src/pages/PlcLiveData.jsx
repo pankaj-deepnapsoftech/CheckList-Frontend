@@ -425,7 +425,7 @@ export default function PlcLiveData() {
     //   trend: "up",
     // },
     {
-      label: "Total Active",
+      label: "Total Active Machines",
       value: summaryStats.avgLatchForce,
       // subtitle: "Overall Average",
       accent: "text-emerald-600",
@@ -434,7 +434,7 @@ export default function PlcLiveData() {
       trend: "up",
     },
     {
-      label: "Total Inactive",
+      label: "Total Inactive Machines",
       value: summaryStats.avgLatchForce,
       // subtitle: "Overall Average",
       accent: "text-rose-500",
@@ -451,15 +451,15 @@ export default function PlcLiveData() {
     //   bg: "bg-cyan-50",
     //   trend: "up",
     // },
-    // {
-    //   label: "Total Devices",
-    //   value: summaryStats.totalDevices,
-    //   subtitle: "Active Devices",
-    //   accent: "text-purple-600",
-    //   border: "border-purple-100",
-    //   bg: "bg-purple-50",
-    //   trend: "up",
-    // },
+    {
+      label: "Total Machines",
+      value: summaryStats.totalDevices,
+      subtitle: "Active Devices",
+      accent: "text-purple-600",
+      border: "border-purple-100",
+      bg: "bg-purple-50",
+      trend: "up",
+    },
     // {
     //   label: "Avg Safety Lever",
     //   value: summaryStats.avgSafetyLever,
