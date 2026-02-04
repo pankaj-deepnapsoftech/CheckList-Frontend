@@ -294,11 +294,13 @@ export default function PlcLiveData() {
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
   const productsList = getAllPlcProducts.data || [];
 
-  console.log("this is my plc data", plcDataList);
+   console.log("this is my start and stop", productsList);
 
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
     if (!plcDataList || plcDataList.length === 0) {
+
+     
       return {
         totalProduction: 0,
         avgLatchForce: 0,
@@ -401,6 +403,8 @@ export default function PlcLiveData() {
     }));
   }, [latestPerDevice]);
 
+
+
   const summaryCards = [
     {
       label: "Total Production",
@@ -411,60 +415,78 @@ export default function PlcLiveData() {
       bg: "bg-blue-50",
       trend: "up",
     },
+    // {
+    //   label: "Avg Latch Force",
+    //   value: summaryStats.avgLatchForce,
+    //   subtitle: "Overall Average",
+    //   accent: "text-emerald-600",
+    //   border: "border-emerald-100",
+    //   bg: "bg-emerald-50",
+    //   trend: "up",
+    // },
     {
-      label: "Avg Latch Force",
+      label: "Total Active",
       value: summaryStats.avgLatchForce,
-      subtitle: "Overall Average",
+      // subtitle: "Overall Average",
       accent: "text-emerald-600",
       border: "border-emerald-100",
       bg: "bg-emerald-50",
       trend: "up",
     },
     {
-      label: "Avg Claw Force",
-      value: summaryStats.avgClawForce,
-      subtitle: "Overall Average",
-      accent: "text-cyan-600",
-      border: "border-cyan-100",
-      bg: "bg-cyan-50",
+      label: "Total Inactive",
+      value: summaryStats.avgLatchForce,
+      // subtitle: "Overall Average",
+      accent: "text-rose-500",
+      border: "border-rose-100",
+      bg: "bg-rose-50",
       trend: "up",
     },
-    {
-      label: "Total Devices",
-      value: summaryStats.totalDevices,
-      subtitle: "Active Devices",
-      accent: "text-purple-600",
-      border: "border-purple-100",
-      bg: "bg-purple-50",
-      trend: "up",
-    },
-    {
-      label: "Avg Safety Lever",
-      value: summaryStats.avgSafetyLever,
-      subtitle: "Overall Average",
-      accent: "text-orange-500",
-      border: "border-orange-100",
-      bg: "bg-orange-50",
-      trend: "up",
-    },
-    {
-      label: "Avg Claw Lever",
-      value: summaryStats.avgClawLever,
-      subtitle: "Overall Average",
-      accent: "text-indigo-600",
-      border: "border-indigo-100",
-      bg: "bg-indigo-50",
-      trend: "up",
-    },
-    {
-      label: "Total Stroke",
-      value: summaryStats.totalStroke,
-      subtitle: "Total Stroke Count",
-      accent: "text-amber-500",
-      border: "border-amber-100",
-      bg: "bg-amber-50",
-      trend: "up",
-    },
+    // {
+    //   label: "Avg Claw Force",
+    //   value: summaryStats.avgClawForce,
+    //   subtitle: "Overall Average",
+    //   accent: "text-cyan-600",
+    //   border: "border-cyan-100",
+    //   bg: "bg-cyan-50",
+    //   trend: "up",
+    // },
+    // {
+    //   label: "Total Devices",
+    //   value: summaryStats.totalDevices,
+    //   subtitle: "Active Devices",
+    //   accent: "text-purple-600",
+    //   border: "border-purple-100",
+    //   bg: "bg-purple-50",
+    //   trend: "up",
+    // },
+    // {
+    //   label: "Avg Safety Lever",
+    //   value: summaryStats.avgSafetyLever,
+    //   subtitle: "Overall Average",
+    //   accent: "text-orange-500",
+    //   border: "border-orange-100",
+    //   bg: "bg-orange-50",
+    //   trend: "up",
+    // },
+    // {
+    //   label: "Avg Claw Lever",
+    //   value: summaryStats.avgClawLever,
+    //   subtitle: "Overall Average",
+    //   accent: "text-indigo-600",
+    //   border: "border-indigo-100",
+    //   bg: "bg-indigo-50",
+    //   trend: "up",
+    // },
+    // {
+    //   label: "Total Stroke",
+    //   value: summaryStats.totalStroke,
+    //   subtitle: "Total Stroke Count",
+    //   accent: "text-amber-500",
+    //   border: "border-amber-100",
+    //   bg: "bg-amber-50",
+    //   trend: "up",
+    // },
     {
       label: "Avg Production Count",
       value: summaryStats.avgProductionCount,
