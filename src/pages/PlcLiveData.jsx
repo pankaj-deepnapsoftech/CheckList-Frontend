@@ -9,14 +9,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ArrowUp, ArrowDown, Loader2 } from "lucide-react";
+import { ArrowUp, ArrowDown, Loader2, History } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
+import { useNavigate } from "react-router-dom";
 
 function SummaryCard({ card }) {
   const isUpTrend = card.trend === "up";
   const trendColor = isUpTrend ? "text-emerald-600" : "text-rose-600";
   const trendBg = isUpTrend ? "bg-emerald-100" : "bg-rose-100";
+  
   
   return (
     <div
@@ -59,6 +61,7 @@ function PlcMachineCard({ machine, products = [] }) {
  
 
   const statusVal = (machine.Status || "").trim() || "—";
+  const navigate = useNavigate();
   const statusLower = statusVal.toLowerCase();
   const isRunning = statusLower === "running";
   const isStopped = statusLower === "stopped";
@@ -109,7 +112,14 @@ function PlcMachineCard({ machine, products = [] }) {
           )}
         </div>
         <span
-          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyles}`}
+          onClick={() => navigate("/plc/history")}
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusStyles}`}
+        >
+          <History size={14} />
+          History
+        </span>
+        <span
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusStyles}`}
         >
           {isRunning && (
             <span
@@ -242,12 +252,15 @@ function PlcMachineCard({ machine, products = [] }) {
         )}
 
         {/* Production Count - product ke neeche */}
-        {(machine.production_count !== null && machine.production_count !== undefined) && (
-          <div className="space-y-1">
-            <p className="text-gray-500">Production Count</p>
-            <p className="font-semibold text-gray-800">{machine.production_count}</p>
-          </div>
-        )}
+        {machine.production_count !== null &&
+          machine.production_count !== undefined && (
+            <div className="space-y-1">
+              <p className="text-gray-500">Production Count</p>
+              <p className="font-semibold text-gray-800">
+                {machine.production_count}
+              </p>
+            </div>
+          )}
 
         {/* Live Data Parameters - scrollable */}
         <div className="col-span-2 mt-2">
@@ -260,10 +273,15 @@ function PlcMachineCard({ machine, products = [] }) {
                 Object.keys(machine.parameters).length > 0 &&
                 Object.entries(machine.parameters).map(([key, value]) => (
                   <div key={key} className="space-y-0.5 min-w-0">
-                    <p className="text-gray-500 break-words" title={key.replaceAll("_", " ")}>
+                    <p
+                      className="text-gray-500 break-words"
+                      title={key.replaceAll("_", " ")}
+                    >
                       {key.replaceAll("_", " ")}
                     </p>
-                    <p className="font-semibold text-gray-800 break-words">{value}</p>
+                    <p className="font-semibold text-gray-800 break-words">
+                      {value}
+                    </p>
                   </div>
                 ))}
             </div>
@@ -277,6 +295,8 @@ function PlcMachineCard({ machine, products = [] }) {
 export default function PlcLiveData() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
+
+  
 
   const filters = useMemo(() => {
     const f = {};
