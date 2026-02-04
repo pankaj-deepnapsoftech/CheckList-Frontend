@@ -56,10 +56,9 @@ function PlcMachineCard({ machine, products = [] }) {
     });
   };
   
-    console.log("this is my machine", machine);
  
 
-  const statusVal = (machine.status || "").trim() || "—";
+  const statusVal = (machine.Status || "").trim() || "—";
   const statusLower = statusVal.toLowerCase();
   const isRunning = statusLower === "running";
   const isStopped = statusLower === "stopped";
@@ -90,8 +89,18 @@ function PlcMachineCard({ machine, products = [] }) {
           <h3 className="text-lg font-semibold text-gray-800">
             {machine.device_id || "N/A"}
           </h3>
+          {/* {console.log("this ois my machine======>>>>>", machine.machine.model)} */}
           <p className="text-xs text-gray-500 mt-0.5">
-            Model: {machine.model || "N/A"}
+            Company: {machine.companyname || "N/A"}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Plant: {machine.plantname || "N/A"}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Model: {machine.machine.model || "N/A"}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Assembly Line: {machine.linenumber || "N/A"}
           </p>
           {machine.alarm && (
             <p className="text-xs text-rose-600 mt-1 font-semibold">
@@ -122,7 +131,6 @@ function PlcMachineCard({ machine, products = [] }) {
               key={p._id || i}
               className="text-xs space-y-0.5 border-b border-slate-200 last:border-0 last:pb-0 pb-1.5 last:pb-0"
             >
-              
               <p className="text-gray-700">
                 <span className="text-gray-500">Material Code:</span>{" "}
                 <span className="font-medium">{p.material_code || "—"}</span>
@@ -147,12 +155,13 @@ function PlcMachineCard({ machine, products = [] }) {
             {formatDate(machine.timestamp || machine.created_at)}
           </p>
         </div>
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <p className="text-gray-500">Production Count</p>
           <p className="font-semibold text-gray-900">
             {machine.production_count || 0}
           </p>
-        </div>
+        </div> */}
+
         <div className="space-y-1">
           <p className="text-gray-500">Start Time</p>
           <p className="font-medium text-gray-800">
@@ -173,7 +182,7 @@ function PlcMachineCard({ machine, products = [] }) {
             </p>
           )}
         </div>
-        {machine.latch_force === null ? (
+        {/* {machine.latch_force === null ? (
           ""
         ) : (
           <div className="space-y-1">
@@ -223,7 +232,21 @@ function PlcMachineCard({ machine, products = [] }) {
               {machine.stroke || 0}
             </p>
           </div>
-        )}
+        )} */}
+        <br></br>
+
+        <div className="max-h-48 overflow-y-auto pr-2">
+          <div className="grid grid-cols-2 gap-x-14 gap-y-3 text-xs">
+            {machine?.parameters &&
+              Object.keys(machine.parameters).length > 0 &&
+              Object.entries(machine.parameters).map(([key, value]) => (
+                <div key={key} className="space-y-1">
+                  <p className="text-gray-500">{key.replaceAll("_", " ")}</p>
+                  <p className="font-semibold text-gray-800">{value}</p>
+                </div>
+              ))}
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -248,6 +271,8 @@ export default function PlcLiveData() {
   const { getAllPlcProducts } = usePlcProduct({});
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
   const productsList = getAllPlcProducts.data || [];
+
+  console.log("this is my plc data", plcDataList);
 
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
