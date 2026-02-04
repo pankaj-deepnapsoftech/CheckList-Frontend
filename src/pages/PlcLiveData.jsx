@@ -565,19 +565,12 @@ export default function PlcLiveData() {
 
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-gray-500">
-                Model
+                Status
               </label>
-              <select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-                className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">All Models</option>
-                {uniqueModels.map((model) => (
-                  <option key={model} value={model}>
-                    {model}
-                  </option>
-                ))}
+              <select className="h-9 rounded-lg rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                <option value="">All Status</option>
+                <option value="Running">Active</option>
+                <option value="Stopped">Inactive</option>
               </select>
             </div>
           </div>
@@ -608,9 +601,17 @@ export default function PlcLiveData() {
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip cursor={{ fill: "#f9fafb" }} />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="latchForce" name="Latch Force" fill="#0ea5e9" />
+                    <Bar
+                      dataKey="latchForce"
+                      name="Latch Force"
+                      fill="#0ea5e9"
+                    />
                     <Bar dataKey="clawForce" name="Claw Force" fill="#3b82f6" />
-                    <Bar dataKey="safetyLever" name="Safety Lever" fill="#10b981" />
+                    <Bar
+                      dataKey="safetyLever"
+                      name="Safety Lever"
+                      fill="#10b981"
+                    />
                     <Bar dataKey="clawLever" name="Claw Lever" fill="#8b5cf6" />
                   </BarChart>
                 </ResponsiveContainer>
