@@ -295,8 +295,7 @@ function PlcMachineCard({ machine, products = [] }) {
 export default function PlcLiveData() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
-
-  
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   const filters = useMemo(() => {
     const f = {};
@@ -306,8 +305,11 @@ export default function PlcLiveData() {
     if (selectedModel && selectedModel !== "All") {
       f.model = selectedModel;
     }
+    if (selectedStatus && selectedStatus !== "All") {
+      f.status = selectedStatus;
+    }
     return f;
-  }, [selectedDevice, selectedModel]);
+  }, [selectedDevice, selectedModel, selectedStatus]);
 
   const { getAllPlcData } = usePlcData(filters);
   const { getAllPlcProducts } = usePlcProduct({});
@@ -594,10 +596,15 @@ export default function PlcLiveData() {
               <label className="text-xs font-medium text-gray-500">
                 Status
               </label>
-              <select className="h-9 rounded-lg rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
+              <select
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
                 <option value="">All Status</option>
-                <option value="Running">Active</option>
-                <option value="Stopped">Inactive</option>
+                <option value="Running">Running</option>
+                <option value="Stopped">Stopped</option>
+                <option value="Idle">Idle</option>
               </select>
             </div>
           </div>

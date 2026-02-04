@@ -4,15 +4,16 @@ import { toast } from "react-toastify";
 
 export const usePlcData = (filters = {}, options = {}) => {
   const qc = useQueryClient();
-  const { device_id, model, startDate, endDate, timestampStart, timestampEnd } = filters;
+  const { device_id, model, status, startDate, endDate, timestampStart, timestampEnd } = filters;
   const { live = true } = options; // live: false for history page (no auto-refresh)
 
   const getAllPlcData = useQuery({
-    queryKey: ["plc-data", { device_id, model, startDate, endDate, timestampStart, timestampEnd }],
+    queryKey: ["plc-data", { device_id, model, status, startDate, endDate, timestampStart, timestampEnd }],
     queryFn: async () => {
       const params = {};
       if (device_id) params.device_id = device_id;
       if (model) params.model = model;
+      if (status) params.status = status;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
       if (timestampStart) params.timestampStart = timestampStart;
