@@ -30,6 +30,7 @@ import {
   History,
   CheckCircle2,
   Boxes,
+  ChartNetwork,
 } from "lucide-react";
 import { useLogin } from "../hooks/useLogin";
 
@@ -66,12 +67,28 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: "Checklist Module",
       icon: <BookCheck size={20} />,
       children: [
-        { name: "Assembly Line", path: "/assembly-line", icon: <Key size={18} /> },
+        {
+          name: "Assembly Line",
+          path: "/assembly-line",
+          icon: <Key size={18} />,
+        },
         { name: "Parts", path: "/parts", icon: <GitCompare size={18} /> },
         { name: "Process", path: "/process", icon: <ShoppingBag size={18} /> },
-        { name: "Check Item", path: "/checkitem", icon: <LaptopMinimalCheck size={18} /> },
-        { name: "Inspection-Data", path: "/checkitem-data", icon: <ChevronsLeftRightEllipsis size={18} /> },
-        { name: "Inspection Status", path: "/assembly-line-status", icon: <ChartNoAxesCombined size={18} /> },
+        {
+          name: "Check Item",
+          path: "/checkitem",
+          icon: <LaptopMinimalCheck size={18} />,
+        },
+        {
+          name: "Inspection-Data",
+          path: "/checkitem-data",
+          icon: <ChevronsLeftRightEllipsis size={18} />,
+        },
+        {
+          name: "Inspection Status",
+          path: "/assembly-line-status",
+          icon: <ChartNoAxesCombined size={18} />,
+        },
         {
           name: "Assembly Line Error",
           path: IsSuper ? "/assembly-line-admin/error" : "/assembly-line/error",
@@ -84,13 +101,37 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       name: "Template Module",
       icon: <GraduationCap size={20} />,
       children: [
-        { name: "Manage Template", path: "/template-master", icon: <LayoutTemplate size={18} /> },
-        { name: "Template Status", path: "/template-status", icon: <CheckCircle2 size={18} /> },
-        { name: "Template Approval", path: "/template-approve-reject", icon: <XCircle size={18} /> },
+        {
+          name: "Manage Template",
+          path: "/template-master",
+          icon: <LayoutTemplate size={18} />,
+        },
+        {
+          name: "Template Status",
+          path: "/template-status",
+          icon: <CheckCircle2 size={18} />,
+        },
+        {
+          name: "Template Approval",
+          path: "/template-approve-reject",
+          icon: <XCircle size={18} />,
+        },
         // { name: "Template Module History", path: "/template-module-history", icon: <History size={18} /> },
-        { name: "Manage Release Group", path: "/release-group", icon: <Repeat2 size={18} /> },
-        { name: "Manage Workflow", path: "/workflow", icon: <WorkflowIcon size={18} /> },
-        { name: "Manage Documents", path: "/document-management", icon: <FileText size={18} /> },
+        {
+          name: "Manage Release Group",
+          path: "/release-group",
+          icon: <Repeat2 size={18} />,
+        },
+        {
+          name: "Manage Workflow",
+          path: "/workflow",
+          icon: <WorkflowIcon size={18} />,
+        },
+        {
+          name: "Manage Documents",
+          path: "/document-management",
+          icon: <FileText size={18} />,
+        },
       ],
     },
 
@@ -108,6 +149,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           name: "Live-Data",
           path: "/plc-data/live",
           icon: <Activity size={18} />,
+        },
+        {
+          name: "Plc-Analytics",
+          path: "/plc/analytics",
+          icon: <ChartNetwork size={18} />,
         },
         // {
         //   name: "Products",

@@ -2,16 +2,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axiosHandler from "../config/axiosconfig";
 import { toast } from "react-toastify";
 
-export const usePlcData = (filters = {}) => {
+export const usePlcData = (filters = {}, options = {}) => {
   const qc = useQueryClient();
-  const { device_id, model, startDate, endDate, timestampStart, timestampEnd } = filters;
+  const { device_id, model, status, startDate, endDate, timestampStart, timestampEnd } = filters;
+  const { live = true } = options; // live: false for history page (no auto-refresh)
 
   const getAllPlcData = useQuery({
-    queryKey: ["plc-data", { device_id, model, startDate, endDate, timestampStart, timestampEnd }],
+    queryKey: ["plc-data", { device_id, model, status, startDate, endDate, timestampStart, timestampEnd }],
     queryFn: async () => {
       const params = {};
       if (device_id) params.device_id = device_id;
       if (model) params.model = model;
+      if (status) params.status = status;
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
       if (timestampStart) params.timestampStart = timestampStart;
@@ -20,8 +22,8 @@ export const usePlcData = (filters = {}) => {
       const res = await axiosHandler.get("/plc-data", { params });
       return res?.data?.data || [];
     },
-    refetchInterval: 5000, // Auto-refresh every 5 seconds for live data
-    staleTime: 0, // Always consider data stale for live updates
+    refetchInterval: live ? 5000 : false, // Auto-refresh for live data only
+    staleTime: live ? 0 : 60000, // 1 min stale for history
   });
 
   const createPlcData = useMutation({

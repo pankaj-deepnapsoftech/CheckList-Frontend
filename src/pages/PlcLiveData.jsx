@@ -9,14 +9,16 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ArrowUp, ArrowDown, Loader2 } from "lucide-react";
+import { ArrowUp, ArrowDown, Loader2, History } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
+import { useNavigate } from "react-router-dom";
 
 function SummaryCard({ card }) {
   const isUpTrend = card.trend === "up";
   const trendColor = isUpTrend ? "text-emerald-600" : "text-rose-600";
   const trendBg = isUpTrend ? "bg-emerald-100" : "bg-rose-100";
+  
   
   return (
     <div
@@ -56,10 +58,10 @@ function PlcMachineCard({ machine, products = [] }) {
     });
   };
   
-    console.log("this is my machine", machine);
  
 
-  const statusVal = (machine.status || "").trim() || "—";
+  const statusVal = (machine.Status || "").trim() || "—";
+  const navigate = useNavigate();
   const statusLower = statusVal.toLowerCase();
   const isRunning = statusLower === "running";
   const isStopped = statusLower === "stopped";
@@ -90,8 +92,18 @@ function PlcMachineCard({ machine, products = [] }) {
           <h3 className="text-lg font-semibold text-gray-800">
             {machine.device_id || "N/A"}
           </h3>
+          {/* {console.log("this ois my machine======>>>>>", machine.machine.model)} */}
           <p className="text-xs text-gray-500 mt-0.5">
-            Model: {machine.model || "N/A"}
+            Company: {machine.companyname || "N/A"}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Plant: <div>{machine.plantname || "N/A"}</div>
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Model: {machine.machine.model || "N/A"}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Assembly Line: <div>{machine.linenumber || "N/A"}</div>
           </p>
           {machine.alarm && (
             <p className="text-xs text-rose-600 mt-1 font-semibold">
@@ -100,7 +112,14 @@ function PlcMachineCard({ machine, products = [] }) {
           )}
         </div>
         <span
-          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyles}`}
+          onClick={() => navigate(`/plc/history?device_id=${encodeURIComponent(machine.device_id || "")}`)}
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-80 ${statusStyles}`}
+        >
+          <History size={14} />
+          History
+        </span>
+        <span
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusStyles}`}
         >
           {isRunning && (
             <span
@@ -122,7 +141,6 @@ function PlcMachineCard({ machine, products = [] }) {
               key={p._id || i}
               className="text-xs space-y-0.5 border-b border-slate-200 last:border-0 last:pb-0 pb-1.5 last:pb-0"
             >
-              
               <p className="text-gray-700">
                 <span className="text-gray-500">Material Code:</span>{" "}
                 <span className="font-medium">{p.material_code || "—"}</span>
@@ -147,12 +165,13 @@ function PlcMachineCard({ machine, products = [] }) {
             {formatDate(machine.timestamp || machine.created_at)}
           </p>
         </div>
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <p className="text-gray-500">Production Count</p>
           <p className="font-semibold text-gray-900">
             {machine.production_count || 0}
           </p>
-        </div>
+        </div> */}
+
         <div className="space-y-1">
           <p className="text-gray-500">Start Time</p>
           <p className="font-medium text-gray-800">
@@ -172,8 +191,8 @@ function PlcMachineCard({ machine, products = [] }) {
                   : "—"}
             </p>
           )}
-        </div>  
-        {machine.latch_force === null ? (
+        </div>
+        {/* {machine.latch_force === null ? (
           ""
         ) : (
           <div className="space-y-1">
@@ -223,7 +242,51 @@ function PlcMachineCard({ machine, products = [] }) {
               {machine.stroke || 0}
             </p>
           </div>
+        )} */}
+        {/* Product */}
+        {machine.product && (
+          <div className="space-y-1">
+            <p className="text-gray-500">Product</p>
+            <p className="font-semibold text-gray-800">{machine.product}</p>
+          </div>
         )}
+
+        {/* Production Count - product ke neeche */}
+        {machine.production_count !== null &&
+          machine.production_count !== undefined && (
+            <div className="space-y-1">
+              <p className="text-gray-500">Production Count</p>
+              <p className="font-semibold text-gray-800">
+                {machine.production_count}
+              </p>
+            </div>
+          )}
+
+        {/* Live Data Parameters - scrollable */}
+        <div className="col-span-2 mt-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-2">
+            Live Data
+          </p>
+          <div className="max-h-44 overflow-y-auto overflow-x-hidden pr-3 custom-scrollbar rounded-lg border border-slate-100 bg-slate-50/50 p-3">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-xs">
+              {machine?.parameters &&
+                Object.keys(machine.parameters).length > 0 &&
+                Object.entries(machine.parameters).map(([key, value]) => (
+                  <div key={key} className="space-y-0.5 min-w-0">
+                    <p
+                      className="text-gray-500 break-words"
+                      title={key.replaceAll("_", " ")}
+                    >
+                      {key.replaceAll("_", " ")}
+                    </p>
+                    <p className="font-semibold text-gray-800 break-words">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -232,6 +295,7 @@ function PlcMachineCard({ machine, products = [] }) {
 export default function PlcLiveData() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   const filters = useMemo(() => {
     const f = {};
@@ -241,17 +305,24 @@ export default function PlcLiveData() {
     if (selectedModel && selectedModel !== "All") {
       f.model = selectedModel;
     }
+    if (selectedStatus && selectedStatus !== "All") {
+      f.status = selectedStatus;
+    }
     return f;
-  }, [selectedDevice, selectedModel]);
+  }, [selectedDevice, selectedModel, selectedStatus]);
 
   const { getAllPlcData } = usePlcData(filters);
   const { getAllPlcProducts } = usePlcProduct({});
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
   const productsList = getAllPlcProducts.data || [];
 
+   console.log("this is my start and stop", productsList);
+
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
     if (!plcDataList || plcDataList.length === 0) {
+
+     
       return {
         totalProduction: 0,
         avgLatchForce: 0,
@@ -312,6 +383,13 @@ export default function PlcLiveData() {
     return Array.from(deviceMap.values());
   }, [plcDataList]);
 
+  // Active = Running, Inactive = Stopped/Idle/other
+  const machineStatusCounts = useMemo(() => {
+    const active = latestPerDevice.filter((m) => (m.Status || "").toLowerCase() === "running").length;
+    const inactive = latestPerDevice.length - active;
+    return { activeMachines: active, inactiveMachines: inactive };
+  }, [latestPerDevice]);
+
   // Products grouped by machine_name (device_id) for machine cards
   const productsByMachine = useMemo(() => {
     const map = {};
@@ -354,6 +432,8 @@ export default function PlcLiveData() {
     }));
   }, [latestPerDevice]);
 
+
+
   const summaryCards = [
     {
       label: "Total Production",
@@ -364,26 +444,44 @@ export default function PlcLiveData() {
       bg: "bg-blue-50",
       trend: "up",
     },
+    // {
+    //   label: "Avg Latch Force",
+    //   value: summaryStats.avgLatchForce,
+    //   subtitle: "Overall Average",
+    //   accent: "text-emerald-600",
+    //   border: "border-emerald-100",
+    //   bg: "bg-emerald-50",
+    //   trend: "up",
+    // },
     {
-      label: "Avg Latch Force",
-      value: summaryStats.avgLatchForce,
-      subtitle: "Overall Average",
+      label: "Total Active Machines",
+      value: machineStatusCounts.activeMachines,
+      subtitle: "Currently Running",
       accent: "text-emerald-600",
       border: "border-emerald-100",
       bg: "bg-emerald-50",
       trend: "up",
     },
     {
-      label: "Avg Claw Force",
-      value: summaryStats.avgClawForce,
-      subtitle: "Overall Average",
-      accent: "text-cyan-600",
-      border: "border-cyan-100",
-      bg: "bg-cyan-50",
+      label: "Total Inactive Machines",
+      value: machineStatusCounts.inactiveMachines,
+      subtitle: "Stopped / Idle",
+      accent: "text-rose-500",
+      border: "border-rose-100",
+      bg: "bg-rose-50",
       trend: "up",
     },
+    // {
+    //   label: "Avg Claw Force",
+    //   value: summaryStats.avgClawForce,
+    //   subtitle: "Overall Average",
+    //   accent: "text-cyan-600",
+    //   border: "border-cyan-100",
+    //   bg: "bg-cyan-50",
+    //   trend: "up",
+    // },
     {
-      label: "Total Devices",
+      label: "Total Machines",
       value: summaryStats.totalDevices,
       subtitle: "Active Devices",
       accent: "text-purple-600",
@@ -391,33 +489,33 @@ export default function PlcLiveData() {
       bg: "bg-purple-50",
       trend: "up",
     },
-    {
-      label: "Avg Safety Lever",
-      value: summaryStats.avgSafetyLever,
-      subtitle: "Overall Average",
-      accent: "text-orange-500",
-      border: "border-orange-100",
-      bg: "bg-orange-50",
-      trend: "up",
-    },
-    {
-      label: "Avg Claw Lever",
-      value: summaryStats.avgClawLever,
-      subtitle: "Overall Average",
-      accent: "text-indigo-600",
-      border: "border-indigo-100",
-      bg: "bg-indigo-50",
-      trend: "up",
-    },
-    {
-      label: "Total Stroke",
-      value: summaryStats.totalStroke,
-      subtitle: "Total Stroke Count",
-      accent: "text-amber-500",
-      border: "border-amber-100",
-      bg: "bg-amber-50",
-      trend: "up",
-    },
+    // {
+    //   label: "Avg Safety Lever",
+    //   value: summaryStats.avgSafetyLever,
+    //   subtitle: "Overall Average",
+    //   accent: "text-orange-500",
+    //   border: "border-orange-100",
+    //   bg: "bg-orange-50",
+    //   trend: "up",
+    // },
+    // {
+    //   label: "Avg Claw Lever",
+    //   value: summaryStats.avgClawLever,
+    //   subtitle: "Overall Average",
+    //   accent: "text-indigo-600",
+    //   border: "border-indigo-100",
+    //   bg: "bg-indigo-50",
+    //   trend: "up",
+    // },
+    // {
+    //   label: "Total Stroke",
+    //   value: summaryStats.totalStroke,
+    //   subtitle: "Total Stroke Count",
+    //   accent: "text-amber-500",
+    //   border: "border-amber-100",
+    //   bg: "bg-amber-50",
+    //   trend: "up",
+    // },
     {
       label: "Avg Production Count",
       value: summaryStats.avgProductionCount,
@@ -467,7 +565,7 @@ export default function PlcLiveData() {
         </div>
 
         {/* Summary cards */}
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {summaryCards.map((card) => (
             <SummaryCard key={card.label} card={card} />
           ))}
@@ -496,19 +594,17 @@ export default function PlcLiveData() {
 
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-gray-500">
-                Model
+                Status
               </label>
               <select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
                 className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
-                <option value="">All Models</option>
-                {uniqueModels.map((model) => (
-                  <option key={model} value={model}>
-                    {model}
-                  </option>
-                ))}
+                <option value="">All Status</option>
+                <option value="Running">Running</option>
+                <option value="Stopped">Stopped</option>
+                <option value="Idle">Idle</option>
               </select>
             </div>
           </div>
@@ -539,9 +635,17 @@ export default function PlcLiveData() {
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip cursor={{ fill: "#f9fafb" }} />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="latchForce" name="Latch Force" fill="#0ea5e9" />
+                    <Bar
+                      dataKey="latchForce"
+                      name="Latch Force"
+                      fill="#0ea5e9"
+                    />
                     <Bar dataKey="clawForce" name="Claw Force" fill="#3b82f6" />
-                    <Bar dataKey="safetyLever" name="Safety Lever" fill="#10b981" />
+                    <Bar
+                      dataKey="safetyLever"
+                      name="Safety Lever"
+                      fill="#10b981"
+                    />
                     <Bar dataKey="clawLever" name="Claw Lever" fill="#8b5cf6" />
                   </BarChart>
                 </ResponsiveContainer>

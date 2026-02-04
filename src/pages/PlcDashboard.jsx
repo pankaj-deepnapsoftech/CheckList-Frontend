@@ -1,15 +1,7 @@
 import { useState, useMemo } from "react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { ArrowUp, ArrowDown, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
+import { Loader2 ,History } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
 
@@ -29,10 +21,10 @@ function PlcMachineCard({ machine, products = [] }) {
     });
   };
   
-    console.log("this is my machine", machine);
  
 
-  const statusVal = (machine.status || "").trim() || "—";
+  const statusVal = (machine.Status || "").trim() || "—";
+  const navigate = useNavigate();
   const statusLower = statusVal.toLowerCase();
   const isRunning = statusLower === "running";
   const isStopped = statusLower === "stopped";
@@ -63,8 +55,18 @@ function PlcMachineCard({ machine, products = [] }) {
           <h3 className="text-lg font-semibold text-gray-800">
             {machine.device_id || "N/A"}
           </h3>
+          {/* {console.log("this ois my machine======>>>>>", machine.machine.model)} */}
           <p className="text-xs text-gray-500 mt-0.5">
-            Model: {machine.model || "N/A"}
+            Company: {machine.companyname || "N/A"}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Plant: <div>{machine.plantname || "N/A"}</div>
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Model: {machine.machine.model || "N/A"}
+          </p>
+          <p className="text-xs text-gray-500 mt-0.5">
+            Assembly Line: <div>{machine.linenumber || "N/A"}</div>
           </p>
           {machine.alarm && (
             <p className="text-xs text-rose-600 mt-1 font-semibold">
@@ -73,7 +75,14 @@ function PlcMachineCard({ machine, products = [] }) {
           )}
         </div>
         <span
-          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${statusStyles}`}
+          onClick={() => navigate(`/plc/history?device_id=${encodeURIComponent(machine.device_id || "")}`)}
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-80 ${statusStyles}`}
+        >
+          <History size={14} />
+          History
+        </span>
+        <span
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide ${statusStyles}`}
         >
           {isRunning && (
             <span
@@ -84,7 +93,33 @@ function PlcMachineCard({ machine, products = [] }) {
         </span>
       </div>
 
-      
+      {/* Product fields (MATERIAL_CODE, PART_NO, MODEL_CODE) for this machine */}
+      {products.length > 0 && (
+        <div className="rounded-lg bg-slate-50 border border-slate-200 p-2 space-y-1.5">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500">
+            Products on this machine
+          </p>
+          {products.map((p, i) => (
+            <div
+              key={p._id || i}
+              className="text-xs space-y-0.5 border-b border-slate-200 last:border-0 last:pb-0 pb-1.5 last:pb-0"
+            >
+              <p className="text-gray-700">
+                <span className="text-gray-500">Material Code:</span>{" "}
+                <span className="font-medium">{p.material_code || "—"}</span>
+              </p>
+              <p className="text-gray-700">
+                <span className="text-gray-500">Part No:</span>{" "}
+                <span className="font-medium">{p.part_no || "—"}</span>
+              </p>
+              <p className="text-gray-700">
+                <span className="text-gray-500">Model Code:</span>{" "}
+                <span className="font-medium">{p.model_code || "—"}</span>
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-2 gap-2 text-xs mt-1">
         <div className="space-y-1">
@@ -93,12 +128,13 @@ function PlcMachineCard({ machine, products = [] }) {
             {formatDate(machine.timestamp || machine.created_at)}
           </p>
         </div>
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <p className="text-gray-500">Production Count</p>
           <p className="font-semibold text-gray-900">
             {machine.production_count || 0}
           </p>
-        </div>
+        </div> */}
+
         <div className="space-y-1">
           <p className="text-gray-500">Start Time</p>
           <p className="font-medium text-gray-800">
@@ -118,21 +154,8 @@ function PlcMachineCard({ machine, products = [] }) {
                   : "—"}
             </p>
           )}
-        </div>  
-        {
-            machine.productionCount === null ?(
-            ""
-            ):(
-                <div className="space-y-1 col-span-2">
-            <p className="text-gray-500">Production Count</p>
-            <p className="font-semibold text-green-700">
-              {machine.production_count|| 0}
-            </p>
-          </div>
-            )
-        }
-        
-        {machine.latch_force === null ? (
+        </div>
+        {/* {machine.latch_force === null ? (
           ""
         ) : (
           <div className="space-y-1">
@@ -164,7 +187,7 @@ function PlcMachineCard({ machine, products = [] }) {
           </div>
         )}
         {machine.claw_lever === null ? (
-            ""
+          ""
         ) : (
           <div className="space-y-1">
             <p className="text-gray-500">Claw Lever</p>
@@ -173,9 +196,7 @@ function PlcMachineCard({ machine, products = [] }) {
             </p>
           </div>
         )}
-        
-    
-            {machine.stroke === null ? (
+        {machine.stroke === null ? (
           ""
         ) : (
           <div className="space-y-1 col-span-2">
@@ -184,10 +205,51 @@ function PlcMachineCard({ machine, products = [] }) {
               {machine.stroke || 0}
             </p>
           </div>
+        )} */}
+        {/* Product */}
+        {machine.product && (
+          <div className="space-y-1">
+            <p className="text-gray-500">Product</p>
+            <p className="font-semibold text-gray-800">{machine.product}</p>
+          </div>
         )}
-        
-        
-        
+
+        {/* Production Count - product ke neeche */}
+        {machine.production_count !== null &&
+          machine.production_count !== undefined && (
+            <div className="space-y-1">
+              <p className="text-gray-500">Production Count</p>
+              <p className="font-semibold text-gray-800">
+                {machine.production_count}
+              </p>
+            </div>
+          )}
+
+        {/* Live Data Parameters - scrollable */}
+        <div className="col-span-2 mt-2">
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-2">
+            Live Data
+          </p>
+          <div className="max-h-44 overflow-y-auto overflow-x-hidden pr-3 custom-scrollbar rounded-lg border border-slate-100 bg-slate-50/50 p-3">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-xs">
+              {machine?.parameters &&
+                Object.keys(machine.parameters).length > 0 &&
+                Object.entries(machine.parameters).map(([key, value]) => (
+                  <div key={key} className="space-y-0.5 min-w-0">
+                    <p
+                      className="text-gray-500 break-words"
+                      title={key.replaceAll("_", " ")}
+                    >
+                      {key.replaceAll("_", " ")}
+                    </p>
+                    <p className="font-semibold text-gray-800 break-words">
+                      {value}
+                    </p>
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

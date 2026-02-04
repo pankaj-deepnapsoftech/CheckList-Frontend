@@ -23,3 +23,8 @@
   scrollbar-width: thin;
   scrollbar-color: #4b5563 transparent;
 }
+
+/* Reserve space for scrollbar - no overlap with content */
+.custom-scrollbar {
+  scrollbar-gutter: stable;
+}
