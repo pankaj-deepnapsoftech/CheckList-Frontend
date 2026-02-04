@@ -14,10 +14,10 @@ export default function PlcProducts() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [form, setForm] = useState({
-    material_code: "",
-    material_description: "",
-    part_no: "",
-    model_code: "",
+    part_number: "",
+    product_name: "",
+    company_name: "",
+    plant_name: "",
     machine_name: "",
   });
 
@@ -50,21 +50,22 @@ export default function PlcProducts() {
 
   const resetForm = () => {
     setForm({
-      material_code: "",
-      material_description: "",
-      part_no: "",
-      model_code: "",
+      part_number: "",
+      product_name: "",
+      company_name: "",
+      plant_name: "",
       machine_name: "",
     });
   };
 
   const handleSave = async () => {
-    if (!form.material_code && !form.material_description && !form.part_no && !form.model_code && !form.machine_name) {
+    if (!form.part_number && !form.product_name && !form.company_name && !form.plant_name && !form.machine_name) {
       toast.error("Please fill at least one field");
       return;
     }
     try {
       await createPlcProduct.mutateAsync(form);
+      setSelectedProduct(res?.data || res);
       setIsAddOpen(false);
       resetForm();
     } catch (_) {}
@@ -73,13 +74,14 @@ export default function PlcProducts() {
   const handleEdit = (product) => {
     setSelectedProduct(product);
     setForm({
-      material_code: product.material_code || "",
-      material_description: product.material_description || "",
-      part_no: product.part_no || "",
-      model_code: product.model_code || "",
+      part_number: product.part_number || "",
+      product_name: product.product_name || "",
+      company_name: product.company_name || "",
+      plant_name: product.plant_name || "",
       machine_name: product.machine_name || "",
     });
     setIsEditOpen(true);
+    console.log(product)
   };
 
   const handleUpdate = async () => {
@@ -128,18 +130,18 @@ export default function PlcProducts() {
                 <div className="h-6 w-6 rounded-md bg-white/15" />
               </div>
               <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Products</h1>
+                <h1 className="text-2xl font-semibold text-gray-900">Quality Check</h1>
                 <p className="text-sm text-gray-500 mt-0.5">Manage your products and services inventory</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <button
                 type="button"
-                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 cursor-pointer"
                 onClick={() => { resetForm(); setIsAddOpen(true); }}
               >
                 <Plus size={16} />
-                Add Product
+                Add Quality Check
               </button>
               <button
                 type="button"
@@ -154,7 +156,7 @@ export default function PlcProducts() {
 
           <div className="mt-6 flex flex-wrap gap-6">
             <div className="flex-1 min-w-[200px] max-w-xl">
-              <div className="text-sm font-medium text-gray-900">Search Products</div>
+              <div className="text-sm font-medium text-gray-900">Search Quality Check</div>
               <div className="mt-2 relative">
                 <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
@@ -186,8 +188,8 @@ export default function PlcProducts() {
         <div className="mt-6 rounded-xl border border-gray-200 bg-white shadow-sm">
           <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-gray-100">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Product Directory</h2>
-              <p className="text-sm text-gray-500 mt-0.5">Showing {visibleRows.length} of {productsList.length} products</p>
+              <h2 className="text-lg font-semibold text-gray-900">Quality Check Directory</h2>
+              <p className="text-sm text-gray-500 mt-0.5">Showing {visibleRows.length} of {productsList.length} quality check</p>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-500">Show:</span>
@@ -207,11 +209,11 @@ export default function PlcProducts() {
             <table className="min-w-full divide-y divide-gray-100">
               <thead className="bg-white">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Material Code</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Part No.</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Model Code</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Machine Name</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Part Number</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Product</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Company</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Plant</th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Machine    </th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Created On</th>
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Actions</th>
                 </tr>
@@ -236,10 +238,10 @@ export default function PlcProducts() {
                 )}
                 {!isLoadingProducts && !isErrorProducts && visibleRows.map((p) => (
                   <tr key={p._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{p.material_code || "—"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 max-w-xs truncate">{p.material_description || "—"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.part_no || "—"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.model_code || "—"}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{p.part_number || "—"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800 max-w-xs truncate">{p.product_name || "—"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.company_name || "—"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.plant_name || "—"}</td>
                     <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.machine_name || "—"}</td>
                     <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{formatDate(p.created_at)}</td>
                     <td className="px-6 py-4">
@@ -269,35 +271,53 @@ export default function PlcProducts() {
           <div className="relative h-full w-full max-w-md bg-white shadow-2xl flex flex-col">
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900">Add Product</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Add Quality Check</h2>
                 <p className="text-xs text-gray-500 mt-0.5">Enter product and machine details</p>
               </div>
               <button type="button" onClick={() => { setIsAddOpen(false); resetForm(); }} className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"><X size={18} /></button>
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Material Code</label>
-                <input name="material_code" value={form.material_code} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter material code" />
+                <label className="block text-xs font-medium text-gray-700 mb-1">Part No :</label>
+                <input name="part_number" value={form.part_number} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter part number..." />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Material Description</label>
-                <textarea name="material_description" value={form.material_description} onChange={handleChange} rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none" placeholder="Enter material description" />
+                <label className="block text-xs font-medium text-gray-700 mb-1">Product Name</label>
+                {/* <textarea name="product_name" value={form.product_name} onChange={handleChange} rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none" placeholder="Enter material description" /> */}
+                <select className="w-full border h-[35px] rounded border-gray-300 text-gray-500 text-sm px-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" name="product_name" value={form.product_name} onChange={handleChange} id="">
+                  <option value="product_1">Product 1</option>
+                  <option value="product_2">Product 2</option>
+                  <option value="product_3">Product 3</option>
+                </select>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Part No.</label>
-                  <input name="part_no" value={form.part_no} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter part number" />
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Company Name</label>
+                  {/* <input name="company_name" value={form.company_name} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter part number" /> */}
+                  <select className="w-full h-[35px] border border-gray-300 rounded text-gray-500 text-sm px-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" name="company_name" value={form.company_name} id="" onChange={handleChange}>
+                    <option value="company_1">Company 1</option>
+                    <option value="company_2">Company 2</option>
+                    <option value="company_3">Company 3</option>
+                  </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Model No./Code</label>
-                  <input name="model_code" value={form.model_code} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter model no./code" />
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Plant Name</label>
+                  {/* <input name="plant_name" value={form.plant_name} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter model no./code" /> */}
+                  <select className="w-full h-[35px] border rounded border-gray-300 text-gray-500 text-[14px] px-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"  name="plant_name" value={form.plant_name} id="" onChange={handleChange}>
+                    <option value="plant_1">Plant 1</option>
+                    <option value="plant_2">Plant 2</option>
+                    <option value="plant_3">Plant 3</option>
+                  </select>
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Machine Name</label>
-                <select name="machine_name" value={form.machine_name} onChange={handleChange} disabled={getAllPlcData.isLoading} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed">
-                  <option value="">{getAllPlcData.isLoading ? "Loading machines..." : "Select machine"}</option>
-                  {machineOptions.map((m) => <option key={m} value={m}>{m}</option>)}
+                <select name="machine_name" value={form.machine_name} onChange={handleChange} disabled={getAllPlcData.isLoading} className="w-full rounded-lg border border-gray-300 px-2 py-2 text-sm text-gray-500 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed">
+                  {/* <option value="">{getAllPlcData.isLoading ? "Loading machines..." : "Select machine"}</option>
+                  {machineOptions.map((m) => <option key={m} value={m}>{m}</option>)} */}
+                  <option value="">Machine 1</option>
+                  <option value="">Machine 2</option>
+                  <option value="">Machine 3</option>
                 </select>
               </div>
             </div>
@@ -322,11 +342,11 @@ export default function PlcProducts() {
               <button type="button" onClick={() => { setIsViewOpen(false); setSelectedProduct(null); }} className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"><X size={18} /></button>
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-              <div><label className="block text-xs font-medium text-gray-500 mb-1">Material Code</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.material_code || "—"}</div></div>
-              <div><label className="block text-xs font-medium text-gray-500 mb-1">Material Description</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2 min-h-[60px]">{selectedProduct.material_description || "—"}</div></div>
+              <div><label className="block text-xs font-medium text-gray-500 mb-1">Material Code</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.part_number || "—"}</div></div>
+              <div><label className="block text-xs font-medium text-gray-500 mb-1">Material Description</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2 min-h-[60px]">{selectedProduct.product_name || "—"}</div></div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Part No.</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.part_no || "—"}</div></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Model No./Code</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.model_code || "—"}</div></div>
+                <div><label className="block text-xs font-medium text-gray-500 mb-1">Part No.</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.company_name || "—"}</div></div>
+                <div><label className="block text-xs font-medium text-gray-500 mb-1">Model No./Code</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.plant_name || "—"}</div></div>
               </div>
               <div><label className="block text-xs font-medium text-gray-500 mb-1">Machine Name</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.machine_name || "—"}</div></div>
               <div><label className="block text-xs font-medium text-gray-500 mb-1">Created On</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{formatDate(selectedProduct.created_at)}</div></div>
@@ -348,11 +368,11 @@ export default function PlcProducts() {
               <button type="button" onClick={() => { setIsEditOpen(false); setSelectedProduct(null); resetForm(); }} className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"><X size={18} /></button>
             </div>
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-              <div><label className="block text-xs font-medium text-gray-700 mb-1">Material Code</label><input name="material_code" value={form.material_code} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter material code" /></div>
-              <div><label className="block text-xs font-medium text-gray-700 mb-1">Material Description</label><textarea name="material_description" value={form.material_description} onChange={handleChange} rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none" placeholder="Enter material description" /></div>
+              <div><label className="block text-xs font-medium text-gray-700 mb-1">Material Code</label><input name="part_number" value={form.part_number} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter material code" /></div>
+              <div><label className="block text-xs font-medium text-gray-700 mb-1">Material Description</label><textarea name="product_name" value={form.product_name} onChange={handleChange} rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none" placeholder="Enter material description" /></div>
               <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-medium text-gray-700 mb-1">Part No.</label><input name="part_no" value={form.part_no} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter part number" /></div>
-                <div><label className="block text-xs font-medium text-gray-700 mb-1">Model No./Code</label><input name="model_code" value={form.model_code} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter model no./code" /></div>
+                <div><label className="block text-xs font-medium text-gray-700 mb-1">Part No.</label><input name="company_name" value={form.company_name} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter part number" /></div>
+                <div><label className="block text-xs font-medium text-gray-700 mb-1">Model No./Code</label><input name="plant_name" value={form.plant_name} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter model no./code" /></div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Machine Name</label>
@@ -385,7 +405,7 @@ export default function PlcProducts() {
             <div className="px-6 py-4">
               <div className="bg-red-50 border border-red-200 rounded-lg p-4">
                 <p className="text-sm text-red-800 font-medium mb-2">This action cannot be undone.</p>
-                <p className="text-xs text-red-700"><span className="font-medium">Material Code:</span> {selectedProduct.material_code || "—"}</p>
+                <p className="text-xs text-red-700"><span className="font-medium">Material Code:</span> {selectedProduct.part_number || "—"}</p>
                 <p className="text-xs text-red-700"><span className="font-medium">Machine Name:</span> {selectedProduct.machine_name || "—"}</p>
               </div>
             </div>

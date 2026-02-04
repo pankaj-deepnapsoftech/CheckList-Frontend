@@ -96,6 +96,7 @@ export const AppRoute = () => {
     },
     {
       path: "/plc-data/products",
+      path: "/plc-data/qc-check",      
       element: withProtection(PlcProducts),
     },
     {

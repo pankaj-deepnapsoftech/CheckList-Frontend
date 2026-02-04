@@ -161,6 +161,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
         //   icon: <Boxes size={18} />,
         // },
         {
+          name: "QC Check",
+          path: "/plc-data/qc-check",
+          icon: <Boxes size={18} />,
+        },
+        {
           name: "Stoppage",
           path: "/plc-data/stoppage",
           icon: <CircleOff size={18} />,
