@@ -241,6 +241,14 @@ function PlcMachineCard({ machine, products = [] }) {
           </div>
         )}
 
+        {/* Production Count - product ke neeche */}
+        {(machine.production_count !== null && machine.production_count !== undefined) && (
+          <div className="space-y-1">
+            <p className="text-gray-500">Production Count</p>
+            <p className="font-semibold text-gray-800">{machine.production_count}</p>
+          </div>
+        )}
+
         {/* Live Data Parameters - scrollable */}
         <div className="col-span-2 mt-2">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-500 mb-2">
