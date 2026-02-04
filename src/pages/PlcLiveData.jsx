@@ -361,6 +361,13 @@ export default function PlcLiveData() {
     return Array.from(deviceMap.values());
   }, [plcDataList]);
 
+  // Active = Running, Inactive = Stopped/Idle/other
+  const machineStatusCounts = useMemo(() => {
+    const active = latestPerDevice.filter((m) => (m.Status || "").toLowerCase() === "running").length;
+    const inactive = latestPerDevice.length - active;
+    return { activeMachines: active, inactiveMachines: inactive };
+  }, [latestPerDevice]);
+
   // Products grouped by machine_name (device_id) for machine cards
   const productsByMachine = useMemo(() => {
     const map = {};
@@ -426,8 +433,8 @@ export default function PlcLiveData() {
     // },
     {
       label: "Total Active Machines",
-      value: summaryStats.avgLatchForce,
-      // subtitle: "Overall Average",
+      value: machineStatusCounts.activeMachines,
+      subtitle: "Currently Running",
       accent: "text-emerald-600",
       border: "border-emerald-100",
       bg: "bg-emerald-50",
@@ -435,8 +442,8 @@ export default function PlcLiveData() {
     },
     {
       label: "Total Inactive Machines",
-      value: summaryStats.avgLatchForce,
-      // subtitle: "Overall Average",
+      value: machineStatusCounts.inactiveMachines,
+      subtitle: "Stopped / Idle",
       accent: "text-rose-500",
       border: "border-rose-100",
       bg: "bg-rose-50",
