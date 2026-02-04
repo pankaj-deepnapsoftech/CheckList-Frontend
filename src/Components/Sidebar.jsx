@@ -170,6 +170,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           path: "/plc-data/stoppage",
           icon: <CircleOff size={18} />,
         },
+        {
+          name:"Analytics-Dashboard",
+          path:"/plc-data/dashboard",
+          icon:<LayoutDashboard size={18} />
+        }
       ],
     },
 
