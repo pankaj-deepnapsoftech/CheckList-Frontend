@@ -34,6 +34,7 @@ import AssignedTemplates from "../TemplateMasterPages/AssignedTemplates";
 import TemplateStatus from "../TemplateMasterPages/TemplateStatus";
 import TemplateApproveReject from "../TemplateMasterPages/TemplateApproveReject";
 import TemplateModuleHistory from "../TemplateMasterPages/TemplateModuleHistory";
+import PlcDashboard from "../pages/PlcDashboard";
 
 
 export const AppRoute = () => {
@@ -88,6 +89,10 @@ export const AppRoute = () => {
     {
       path: "/plc-data/stoppage",
       element: withProtection(PlcStoppage),
+    },
+    {
+      path:"/plc-data/dashboard",
+      element: withProtection(PlcDashboard)
     },
     user?.is_admin === false && {
       path: "/assembly-line/error",
