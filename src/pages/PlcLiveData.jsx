@@ -81,7 +81,9 @@ function PlcMachineCard({ machine, products = [] }) {
 
   return (
     <div
-      className={`rounded-2xl border ${statusColor} bg-gradient-to-b from-blue-50/60 via-white to-white p-4 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col gap-3 relative`}
+      className={`rounded-2xl border ${statusColor}
+       bg-gradient-to-b from-blue-50/60 via-white to-white
+        p-4 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col gap-3 relative`}
     >
       <div className="flex items-start justify-between pb-2 border-b border-blue-100/60 gap-3">
         <div className="min-w-0 flex-1">

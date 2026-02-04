@@ -281,6 +281,11 @@ const allowedMenu = IsSuper
           </div>
         </div>
 
+        <p className="text-gray-400 text-xs text-center leading-[15px] ">
+          Developed & Maintained by
+          <p>© 2026 Deepnap Softech</p>
+        </p>
+
         {/* LOGOUT */}
         <button
           onClick={handleLogout}
@@ -346,6 +351,11 @@ const allowedMenu = IsSuper
               <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
                 {renderMenu()}
               </div>
+
+              <p className="text-gray-400 text-xs text-center leading-[15px] ">
+                Developed & Maintained by
+                <p>© 2026 Deepnap Softech</p>
+              </p>
 
               {/* Logout Button */}
               <div className="p-4 border-t border-gray-200">
