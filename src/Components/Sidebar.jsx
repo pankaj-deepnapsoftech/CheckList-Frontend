@@ -109,11 +109,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           path: "/plc-data/live",
           icon: <Activity size={18} />,
         },
-        // {
-        //   name: "Products",
-        //   path: "/plc-data/products",
-        //   icon: <Boxes size={18} />,
-        // },
+        {
+          name: "QC Check",
+          path: "/plc-data/qc-check",
+          icon: <Boxes size={18} />,
+        },
         {
           name: "Stoppage",
           path: "/plc-data/stoppage",
