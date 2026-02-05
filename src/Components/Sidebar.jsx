@@ -147,14 +147,15 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       children: [
         {
           name: "Analytics-Dashboard",
-          path: "/plc-data/dashboard",
-          icon: <LayoutDashboard size={18} />,
-        },
-        {
-          name: "Live-Data",
           path: "/plc-data/live",
           icon: <Activity size={18} />,
         },
+        {
+          name: "Live-Data",
+          path: "/plc-data/dashboard",
+          icon: <LayoutDashboard size={18} />,
+        },
+
         {
           name: "Stoppage",
           path: "/plc-data/stoppage",
