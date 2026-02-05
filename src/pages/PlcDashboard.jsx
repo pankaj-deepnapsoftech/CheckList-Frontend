@@ -258,8 +258,16 @@ function PlcMachineCard({ machine, products = [] }) {
 export default function PlcLiveData() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
+    const [selectedCompany, setSelectedCompany] = useState("");
+    const [selectedPlant, setSelectedPlant] = useState("");
+  
+    const [dateRangePreset, setDateRangePreset] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
 
-  const filters = useMemo(() => {
+    
+    const filters = useMemo(() => {
     const f = {};
     if (selectedDevice && selectedDevice !== "All") {
       f.device_id = selectedDevice;
@@ -267,13 +275,80 @@ export default function PlcLiveData() {
     if (selectedModel && selectedModel !== "All") {
       f.model = selectedModel;
     }
+    if (selectedStatus && selectedStatus !== "All") {
+      f.status = selectedStatus;
+    }
+  if (selectedCompany && selectedCompany !== "All"){
+     f.company_name = selectedCompany;
+  }
+  if (selectedPlant && selectedPlant !== "All") {
+    f.plant_name = selectedPlant;
+  }
+
+  // Date range: use startDate/endDate for API (filters by created_at)
+  let computedStart = "";
+  let computedEnd = "";
+  
+  if (dateRangePreset && dateRangePreset !== "Custom") {
+    const now = new Date();
+    let fromDate;
+
+    if (dateRangePreset === "Today") {
+      fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      computedStart = fromDate.toISOString();
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      computedEnd = endOfDay.toISOString();
+    } else if (dateRangePreset === "This Week") {
+      fromDate = new Date(now);
+      fromDate.setDate(now.getDate() - now.getDay());
+      fromDate.setHours(0, 0, 0, 0);
+      computedStart = fromDate.toISOString();
+      computedEnd = new Date().toISOString();
+    } else if (dateRangePreset === "This Month") {
+      fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      computedStart = fromDate.toISOString();
+      computedEnd = new Date().toISOString();
+    }
+    
+    if (computedStart && computedEnd) {
+      f.startDate = computedStart;
+      f.endDate = computedEnd;
+    }
+  } else if (startDate || endDate) {
+    if (startDate) {
+      const d = new Date(startDate);
+      d.setHours(0, 0, 0, 0);
+      f.startDate = d.toISOString();
+    }
+    if (endDate) {
+      const d = new Date(endDate);
+      d.setHours(23, 59, 59, 999);
+      f.endDate = d.toISOString();
+    }
+  }
     return f;
-  }, [selectedDevice, selectedModel]);
+  }, [selectedDevice, selectedModel,selectedStatus,selectedCompany,selectedPlant,dateRangePreset,startDate,endDate]);
 
   const { getAllPlcData } = usePlcData(filters);
+  const { getAllPlcData: getAllForOptions } = usePlcData({}, { live: true });
   const { getAllPlcProducts } = usePlcProduct({});
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
+  const allDataForOptions = getAllForOptions.data || [];
+    
   const productsList = getAllPlcProducts.data || [];
+    
+  const companyOptions = useMemo(() => {
+       const set = new Set(allDataForOptions.map((item) => item.companyname).filter(Boolean));
+       return Array.from(set).sort();
+     }, [allDataForOptions]);
+   
+   const plantOptions = useMemo(() => {
+       const set = new Set(allDataForOptions.map((item) => item.plantname).filter(Boolean));
+       return Array.from(set).sort();
+     }, [allDataForOptions]);
+
+
+  
 
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
@@ -419,8 +494,142 @@ export default function PlcLiveData() {
           </div>
         </div>
 
-        
+        {/* FIlters */}
+        <section className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur mt-2">
+          {/* Company - dynamic from API */}
+          <div className="flex  flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">
+              Company
+            </label>
+            <select
+              value={selectedCompany}
+              onChange={(e) => setSelectedCompany(e.target.value)}
+              className="h-9 w-36 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Companies</option>
+              {companyOptions.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          </div>
 
+          {/* Plant - dynamic from API */}
+          <div className="flex  flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">
+              Plant
+            </label>
+            <select
+              value={selectedPlant}
+              onChange={(e) => setSelectedPlant(e.target.value)}
+              className="h-9 w-36  rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Plants</option>
+              {plantOptions.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Date Range */}
+          <div className="flex  flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">
+              Date Range
+            </label>
+            <select
+              value={dateRangePreset}
+              onChange={(e) => {
+                setDateRangePreset(e.target.value);
+                // Optional: clear custom dates when preset changes
+                if (e.target.value !== "Custom") {
+                  setStartDate("");
+                  setEndDate("");
+                }
+              }}
+              className="h-9 w-36 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Time</option>
+              <option value="Today">Today</option>
+              <option value="This Week">This Week</option>
+              <option value="This Month">This Month</option>
+              <option value="Custom">Custom Range</option>
+            </select>
+
+            {/* Show date inputs only when Custom is selected */}
+            {dateRangePreset === "Custom" && (
+              <div className="mt-1 flex gap-2">
+                <div className="flex-1">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="h-8 w-36 rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-blue-500 focus:outline-none "
+                  />
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Machine Name */}
+          <div className="flex  flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">
+              Machine Name
+            </label>
+            <select
+              value={selectedDevice}
+              onChange={(e) => setSelectedDevice(e.target.value)}
+              className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Machines</option>
+              {uniqueDevices.map((device) => (
+                <option key={device} value={device}>
+                  {device}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Status */}
+          <div className="flex  flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">
+              Status
+            </label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Status</option>
+              <option value="Running">Running</option>
+              <option value="Stopped">Stopped</option>
+            </select>
+          </div>
+
+          {/* Reset Button */}
+          <div className="ml-auto flex items-center">
+            <button
+              onClick={() => {
+                setSelectedCompany("");
+                setSelectedPlant("");
+                setDateRangePreset("");
+                setStartDate("");
+                setEndDate("");
+                setSelectedDevice("");
+                setSelectedStatus("");
+              }}
+              className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
+            >
+              Reset Filters
+            </button>
+          </div>
+        </section>
         
 
         {/* PLC Machine Data */}

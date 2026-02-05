@@ -819,17 +819,19 @@ const filters = useMemo(() => {
             </span>
           </div>
         </div>
+
+
         {/* Filters */}
-        <section className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur">
+        <section className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur mt-2">
           {/* Company - dynamic from API */}
-          <div className="flex min-w-[160px] flex-col gap-1">
+          <div className="flex  flex-col gap-1">
             <label className="text-[11px] font-semibold text-slate-500">
               Company
             </label>
             <select
               value={selectedCompany}
               onChange={(e) => setSelectedCompany(e.target.value)}
-              className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="h-9 w-36 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">All Companies</option>
               {companyOptions.map((opt) => (
@@ -839,14 +841,14 @@ const filters = useMemo(() => {
           </div>
 
           {/* Plant - dynamic from API */}
-          <div className="flex min-w-[160px] flex-col gap-1">
+          <div className="flex  flex-col gap-1">
             <label className="text-[11px] font-semibold text-slate-500">
               Plant
             </label>
             <select
               value={selectedPlant}
               onChange={(e) => setSelectedPlant(e.target.value)}
-              className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="h-9 w-36  rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">All Plants</option>
               {plantOptions.map((opt) => (
@@ -856,7 +858,7 @@ const filters = useMemo(() => {
           </div>
 
           {/* Date Range */}
-          <div className="flex min-w-[260px] flex-col gap-1">
+          <div className="flex  flex-col gap-1">
             <label className="text-[11px] font-semibold text-slate-500">
               Date Range
             </label>
@@ -870,7 +872,7 @@ const filters = useMemo(() => {
                   setEndDate("");
                 }
               }}
-              className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="h-9 w-36 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">All Time</option>
               <option value="Today">Today</option>
@@ -887,7 +889,7 @@ const filters = useMemo(() => {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-blue-500 focus:outline-none"
+                    className="h-8 w-36 rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-blue-500 focus:outline-none "
                   />
                 </div>
                 <div className="flex-1">
@@ -903,7 +905,7 @@ const filters = useMemo(() => {
           </div>
 
           {/* Machine Name */}
-          <div className="flex min-w-[180px] flex-col gap-1">
+          <div className="flex  flex-col gap-1">
             <label className="text-[11px] font-semibold text-slate-500">
               Machine Name
             </label>
@@ -922,7 +924,7 @@ const filters = useMemo(() => {
           </div>
 
           {/* Status */}
-          <div className="flex min-w-[140px] flex-col gap-1">
+          <div className="flex  flex-col gap-1">
             <label className="text-[11px] font-semibold text-slate-500">
               Status
             </label>
