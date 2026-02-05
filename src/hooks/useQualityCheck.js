@@ -7,79 +7,36 @@ export const useQualityCheck = (filters = {}) => {
   const { machine_name, product_name, status, company_name, plant_name, search } = filters;
 
   const getAllQualityChecks = useQuery({
-    queryKey: ["quality-check", { machine_name, product_name, status, company_name, plant_name, search }],
+    queryKey: ["quality-check", filters],
     queryFn: async () => {
-      const params = {};
-      if (machine_name) params.machine_name = machine_name;
-      if (product_name) params.product_name = product_name;
-      if (status) params.status = status;
-      if (company_name) params.company_name = company_name;
-      if (plant_name) params.plant_name = plant_name;
-      if (search) params.search = search;
-
-      const res = await axiosHandler.get("/quality-check", { params });
+      const res = await axiosHandler.get("/quality-check", { params: filters });
       return res?.data?.data || [];
     },
   });
 
   const createQualityCheck = useMutation({
-    mutationFn: async (data) => {
-      const res = await axiosHandler.post("/quality-check", data);
-      return res?.data;
-    },
+    mutationFn: (data) => axiosHandler.post("/quality-check", data),
     onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["quality-check"] });
-      toast.success(data?.message || "Quality Check created successfully");
-    },
-    onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to create Quality Check");
+      toast.success(data?.data?.message || "Quality Check created successfully");
     },
   });
-
-  const useQualityCheck = () => {
-  const queryClient = useQueryClient();
-
-   const qcData = useQuery({
-    queryKey: "qcData",
-    queryFn: async () => {
-      return axiosHandler.get();
-    },
-  });
-
-   const qcDataPost = useMutation({
-    mutationFn: async (data) => {
-      return await axiosHandler.post("/plc-products", data);
-    },
-  });
-
-  return {qcDataPost};
-};
 
   const updateQualityCheck = useMutation({
-    mutationFn: async ({ id, data }) => {
-      const res = await axiosHandler.put(`/quality-check/${id}`, data);
-      return res?.data;
-    },
-    onSuccess: (data) => {
+    mutationFn: ({ id, data }) =>
+      axiosHandler.put(`/quality-check/${id}`, data),
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quality-check"] });
-      toast.success(data?.message || "Quality Check updated successfully");
-    },
-    onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to update Quality Check");
+      toast.success("Quality Check updated successfully");
     },
   });
 
   const deleteQualityCheck = useMutation({
-    mutationFn: async (id) => {
-      const res = await axiosHandler.delete(`/quality-check/${id}`);
-      return res?.data;
-    },
-    onSuccess: (data) => {
+    mutationFn: (id) =>
+      axiosHandler.delete(`/quality-check/${id}`),
+    onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["quality-check"] });
-      toast.success(data?.message || "Quality Check deleted successfully");
-    },
-    onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to delete Quality Check");
+      toast.success("Quality Check deleted successfully");
     },
   });
 
@@ -88,9 +45,9 @@ export const useQualityCheck = (filters = {}) => {
     createQualityCheck,
     updateQualityCheck,
     deleteQualityCheck,
-    useQualityCheck
   };
 };
+
 
 
 
