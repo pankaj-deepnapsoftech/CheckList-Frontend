@@ -180,14 +180,14 @@ export default function PlcStoppage() {
 
         <div className="flex flex-col gap-1 mt-3">
               <label className="text-xs font-medium text-gray-500">
-                Device ID
+                Machine ID
               </label>
               <select
                 value={selectedDevice}
                 onChange={(e) => setSelectedDevice(e.target.value)}
                 className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
-                <option value="">All Devices</option>
+                <option value="">All Machines</option>
                 {uniqueDevices.map((device) => (
                   <option key={device} value={device}>
                     {device}
