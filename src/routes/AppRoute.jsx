@@ -34,7 +34,7 @@ import AssignedTemplates from "../TemplateMasterPages/AssignedTemplates";
 import TemplateStatus from "../TemplateMasterPages/TemplateStatus";
 import TemplateApproveReject from "../TemplateMasterPages/TemplateApproveReject";
 import TemplateModuleHistory from "../TemplateMasterPages/TemplateModuleHistory";
-import plcAnalytics from "../pages/plcAnalytics";
+import PlcDashboard from "../pages/PlcDashboard";
 import PlcHistory from "../pages/PlcHistory";
 
 
@@ -86,28 +86,31 @@ export const AppRoute = () => {
       path: "/plc-data/live",
       element: withProtection(PlcLiveData),
     },
-    {
-      path: "/plc/analytics",
-      element: withProtection(plcAnalytics),
-    },
+    
     {
       path: "/plc/history",
       element: withProtection(PlcHistory),
     },
     {
       path: "/plc-data/products",
-      path: "/plc-data/qc-check",      
+      element: withProtection(PlcProducts),
+    },
+    {
+      path: "/plc-data/qc-check",
       element: withProtection(PlcProducts),
     },
     {
       path: "/plc-data/stoppage",
       element: withProtection(PlcStoppage),
     },
+    {
+      path:"/plc-data/dashboard",
+      element: withProtection(PlcDashboard)
+    },
     user?.is_admin === false && {
       path: "/assembly-line/error",
       element: withProtection(AssemblyError),
     },
-
     {
       path: "/assembly-line-admin/error",
       element: withProtection(ErrorforAdmin),
