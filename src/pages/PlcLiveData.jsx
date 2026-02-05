@@ -97,13 +97,13 @@ function PlcMachineCard({ machine, products = [] }) {
             Company: {machine.companyname || "N/A"}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
-            Plant: <div>{machine.plantname || "N/A"}</div>
+            Plant: {machine.plantname || "N/A"}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
             Model: {machine.machine.model || "N/A"}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
-            Assembly Line: <div>{machine.linenumber || "N/A"}</div>
+            Assembly Line: {machine.linenumber || "N/A"}
           </p>
           {machine.alarm && (
             <p className="text-xs text-rose-600 mt-1 font-semibold">
@@ -316,7 +316,6 @@ export default function PlcLiveData() {
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
   const productsList = getAllPlcProducts.data || [];
 
-   console.log("this is my start and stop", productsList);
 
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
@@ -382,6 +381,7 @@ export default function PlcLiveData() {
 
     return Array.from(deviceMap.values());
   }, [plcDataList]);
+  
 
   // Active = Running, Inactive = Stopped/Idle/other
   const machineStatusCounts = useMemo(() => {

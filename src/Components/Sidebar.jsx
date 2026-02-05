@@ -150,11 +150,11 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           path: "/plc-data/live",
           icon: <Activity size={18} />,
         },
-        {
-          name: "Plc-Analytics",
-          path: "/plc/analytics",
-          icon: <ChartNetwork size={18} />,
-        },
+        // {
+        //   name: "Plc-Analytics",
+        //   path: "/plc/analytics",
+        //   icon: <ChartNetwork size={18} />,
+        // },
         // {
         //   name: "Products",
         //   path: "/plc-data/products",
@@ -314,7 +314,7 @@ const allowedMenu = IsSuper
   return (
     <>
       {/* DESKTOP */}
-      <aside className="hidden md:flex w-[19%]  bg-white shadow-xl p-5 flex-col h-screen">
+      <aside className="hidden md:flex w-[20%]  bg-white shadow-xl p-5 flex-col h-screen">
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* LOGO */}
           <div
@@ -337,10 +337,10 @@ const allowedMenu = IsSuper
           </div>
         </div>
 
-        <p className="text-gray-400 text-xs text-center leading-[15px] ">
+        <div className="text-gray-400 text-xs text-center leading-[15px] ">
           Developed & Maintained by
           <p>© 2026 Deepnap Softech</p>
-        </p>
+        </div>
 
         {/* LOGOUT */}
         <button
