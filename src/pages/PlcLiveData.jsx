@@ -328,6 +328,9 @@ export default function PlcLiveData() {
         avgClawLever: 0,
         totalStroke: 0,
         avgProductionCount: 0,
+        totalUniqueParameters: 0,
+        totalParameterValues: 0,
+        avgParametersPerRecord: 0,
       };
     }
 
@@ -363,6 +366,23 @@ export default function PlcLiveData() {
     );
     const totalDevices = uniqueDevices.size;
 
+    const allParameterNames = new Set();
+    let totalParameterValues = 0;
+
+    plcDataList.forEach((item) => {
+      if (item.parameters && typeof item.parameters === "object") {
+        const paramKeys = Object.keys(item.parameters);
+        paramKeys.forEach((key) => allParameterNames.add(key));
+        totalParameterValues += paramKeys.length;
+      }
+    });
+
+    const totalUniqueParameters = allParameterNames.size;
+    const avgParametersPerRecord =
+      plcDataList.length > 0
+        ? Math.round(totalParameterValues / plcDataList.length)
+        : 0;
+
     return {
       totalProduction,
       avgLatchForce,
@@ -372,6 +392,9 @@ export default function PlcLiveData() {
       avgClawLever,
       totalStroke,
       avgProductionCount,
+      totalUniqueParameters,
+      totalParameterValues,
+      avgParametersPerRecord,
     };
   }, [plcDataList]);
 
@@ -486,6 +509,46 @@ const allParameterKeys = useMemo(() => {
       bg: "bg-blue-50",
       trend: "up",
     },
+    {
+      label: "Avg Production Count",
+      value: summaryStats.avgProductionCount,
+      subtitle: "Per Record",
+      accent: "text-rose-500",
+      border: "border-rose-100",
+      bg: "bg-rose-50",
+      trend: "up",
+    },
+    // {
+    //   label: "Total Unique Parameters",
+    //   value: summaryStats.totalUniqueParameters,
+    //   subtitle: "Different types",
+    //   accent: "text-indigo-600",
+    //   border: "border-indigo-100",
+    //   bg: "bg-indigo-50",
+    //   trend: "up",
+    // },
+
+    // Option B - Total parameter readings collected
+    {
+      label: "Total Parameters",
+      value: summaryStats.totalParameterValues,
+      subtitle: "All readings",
+      accent: "text-purple-600",
+      border: "border-purple-100",
+      bg: "bg-purple-50",
+      trend: "up",
+    },
+
+    // Option C - Average per record
+    // {
+    //   label: "Avg Parameters",
+    //   value: summaryStats.avgParametersPerRecord,
+    //   subtitle: "Per record",
+    //   accent: "text-cyan-600",
+    //   border: "border-cyan-100",
+    //   bg: "bg-cyan-50",
+    //   trend: "up",
+    // },
     // {
     //   label: "Avg Latch Force",
     //   value: summaryStats.avgLatchForce,
@@ -507,7 +570,7 @@ const allParameterKeys = useMemo(() => {
     {
       label: "Total Inactive Machines",
       value: machineStatusCounts.inactiveMachines,
-      subtitle: "Stopped / Idle",
+      subtitle: "Currently Stopped",
       accent: "text-rose-500",
       border: "border-rose-100",
       bg: "bg-rose-50",
@@ -558,15 +621,6 @@ const allParameterKeys = useMemo(() => {
     //   bg: "bg-amber-50",
     //   trend: "up",
     // },
-    {
-      label: "Avg Production Count",
-      value: summaryStats.avgProductionCount,
-      subtitle: "Per Record",
-      accent: "text-rose-500",
-      border: "border-rose-100",
-      bg: "bg-rose-50",
-      trend: "up",
-    },
   ];
 
   const lastUpdated = useMemo(() => {
@@ -618,14 +672,14 @@ const allParameterKeys = useMemo(() => {
           <div className="grid gap-3 md:grid-cols-2">
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-gray-500">
-                Device ID
+                Machine ID
               </label>
               <select
                 value={selectedDevice}
                 onChange={(e) => setSelectedDevice(e.target.value)}
                 className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
-                <option value="">All Devices</option>
+                <option value="">All Machines</option>
                 {uniqueDevices.map((device) => (
                   <option key={device} value={device}>
                     {device}
