@@ -6,12 +6,15 @@ import { toast } from "react-toastify";
 import SearchableSelect from "../Components/SearchableDropDown/SearchableDropdown";
 import { useFormik } from "formik";
 import useQualityCheck from "../hooks/useQualityCheck";
+import Refresh from "../components/Refresh/Refresh";
+
 export default function PlcProducts() {
 
 
   const { qcDataPost } = useQualityCheck()
 
 
+  const [showRefresh, setShowRefresh] = useState(false)
   const [search, setSearch] = useState("");
   const [machineFilter, setMachineFilter] = useState("");
   const [pageSize, setPageSize] = useState(10);
@@ -47,6 +50,15 @@ export default function PlcProducts() {
   });
 
   console.log("this the data =====>>>>", getdata.data)
+
+  const handleRefresh = async () => {
+    setShowRefresh(true)
+    getAllPlcData.refetch();
+    getAllPlcProducts.refetch();
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all([getAllPlcProducts.refetch(), getAllPlcData.refetch(), minDelay]);
+    setShowRefresh(false)
+  }
 
   const productsList = getAllPlcProducts.data || [];
   const isLoadingProducts = getAllPlcProducts.isLoading;
@@ -141,7 +153,7 @@ export default function PlcProducts() {
               <button
                 type="button"
                 className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                onClick={() => { getAllPlcData.refetch(); getAllPlcProducts.refetch(); }}
+                onClick={handleRefresh}
               >
                 <RefreshCcw size={16} />
                 Refresh
@@ -200,18 +212,20 @@ export default function PlcProducts() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto min-h-20 relative">
             <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-white">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Part Number</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Material Description</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Material Code</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Model Code</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Machine    </th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Created On</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Actions</th>
-                </tr>
+              <thead className="bg-white ">
+                {showRefresh ? (<Refresh />) : (
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Part Number</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Material Description</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Material Code</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Model Code</th>
+                    {/* <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Machine    </th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Created On</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Actions</th> */}
+                  </tr>
+                )}
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
                 {isLoadingProducts && (
@@ -231,19 +245,22 @@ export default function PlcProducts() {
                     </td>
                   </tr>
                 )}
-                {!isLoadingProducts && !isErrorProducts && visibleRows.map((p) => (
+                {!isLoadingProducts && !isErrorProducts && !showRefresh && visibleRows.map((p) => (
                   <tr key={p._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{p.part_no || "—"}</td>
                     <td className="px-6 py-4 text-sm text-gray-800 max-w-xs truncate">{p.material_description || "—"}</td>
                     <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.material_code || "—"}</td>
                     <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.model_code || "—"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.machine_name || "—"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{formatDate(p.created_at)}</td>
+                    {/* <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.machine_name || "—"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{formatDate(p.created_at)}</td> */}
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <button type="button" onClick={() => { setSelectedProduct(p); setIsViewOpen(true); }} className="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100" title="View"><Eye size={16} /></button>
                         <button type="button" onClick={() => handleEdit(p)} className="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100" title="Edit"><Pencil size={16} /></button>
-                        <button type="button" onClick={() => { setSelectedProduct(p); setIsDeleteOpen(true); }} className="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100" title="Delete"><Trash2 size={16} /></button>
+                        {/* <button type="button" onClick={() => { setSelectedProduct(p); setIsDeleteOpen(true); }} className="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100" title="Delete"><Trash2 size={16} /></button> */}
+                        <button className="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100">
+                          Quality Check
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -357,7 +374,7 @@ export default function PlcProducts() {
               <div><label className="block text-xs font-medium text-gray-500 mb-1">Material Description</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2 min-h-[60px]">{selectedProduct.material_description || "—"}</div></div>
               <div className="grid grid-cols-2 gap-4">
                 <div><label className="block text-xs font-medium text-gray-500 mb-1">Part No.</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.part_no || "—"}</div></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Model No./Code</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.model_code || "—"}</div></div>
+                <div><label className="block text-xs font-medium text-gray-500 mb-1">Model Code</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.model_code || "—"}</div></div>
               </div>
               <div><label className="block text-xs font-medium text-gray-500 mb-1">Machine Name</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.machine_name || "—"}</div></div>
               <div><label className="block text-xs font-medium text-gray-500 mb-1">Created On</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{formatDate(selectedProduct.created_at)}</div></div>
@@ -383,7 +400,7 @@ export default function PlcProducts() {
               <div><label className="block text-xs font-medium text-gray-700 mb-1">Material Description</label><textarea name="product_name" value={values.product_name} onChange={handleChange} rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none" placeholder="Enter material description" /></div>
               <div className="grid grid-cols-2 gap-4">
                 <div><label className="block text-xs font-medium text-gray-700 mb-1">Part No.</label><input name="company_name" value={values.company_name} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter part number" /></div>
-                <div><label className="block text-xs font-medium text-gray-700 mb-1">Model No./Code</label><input name="plant_name" value={values.plant_name} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter model no./code" /></div>
+                <div><label className="block text-xs font-medium text-gray-700 mb-1">Model Code</label><input name="plant_name" value={values.plant_name} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter model no./code" /></div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">Machine Name</label>
