@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import DowntimeCharts from "./PlcDoughnutCharts";
 import { ArrowUp, ArrowDown, Loader2, History } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
@@ -833,7 +834,9 @@ const filters = useMemo(() => {
             >
               <option value="">All Companies</option>
               {companyOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -850,7 +853,9 @@ const filters = useMemo(() => {
             >
               <option value="">All Plants</option>
               {plantOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -963,7 +968,7 @@ const filters = useMemo(() => {
           ))}
         </div>
 
-        
+        <DowntimeCharts />
 
         {/* Charts */}
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
