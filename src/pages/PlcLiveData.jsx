@@ -9,6 +9,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import DowntimeCharts from "./PlcDoughnutCharts";
 import { ArrowUp, ArrowDown, Loader2, History } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
@@ -249,11 +250,25 @@ function PlcMachineCard({ machine, products = [] }) {
             </p>
           </div>
         )} */}
-        {/* Product */}
+        {/* Product - string ya object {model, material_code, part_no} */}
         {machine.product && (
           <div className="space-y-1">
             <p className="text-gray-500">Product</p>
-            <p className="font-semibold text-gray-800">{machine.product}</p>
+            {typeof machine.product === "object" ? (
+              <div className="space-y-0.5 text-xs">
+                <p className="font-semibold text-gray-800">
+                  <span className="text-gray-500">Material Code:</span> {machine.product?.material_code || "—"}
+                </p>
+                <p className="font-semibold text-gray-800">
+                  <span className="text-gray-500">Part No:</span> {machine.product?.part_no || "—"}
+                </p>
+                <p className="font-semibold text-gray-800">
+                  <span className="text-gray-500">Model:</span> {machine.product?.model || "—"}
+                </p>
+              </div>
+            ) : (
+              <p className="font-semibold text-gray-800">{machine.product}</p>
+            )}
           </div>
         )}
 
@@ -835,7 +850,9 @@ const filters = useMemo(() => {
             >
               <option value="">All Companies</option>
               {companyOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -852,7 +869,9 @@ const filters = useMemo(() => {
             >
               <option value="">All Plants</option>
               {plantOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -965,7 +984,7 @@ const filters = useMemo(() => {
           ))}
         </div>
 
-        
+        <DowntimeCharts />
 
         {/* Charts */}
         <div className="mt-6 grid gap-4 lg:grid-cols-2">

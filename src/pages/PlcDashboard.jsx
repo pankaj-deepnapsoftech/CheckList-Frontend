@@ -206,11 +206,25 @@ function PlcMachineCard({ machine, products = [] }) {
             </p>
           </div>
         )} */}
-        {/* Product */}
+        {/* Product - string ya object {model, material_code, part_no} */}
         {machine.product && (
           <div className="space-y-1">
             <p className="text-gray-500">Product</p>
-            <p className="font-semibold text-gray-800">{machine.product}</p>
+            {typeof machine.product === "object" ? (
+              <div className="space-y-0.5 text-xs">
+                <p className="font-semibold text-gray-800">
+                  <span className="text-gray-500">Material Code:</span> {machine.product?.material_code || "—"}
+                </p>
+                <p className="font-semibold text-gray-800">
+                  <span className="text-gray-500">Part No:</span> {machine.product?.part_no || "—"}
+                </p>
+                <p className="font-semibold text-gray-800">
+                  <span className="text-gray-500">Model:</span> {machine.product?.model || "—"}
+                </p>
+              </div>
+            ) : (
+              <p className="font-semibold text-gray-800">{machine.product}</p>
+            )}
           </div>
         )}
 
