@@ -744,13 +744,13 @@ export default function PlcLiveData() {
           </div>
         </div>
         {/* Filters */}
-        <section className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-3 sm:flex-row sm:flex-row sm:items-end">
+        <section className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur">
           {/* Company */}
-          <div className="min-w-[180px]">
-            <label className="mb-1 block text-[11px] font-medium text-slate-500">
+          <div className="flex min-w-[160px] flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">
               Company
             </label>
-            <select className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700">
+            <select className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
               <option>Select a company</option>
               <option>Company A</option>
               <option>Company B</option>
@@ -759,11 +759,11 @@ export default function PlcLiveData() {
           </div>
 
           {/* Plant */}
-          <div className="min-w-[180px]">
-            <label className="mb-1 block text-[11px] font-medium text-slate-500">
+          <div className="flex min-w-[160px] flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">
               Plant
             </label>
-            <select className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700">
+            <select className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
               <option>All Plants + Multi</option>
               <option>Plant 1</option>
               <option>Plant 2</option>
@@ -772,11 +772,11 @@ export default function PlcLiveData() {
           </div>
 
           {/* Date Range */}
-          <div className="flex flex-col gap-1 min-w-[140px]">
-            <label className="text-[11px] font-medium text-slate-500">
+          <div className="flex min-w-[220px] flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">
               Date Range
             </label>
-            <select className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700">
+            <select className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
               <option>Select Date</option>
               <option>Today</option>
               <option>Yesterday</option>
@@ -785,59 +785,56 @@ export default function PlcLiveData() {
               <option>Custom</option>
             </select>
 
-            {/* Static custom date inputs (always visible, no logic) */}
-            <div className="mt-1 flex gap-2">
+            <div className="flex gap-2">
               <input
                 type="date"
-                className="flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700"
+                className="h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-blue-500 focus:outline-none"
               />
               <input
                 type="date"
-                className="flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700"
+                className="h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-blue-500 focus:outline-none"
               />
             </div>
           </div>
 
-          <div className="mt-6 rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-500">
-                  Machine Name
-                </label>
-                <select
-                  value={selectedDevice}
-                  onChange={(e) => setSelectedDevice(e.target.value)}
-                  className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">All Machines</option>
-                  {uniqueDevices.map((device) => (
-                    <option key={device} value={device}>
-                      {device}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-gray-500">
-                  Status
-                </label>
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">All Status</option>
-                  <option value="Running">Running</option>
-                  <option value="Stopped">Stopped</option>
-                  {/* <option value="Idle">Idle</option> */}
-                </select>
-              </div>
-            </div>
+          {/* Machine Name */}
+          <div className="flex min-w-[180px] flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">
+              Machine Name
+            </label>
+            <select
+              value={selectedDevice}
+              onChange={(e) => setSelectedDevice(e.target.value)}
+              className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Machines</option>
+              {uniqueDevices.map((device) => (
+                <option key={device} value={device}>
+                  {device}
+                </option>
+              ))}
+            </select>
           </div>
-          {/* Reset Button */}
-          <div className="flex items-center ml-auto">
-            <button className="px-6 py-[7px] rounded-[10px] bg-blue-500 text-white font-semibold">
+
+          {/* Status */}
+          <div className="flex min-w-[140px] flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">
+              Status
+            </label>
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Status</option>
+              <option value="Running">Running</option>
+              <option value="Stopped">Stopped</option>
+            </select>
+          </div>
+
+          {/* Reset */}
+          <div className="ml-auto flex items-center">
+            <button className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95">
               Reset
             </button>
           </div>
