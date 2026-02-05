@@ -1028,36 +1028,7 @@ export default function PlcLiveData() {
 
           
 
-        {/* PLC Machine Data */}
-        <div className="mt-8">
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-gray-800">
-              PLC Machine Data (Latest per Device)
-            </h2>
-            {isLoading && (
-              <Loader2 size={16} className="animate-spin text-gray-400" />
-            )}
-          </div>
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 size={32} className="animate-spin text-gray-400" />
-            </div>
-          ) : latestPerDevice.length === 0 ? (
-            <div className="rounded-xl border border-gray-100 bg-white p-8 text-center text-sm text-gray-500">
-              No PLC data available
-            </div>
-          ) : (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {latestPerDevice.map((machine, index) => (
-                <PlcMachineCard
-                  key={machine._id || index}
-                  machine={machine}
-                  products={productsByMachine[machine.device_id] || []}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+       
       </div>
     </div>
   );
