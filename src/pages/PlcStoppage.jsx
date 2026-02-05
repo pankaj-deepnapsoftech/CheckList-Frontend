@@ -42,6 +42,7 @@ function formatDurationHoursMinutes(totalMinutes) {
 
 export default function PlcStoppage() {
   const [selectedDevice, setSelectedDevice] = useState("");
+  const [page, setPage] = useState(1)
   const filters = useMemo(() => {
     const f = {};
     if (selectedDevice && selectedDevice !== "All"){
