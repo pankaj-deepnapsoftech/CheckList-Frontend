@@ -169,8 +169,20 @@ export default function PlcHistory() {
                             {row.Status || "Unknown"}
                           </span>
                         </td>
-                        <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-800">
-                          {row.product || "—"}
+                        <td className="px-5 py-4 text-sm text-gray-800">
+                          {row.product ? (
+                            typeof row.product === "object" ? (
+                              <div className="space-y-0.5">
+                                <p><span className="text-gray-500">Material:</span> {row.product?.material_code || "—"}</p>
+                                <p><span className="text-gray-500">Part No:</span> {row.product?.part_no || "—"}</p>
+                                <p><span className="text-gray-500">Model:</span> {row.product?.model || "—"}</p>
+                              </div>
+                            ) : (
+                              row.product
+                            )
+                          ) : (
+                            "—"
+                          )}
                         </td>
                         <td className="whitespace-nowrap px-5 py-4 text-sm font-medium text-gray-900">
                           {row.production_count ?? "—"}
