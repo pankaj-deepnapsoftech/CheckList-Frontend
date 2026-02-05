@@ -146,30 +146,36 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       icon: <Cpu size={20} />,
       children: [
         {
-          name: "Live-Data",
+          name: "Analytics-Dashboard",
           path: "/plc-data/live",
           icon: <Activity size={18} />,
         },
         {
-          name: "Plc-Analytics",
-          path: "/plc/analytics",
-          icon: <ChartNetwork size={18} />,
+          name: "Live-Data",
+          path: "/plc-data/dashboard",
+          icon: <LayoutDashboard size={18} />,
         },
+
+        {
+          name: "Stoppage",
+          path: "/plc-data/stoppage",
+          icon: <CircleOff size={18} />,
+        },
+        // {
+        //   name: "Plc-Analytics",
+        //   path: "/plc/analytics",
+        //   icon: <ChartNetwork size={18} />,
+        // },
         // {
         //   name: "Products",
         //   path: "/plc-data/products",
         //   icon: <Boxes size={18} />,
         // },
         {
-          name: "Stoppage",
-          path: "/plc-data/stoppage",
-          icon: <CircleOff size={18} />,
+          name: "QC Check",
+          path: "/plc-data/qc-check",
+          icon: <Boxes size={18} />,
         },
-        {
-          name:"Analytics-Dashboard",
-          path:"/plc-data/dashboard",
-          icon:<LayoutDashboard size={18} />
-        }
       ],
     },
 
@@ -309,7 +315,7 @@ const allowedMenu = IsSuper
   return (
     <>
       {/* DESKTOP */}
-      <aside className="hidden md:flex w-[19%]  bg-white shadow-xl p-5 flex-col h-screen">
+      <aside className="hidden md:flex w-[20%]  bg-white shadow-xl p-5 flex-col h-screen">
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* LOGO */}
           <div
@@ -332,10 +338,10 @@ const allowedMenu = IsSuper
           </div>
         </div>
 
-        <p className="text-gray-400 text-xs text-center leading-[15px] ">
+        <div className="text-gray-400 text-xs text-center leading-[15px] ">
           Developed & Maintained by
           <p>© 2026 Deepnap Softech</p>
-        </p>
+        </div>
 
         {/* LOGOUT */}
         <button

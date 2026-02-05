@@ -97,13 +97,13 @@ function PlcMachineCard({ machine, products = [] }) {
             Company: {machine.companyname || "N/A"}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
-            Plant: <div>{machine.plantname || "N/A"}</div>
+            Plant: {machine.plantname || "N/A"}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
             Model: {machine.machine.model || "N/A"}
           </p>
           <p className="text-xs text-gray-500 mt-0.5">
-            Assembly Line: <div>{machine.linenumber || "N/A"}</div>
+            Assembly Line: {machine.linenumber || "N/A"}
           </p>
           {machine.alarm && (
             <p className="text-xs text-rose-600 mt-1 font-semibold">
@@ -112,7 +112,11 @@ function PlcMachineCard({ machine, products = [] }) {
           )}
         </div>
         <span
-          onClick={() => navigate(`/plc/history?device_id=${encodeURIComponent(machine.device_id || "")}`)}
+          onClick={() =>
+            navigate(
+              `/plc/history?device_id=${encodeURIComponent(machine.device_id || "")}`,
+            )
+          }
           className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-80 ${statusStyles}`}
         >
           <History size={14} />
@@ -180,7 +184,7 @@ function PlcMachineCard({ machine, products = [] }) {
         </div>
         <div className="space-y-1">
           <p className="text-gray-500">Stop Time</p>
-          {machine?.stop_time === null ? (
+          {machine?.Stop_time === null ? (
             <p className="text-green-600">Running</p>
           ) : (
             <p className="font-medium text-gray-800">
@@ -316,13 +320,9 @@ export default function PlcLiveData() {
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
   const productsList = getAllPlcProducts.data || [];
 
-   console.log("this is my start and stop", productsList);
-
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
     if (!plcDataList || plcDataList.length === 0) {
-
-     
       return {
         totalProduction: 0,
         avgLatchForce: 0,
@@ -332,28 +332,60 @@ export default function PlcLiveData() {
         avgClawLever: 0,
         totalStroke: 0,
         avgProductionCount: 0,
+        totalUniqueParameters: 0,
+        totalParameterValues: 0,
+        avgParametersPerRecord: 0,
       };
     }
 
-    const totalProduction = plcDataList.reduce((sum, item) => sum + (item.production_count || 0), 0);
+    const totalProduction = plcDataList.reduce(
+      (sum, item) => sum + (item.production_count || 0),
+      0,
+    );
     const avgLatchForce = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.latch_force || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.latch_force || 0), 0) /
+        plcDataList.length,
     );
     const avgClawForce = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.claw_force || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.claw_force || 0), 0) /
+        plcDataList.length,
     );
     const avgSafetyLever = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.safety_lever || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.safety_lever || 0), 0) /
+        plcDataList.length,
     );
     const avgClawLever = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.claw_lever || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.claw_lever || 0), 0) /
+        plcDataList.length,
     );
-    const totalStroke = plcDataList.reduce((sum, item) => sum + (item.stroke || 0), 0);
+    const totalStroke = plcDataList.reduce(
+      (sum, item) => sum + (item.stroke || 0),
+      0,
+    );
     const avgProductionCount = Math.round(totalProduction / plcDataList.length);
 
     // Get unique device IDs
-    const uniqueDevices = new Set(plcDataList.map((item) => item.device_id).filter(Boolean));
+    const uniqueDevices = new Set(
+      plcDataList.map((item) => item.device_id).filter(Boolean),
+    );
     const totalDevices = uniqueDevices.size;
+
+    const allParameterNames = new Set();
+    let totalParameterValues = 0;
+
+    plcDataList.forEach((item) => {
+      if (item.parameters && typeof item.parameters === "object") {
+        const paramKeys = Object.keys(item.parameters);
+        paramKeys.forEach((key) => allParameterNames.add(key));
+        totalParameterValues += paramKeys.length;
+      }
+    });
+
+    const totalUniqueParameters = allParameterNames.size;
+    const avgParametersPerRecord =
+      plcDataList.length > 0
+        ? Math.round(totalParameterValues / plcDataList.length)
+        : 0;
 
     return {
       totalProduction,
@@ -364,6 +396,9 @@ export default function PlcLiveData() {
       avgClawLever,
       totalStroke,
       avgProductionCount,
+      totalUniqueParameters,
+      totalParameterValues,
+      avgParametersPerRecord,
     };
   }, [plcDataList]);
 
@@ -375,7 +410,11 @@ export default function PlcLiveData() {
     plcDataList.forEach((item) => {
       const deviceId = item.device_id || "Unknown";
       const existing = deviceMap.get(deviceId);
-      if (!existing || new Date(item.created_at || item.timestamp) > new Date(existing.created_at || existing.timestamp)) {
+      if (
+        !existing ||
+        new Date(item.created_at || item.timestamp) >
+          new Date(existing.created_at || existing.timestamp)
+      ) {
         deviceMap.set(deviceId, item);
       }
     });
@@ -385,7 +424,9 @@ export default function PlcLiveData() {
 
   // Active = Running, Inactive = Stopped/Idle/other
   const machineStatusCounts = useMemo(() => {
-    const active = latestPerDevice.filter((m) => (m.Status || "").toLowerCase() === "running").length;
+    const active = latestPerDevice.filter(
+      (m) => (m.Status || "").toLowerCase() === "running",
+    ).length;
     const inactive = latestPerDevice.length - active;
     return { activeMachines: active, inactiveMachines: inactive };
   }, [latestPerDevice]);
@@ -404,35 +445,71 @@ export default function PlcLiveData() {
 
   // Get unique devices and models for filters
   const uniqueDevices = useMemo(() => {
-    const devices = new Set(plcDataList.map((item) => item.device_id).filter(Boolean));
+    const devices = new Set(
+      plcDataList.map((item) => item.device_id).filter(Boolean),
+    );
     return Array.from(devices).sort();
   }, [plcDataList]);
 
   const uniqueModels = useMemo(() => {
-    const models = new Set(plcDataList.map((item) => item.model).filter(Boolean));
+    const models = new Set(
+      plcDataList.map((item) => item.model).filter(Boolean),
+    );
     return Array.from(models).sort();
   }, [plcDataList]);
 
   // Prepare chart data
+  // Prepare chart data - updated to include more fields
   const forceChartData = useMemo(() => {
-    return latestPerDevice.slice(0, 10).map((item) => ({
-      name: item.device_id || "Unknown",
-      latchForce: item.latch_force || 0,
-      clawForce: item.claw_force || 0,
-      safetyLever: item.safety_lever || 0,
-      clawLever: item.claw_lever || 0,
-    }));
+    return latestPerDevice.slice(0, 10).map((item) => {
+      const base = {
+        name: item.device_id || "Unknown",
+      };
+
+      // Add all numeric parameters
+      if (item.parameters && typeof item.parameters === "object") {
+        Object.entries(item.parameters).forEach(([key, value]) => {
+          // Only include numeric values (skip strings like "ALARM")
+          if (typeof value === "number") {
+            base[key] = value;
+          }
+        });
+      }
+
+      return base;
+    });
+  }, [latestPerDevice]);
+
+  const allParameterKeys = useMemo(() => {
+    const keys = new Set();
+    latestPerDevice.forEach((item) => {
+      if (item.parameters && typeof item.parameters === "object") {
+        Object.keys(item.parameters).forEach((key) => {
+          // Only numeric ones
+          if (typeof item.parameters[key] === "number") {
+            keys.add(key);
+          }
+        });
+      }
+    });
+    return Array.from(keys);
   }, [latestPerDevice]);
 
   const strokeProductionData = useMemo(() => {
-    return latestPerDevice.slice(0, 10).map((item) => ({
-      name: item.device_id || "Unknown",
-      stroke: item.stroke || 0,
-      productionCount: item.production_count || 0,
-    }));
+    return latestPerDevice.slice(0, 10).map((item) => {
+      let paramCount = 0;
+      if (item.parameters && typeof item.parameters === "object") {
+        paramCount = Object.keys(item.parameters).length;
+      }
+
+      return {
+        name: item.device_id || "Unknown",
+        stroke: item.stroke || 0,
+        productionCount: item.production_count || 0,
+        parametersCount: paramCount,
+      };
+    });
   }, [latestPerDevice]);
-
-
 
   const summaryCards = [
     {
@@ -444,6 +521,46 @@ export default function PlcLiveData() {
       bg: "bg-blue-50",
       trend: "up",
     },
+    {
+      label: "Avg Production Count",
+      value: summaryStats.avgProductionCount,
+      subtitle: "Per Record",
+      accent: "text-rose-500",
+      border: "border-rose-100",
+      bg: "bg-rose-50",
+      trend: "up",
+    },
+    // {
+    //   label: "Total Unique Parameters",
+    //   value: summaryStats.totalUniqueParameters,
+    //   subtitle: "Different types",
+    //   accent: "text-indigo-600",
+    //   border: "border-indigo-100",
+    //   bg: "bg-indigo-50",
+    //   trend: "up",
+    // },
+
+    // Option B - Total parameter readings collected
+    {
+      label: "Total Parameters",
+      value: summaryStats.totalParameterValues,
+      subtitle: "All readings",
+      accent: "text-purple-600",
+      border: "border-purple-100",
+      bg: "bg-purple-50",
+      trend: "up",
+    },
+
+    // Option C - Average per record
+    // {
+    //   label: "Avg Parameters",
+    //   value: summaryStats.avgParametersPerRecord,
+    //   subtitle: "Per record",
+    //   accent: "text-cyan-600",
+    //   border: "border-cyan-100",
+    //   bg: "bg-cyan-50",
+    //   trend: "up",
+    // },
     // {
     //   label: "Avg Latch Force",
     //   value: summaryStats.avgLatchForce,
@@ -465,7 +582,7 @@ export default function PlcLiveData() {
     {
       label: "Total Inactive Machines",
       value: machineStatusCounts.inactiveMachines,
-      subtitle: "Stopped / Idle",
+      subtitle: "Currently Stopped",
       accent: "text-rose-500",
       border: "border-rose-100",
       bg: "bg-rose-50",
@@ -516,15 +633,6 @@ export default function PlcLiveData() {
     //   bg: "bg-amber-50",
     //   trend: "up",
     // },
-    {
-      label: "Avg Production Count",
-      value: summaryStats.avgProductionCount,
-      subtitle: "Per Record",
-      accent: "text-rose-500",
-      border: "border-rose-100",
-      bg: "bg-rose-50",
-      trend: "up",
-    },
   ];
 
   const lastUpdated = useMemo(() => {
@@ -576,14 +684,14 @@ export default function PlcLiveData() {
           <div className="grid gap-3 md:grid-cols-2">
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-gray-500">
-                Device ID
+                Machine ID
               </label>
               <select
                 value={selectedDevice}
                 onChange={(e) => setSelectedDevice(e.target.value)}
                 className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
-                <option value="">All Devices</option>
+                <option value="">All Machines</option>
                 {uniqueDevices.map((device) => (
                   <option key={device} value={device}>
                     {device}
@@ -604,7 +712,7 @@ export default function PlcLiveData() {
                 <option value="">All Status</option>
                 <option value="Running">Running</option>
                 <option value="Stopped">Stopped</option>
-                <option value="Idle">Idle</option>
+                {/* <option value="Idle">Idle</option> */}
               </select>
             </div>
           </div>
@@ -615,10 +723,14 @@ export default function PlcLiveData() {
           <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-800">
-                Force Metrics (Latest per Device)
+                Parameters (Latest per Device)
               </h2>
+              <span className="text-xs text-gray-500">Top 10 devices</span>
             </div>
-            <div className="h-64">
+
+            <div className="h-[300px]">
+              {" "}
+              {/* a bit taller because more bars = more legend space */}
               {isLoading ? (
                 <div className="flex h-full items-center justify-center">
                   <Loader2 size={24} className="animate-spin text-gray-400" />
@@ -629,24 +741,54 @@ export default function PlcLiveData() {
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={forceChartData} barSize={32}>
+                  <BarChart data={forceChartData} barSize={26}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 11 }}
+                      angle={-35}
+                      textAnchor="end"
+                      height={60}
+                    />
                     <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip cursor={{ fill: "#f9fafb" }} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar
-                      dataKey="latchForce"
-                      name="Latch Force"
-                      fill="#0ea5e9"
+                    <Tooltip
+                      cursor={{ fill: "#f9fafb" }}
+                      wrapperStyle={{
+                        zIndex: 1000,
+                        outline: "none",
+                      }}
                     />
-                    <Bar dataKey="clawForce" name="Claw Force" fill="#3b82f6" />
-                    <Bar
-                      dataKey="safetyLever"
-                      name="Safety Lever"
-                      fill="#10b981"
-                    />
-                    <Bar dataKey="clawLever" name="Claw Lever" fill="#8b5cf6" />
+                    {/* <Legend
+                      wrapperStyle={{ fontSize: 11 }}
+                      layout="horizontal"
+                      verticalAlign="top"
+                      height={50}
+                    /> */}
+
+                    {allParameterKeys.map((paramKey, index) => {
+                      // Simple color rotation - you can define your own colors
+                      const colors = [
+                        "#0ea5e9",
+                        "#3b82f6",
+                        "#10b981",
+                        "#8b5cf6",
+                        "#f59e0b",
+                        "#ef4444",
+                        "#6366f1",
+                        "#ec4899",
+                        "#64748b",
+                      ];
+                      const fillColor = colors[index % colors.length];
+
+                      return (
+                        <Bar
+                          key={paramKey}
+                          dataKey={paramKey}
+                          name={paramKey.replace(/_/g, " ")}
+                          fill={fillColor}
+                        />
+                      );
+                    })}
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -656,7 +798,7 @@ export default function PlcLiveData() {
           <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-800">
-                Stroke & Production Count
+                Parameters & Production Count
               </h2>
             </div>
             <div className="h-64">
@@ -669,33 +811,46 @@ export default function PlcLiveData() {
                   No data available
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={strokeProductionData} barSize={32}>
+                <ResponsiveContainer className="mt-15" width="100%" height="100%">
+                  <BarChart data={strokeProductionData} barSize={28}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                    <YAxis
-                      yAxisId="left"
-                      orientation="left"
+                    <XAxis
+                      dataKey="name"
                       tick={{ fontSize: 11 }}
+                      angle={-35}
+                      textAnchor="end"
+                      height={60}
                     />
                     <YAxis
                       yAxisId="right"
                       orientation="right"
                       tick={{ fontSize: 11 }}
                     />
+                    <YAxis
+                      yAxisId="left"
+                      orientation="left"
+                      tick={{ fontSize: 11 }}
+                    />
                     <Tooltip cursor={{ fill: "#f9fafb" }} />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar
+
+                    {/* <Bar
                       yAxisId="left"
                       dataKey="stroke"
                       name="Stroke"
                       fill="#f59e0b"
-                    />
+                    /> */}
                     <Bar
-                      yAxisId="right"
+                      yAxisId="left"
                       dataKey="productionCount"
                       name="Production Count"
                       fill="#ef4444"
+                    />
+                    <Bar
+                      yAxisId="left"
+                      dataKey="parametersCount"
+                      name="Parameters Count"
+                      fill="#8b5cf6"
                     />
                   </BarChart>
                 </ResponsiveContainer>
