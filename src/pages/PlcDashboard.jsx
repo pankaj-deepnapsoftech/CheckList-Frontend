@@ -1,11 +1,9 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { Loader2 ,History } from "lucide-react";
+import { Loader2, History } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
-
-
 
 function PlcMachineCard({ machine, products = [] }) {
   const formatDate = (dateString) => {
@@ -20,8 +18,6 @@ function PlcMachineCard({ machine, products = [] }) {
       second: "2-digit",
     });
   };
-  
- 
 
   const statusVal = (machine.Status || "").trim() || "—";
   const navigate = useNavigate();
@@ -32,12 +28,16 @@ function PlcMachineCard({ machine, products = [] }) {
   const statusStyles = isRunning
     ? "bg-emerald-500/12 text-emerald-700 border-emerald-200"
     : isStopped
-    ? "bg-rose-500/12 text-rose-700 border-rose-200"
-    : isIdle
-    ? "bg-slate-500/10 text-slate-600 border-slate-200"
-    : "bg-amber-500/12 text-amber-700 border-amber-200";
-  const dotColor = isRunning ? "bg-emerald-500" : isStopped ? "bg-rose-500" : "bg-slate-400";
-  
+      ? "bg-rose-500/12 text-rose-700 border-rose-200"
+      : isIdle
+        ? "bg-slate-500/10 text-slate-600 border-slate-200"
+        : "bg-amber-500/12 text-amber-700 border-amber-200";
+  const dotColor = isRunning
+    ? "bg-emerald-500"
+    : isStopped
+      ? "bg-rose-500"
+      : "bg-slate-400";
+
   const statusColor = isRunning
     ? "bg-emerald-400/40 border-emerald-200 "
     : isStopped
@@ -75,7 +75,11 @@ function PlcMachineCard({ machine, products = [] }) {
           )}
         </div>
         <span
-          onClick={() => navigate(`/plc/history?device_id=${encodeURIComponent(machine.device_id || "")}`)}
+          onClick={() =>
+            navigate(
+              `/plc/history?device_id=${encodeURIComponent(machine.device_id || "")}`,
+            )
+          }
           className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-80 ${statusStyles}`}
         >
           <History size={14} />
@@ -213,13 +217,16 @@ function PlcMachineCard({ machine, products = [] }) {
             {typeof machine.product === "object" ? (
               <div className="space-y-0.5 text-xs">
                 <p className="font-semibold text-gray-800">
-                  <span className="text-gray-500">Material Code:</span> {machine.product?.material_code || "—"}
+                  <span className="text-gray-500">Material Code:</span>{" "}
+                  {machine.product?.material_code || "—"}
                 </p>
                 <p className="font-semibold text-gray-800">
-                  <span className="text-gray-500">Part No:</span> {machine.product?.part_no || "—"}
+                  <span className="text-gray-500">Part No:</span>{" "}
+                  {machine.product?.part_no || "—"}
                 </p>
                 <p className="font-semibold text-gray-800">
-                  <span className="text-gray-500">Model:</span> {machine.product?.model || "—"}
+                  <span className="text-gray-500">Model:</span>{" "}
+                  {machine.product?.model || "—"}
                 </p>
               </div>
             ) : (
@@ -273,15 +280,14 @@ export default function PlcLiveData() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
-    const [selectedCompany, setSelectedCompany] = useState("");
-    const [selectedPlant, setSelectedPlant] = useState("");
-  
-    const [dateRangePreset, setDateRangePreset] = useState("");
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedPlant, setSelectedPlant] = useState("");
 
-    
-    const filters = useMemo(() => {
+  const [dateRangePreset, setDateRangePreset] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const filters = useMemo(() => {
     const f = {};
     if (selectedDevice && selectedDevice !== "All") {
       f.device_id = selectedDevice;
@@ -292,77 +298,95 @@ export default function PlcLiveData() {
     if (selectedStatus && selectedStatus !== "All") {
       f.status = selectedStatus;
     }
-  if (selectedCompany && selectedCompany !== "All"){
-     f.company_name = selectedCompany;
-  }
-  if (selectedPlant && selectedPlant !== "All") {
-    f.plant_name = selectedPlant;
-  }
+    if (selectedCompany && selectedCompany !== "All") {
+      f.company_name = selectedCompany;
+    }
+    if (selectedPlant && selectedPlant !== "All") {
+      f.plant_name = selectedPlant;
+    }
 
-  // Date range: use startDate/endDate for API (filters by created_at)
-  let computedStart = "";
-  let computedEnd = "";
-  
-  if (dateRangePreset && dateRangePreset !== "Custom") {
-    const now = new Date();
-    let fromDate;
+    // Date range: use startDate/endDate for API (filters by created_at)
+    let computedStart = "";
+    let computedEnd = "";
 
-    if (dateRangePreset === "Today") {
-      fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      computedStart = fromDate.toISOString();
-      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-      computedEnd = endOfDay.toISOString();
-    } else if (dateRangePreset === "This Week") {
-      fromDate = new Date(now);
-      fromDate.setDate(now.getDate() - now.getDay());
-      fromDate.setHours(0, 0, 0, 0);
-      computedStart = fromDate.toISOString();
-      computedEnd = new Date().toISOString();
-    } else if (dateRangePreset === "This Month") {
-      fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      computedStart = fromDate.toISOString();
-      computedEnd = new Date().toISOString();
+    if (dateRangePreset && dateRangePreset !== "Custom") {
+      const now = new Date();
+      let fromDate;
+
+      if (dateRangePreset === "Today") {
+        fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        computedStart = fromDate.toISOString();
+        const endOfDay = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+          23,
+          59,
+          59,
+          999,
+        );
+        computedEnd = endOfDay.toISOString();
+      } else if (dateRangePreset === "This Week") {
+        fromDate = new Date(now);
+        fromDate.setDate(now.getDate() - now.getDay());
+        fromDate.setHours(0, 0, 0, 0);
+        computedStart = fromDate.toISOString();
+        computedEnd = new Date().toISOString();
+      } else if (dateRangePreset === "This Month") {
+        fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+        computedStart = fromDate.toISOString();
+        computedEnd = new Date().toISOString();
+      }
+
+      if (computedStart && computedEnd) {
+        f.startDate = computedStart;
+        f.endDate = computedEnd;
+      }
+    } else if (startDate || endDate) {
+      if (startDate) {
+        const d = new Date(startDate);
+        d.setHours(0, 0, 0, 0);
+        f.startDate = d.toISOString();
+      }
+      if (endDate) {
+        const d = new Date(endDate);
+        d.setHours(23, 59, 59, 999);
+        f.endDate = d.toISOString();
+      }
     }
-    
-    if (computedStart && computedEnd) {
-      f.startDate = computedStart;
-      f.endDate = computedEnd;
-    }
-  } else if (startDate || endDate) {
-    if (startDate) {
-      const d = new Date(startDate);
-      d.setHours(0, 0, 0, 0);
-      f.startDate = d.toISOString();
-    }
-    if (endDate) {
-      const d = new Date(endDate);
-      d.setHours(23, 59, 59, 999);
-      f.endDate = d.toISOString();
-    }
-  }
     return f;
-  }, [selectedDevice, selectedModel,selectedStatus,selectedCompany,selectedPlant,dateRangePreset,startDate,endDate]);
+  }, [
+    selectedDevice,
+    selectedModel,
+    selectedStatus,
+    selectedCompany,
+    selectedPlant,
+    dateRangePreset,
+    startDate,
+    endDate,
+  ]);
 
   const { getAllPlcData } = usePlcData(filters);
   const { getAllPlcData: getAllForOptions } = usePlcData({}, { live: true });
   const { getAllPlcProducts } = usePlcProduct({});
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
   const allDataForOptions = getAllForOptions.data || [];
-    
+
   const productsList = getAllPlcProducts.data || [];
-    
+
   const companyOptions = useMemo(() => {
-       const set = new Set(allDataForOptions.map((item) => item.companyname).filter(Boolean));
-       return Array.from(set).sort();
-     }, [allDataForOptions]);
-   
-   const plantOptions = useMemo(() => {
-       const set = new Set(allDataForOptions.map((item) => item.plantname).filter(Boolean));
-       return Array.from(set).sort();
-     }, [allDataForOptions]);
+    const set = new Set(
+      allDataForOptions.map((item) => item.companyname).filter(Boolean),
+    );
+    return Array.from(set).sort();
+  }, [allDataForOptions]);
 
-
-  
+  const plantOptions = useMemo(() => {
+    const set = new Set(
+      allDataForOptions.map((item) => item.plantname).filter(Boolean),
+    );
+    return Array.from(set).sort();
+  }, [allDataForOptions]);
 
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
@@ -379,24 +403,36 @@ export default function PlcLiveData() {
       };
     }
 
-    const totalProduction = plcDataList.reduce((sum, item) => sum + (item.production_count || 0), 0);
+    const totalProduction = plcDataList.reduce(
+      (sum, item) => sum + (item.production_count || 0),
+      0,
+    );
     const avgLatchForce = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.latch_force || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.latch_force || 0), 0) /
+        plcDataList.length,
     );
     const avgClawForce = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.claw_force || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.claw_force || 0), 0) /
+        plcDataList.length,
     );
     const avgSafetyLever = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.safety_lever || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.safety_lever || 0), 0) /
+        plcDataList.length,
     );
     const avgClawLever = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.claw_lever || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.claw_lever || 0), 0) /
+        plcDataList.length,
     );
-    const totalStroke = plcDataList.reduce((sum, item) => sum + (item.stroke || 0), 0);
+    const totalStroke = plcDataList.reduce(
+      (sum, item) => sum + (item.stroke || 0),
+      0,
+    );
     const avgProductionCount = Math.round(totalProduction / plcDataList.length);
 
     // Get unique device IDs
-    const uniqueDevices = new Set(plcDataList.map((item) => item.device_id).filter(Boolean));
+    const uniqueDevices = new Set(
+      plcDataList.map((item) => item.device_id).filter(Boolean),
+    );
     const totalDevices = uniqueDevices.size;
 
     return {
@@ -419,7 +455,11 @@ export default function PlcLiveData() {
     plcDataList.forEach((item) => {
       const deviceId = item.device_id || "Unknown";
       const existing = deviceMap.get(deviceId);
-      if (!existing || new Date(item.created_at || item.timestamp) > new Date(existing.created_at || existing.timestamp)) {
+      if (
+        !existing ||
+        new Date(item.created_at || item.timestamp) >
+          new Date(existing.created_at || existing.timestamp)
+      ) {
         deviceMap.set(deviceId, item);
       }
     });
@@ -441,12 +481,16 @@ export default function PlcLiveData() {
 
   // Get unique devices and models for filters
   const uniqueDevices = useMemo(() => {
-    const devices = new Set(plcDataList.map((item) => item.device_id).filter(Boolean));
+    const devices = new Set(
+      plcDataList.map((item) => item.device_id).filter(Boolean),
+    );
     return Array.from(devices).sort();
   }, [plcDataList]);
 
   const uniqueModels = useMemo(() => {
-    const models = new Set(plcDataList.map((item) => item.model).filter(Boolean));
+    const models = new Set(
+      plcDataList.map((item) => item.model).filter(Boolean),
+    );
     return Array.from(models).sort();
   }, [plcDataList]);
 
@@ -468,8 +512,6 @@ export default function PlcLiveData() {
       productionCount: item.production_count || 0,
     }));
   }, [latestPerDevice]);
-
-  
 
   const lastUpdated = useMemo(() => {
     if (!plcDataList || plcDataList.length === 0) return "No data";
@@ -522,7 +564,9 @@ export default function PlcLiveData() {
             >
               <option value="">All Companies</option>
               {companyOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -539,7 +583,9 @@ export default function PlcLiveData() {
             >
               <option value="">All Plants</option>
               {plantOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -644,7 +690,6 @@ export default function PlcLiveData() {
             </button>
           </div>
         </section>
-        
 
         {/* PLC Machine Data */}
         <div className="mt-8">
