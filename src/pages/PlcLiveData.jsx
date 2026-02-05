@@ -57,6 +57,8 @@ function PlcMachineCard({ machine, products = [] }) {
       second: "2-digit",
     });
   };
+
+ 
   
  
 
@@ -296,7 +298,45 @@ function PlcMachineCard({ machine, products = [] }) {
   );
 }
 
+function formatDateTime(isoStr) {
+  if (!isoStr) return "—";
+  try {
+    const d = new Date(isoStr);
+    if (Number.isNaN(d.getTime())) return "—";
+    // Show the time exactly as UTC (jo PLC se aa raha hai),
+    // browser ka local timezone shift ignore karne ke liye UTC getters use kiye hain.
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const year = d.getUTCFullYear();
+    const h = String(d.getUTCHours()).padStart(2, "0");
+    const m = String(d.getUTCMinutes()).padStart(2, "0");
+    const s = String(d.getUTCSeconds()).padStart(2, "0");
+    return `${day}/${month}/${year} ${h}:${m}:${s}`;
+  } catch {
+    return "—";
+  }
+}
+
+function durationMinutes(startTime, stopTime) {
+  if (!startTime || !stopTime) return 0;
+  const start = new Date(startTime).getTime();
+  const stop = new Date(stopTime).getTime();
+  if (Number.isNaN(start) || Number.isNaN(stop)) return 0;
+  return Math.max(0, Math.round((stop - start) / 60000));
+}
+
+function formatDurationHoursMinutes(totalMinutes) {
+  const m = totalMinutes != null ? Number(totalMinutes) : NaN;
+  if (Number.isNaN(m) || m < 0) return "—";
+  const hours = Math.floor(m / 60);
+  const mins = Math.round(m % 60);
+  if (hours === 0) return `${mins} min`;
+  if (mins === 0) return `${hours}h`;
+  return `${hours}h ${mins} min`;
+}
+
 export default function PlcLiveData() {
+  const navigate = useNavigate();
   const [selectedDevice, setSelectedDevice] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -401,6 +441,38 @@ export default function PlcLiveData() {
       avgParametersPerRecord,
     };
   }, [plcDataList]);
+
+  const stoppages = useMemo(() => {
+     
+      return plcDataList
+        .filter((row) => row.Start_time || row.Stop_time)
+        .map((row) => {
+          const start = row.Start_time || row.timestamp || row.Start_time;
+          
+          const stop =row.Stop_time ?? null;
+          const isRunning = !stop && start;
+          const mins = isRunning ? null : durationMinutes(start, stop);
+          return {
+            id: row._id,
+            machine: row.model || row.device_id || "—",
+            code: row.device_id || "—",
+            startTime: formatDateTime(start),
+            stopTime: isRunning ? "—" : formatDateTime(stop),
+            durationMinutes: mins,
+            reason: row.reason || "—",
+            status: isRunning ? "Running" : "Recorded"
+          };
+        })
+        .sort((a, b) => {
+          const da = plcDataList.find((r) => r._id === a.id);
+          const db = plcDataList.find((r) => r._id === b.id);
+          const tA = (da?.start_time || da?.timestamp || "").toString();
+          const tB = (db?.start_time || db?.timestamp || "").toString();
+          return tB.localeCompare(tA);
+        });
+    }, [plcDataList]);
+
+    const SlicedStoppages = stoppages.slice(0,4)
 
   // Get latest record per device
   const latestPerDevice = useMemo(() => {
@@ -859,6 +931,103 @@ export default function PlcLiveData() {
           </div>
         </div>
 
+        {/* Stoppages Data */}
+        <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+              <div>
+                <h2 className="text-sm font-semibold text-gray-800">
+                  Stoppage Details (Today)
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Machine name, start / stop time and stoppage duration.
+                </p>
+              </div>
+              <button
+              onClick={()=>navigate(
+              "/plc-data/stoppage"
+            )}
+                className="px-5 py-[7px] rounded-[10px] bg-blue-500 text-white font-semibold active:scale-95 hover:cursor-pointer"
+              >
+                View All
+              </button>
+            </div>
+
+            
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Machine
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Start Time
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Stopped Time
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Duration
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Reason
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {SlicedStoppages.map((s) => (
+                    <tr key={s.id} className="hover:bg-gray-50">
+                      <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
+                        <div className="font-semibold">{s.machine}</div>
+                        <div className="text-[11px] text-gray-500">{s.code}</div>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
+                        {s.startTime}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
+                        {s.stopTime}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
+                        {formatDurationHoursMinutes(s.durationMinutes)}
+                      </td>
+                      <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
+                        {s.reason}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-xs">
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
+                            s.status === "Running"
+                              ? "bg-emerald-50 text-emerald-600"
+                              : s.status === "Stopped"
+                              ? "bg-rose-50 text-rose-600"
+                              : s.status === "Resolved"
+                              ? "bg-emerald-50 text-emerald-600"
+                              : s.status === "Recorded"
+                              ? "bg-blue-50 text-blue-600"
+                              : "bg-amber-50 text-amber-600"
+                          }`}
+                        >
+                          {s.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {stoppages.length === 0 && (
+            <div className="mt-6 rounded-xl border border-gray-100 bg-white py-10 text-center text-sm text-gray-500">
+              No stoppage records yet. PLC data with start/stop time will appear here.
+            </div>
+          )}
+
+          
+
         {/* PLC Machine Data */}
         <div className="mt-8">
           <div className="mb-3 flex items-center justify-between">
@@ -893,3 +1062,7 @@ export default function PlcLiveData() {
     </div>
   );
 }
+
+
+
+
