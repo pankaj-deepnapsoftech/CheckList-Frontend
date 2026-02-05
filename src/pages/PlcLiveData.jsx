@@ -685,7 +685,13 @@ const allParameterKeys = useMemo(() => {
                       height={60}
                     />
                     <YAxis tick={{ fontSize: 11 }} />
-                    <Tooltip cursor={{ fill: "#f9fafb" }} />
+                    <Tooltip
+                      cursor={{ fill: "#f9fafb" }}
+                      wrapperStyle={{
+                        zIndex: 1000,
+                        outline: "none",
+                      }}
+                    />
                     {/* <Legend
                       wrapperStyle={{ fontSize: 11 }}
                       layout="horizontal"
