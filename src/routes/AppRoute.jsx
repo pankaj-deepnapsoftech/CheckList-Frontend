@@ -35,7 +35,6 @@ import TemplateStatus from "../TemplateMasterPages/TemplateStatus";
 import TemplateApproveReject from "../TemplateMasterPages/TemplateApproveReject";
 import TemplateModuleHistory from "../TemplateMasterPages/TemplateModuleHistory";
 import PlcDashboard from "../pages/PlcDashboard";
-import plcAnalytics from "../pages/plcAnalytics";
 import PlcHistory from "../pages/PlcHistory";
 
 
@@ -87,10 +86,7 @@ export const AppRoute = () => {
       path: "/plc-data/live",
       element: withProtection(PlcLiveData),
     },
-    {
-      path: "/plc/analytics",
-      element: withProtection(plcAnalytics),
-    },
+    
     {
       path: "/plc/history",
       element: withProtection(PlcHistory),

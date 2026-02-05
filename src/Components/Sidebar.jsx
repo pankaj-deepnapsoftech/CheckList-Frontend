@@ -146,7 +146,7 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       icon: <Cpu size={20} />,
       children: [
         {
-          name: "Analytics-Dashboard",
+          name: "PLC-Dashboard",
           path: "/plc-data/live",
           icon: <Activity size={18} />,
         },

@@ -340,20 +340,80 @@ export default function PlcLiveData() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedCompany, setSelectedCompany] = useState("");
+  const [selectedPlant, setSelectedPlant] = useState("");
 
-  const filters = useMemo(() => {
-    const f = {};
-    if (selectedDevice && selectedDevice !== "All") {
-      f.device_id = selectedDevice;
+  const [dateRangePreset, setDateRangePreset] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+const filters = useMemo(() => {
+  const f = {};
+
+  // Existing filters
+  if (selectedDevice && selectedDevice !== "All") {
+    f.device_id = selectedDevice;
+  }
+  if (selectedStatus && selectedStatus !== "All") {
+    f.status = selectedStatus;
+  }
+
+  // New filters
+  if (selectedCompany && selectedCompany !== "All") {
+    f.companyname = selectedCompany;
+  }
+  if (selectedPlant && selectedPlant !== "All") {
+    f.plantname = selectedPlant;
+  }
+
+  // Date range filtering
+  if (startDate || endDate) {
+    f.timestamp = {}; // We'll use gte/lte style (depends on your backend)
+
+    if (startDate) {
+      f.timestamp.$gte = new Date(startDate).toISOString();
     }
-    if (selectedModel && selectedModel !== "All") {
-      f.model = selectedModel;
+    if (endDate) {
+      // End of day
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      f.timestamp.$lte = end.toISOString();
     }
-    if (selectedStatus && selectedStatus !== "All") {
-      f.status = selectedStatus;
+  }
+
+  // If using preset (Today, This Week, etc.) — we override custom dates
+  if (dateRangePreset && dateRangePreset !== "Custom") {
+    const now = new Date();
+    let fromDate;
+
+    if (dateRangePreset === "Today") {
+      fromDate = new Date(now.setHours(0, 0, 0, 0));
+    } else if (dateRangePreset === "This Week") {
+      fromDate = new Date(now);
+      fromDate.setDate(now.getDate() - now.getDay()); // Sunday
+      fromDate.setHours(0, 0, 0, 0);
+    } else if (dateRangePreset === "This Month") {
+      fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
     }
-    return f;
-  }, [selectedDevice, selectedModel, selectedStatus]);
+
+    if (fromDate) {
+      f.timestamp = {
+        $gte: fromDate.toISOString(),
+        $lte: new Date().toISOString(),
+      };
+    }
+  }
+
+  return f;
+}, [
+  selectedDevice,
+  selectedStatus,
+  selectedCompany,
+  selectedPlant,
+  dateRangePreset,
+  startDate,
+  endDate,
+]);
 
   const { getAllPlcData } = usePlcData(filters);
   const { getAllPlcProducts } = usePlcProduct({});
@@ -760,11 +820,16 @@ export default function PlcLiveData() {
             <label className="text-[11px] font-semibold text-slate-500">
               Company
             </label>
-            <select className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option>Select a company</option>
-              <option>Company A</option>
-              <option>Company B</option>
-              <option>Company C</option>
+            <select
+              value={selectedCompany}
+              onChange={(e) => setSelectedCompany(e.target.value)}
+              className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Companies</option>
+              {/* You can later make this dynamic from API */}
+              <option value="JP MINDA">JP MINDA</option>
+              <option value="Company B">Company B</option>
+              <option value="Company C">Company C</option>
             </select>
           </div>
 
@@ -773,38 +838,64 @@ export default function PlcLiveData() {
             <label className="text-[11px] font-semibold text-slate-500">
               Plant
             </label>
-            <select className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option>All Plants + Multi</option>
-              <option>Plant 1</option>
-              <option>Plant 2</option>
-              <option>Plant 3</option>
+            <select
+              value={selectedPlant}
+              onChange={(e) => setSelectedPlant(e.target.value)}
+              className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Plants</option>
+              {/* Make this dynamic later if needed */}
+              <option value="GURGAON">GURGAON</option>
+              <option value="Plant 2">Plant 2</option>
+              <option value="Plant 3">Plant 3</option>
             </select>
           </div>
 
           {/* Date Range */}
-          <div className="flex min-w-[220px] flex-col gap-1">
+          <div className="flex min-w-[260px] flex-col gap-1">
             <label className="text-[11px] font-semibold text-slate-500">
               Date Range
             </label>
-            <select className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500">
-              <option>Select Date</option>
-              <option>Today</option>
-              <option>Yesterday</option>
-              <option>This Week</option>
-              <option>This Month</option>
-              <option>Custom</option>
+            <select
+              value={dateRangePreset}
+              onChange={(e) => {
+                setDateRangePreset(e.target.value);
+                // Optional: clear custom dates when preset changes
+                if (e.target.value !== "Custom") {
+                  setStartDate("");
+                  setEndDate("");
+                }
+              }}
+              className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Time</option>
+              <option value="Today">Today</option>
+              <option value="This Week">This Week</option>
+              <option value="This Month">This Month</option>
+              <option value="Custom">Custom Range</option>
             </select>
 
-            <div className="flex gap-2">
-              <input
-                type="date"
-                className="h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-blue-500 focus:outline-none"
-              />
-              <input
-                type="date"
-                className="h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-blue-500 focus:outline-none"
-              />
-            </div>
+            {/* Show date inputs only when Custom is selected */}
+            {dateRangePreset === "Custom" && (
+              <div className="mt-1 flex gap-2">
+                <div className="flex-1">
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="h-8 w-full rounded-lg border border-slate-200 bg-white px-2 text-[11px] text-slate-700 focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Machine Name */}
@@ -842,10 +933,21 @@ export default function PlcLiveData() {
             </select>
           </div>
 
-          {/* Reset */}
+          {/* Reset Button */}
           <div className="ml-auto flex items-center">
-            <button className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95">
-              Reset
+            <button
+              onClick={() => {
+                setSelectedCompany("");
+                setSelectedPlant("");
+                setDateRangePreset("");
+                setStartDate("");
+                setEndDate("");
+                setSelectedDevice("");
+                setSelectedStatus("");
+              }}
+              className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
+            >
+              Reset Filters
             </button>
           </div>
         </section>
@@ -1096,8 +1198,7 @@ export default function PlcLiveData() {
       </div>
     </div>
   );
-}
-
+};
 
 
 
