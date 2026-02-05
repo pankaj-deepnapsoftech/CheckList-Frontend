@@ -686,12 +686,12 @@ const allParameterKeys = useMemo(() => {
                     />
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip cursor={{ fill: "#f9fafb" }} />
-                    <Legend
+                    {/* <Legend
                       wrapperStyle={{ fontSize: 11 }}
                       layout="horizontal"
                       verticalAlign="top"
                       height={50}
-                    />
+                    /> */}
 
                     {allParameterKeys.map((paramKey, index) => {
                       // Simple color rotation - you can define your own colors
