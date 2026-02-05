@@ -36,6 +36,25 @@ export const useQualityCheck = (filters = {}) => {
     },
   });
 
+  const useQualityCheck = () => {
+  const queryClient = useQueryClient();
+
+   const qcData = useQuery({
+    queryKey: "qcData",
+    queryFn: async () => {
+      return axiosHandler.get();
+    },
+  });
+
+   const qcDataPost = useMutation({
+    mutationFn: async (data) => {
+      return await axiosHandler.post("/plc-products", data);
+    },
+  });
+
+  return {qcDataPost};
+};
+
   const updateQualityCheck = useMutation({
     mutationFn: async ({ id, data }) => {
       const res = await axiosHandler.put(`/quality-check/${id}`, data);
@@ -69,5 +88,11 @@ export const useQualityCheck = (filters = {}) => {
     createQualityCheck,
     updateQualityCheck,
     deleteQualityCheck,
+    useQualityCheck
   };
 };
+
+
+
+
+

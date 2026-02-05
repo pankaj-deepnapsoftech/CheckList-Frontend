@@ -18,6 +18,14 @@ export const usePlcProduct = (filters = {}) => {
     },
   });
 
+  const getdata = useQuery({
+    queryKey: ["plc-data"],
+    queryFn: async () => {
+      const res = await axiosHandler.get("/plc-data");
+      return res?.data?.data || [];
+    },
+  });
+
   const createPlcProduct = useMutation({
     mutationFn: async (data) => {
       const res = await axiosHandler.post("/plc-products", data);
@@ -65,5 +73,6 @@ export const usePlcProduct = (filters = {}) => {
     createPlcProduct,
     updatePlcProduct,
     deletePlcProduct,
+    getdata
   };
 };
