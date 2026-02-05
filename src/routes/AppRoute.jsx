@@ -115,7 +115,6 @@ export const AppRoute = () => {
       path: "/assembly-line/error",
       element: withProtection(AssemblyError),
     },
-
     {
       path: "/assembly-line-admin/error",
       element: withProtection(ErrorforAdmin),

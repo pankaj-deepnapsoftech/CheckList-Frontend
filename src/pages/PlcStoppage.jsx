@@ -42,16 +42,18 @@ function formatDurationHoursMinutes(totalMinutes) {
 export default function PlcStoppage() {
   const { getAllPlcData } = usePlcData({});
   const plcList = getAllPlcData.data || [];
+  console.log(plcList)
   const isLoading = getAllPlcData.isLoading;
   const isError = getAllPlcData.isError;
   const refetch = getAllPlcData.refetch;
 
   const stoppages = useMemo(() => {
     return plcList
-      .filter((row) => row.start_time || row.stop_time)
+      .filter((row) => row.Start_time || row.Stop_time)
       .map((row) => {
-        const start = row.start_time || row.timestamp;
-        const stop = row.stop_time ?? null;
+        const start = row.Start_time || row.timestamp || row.Start_time;
+        
+        const stop =row.Stop_time ?? null;
         const isRunning = !stop && start;
         const mins = isRunning ? null : durationMinutes(start, stop);
         return {
@@ -62,7 +64,7 @@ export default function PlcStoppage() {
           stopTime: isRunning ? "—" : formatDateTime(stop),
           durationMinutes: mins,
           reason: row.reason || "—",
-          status: isRunning ? "Running" : "Recorded",
+          status: isRunning ? "Running" : "Recorded"
         };
       })
       .sort((a, b) => {
