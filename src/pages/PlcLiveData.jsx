@@ -963,6 +963,8 @@ const filters = useMemo(() => {
           ))}
         </div>
 
+        
+
         {/* Charts */}
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { useState } from "react";
+import Pagination from "../Components/Pagination/Pagination";
 
 function formatDateTime(isoStr) {
   if (!isoStr) return "—";
@@ -43,6 +44,7 @@ function formatDurationHoursMinutes(totalMinutes) {
 export default function PlcStoppage() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
   const filters = useMemo(() => {
     const f = {};
     if (selectedDevice && selectedDevice !== "All"){
@@ -52,7 +54,7 @@ export default function PlcStoppage() {
   }, [selectedDevice]);
   
   // console.log("filters",filters)
-  const { getAllPlcData } = usePlcData(filters);
+  const { getAllPlcData } = usePlcData(filters,"",page,limit);
   const plcList = getAllPlcData.data || [];
   console.log(plcList)
   const isLoading = getAllPlcData.isLoading;
@@ -88,6 +90,7 @@ export default function PlcStoppage() {
         const tB = (db?.start_time || db?.timestamp || "").toString();
         return tB.localeCompare(tA);
       });
+      
   }, [plcList]);
 
   const totalStoppages = stoppages.length;
@@ -233,7 +236,7 @@ export default function PlcStoppage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
+                <tbody className="divide-y divide-gray-100 bg-white" value={limit}>
                   {stoppages.map((s) => (
                     <tr key={s.id} className="hover:bg-gray-50">
                       <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
@@ -280,6 +283,11 @@ export default function PlcStoppage() {
               No stoppage records yet. PLC data with start/stop time will appear here.
             </div>
           )}
+          <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={stoppages?.length === limit}
+      />
           </>
           )}
         </div>
