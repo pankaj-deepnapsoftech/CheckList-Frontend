@@ -146,9 +146,19 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
       icon: <Cpu size={20} />,
       children: [
         {
+          name: "Analytics-Dashboard",
+          path: "/plc-data/dashboard",
+          icon: <LayoutDashboard size={18} />,
+        },
+        {
           name: "Live-Data",
           path: "/plc-data/live",
           icon: <Activity size={18} />,
+        },
+        {
+          name: "Stoppage",
+          path: "/plc-data/stoppage",
+          icon: <CircleOff size={18} />,
         },
         // {
         //   name: "Plc-Analytics",
@@ -165,16 +175,6 @@ const Sidebar = ({ isMobileOpen, setIsMobileOpen }) => {
           path: "/plc-data/qc-check",
           icon: <Boxes size={18} />,
         },
-        {
-          name: "Stoppage",
-          path: "/plc-data/stoppage",
-          icon: <CircleOff size={18} />,
-        },
-        {
-          name:"Analytics-Dashboard",
-          path:"/plc-data/dashboard",
-          icon:<LayoutDashboard size={18} />
-        }
       ],
     },
 

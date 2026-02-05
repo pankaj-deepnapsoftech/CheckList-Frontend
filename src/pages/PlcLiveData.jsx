@@ -316,12 +316,9 @@ export default function PlcLiveData() {
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
   const productsList = getAllPlcProducts.data || [];
 
-
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
     if (!plcDataList || plcDataList.length === 0) {
-
-     
       return {
         totalProduction: 0,
         avgLatchForce: 0,
@@ -334,24 +331,36 @@ export default function PlcLiveData() {
       };
     }
 
-    const totalProduction = plcDataList.reduce((sum, item) => sum + (item.production_count || 0), 0);
+    const totalProduction = plcDataList.reduce(
+      (sum, item) => sum + (item.production_count || 0),
+      0,
+    );
     const avgLatchForce = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.latch_force || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.latch_force || 0), 0) /
+        plcDataList.length,
     );
     const avgClawForce = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.claw_force || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.claw_force || 0), 0) /
+        plcDataList.length,
     );
     const avgSafetyLever = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.safety_lever || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.safety_lever || 0), 0) /
+        plcDataList.length,
     );
     const avgClawLever = Math.round(
-      plcDataList.reduce((sum, item) => sum + (item.claw_lever || 0), 0) / plcDataList.length
+      plcDataList.reduce((sum, item) => sum + (item.claw_lever || 0), 0) /
+        plcDataList.length,
     );
-    const totalStroke = plcDataList.reduce((sum, item) => sum + (item.stroke || 0), 0);
+    const totalStroke = plcDataList.reduce(
+      (sum, item) => sum + (item.stroke || 0),
+      0,
+    );
     const avgProductionCount = Math.round(totalProduction / plcDataList.length);
 
     // Get unique device IDs
-    const uniqueDevices = new Set(plcDataList.map((item) => item.device_id).filter(Boolean));
+    const uniqueDevices = new Set(
+      plcDataList.map((item) => item.device_id).filter(Boolean),
+    );
     const totalDevices = uniqueDevices.size;
 
     return {
@@ -374,18 +383,23 @@ export default function PlcLiveData() {
     plcDataList.forEach((item) => {
       const deviceId = item.device_id || "Unknown";
       const existing = deviceMap.get(deviceId);
-      if (!existing || new Date(item.created_at || item.timestamp) > new Date(existing.created_at || existing.timestamp)) {
+      if (
+        !existing ||
+        new Date(item.created_at || item.timestamp) >
+          new Date(existing.created_at || existing.timestamp)
+      ) {
         deviceMap.set(deviceId, item);
       }
     });
 
     return Array.from(deviceMap.values());
   }, [plcDataList]);
-  
 
   // Active = Running, Inactive = Stopped/Idle/other
   const machineStatusCounts = useMemo(() => {
-    const active = latestPerDevice.filter((m) => (m.Status || "").toLowerCase() === "running").length;
+    const active = latestPerDevice.filter(
+      (m) => (m.Status || "").toLowerCase() === "running",
+    ).length;
     const inactive = latestPerDevice.length - active;
     return { activeMachines: active, inactiveMachines: inactive };
   }, [latestPerDevice]);
@@ -404,25 +418,55 @@ export default function PlcLiveData() {
 
   // Get unique devices and models for filters
   const uniqueDevices = useMemo(() => {
-    const devices = new Set(plcDataList.map((item) => item.device_id).filter(Boolean));
+    const devices = new Set(
+      plcDataList.map((item) => item.device_id).filter(Boolean),
+    );
     return Array.from(devices).sort();
   }, [plcDataList]);
 
   const uniqueModels = useMemo(() => {
-    const models = new Set(plcDataList.map((item) => item.model).filter(Boolean));
+    const models = new Set(
+      plcDataList.map((item) => item.model).filter(Boolean),
+    );
     return Array.from(models).sort();
   }, [plcDataList]);
 
   // Prepare chart data
-  const forceChartData = useMemo(() => {
-    return latestPerDevice.slice(0, 10).map((item) => ({
+  // Prepare chart data - updated to include more fields
+const forceChartData = useMemo(() => {
+  return latestPerDevice.slice(0, 10).map((item) => {
+    const base = {
       name: item.device_id || "Unknown",
-      latchForce: item.latch_force || 0,
-      clawForce: item.claw_force || 0,
-      safetyLever: item.safety_lever || 0,
-      clawLever: item.claw_lever || 0,
-    }));
-  }, [latestPerDevice]);
+    };
+
+    // Add all numeric parameters
+    if (item.parameters && typeof item.parameters === "object") {
+      Object.entries(item.parameters).forEach(([key, value]) => {
+        // Only include numeric values (skip strings like "ALARM")
+        if (typeof value === "number") {
+          base[key] = value;
+        }
+      });
+    }
+
+    return base;
+  });
+}, [latestPerDevice]);
+
+const allParameterKeys = useMemo(() => {
+  const keys = new Set();
+  latestPerDevice.forEach((item) => {
+    if (item.parameters && typeof item.parameters === "object") {
+      Object.keys(item.parameters).forEach((key) => {
+        // Only numeric ones
+        if (typeof item.parameters[key] === "number") {
+          keys.add(key);
+        }
+      });
+    }
+  });
+  return Array.from(keys);
+}, [latestPerDevice]);
 
   const strokeProductionData = useMemo(() => {
     return latestPerDevice.slice(0, 10).map((item) => ({
@@ -431,8 +475,6 @@ export default function PlcLiveData() {
       productionCount: item.production_count || 0,
     }));
   }, [latestPerDevice]);
-
-
 
   const summaryCards = [
     {
@@ -615,10 +657,14 @@ export default function PlcLiveData() {
           <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-800">
-                Force Metrics (Latest per Device)
+                Parameters (Latest per Device)
               </h2>
+              <span className="text-xs text-gray-500">Top 10 devices</span>
             </div>
-            <div className="h-64">
+
+            <div className="h-[300px]">
+              {" "}
+              {/* a bit taller because more bars = more legend space */}
               {isLoading ? (
                 <div className="flex h-full items-center justify-center">
                   <Loader2 size={24} className="animate-spin text-gray-400" />
@@ -629,24 +675,48 @@ export default function PlcLiveData() {
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={forceChartData} barSize={32}>
+                  <BarChart data={forceChartData} barSize={26}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fontSize: 11 }}
+                      angle={-35}
+                      textAnchor="end"
+                      height={60}
+                    />
                     <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip cursor={{ fill: "#f9fafb" }} />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar
-                      dataKey="latchForce"
-                      name="Latch Force"
-                      fill="#0ea5e9"
+                    <Legend
+                      wrapperStyle={{ fontSize: 11 }}
+                      layout="horizontal"
+                      verticalAlign="top"
+                      height={50}
                     />
-                    <Bar dataKey="clawForce" name="Claw Force" fill="#3b82f6" />
-                    <Bar
-                      dataKey="safetyLever"
-                      name="Safety Lever"
-                      fill="#10b981"
-                    />
-                    <Bar dataKey="clawLever" name="Claw Lever" fill="#8b5cf6" />
+
+                    {allParameterKeys.map((paramKey, index) => {
+                      // Simple color rotation - you can define your own colors
+                      const colors = [
+                        "#0ea5e9",
+                        "#3b82f6",
+                        "#10b981",
+                        "#8b5cf6",
+                        "#f59e0b",
+                        "#ef4444",
+                        "#6366f1",
+                        "#ec4899",
+                        "#64748b",
+                      ];
+                      const fillColor = colors[index % colors.length];
+
+                      return (
+                        <Bar
+                          key={paramKey}
+                          dataKey={paramKey}
+                          name={paramKey.replace(/_/g, " ")}
+                          fill={fillColor}
+                        />
+                      );
+                    })}
                   </BarChart>
                 </ResponsiveContainer>
               )}
