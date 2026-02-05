@@ -126,19 +126,31 @@ function PlcMachineCard({ machine, products = [] }) {
       )}
 
       <div className="grid grid-cols-2 gap-2 text-xs mt-1">
+        {/* Model, Material Code, Part No - upar (parameters se alag) */}
+        <div className="space-y-1">
+          <p className="text-gray-500">Model</p>
+          <p className="font-medium text-gray-800">
+            {(typeof machine.product === "object" ? machine.product?.model : null) || machine?.parameters?.model || machine?.machine?.model || "—"}
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-gray-500">Material Code</p>
+          <p className="font-medium text-gray-800">
+            {(typeof machine.product === "object" ? machine.product?.material_code : null) || machine?.parameters?.material_code || "—"}
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-gray-500">Part No.</p>
+          <p className="font-medium text-gray-800">
+            {(typeof machine.product === "object" ? machine.product?.part_no : null) || machine?.parameters?.part_no || "—"}
+          </p>
+        </div>
         <div className="space-y-1">
           <p className="text-gray-500">Last Updated</p>
           <p className="font-medium text-gray-800">
             {formatDate(machine.timestamp || machine.created_at)}
           </p>
         </div>
-        {/* <div className="space-y-1">
-          <p className="text-gray-500">Production Count</p>
-          <p className="font-semibold text-gray-900">
-            {machine.production_count || 0}
-          </p>
-        </div> */}
-
         <div className="space-y-1">
           <p className="text-gray-500">Start Time</p>
           <p className="font-medium text-gray-800">
@@ -210,32 +222,15 @@ function PlcMachineCard({ machine, products = [] }) {
             </p>
           </div>
         )} */}
-        {/* Product - string ya object {model, material_code, part_no} */}
-        {machine.product && (
+        {/* Product - string (object wale upar Model/Material/Part No me dikh rahe) */}
+        {machine.product && typeof machine.product !== "object" && (
           <div className="space-y-1">
             <p className="text-gray-500">Product</p>
-            {typeof machine.product === "object" ? (
-              <div className="space-y-0.5 text-xs">
-                <p className="font-semibold text-gray-800">
-                  <span className="text-gray-500">Material Code:</span>{" "}
-                  {machine.product?.material_code || "—"}
-                </p>
-                <p className="font-semibold text-gray-800">
-                  <span className="text-gray-500">Part No:</span>{" "}
-                  {machine.product?.part_no || "—"}
-                </p>
-                <p className="font-semibold text-gray-800">
-                  <span className="text-gray-500">Model:</span>{" "}
-                  {machine.product?.model || "—"}
-                </p>
-              </div>
-            ) : (
-              <p className="font-semibold text-gray-800">{machine.product}</p>
-            )}
+            <p className="font-semibold text-gray-800">{machine.product}</p>
           </div>
         )}
 
-        {/* Production Count - product ke neeche */}
+        {/* Production Count */}
         {machine.production_count !== null &&
           machine.production_count !== undefined && (
             <div className="space-y-1">
@@ -255,20 +250,22 @@ function PlcMachineCard({ machine, products = [] }) {
             <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-xs">
               {machine?.parameters &&
                 Object.keys(machine.parameters).length > 0 &&
-                Object.entries(machine.parameters).map(([key, value]) => (
-                  <div key={key} className="space-y-0.5 min-w-0">
-                    <p
-                      className="text-gray-500 break-words"
-                      title={key.replaceAll("_", " ")}
-                    >
-                      {key.replaceAll("_", " ")}
-                    </p>
-                    <p className="font-semibold text-gray-800 break-words">
-                      {value}
-                    </p>
-                  </div>
-                ))}
-            </div>
+                Object.entries(machine.parameters)
+                  .filter(([key]) => !["model", "material_code", "part_no", "MODEL", "MATERIAL_CODE", "PART_NO"].includes(key))
+                  .map(([key, value]) => (
+                    <div key={key} className="space-y-0.5 min-w-0">
+                      <p
+                        className="text-gray-500 break-words"
+                        title={key.replaceAll("_", " ")}
+                      >
+                        {key.replaceAll("_", " ")}
+                      </p>
+                      <p className="font-semibold text-gray-800 break-words">
+                        {typeof value === "object" && value !== null ? JSON.stringify(value) : value}
+                      </p>
+                    </div>
+                  ))}
+          </div>
           </div>
         </div>
       </div>
