@@ -112,7 +112,11 @@ function PlcMachineCard({ machine, products = [] }) {
           )}
         </div>
         <span
-          onClick={() => navigate(`/plc/history?device_id=${encodeURIComponent(machine.device_id || "")}`)}
+          onClick={() =>
+            navigate(
+              `/plc/history?device_id=${encodeURIComponent(machine.device_id || "")}`,
+            )
+          }
           className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-80 ${statusStyles}`}
         >
           <History size={14} />
@@ -180,7 +184,7 @@ function PlcMachineCard({ machine, products = [] }) {
         </div>
         <div className="space-y-1">
           <p className="text-gray-500">Stop Time</p>
-          {machine?.stop_time === null ? (
+          {machine?.Stop_time === null ? (
             <p className="text-green-600">Running</p>
           ) : (
             <p className="font-medium text-gray-800">
@@ -456,47 +460,55 @@ export default function PlcLiveData() {
 
   // Prepare chart data
   // Prepare chart data - updated to include more fields
-const forceChartData = useMemo(() => {
-  return latestPerDevice.slice(0, 10).map((item) => {
-    const base = {
-      name: item.device_id || "Unknown",
-    };
+  const forceChartData = useMemo(() => {
+    return latestPerDevice.slice(0, 10).map((item) => {
+      const base = {
+        name: item.device_id || "Unknown",
+      };
 
-    // Add all numeric parameters
-    if (item.parameters && typeof item.parameters === "object") {
-      Object.entries(item.parameters).forEach(([key, value]) => {
-        // Only include numeric values (skip strings like "ALARM")
-        if (typeof value === "number") {
-          base[key] = value;
-        }
-      });
-    }
+      // Add all numeric parameters
+      if (item.parameters && typeof item.parameters === "object") {
+        Object.entries(item.parameters).forEach(([key, value]) => {
+          // Only include numeric values (skip strings like "ALARM")
+          if (typeof value === "number") {
+            base[key] = value;
+          }
+        });
+      }
 
-    return base;
-  });
-}, [latestPerDevice]);
+      return base;
+    });
+  }, [latestPerDevice]);
 
-const allParameterKeys = useMemo(() => {
-  const keys = new Set();
-  latestPerDevice.forEach((item) => {
-    if (item.parameters && typeof item.parameters === "object") {
-      Object.keys(item.parameters).forEach((key) => {
-        // Only numeric ones
-        if (typeof item.parameters[key] === "number") {
-          keys.add(key);
-        }
-      });
-    }
-  });
-  return Array.from(keys);
-}, [latestPerDevice]);
+  const allParameterKeys = useMemo(() => {
+    const keys = new Set();
+    latestPerDevice.forEach((item) => {
+      if (item.parameters && typeof item.parameters === "object") {
+        Object.keys(item.parameters).forEach((key) => {
+          // Only numeric ones
+          if (typeof item.parameters[key] === "number") {
+            keys.add(key);
+          }
+        });
+      }
+    });
+    return Array.from(keys);
+  }, [latestPerDevice]);
 
   const strokeProductionData = useMemo(() => {
-    return latestPerDevice.slice(0, 10).map((item) => ({
-      name: item.device_id || "Unknown",
-      stroke: item.stroke || 0,
-      productionCount: item.production_count || 0,
-    }));
+    return latestPerDevice.slice(0, 10).map((item) => {
+      let paramCount = 0;
+      if (item.parameters && typeof item.parameters === "object") {
+        paramCount = Object.keys(item.parameters).length;
+      }
+
+      return {
+        name: item.device_id || "Unknown",
+        stroke: item.stroke || 0,
+        productionCount: item.production_count || 0,
+        parametersCount: paramCount,
+      };
+    });
   }, [latestPerDevice]);
 
   const summaryCards = [
@@ -786,7 +798,7 @@ const allParameterKeys = useMemo(() => {
           <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-800">
-                Stroke & Production Count
+                Parameters & Production Count
               </h2>
             </div>
             <div className="h-64">
@@ -799,33 +811,46 @@ const allParameterKeys = useMemo(() => {
                   No data available
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={strokeProductionData} barSize={32}>
+                <ResponsiveContainer className="mt-15" width="100%" height="100%">
+                  <BarChart data={strokeProductionData} barSize={28}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                    <YAxis
-                      yAxisId="left"
-                      orientation="left"
+                    <XAxis
+                      dataKey="name"
                       tick={{ fontSize: 11 }}
+                      angle={-35}
+                      textAnchor="end"
+                      height={60}
                     />
                     <YAxis
                       yAxisId="right"
                       orientation="right"
                       tick={{ fontSize: 11 }}
                     />
+                    <YAxis
+                      yAxisId="left"
+                      orientation="left"
+                      tick={{ fontSize: 11 }}
+                    />
                     <Tooltip cursor={{ fill: "#f9fafb" }} />
                     <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <Bar
+
+                    {/* <Bar
                       yAxisId="left"
                       dataKey="stroke"
                       name="Stroke"
                       fill="#f59e0b"
-                    />
+                    /> */}
                     <Bar
-                      yAxisId="right"
+                      yAxisId="left"
                       dataKey="productionCount"
                       name="Production Count"
                       fill="#ef4444"
+                    />
+                    <Bar
+                      yAxisId="left"
+                      dataKey="parametersCount"
+                      name="Parameters Count"
+                      fill="#8b5cf6"
                     />
                   </BarChart>
                 </ResponsiveContainer>
