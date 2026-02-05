@@ -63,7 +63,7 @@ const machineData = [
 // ── Double Doughnut Chart ──
 function DowntimeByCase() {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-20">
+    <div className="bg-white rounded-xl border border-slate-200 shadow-sm pb-20 pt-5 pl-5 pr-5">
       <h3 className="text-lg font-semibold text-slate-800 mb-4">
         Downtime Distribution by Case
       </h3>
