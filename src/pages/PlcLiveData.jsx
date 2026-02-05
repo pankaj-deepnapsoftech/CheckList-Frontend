@@ -585,6 +585,15 @@ export default function PlcLiveData() {
 
   const summaryCards = [
     {
+      label: "Total Machines",
+      value: summaryStats.totalDevices,
+      subtitle: "Active Devices",
+      accent: "text-purple-600",
+      border: "border-purple-100",
+      bg: "bg-purple-50",
+      trend: "up",
+    },
+    {
       label: "Total Production",
       value: summaryStats.totalProduction,
       subtitle: "All Records",
@@ -594,14 +603,23 @@ export default function PlcLiveData() {
       trend: "up",
     },
     {
-      label: "Avg Production Count",
-      value: summaryStats.avgProductionCount,
-      subtitle: "Per Record",
-      accent: "text-rose-500",
-      border: "border-rose-100",
-      bg: "bg-rose-50",
+      label: "Total Parameters",
+      value: summaryStats.totalParameterValues,
+      subtitle: "All readings",
+      accent: "text-purple-600",
+      border: "border-purple-100",
+      bg: "bg-purple-50",
       trend: "up",
     },
+    // {
+    //   label: "Avg Production Count",
+    //   value: summaryStats.avgProductionCount,
+    //   subtitle: "Per Record",
+    //   accent: "text-rose-500",
+    //   border: "border-rose-100",
+    //   bg: "bg-rose-50",
+    //   trend: "up",
+    // },
     // {
     //   label: "Total Unique Parameters",
     //   value: summaryStats.totalUniqueParameters,
@@ -613,15 +631,6 @@ export default function PlcLiveData() {
     // },
 
     // Option B - Total parameter readings collected
-    {
-      label: "Total Parameters",
-      value: summaryStats.totalParameterValues,
-      subtitle: "All readings",
-      accent: "text-purple-600",
-      border: "border-purple-100",
-      bg: "bg-purple-50",
-      trend: "up",
-    },
 
     // Option C - Average per record
     // {
@@ -643,7 +652,7 @@ export default function PlcLiveData() {
     //   trend: "up",
     // },
     {
-      label: "Total Active Machines",
+      label: "Total Running Machines",
       value: machineStatusCounts.activeMachines,
       subtitle: "Currently Running",
       accent: "text-emerald-600",
@@ -652,12 +661,21 @@ export default function PlcLiveData() {
       trend: "up",
     },
     {
-      label: "Total Inactive Machines",
+      label: "Total Stopped Machines",
       value: machineStatusCounts.inactiveMachines,
       subtitle: "Currently Stopped",
       accent: "text-rose-500",
       border: "border-rose-100",
       bg: "bg-rose-50",
+      trend: "up",
+    },
+    {
+      label: "Total Errors",
+      value: summaryStats.avgClawForce,
+      subtitle: "Overall Average",
+      accent: "text-red-600",
+      border: "border-red-200",
+      bg: "bg-red-100",
       trend: "up",
     },
     // {
@@ -669,15 +687,7 @@ export default function PlcLiveData() {
     //   bg: "bg-cyan-50",
     //   trend: "up",
     // },
-    {
-      label: "Total Machines",
-      value: summaryStats.totalDevices,
-      subtitle: "Active Devices",
-      accent: "text-purple-600",
-      border: "border-purple-100",
-      bg: "bg-purple-50",
-      trend: "up",
-    },
+
     // {
     //   label: "Avg Safety Lever",
     //   value: summaryStats.avgSafetyLever,
