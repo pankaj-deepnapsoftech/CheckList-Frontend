@@ -54,7 +54,7 @@ export default function PlcHistory() {
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate("/plc-data/live")}
+              onClick={() => navigate("/plc-data/dashboard")}
               className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:border-gray-300 hover:shadow"
             >
               <ArrowLeft size={18} />
