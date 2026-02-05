@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
+import { useState } from "react";
 
 function formatDateTime(isoStr) {
   if (!isoStr) return "—";
@@ -40,14 +41,26 @@ function formatDurationHoursMinutes(totalMinutes) {
 }
 
 export default function PlcStoppage() {
-  const { getAllPlcData } = usePlcData({});
+  const [selectedDevice, setSelectedDevice] = useState("");
+  const filters = useMemo(() => {
+    const f = {};
+    if (selectedDevice && selectedDevice !== "All"){
+      f.device_id = selectedDevice;
+    }
+    return f;
+  }, [selectedDevice]);
+  
+  // console.log("filters",filters)
+  const { getAllPlcData } = usePlcData(filters);
   const plcList = getAllPlcData.data || [];
   console.log(plcList)
   const isLoading = getAllPlcData.isLoading;
   const isError = getAllPlcData.isError;
   const refetch = getAllPlcData.refetch;
+  
 
   const stoppages = useMemo(() => {
+   
     return plcList
       .filter((row) => row.Start_time || row.Stop_time)
       .map((row) => {
@@ -86,8 +99,11 @@ export default function PlcStoppage() {
     [stoppages]
   );
   const runningMachines = useMemo(() => {
-    return (plcList || []).filter((r) => r.start_time && !r.stop_time).length;
+    return (plcList || []).filter((r) => r.Start_time && !r.Stop_time).length;
   }, [plcList]);
+
+    const uniqueDevices = [...new Set(plcList.map((item) => item.device_id).filter(Boolean))];
+
 
   return (
     <div className="min-h-full bg-gray-50">
@@ -135,7 +151,7 @@ export default function PlcStoppage() {
           </div>
 
           <div className="rounded-xl border border-blue-100 bg-white px-4 py-3 shadow-sm">
-            <p className="text-xs font-medium text-gray-500">Total Stoppages</p>
+            <p className="text-xs font-medium text-gray-500">Total Recorded Count</p>
             
             <p className="mt-1 text-2xl font-semibold text-blue-600">
               {totalStoppages}
@@ -144,7 +160,7 @@ export default function PlcStoppage() {
           </div>
           <div className="rounded-xl border border-amber-100 bg-white px-4 py-3 shadow-sm">
             <p className="text-xs font-medium text-gray-500">
-              Total Stoppage Time
+              Total Recorded Time
             </p>
             <p className="mt-1 text-2xl font-semibold text-amber-600">
               {formatDurationHoursMinutes(totalMinutes)}
@@ -161,6 +177,24 @@ export default function PlcStoppage() {
              {/* <p className="mt-1 text-[11px] text-emerald-700">Total Average Duration</p> */}
           </div>
         </div>
+
+        <div className="flex flex-col gap-1 mt-3">
+              <label className="text-xs font-medium text-gray-500">
+                Device ID
+              </label>
+              <select
+                value={selectedDevice}
+                onChange={(e) => setSelectedDevice(e.target.value)}
+                className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">All Devices</option>
+                {uniqueDevices.map((device) => (
+                  <option key={device} value={device}>
+                    {device}
+                  </option>
+                ))}
+              </select>
+            </div>
 
         <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
