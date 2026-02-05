@@ -350,57 +350,50 @@ export default function PlcLiveData() {
 const filters = useMemo(() => {
   const f = {};
 
-  // Existing filters
-  if (selectedDevice && selectedDevice !== "All") {
-    f.device_id = selectedDevice;
-  }
-  if (selectedStatus && selectedStatus !== "All") {
-    f.status = selectedStatus;
-  }
+  if (selectedDevice && selectedDevice !== "All") f.device_id = selectedDevice;
+  if (selectedStatus && selectedStatus !== "All") f.status = selectedStatus;
+  if (selectedCompany && selectedCompany !== "All") f.company_name = selectedCompany;
+  if (selectedPlant && selectedPlant !== "All") f.plant_name = selectedPlant;
 
-  // New filters
-  if (selectedCompany && selectedCompany !== "All") {
-    f.companyname = selectedCompany;
-  }
-  if (selectedPlant && selectedPlant !== "All") {
-    f.plantname = selectedPlant;
-  }
+  // Date range: use startDate/endDate for API (filters by created_at)
+  let computedStart = "";
+  let computedEnd = "";
 
-  // Date range filtering
-  if (startDate || endDate) {
-    f.timestamp = {}; // We'll use gte/lte style (depends on your backend)
-
-    if (startDate) {
-      f.timestamp.$gte = new Date(startDate).toISOString();
-    }
-    if (endDate) {
-      // End of day
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-      f.timestamp.$lte = end.toISOString();
-    }
-  }
-
-  // If using preset (Today, This Week, etc.) — we override custom dates
   if (dateRangePreset && dateRangePreset !== "Custom") {
     const now = new Date();
     let fromDate;
 
     if (dateRangePreset === "Today") {
-      fromDate = new Date(now.setHours(0, 0, 0, 0));
+      fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      computedStart = fromDate.toISOString();
+      const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+      computedEnd = endOfDay.toISOString();
     } else if (dateRangePreset === "This Week") {
       fromDate = new Date(now);
-      fromDate.setDate(now.getDate() - now.getDay()); // Sunday
+      fromDate.setDate(now.getDate() - now.getDay());
       fromDate.setHours(0, 0, 0, 0);
+      computedStart = fromDate.toISOString();
+      computedEnd = new Date().toISOString();
     } else if (dateRangePreset === "This Month") {
       fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      computedStart = fromDate.toISOString();
+      computedEnd = new Date().toISOString();
     }
 
-    if (fromDate) {
-      f.timestamp = {
-        $gte: fromDate.toISOString(),
-        $lte: new Date().toISOString(),
-      };
+    if (computedStart && computedEnd) {
+      f.startDate = computedStart;
+      f.endDate = computedEnd;
+    }
+  } else if (startDate || endDate) {
+    if (startDate) {
+      const d = new Date(startDate);
+      d.setHours(0, 0, 0, 0);
+      f.startDate = d.toISOString();
+    }
+    if (endDate) {
+      const d = new Date(endDate);
+      d.setHours(23, 59, 59, 999);
+      f.endDate = d.toISOString();
     }
   }
 
@@ -416,9 +409,22 @@ const filters = useMemo(() => {
 ]);
 
   const { getAllPlcData } = usePlcData(filters);
+  const { getAllPlcData: getAllForOptions } = usePlcData({}, { live: true });
   const { getAllPlcProducts } = usePlcProduct({});
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
+  const allDataForOptions = getAllForOptions.data || [];
   const productsList = getAllPlcProducts.data || [];
+
+  // Dynamic options for Company & Plant dropdowns
+  const companyOptions = useMemo(() => {
+    const set = new Set(allDataForOptions.map((item) => item.companyname).filter(Boolean));
+    return Array.from(set).sort();
+  }, [allDataForOptions]);
+
+  const plantOptions = useMemo(() => {
+    const set = new Set(allDataForOptions.map((item) => item.plantname).filter(Boolean));
+    return Array.from(set).sort();
+  }, [allDataForOptions]);
 
   // Calculate summary statistics
   const summaryStats = useMemo(() => {
@@ -815,7 +821,7 @@ const filters = useMemo(() => {
         </div>
         {/* Filters */}
         <section className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur">
-          {/* Company */}
+          {/* Company - dynamic from API */}
           <div className="flex min-w-[160px] flex-col gap-1">
             <label className="text-[11px] font-semibold text-slate-500">
               Company
@@ -826,14 +832,13 @@ const filters = useMemo(() => {
               className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">All Companies</option>
-              {/* You can later make this dynamic from API */}
-              <option value="JP MINDA">JP MINDA</option>
-              <option value="Company B">Company B</option>
-              <option value="Company C">Company C</option>
+              {companyOptions.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
             </select>
           </div>
 
-          {/* Plant */}
+          {/* Plant - dynamic from API */}
           <div className="flex min-w-[160px] flex-col gap-1">
             <label className="text-[11px] font-semibold text-slate-500">
               Plant
@@ -844,10 +849,9 @@ const filters = useMemo(() => {
               className="h-9 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">All Plants</option>
-              {/* Make this dynamic later if needed */}
-              <option value="GURGAON">GURGAON</option>
-              <option value="Plant 2">Plant 2</option>
-              <option value="Plant 3">Plant 3</option>
+              {plantOptions.map((opt) => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
             </select>
           </div>
 
