@@ -14,6 +14,7 @@ import { ArrowUp, ArrowDown, Loader2, History } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
 import { useNavigate } from "react-router-dom";
+import DonutChart from "../Components/DonutChart/donutChart";
 
 function SummaryCard({ card }) {
   const isUpTrend = card.trend === "up";
@@ -1130,6 +1131,13 @@ const filters = useMemo(() => {
             </div>
           </div>
         </div>
+
+
+
+              <DonutChart/>
+
+
+
 
         {/* Stoppages Data */}
         <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
