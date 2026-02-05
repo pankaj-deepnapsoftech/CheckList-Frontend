@@ -743,51 +743,111 @@ export default function PlcLiveData() {
             </span>
           </div>
         </div>
+        {/* Filters */}
+        <section className="flex flex-col gap-2 rounded-xl border border-slate-200 bg-slate-50/70 p-3 sm:flex-row sm:flex-row sm:items-end">
+          {/* Company */}
+          <div className="min-w-[180px]">
+            <label className="mb-1 block text-[11px] font-medium text-slate-500">
+              Company
+            </label>
+            <select className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700">
+              <option>Select a company</option>
+              <option>Company A</option>
+              <option>Company B</option>
+              <option>Company C</option>
+            </select>
+          </div>
+
+          {/* Plant */}
+          <div className="min-w-[180px]">
+            <label className="mb-1 block text-[11px] font-medium text-slate-500">
+              Plant
+            </label>
+            <select className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700">
+              <option>All Plants + Multi</option>
+              <option>Plant 1</option>
+              <option>Plant 2</option>
+              <option>Plant 3</option>
+            </select>
+          </div>
+
+          {/* Date Range */}
+          <div className="flex flex-col gap-1 min-w-[140px]">
+            <label className="text-[11px] font-medium text-slate-500">
+              Date Range
+            </label>
+            <select className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700">
+              <option>Select Date</option>
+              <option>Today</option>
+              <option>Yesterday</option>
+              <option>This Week</option>
+              <option>This Month</option>
+              <option>Custom</option>
+            </select>
+
+            {/* Static custom date inputs (always visible, no logic) */}
+            <div className="mt-1 flex gap-2">
+              <input
+                type="date"
+                className="flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700"
+              />
+              <input
+                type="date"
+                className="flex-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] text-slate-700"
+              />
+            </div>
+          </div>
+
+          <div className="mt-6 rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-500">
+                  Machine Name
+                </label>
+                <select
+                  value={selectedDevice}
+                  onChange={(e) => setSelectedDevice(e.target.value)}
+                  className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="">All Machines</option>
+                  {uniqueDevices.map((device) => (
+                    <option key={device} value={device}>
+                      {device}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-gray-500">
+                  Status
+                </label>
+                <select
+                  value={selectedStatus}
+                  onChange={(e) => setSelectedStatus(e.target.value)}
+                  className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="">All Status</option>
+                  <option value="Running">Running</option>
+                  <option value="Stopped">Stopped</option>
+                  {/* <option value="Idle">Idle</option> */}
+                </select>
+              </div>
+            </div>
+          </div>
+          {/* Reset Button */}
+          <div className="flex items-center ml-auto">
+            <button className="px-6 py-[7px] rounded-[10px] bg-blue-500 text-white font-semibold">
+              Reset
+            </button>
+          </div>
+        </section>
 
         {/* Summary cards */}
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {summaryCards.map((card) => (
             <SummaryCard key={card.label} card={card} />
           ))}
-        </div>
-
-        {/* Filters */}
-        <div className="mt-6 rounded-xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
-          <div className="grid gap-3 md:grid-cols-2">
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-500">
-                Machine ID
-              </label>
-              <select
-                value={selectedDevice}
-                onChange={(e) => setSelectedDevice(e.target.value)}
-                className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">All Machines</option>
-                {uniqueDevices.map((device) => (
-                  <option key={device} value={device}>
-                    {device}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label className="text-xs font-medium text-gray-500">
-                Status
-              </label>
-              <select
-                value={selectedStatus}
-                onChange={(e) => setSelectedStatus(e.target.value)}
-                className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">All Status</option>
-                <option value="Running">Running</option>
-                <option value="Stopped">Stopped</option>
-                {/* <option value="Idle">Idle</option> */}
-              </select>
-            </div>
-          </div>
         </div>
 
         {/* Charts */}
@@ -883,7 +943,11 @@ export default function PlcLiveData() {
                   No data available
                 </div>
               ) : (
-                <ResponsiveContainer className="mt-15" width="100%" height="100%">
+                <ResponsiveContainer
+                  className="mt-15"
+                  width="100%"
+                  height="100%"
+                >
                   <BarChart data={strokeProductionData} barSize={28}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis
@@ -933,102 +997,95 @@ export default function PlcLiveData() {
 
         {/* Stoppages Data */}
         <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
-            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-              <div>
-                <h2 className="text-sm font-semibold text-gray-800">
-                  Stoppage Details (Today)
-                </h2>
-                <p className="text-xs text-gray-500">
-                  Machine name, start / stop time and stoppage duration.
-                </p>
-              </div>
-              <button
-              onClick={()=>navigate(
-              "/plc-data/stoppage"
-            )}
-                className="px-5 py-[7px] rounded-[10px] bg-blue-500 text-white font-semibold active:scale-95 hover:cursor-pointer"
-              >
-                View All
-              </button>
+          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+            <div>
+              <h2 className="text-sm font-semibold text-gray-800">
+                Stoppage Details (Today)
+              </h2>
+              <p className="text-xs text-gray-500">
+                Machine name, start / stop time and stoppage duration.
+              </p>
             </div>
+            <button
+              onClick={() => navigate("/plc-data/stoppage")}
+              className="px-5 py-[7px] rounded-[10px] bg-blue-500 text-white font-semibold active:scale-95 hover:cursor-pointer"
+            >
+              View All
+            </button>
+          </div>
 
-            
-
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200 text-sm">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                      Machine
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                      Start Time
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                      Stopped Time
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                      Duration
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                      Reason
-                    </th>
-                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {SlicedStoppages.map((s) => (
-                    <tr key={s.id} className="hover:bg-gray-50">
-                      <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
-                        <div className="font-semibold">{s.machine}</div>
-                        <div className="text-[11px] text-gray-500">{s.code}</div>
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
-                        {s.startTime}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
-                        {s.stopTime}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
-                        {formatDurationHoursMinutes(s.durationMinutes)}
-                      </td>
-                      <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
-                        {s.reason}
-                      </td>
-                      <td className="whitespace-nowrap px-4 py-2 text-xs">
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
-                            s.status === "Running"
-                              ? "bg-emerald-50 text-emerald-600"
-                              : s.status === "Stopped"
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200 text-sm">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                    Machine
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                    Start Time
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                    Stopped Time
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                    Duration
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                    Reason
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {SlicedStoppages.map((s) => (
+                  <tr key={s.id} className="hover:bg-gray-50">
+                    <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
+                      <div className="font-semibold">{s.machine}</div>
+                      <div className="text-[11px] text-gray-500">{s.code}</div>
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
+                      {s.startTime}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
+                      {s.stopTime}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
+                      {formatDurationHoursMinutes(s.durationMinutes)}
+                    </td>
+                    <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
+                      {s.reason}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-2 text-xs">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
+                          s.status === "Running"
+                            ? "bg-emerald-50 text-emerald-600"
+                            : s.status === "Stopped"
                               ? "bg-rose-50 text-rose-600"
                               : s.status === "Resolved"
-                              ? "bg-emerald-50 text-emerald-600"
-                              : s.status === "Recorded"
-                              ? "bg-blue-50 text-blue-600"
-                              : "bg-amber-50 text-amber-600"
-                          }`}
-                        >
-                          {s.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                                ? "bg-emerald-50 text-emerald-600"
+                                : s.status === "Recorded"
+                                  ? "bg-blue-50 text-blue-600"
+                                  : "bg-amber-50 text-amber-600"
+                        }`}
+                      >
+                        {s.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+        </div>
         {stoppages.length === 0 && (
-            <div className="mt-6 rounded-xl border border-gray-100 bg-white py-10 text-center text-sm text-gray-500">
-              No stoppage records yet. PLC data with start/stop time will appear here.
-            </div>
-          )}
-
-          
-
-       
+          <div className="mt-6 rounded-xl border border-gray-100 bg-white py-10 text-center text-sm text-gray-500">
+            No stoppage records yet. PLC data with start/stop time will appear
+            here.
+          </div>
+        )}
       </div>
     </div>
   );
