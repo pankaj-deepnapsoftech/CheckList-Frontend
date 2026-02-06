@@ -2,14 +2,18 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axiosHandler from "../../config/axiosconfig";
 
-export const useTemplateSubmission = (templateId = null) => {
+export const useTemplateSubmission = (templateId = null, plant_id=null) => {
   const qc = useQueryClient();
 
   const getUserSubmissions = useQuery({
-    queryKey: ["template-submissions", templateId],
+    queryKey: ["template-submissions", templateId,plant_id],
     queryFn: async () => {
+       console.log(User_plant_id);
       const params = templateId ? { template_id: templateId } : {};
-      const res = await axiosHandler.get("/template-submission", { params });
+      const res = await axiosHandler.get(
+        `/template-submission?plant_id=${plant_id}`,
+        { params },
+      );
       return res?.data?.data || [];
     },
     enabled: true,
@@ -41,7 +45,9 @@ export const useTemplateSubmission = (templateId = null) => {
       qc.invalidateQueries({ queryKey: ["get-assign-template"] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to update template");
+      toast.error(
+        error?.response?.data?.message || "Failed to update template",
+      );
     },
   });
 
@@ -56,14 +62,18 @@ export const useTemplateSubmission = (templateId = null) => {
       qc.invalidateQueries({ queryKey: ["assigned-templates"] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to submit template");
+      toast.error(
+        error?.response?.data?.message || "Failed to submit template",
+      );
     },
   });
 
   const getLatestSubmission = useMutation({
     mutationFn: async (templateId) => {
       if (!templateId) return null;
-      const res = await axiosHandler.get(`/template-submission/latest/${templateId}`);
+      const res = await axiosHandler.get(
+        `/template-submission/latest/${templateId}`,
+      );
       return res?.data?.data;
     },
   });

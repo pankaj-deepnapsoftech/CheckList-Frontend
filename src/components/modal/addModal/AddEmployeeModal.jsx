@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useCompanies } from "../../../hooks/useCompanies";
-import { usePlantsByCompany } from "../../../hooks/UsePlantName";
+import { usePlantsByCompany, UsePlantName } from "../../../hooks/UsePlantName";
 import { useUserRole } from "../../../hooks/useUserRole";
 import { RegisterEmployee } from "../../../hooks/useRegisterEmployee";
 import { Eye } from "lucide-react";
@@ -25,6 +25,9 @@ export default function AddEmployeeModal({
   const { AllRolesData } = useUserRole();
   const { createEmployee, updateEmployee, getAllHOD } = RegisterEmployee();
   const [showPassword, setShowPassword] = useState(false);
+  const [additionalPlantOpen, setAdditionalPlantOpen] = useState(false);
+  const additionalPlantRef = React.useRef(null);
+  const { getAllPlantName } = UsePlantName();
   const { getAllDepartmentData } = useDepartment();
 
   const validationSchema = Yup.object({
@@ -56,6 +59,9 @@ export default function AddEmployeeModal({
       password: "",
       employee_company: initialData?.company?._id || "",
       Employee_plant: initialData?.plant?._id || "",
+      additional_plants: Array.isArray(initialData?.additional_plants)
+        ? initialData.additional_plants
+        : [],
       department_id: initialData?.department_id || "",
       assambly_line: initialData?.assambly_line?.map((l) => l._id) || [],
       is_hod: initialData?.is_hod || false,
@@ -70,6 +76,7 @@ export default function AddEmployeeModal({
         email: values.email,
         desigination: values.designation,
         employee_plant: values.Employee_plant,
+        additional_plants: values.additional_plants,
         employee_company: values.employee_company,
         department_id: values.department_id,
         role: values.role,
@@ -99,6 +106,26 @@ export default function AddEmployeeModal({
   });
 
   const plantsQuery = usePlantsByCompany(formik.values.employee_company);
+  const allPlants = getAllPlantName?.data || [];
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        additionalPlantRef.current &&
+        !additionalPlantRef.current.contains(event.target)
+      ) {
+        setAdditionalPlantOpen(false);
+      }
+    };
+
+    if (additionalPlantOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [additionalPlantOpen]);
 
   if (!open) return null;
 
@@ -279,6 +306,7 @@ export default function AddEmployeeModal({
                   formik.setFieldValue("company_id", val?._id); // store id if needed
 
                   formik.setFieldValue("Employee_plant", "");
+                  formik.setFieldValue("additional_plants", []);
                   formik.setFieldTouched("Employee_plant", false);
                 }}
                 error={
@@ -323,6 +351,14 @@ export default function AddEmployeeModal({
                 getOptionValue={(p) => p._id}
                 onChange={(val) => {
                   formik.setFieldValue("Employee_plant", val);
+                  if (val?._id) {
+                    formik.setFieldValue(
+                      "additional_plants",
+                      formik.values.additional_plants.filter(
+                        (p) => p !== val._id,
+                      ),
+                    );
+                  }
                 }}
                 onBlur={() => {
                   formik.setFieldTouched("Employee_plant", true);
@@ -332,6 +368,123 @@ export default function AddEmployeeModal({
                 }
               />
             </Field>
+
+            <div className="relative" ref={additionalPlantRef}>
+              <label className="text-sm text-gray-700 font-medium">
+                Additional Plants
+              </label>
+              <div
+                onClick={() =>
+                  !isView && setAdditionalPlantOpen(!additionalPlantOpen)
+                }
+                className={`mt-2 min-h-[42px] border rounded-lg px-3 py-2 cursor-pointer flex items-center justify-between
+                  ${additionalPlantOpen ? "ring-2 ring-blue-200 border-blue-500" : "border-gray-300"}
+                  ${isView && "bg-gray-100 cursor-not-allowed"}
+                `}
+              >
+                <div className="flex flex-wrap gap-2 max-w-[85%]">
+                  {formik.values.additional_plants.length === 0 && (
+                    <span className="text-gray-400 text-sm">
+                      Select additional plants
+                    </span>
+                  )}
+
+                  {formik.values.additional_plants.map((pid) => (
+                    <span
+                      key={pid}
+                      className="flex items-center gap-1 bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-sm border border-blue-100"
+                    >
+                      {allPlants.find((p) => p._id === pid)?.plant_name || pid}
+                      {!isView && (
+                        <X
+                          size={14}
+                          className="cursor-pointer hover:text-red-500"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            formik.setFieldValue(
+                              "additional_plants",
+                              formik.values.additional_plants.filter(
+                                (p) => p !== pid,
+                              ),
+                            );
+                          }}
+                        />
+                      )}
+                    </span>
+                  ))}
+                </div>
+
+                {!isView && (
+                  <svg
+                    className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
+                      additionalPlantOpen ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                )}
+              </div>
+
+              {additionalPlantOpen && !isView && (
+                <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                  {allPlants.length === 0 ? (
+                    <div className="p-3 text-gray-400 text-sm">
+                      No plants available
+                    </div>
+                  ) : (
+                    allPlants
+                      .filter((plant) => {
+                        const selectedPlantId =
+                          formik.values.Employee_plant?._id ||
+                          formik.values.Employee_plant;
+                        return plant._id !== selectedPlantId;
+                      })
+                      .map((plant) => (
+                        <label
+                          key={plant._id}
+                          className="flex items-center gap-2 px-3 py-2 hover:bg-blue-50 cursor-pointer transition-colors"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={formik.values.additional_plants.includes(
+                              plant._id,
+                            )}
+                            onChange={() => {
+                              const exists =
+                                formik.values.additional_plants.includes(
+                                  plant._id,
+                                );
+                              formik.setFieldValue(
+                                "additional_plants",
+                                exists
+                                  ? formik.values.additional_plants.filter(
+                                      (p) => p !== plant._id,
+                                    )
+                                  : [
+                                      ...formik.values.additional_plants,
+                                      plant._id,
+                                    ],
+                              );
+                            }}
+                            className="accent-blue-600"
+                          />
+                          <span className="text-gray-700 text-sm font-medium">
+                            {plant.plant_name}
+                          </span>
+                        </label>
+                      ))
+                  )}
+                </div>
+              )}
+            </div>
 
             {/* Assembly Line Dropdown */}
             {/* <div>

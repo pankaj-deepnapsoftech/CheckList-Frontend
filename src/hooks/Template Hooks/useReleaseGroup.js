@@ -15,6 +15,16 @@ export const useReleaseGroup = (search, page, limit) => {
       return res?.data?.data;
     },
   });
+  const getAllReleaseGroup = useQuery({
+    queryKey: ["release-group"],
+    queryFn: async () => {
+      const res = await axiosHandler.get(`release-group/get-all`);
+      return res?.data?.data;
+    },
+  });
+
+   
+
 
   const postReleaseGroup = useMutation({
     mutationFn: async (values) => {
@@ -69,5 +79,6 @@ export const useReleaseGroup = (search, page, limit) => {
     getReleaseGroup,
     updateReleaseGroup,
     removeReleaseGroup,
+    getAllReleaseGroup,
   };
 };
