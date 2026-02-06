@@ -836,7 +836,6 @@ const filters = useMemo(() => {
           </div>
         </div>
 
-
         {/* Filters */}
         <section className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur mt-2">
           {/* Company - dynamic from API */}
@@ -987,6 +986,8 @@ const filters = useMemo(() => {
 
         <DowntimeCharts />
 
+        <DonutChart />
+
         {/* Charts */}
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
@@ -1131,13 +1132,6 @@ const filters = useMemo(() => {
             </div>
           </div>
         </div>
-
-
-
-              <DonutChart/>
-
-
-
 
         {/* Stoppages Data */}
         <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
