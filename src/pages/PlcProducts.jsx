@@ -49,7 +49,6 @@ export default function PlcProducts() {
     machine_name: machineFilter || undefined,
   });
 
-  console.log("this the data =====>>>>", getdata.data)
 
   const handleRefresh = async () => {
     setShowRefresh(true)

@@ -200,6 +200,7 @@ export default function PlcStoppage() {
              const durationMins = Math.round((endTs - idleStartTs) / 60000);
              result.push({
                 id: `idle-open-${deviceId}`,
+                
                 machine: lastRecord.model || lastRecord.device_id || "—",
                 code: lastRecord.device_id || "—",
                 startTime: formatDateTime(new Date(idleStartTs).toISOString()),

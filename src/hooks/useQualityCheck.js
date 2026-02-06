@@ -14,6 +14,8 @@ export const useQualityCheck = (filters = {}) => {
     },
   });
 
+  {console.log("this  is my qc data=====>>>",getAllQualityChecks?.data);}
+
   const createQualityCheck = useMutation({
     mutationFn: (data) => axiosHandler.post("/quality-check", data),
     onSuccess: (data) => {

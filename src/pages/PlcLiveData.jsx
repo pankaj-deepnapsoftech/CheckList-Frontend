@@ -538,6 +538,7 @@ const stoppages = useMemo(() => {
         ...row,
         _rawStart: startStr ? new Date(startStr).getTime() : 0,
         _rawStop: stopStr ? new Date(stopStr).getTime() : null,
+        _ts: startStr ? new Date(startStr).getTime() : 0,
       };
     });
 
@@ -587,8 +588,80 @@ const stoppages = useMemo(() => {
         reason: row.reason || "—",
         status: isRunning ? "Running" : "Recorded",
         _sortTime: row._rawStart,
+        type: "session",
       });
     });
+
+    // Idle detection based on production_count stability (30s threshold)
+    let lastProdCount = -1;
+    let lastProdChangeTime = 0;
+    let isIdling = false;
+    let idleStartTs = 0;
+
+    group.forEach((r) => {
+      const currentTs = r._ts;
+      const currentProd = r.production_count;
+      if (!currentTs || currentProd === undefined || currentProd === null) return;
+
+      if (lastProdCount === -1) {
+        lastProdCount = currentProd;
+        lastProdChangeTime = currentTs;
+        return;
+      }
+
+      if (currentProd !== lastProdCount) {
+        if (isIdling) {
+          const durationMins = Math.round((currentTs - idleStartTs) / 60000);
+          if (durationMins > 0) {
+            processed.push({
+              id: `idle-${r._id}-${idleStartTs}`,
+              machine: r.model || r.device_id || "—",
+              company: r.companyname,
+              code: r.device_id || "—",
+              startTime: formatDateTime(new Date(idleStartTs).toISOString()),
+              stopTime: formatDateTime(new Date(currentTs).toISOString()),
+              durationMinutes: durationMins,
+              stoppedGapMinutes: null,
+              reason: "No Production",
+              status: "Idle",
+              _sortTime: idleStartTs,
+              type: "idle",
+            });
+          }
+          isIdling = false;
+        }
+        lastProdCount = currentProd;
+        lastProdChangeTime = currentTs;
+      } else {
+        const diffMs = currentTs - lastProdChangeTime;
+        if (!isIdling && diffMs > 30000) {
+          isIdling = true;
+          idleStartTs = lastProdChangeTime + 30000;
+        }
+      }
+    });
+
+    if (isIdling && group.length > 0) {
+      const lastRecord = group[group.length - 1];
+      const endTs = lastRecord._ts;
+      if (endTs > idleStartTs) {
+        const durationMins = Math.round((endTs - idleStartTs) / 60000);
+        processed.push({
+          id: `idle-open-${lastRecord.device_id}`,
+          machine: lastRecord.model || lastRecord.device_id || "—",
+          company: lastRecord.companyname,
+          code: lastRecord.device_id || "—",
+          startTime: formatDateTime(new Date(idleStartTs).toISOString()),
+          stopTime: "—",
+          durationMinutes: durationMins,
+          stoppedGapMinutes: null,
+          reason: "No Production (Current)",
+          status: "Idle",
+          _sortTime: idleStartTs,
+          type: "idle",
+        });
+      }
+    }
   });
 
   // 5. Sort latest first (dashboard-friendly)
@@ -1214,6 +1287,9 @@ const SlicedStoppages = stoppages.slice(0, 4);
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
                     Stopped Duration
                   </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                    Idle Duration
+                  </th>
                   {/* <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
                     Reason
                   </th> */}
@@ -1236,29 +1312,31 @@ const SlicedStoppages = stoppages.slice(0, 4);
                       {s.stopTime}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
-                      {formatDurationHoursMinutes(s.durationMinutes)}
+                      {s.type === 'idle' ? "—" : formatDurationHoursMinutes(s.durationMinutes)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
                       {formatDurationHoursMinutes(s.stoppedGapMinutes)}
                     </td>
-                    {console.log("this is my s", s)}
+                    <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-purple-600">
+                      {s.type === 'idle' ? formatDurationHoursMinutes(s.durationMinutes) : "—"}
+                    </td>
                     {/* <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
                       {s.reason}
                     </td> */}
                     <td className="whitespace-nowrap px-4 py-2 text-xs">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
-                          s.status === "Running"
-                            ? "bg-emerald-50 text-emerald-600"
-                            : s.status === "Stopped"
-                              ? "bg-rose-50 text-rose-600"
+                      <span className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
+                        s.status === "Running"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : s.status === "Stopped"
+                            ? "bg-rose-50 text-rose-600"
+                            : s.status === "Idle"
+                              ? "bg-purple-50 text-purple-600"
                               : s.status === "Resolved"
                                 ? "bg-emerald-50 text-emerald-600"
                                 : s.status === "Recorded"
                                   ? "bg-blue-50 text-blue-600"
                                   : "bg-amber-50 text-amber-600"
-                        }`}
-                      >
+                      }`}>
                         {s.status}
                       </span>
                     </td>
