@@ -1,20 +1,29 @@
 import { useMemo, useState } from "react";
-import { Eye, Pencil, Plus, RefreshCcw, Search, Trash2, X, Loader2 } from "lucide-react";
+import {
+  Eye,
+  Pencil,
+  Plus,
+  RefreshCcw,
+  Search,
+  Trash2,
+  X,
+  Loader2,
+  Download,
+  Trash,
+} from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
 import { toast } from "react-toastify";
 import SearchableSelect from "../Components/SearchableDropDown/SearchableDropdown";
 import { useFormik } from "formik";
-import {useQualityCheck} from "../hooks/useQualityCheck";
+import { useQualityCheck } from "../hooks/useQualityCheck";
 import Refresh from "../components/Refresh/Refresh";
+import axios from "axios";
 
 export default function PlcProducts() {
+  const { qcDataPost } = useQualityCheck();
 
-
-  const { qcDataPost } = useQualityCheck()
-
-
-  const [showRefresh, setShowRefresh] = useState(false)
+  const [showRefresh, setShowRefresh] = useState(false);
   const [search, setSearch] = useState("");
   const [machineFilter, setMachineFilter] = useState("");
   const [pageSize, setPageSize] = useState(10);
@@ -24,40 +33,82 @@ export default function PlcProducts() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
+  const fetchProductDetails = async () => {
+    const inputVal = values.part_no;
 
-  const { values, handleBlur, handleChange, handleSubmit, handleReset, setFieldValue } = useFormik({
+    console.log("Searching for:", inputVal);
+    console.log("Available Data:", getdata?.data);
+
+    if (!inputVal) {
+      return toast.warn("First enter Part No. or Material Code");
+    }
+    const foundProduct = getdata?.data?.find(
+      (item) =>
+        item.parameters?.part_no === inputVal ||
+        item.parameters?.material_code === inputVal,
+    );
+    if (foundProduct) {
+      setFieldValue("machine_name", foundProduct.device_id || "");
+      setFieldValue("material_code", foundProduct.companyname || "");
+      setFieldValue("model_code", foundProduct.plantname || "");
+      setFieldValue("production_count", foundProduct.production_count || "");
+
+      toast.success("Details fetched successfully");
+    } else {
+      console.log("No match found for:", inputVal);
+      toast.error("No matching record found");
+    }
+  };
+
+  const {
+    values,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    handleReset,
+    setFieldValue,
+  } = useFormik({
     initialValues: {
-      material_description: "",
+      production_count: "",
       material_code: "",
       model_code: "",
       machine_name: "",
       part_no: "",
     },
     onSubmit: (val) => {
-      qcDataPost.mutate(val)
-      setIsAddOpen(false)
-    }
-  })
-
-  console.log(selectedProduct)
+      qcDataPost.mutate(val);
+      setIsAddOpen(false);
+    },
+  });
 
   const { getAllPlcData } = usePlcData({});
   const plcDataList = getAllPlcData.data || [];
 
-  const { getAllPlcProducts, createPlcProduct, updatePlcProduct, deletePlcProduct, getdata } = usePlcProduct({
+  const {
+    getAllPlcProducts,
+    createPlcProduct,
+    updatePlcProduct,
+    deletePlcProduct,
+    getdata,
+  } = usePlcProduct({
     search,
     machine_name: machineFilter || undefined,
   });
 
+  console.log("this the data =====>>>>", getdata.data)
 
   const handleRefresh = async () => {
-    setShowRefresh(true)
+    setShowRefresh(true);
     getAllPlcData.refetch();
     getAllPlcProducts.refetch();
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
-    await Promise.all([getAllPlcProducts.refetch(), getAllPlcData.refetch(), minDelay]);
-    setShowRefresh(false)
-  }
+    await Promise.all([
+      getAllPlcProducts.refetch(),
+      getAllPlcData.refetch(),
+      minDelay,
+    ]);
+    setShowRefresh(false);
+  };
 
   const productsList = getAllPlcProducts.data || [];
   const isLoadingProducts = getAllPlcProducts.isLoading;
@@ -66,14 +117,15 @@ export default function PlcProducts() {
   const machineOptions = useMemo(() => {
     const machines = new Set();
     plcDataList.forEach((item) => {
-      if (item.device_id && item.device_id.trim()) machines.add(item.device_id.trim());
+      if (item.device_id && item.device_id.trim())
+        machines.add(item.device_id.trim());
     });
     productsList.forEach((p) => {
-      if (p.machine_name && p.machine_name.trim()) machines.add(p.machine_name.trim());
+      if (p.machine_name && p.machine_name.trim())
+        machines.add(p.machine_name.trim());
     });
     return Array.from(machines).sort();
   }, [plcDataList, productsList]);
-
 
   const handleEdit = (product) => {
     setSelectedProduct(product);
@@ -85,7 +137,6 @@ export default function PlcProducts() {
     //   machine_name: product.machine_name || "",
     // });
     setIsEditOpen(true);
-
   };
 
   const handleUpdate = async () => {
@@ -105,7 +156,7 @@ export default function PlcProducts() {
       setIsDeleteOpen(false);
       setSelectedProduct(null);
     } catch (err) {
-      console.log(err)
+      console.log(err);
     }
   };
 
@@ -117,7 +168,20 @@ export default function PlcProducts() {
       const day = String(d.getUTCDate()).padStart(2, "0");
       const month = String(d.getUTCMonth() + 1).padStart(2, "0");
       const year = d.getUTCFullYear();
-      const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
       return `${day} ${months[d.getUTCMonth()]} ${year}`;
     } catch {
       return "—";
@@ -126,156 +190,96 @@ export default function PlcProducts() {
 
   const visibleRows = productsList.slice(0, pageSize);
 
+  console.log(getdata.data);
+
   return (
-    <div className="min-h-full bg-gray-50">
-      <div className="mx-auto max-w-full px-4 py-6 sm:px-6 lg:px-8">
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-6">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <div className="h-12 w-12 rounded-lg bg-blue-600 flex items-center justify-center">
-                <div className="h-6 w-6 rounded-md bg-white/15" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Quality Check</h1>
-                <p className="text-sm text-gray-500 mt-0.5">Manage your products and services inventory</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 cursor-pointer"
-                onClick={() => { handleReset(); setIsAddOpen(true); }}
-              >
-                <Plus size={16} />
-                Add Quality Check
-              </button>
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-                onClick={handleRefresh}
-              >
-                <RefreshCcw size={16} />
-                Refresh
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-6 flex flex-wrap gap-6">
-            <div className="flex-1 min-w-[200px] max-w-xl">
-              <div className="text-sm font-medium text-gray-900">Search Quality Check</div>
-              <div className="mt-2 relative">
-                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                <input
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search by name, ID, category..."
-                  className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-10 pr-3 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-            <div className="min-w-[200px]">
-              <div className="text-sm font-medium text-gray-900">Filter by Machine</div>
-              <div className="mt-2">
-                <select
-                  value={machineFilter}
-                  onChange={(e) => setMachineFilter(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 bg-white py-2.5 px-3 text-sm text-gray-800 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                  <option value="">All machines</option>
-                  {machineOptions.map((m) => (
-                    <option key={m} value={m}>{m}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-full bg-gray-50 my-4 mt-9">
+      <div className="w-[930px]  flex justify-between mx-auto">
+        <h1 className="text-xl sm:text-2xl font-semibold">Quality Check</h1>
+        <button
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 px-4 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white" onClick={() => { handleReset(); setIsAddOpen(true); }}>
+          Add Quality Check
+        </button>
+      </div>
+      <div className="w-[930px] h-[38px] mx-auto flex justify-between mt-10">
+        <div className="flex relative w-full max-w-md">
+          <Search strokeWidth={1.5} className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none" />
+          <input className="w-1/2 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500" placeholder="Search" type="text" />
         </div>
-
-        <div className="mt-6 rounded-xl border border-gray-200 bg-white shadow-sm">
-          <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-gray-100">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900">Quality Check Directory</h2>
-              <p className="text-sm text-gray-500 mt-0.5">Showing {visibleRows.length} of {productsList.length} quality check</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">Show:</span>
-              <select
-                value={pageSize}
-                onChange={(e) => setPageSize(Number(e.target.value))}
-                className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto min-h-20 relative">
-            <table className="min-w-full divide-y divide-gray-100">
-              <thead className="bg-white ">
-                {showRefresh ? (<Refresh />) : (
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Part Number</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Material Description</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Material Code</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Model Code</th>
-                    {/* <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Machine    </th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Created On</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">Actions</th> */}
-                  </tr>
-                )}
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {isLoadingProducts && (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-10 text-center">
-                      <div className="flex items-center justify-center gap-2 text-gray-500">
-                        <Loader2 size={20} className="animate-spin" />
-                        <span>Loading products...</span>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-                {isErrorProducts && (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-10 text-center text-sm text-red-600">
-                      {getAllPlcProducts.error?.response?.data?.message || "Failed to load products"}
-                    </td>
-                  </tr>
-                )}
-                {!isLoadingProducts && !isErrorProducts && !showRefresh && visibleRows.map((p) => (
-                  <tr key={p._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{p.part_no || "—"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 max-w-xs truncate">{p.material_description || "—"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.material_code || "—"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.model_code || "—"}</td>
-                    {/* <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{p.machine_name || "—"}</td>
-                    <td className="px-6 py-4 text-sm text-gray-800 whitespace-nowrap">{formatDate(p.created_at)}</td> */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <button type="button" onClick={() => { setSelectedProduct(p); setIsViewOpen(true); }} className="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100" title="View"><Eye size={16} /></button>
-                        <button type="button" onClick={() => handleEdit(p)} className="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100" title="Edit"><Pencil size={16} /></button>
-                        {/* <button type="button" onClick={() => { setSelectedProduct(p); setIsDeleteOpen(true); }} className="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-red-50 text-red-600 hover:bg-red-100" title="Delete"><Trash2 size={16} /></button> */}
-                        <button className="h-9 w-9 inline-flex items-center justify-center rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100">
-                          Quality Check
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {!isLoadingProducts && !isErrorProducts && visibleRows.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-10 text-center text-sm text-gray-500">No products found.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+        <div className="flex gap-4">
+          <button className="px-2 py-1  rounded-lg cursor-pointer border border-gray-300 hover:bg-gray-100 transition text-gray-500"><RefreshCcw className="h-4 w-5" /></button>
+          <button className="px-2 py-1  rounded-lg cursor-pointer border border-gray-300 hover:bg-gray-100 transition text-gray-500"><Download className="h-4 w-5" /></button>
         </div>
       </div>
+      <div className="w-[930px] border border-gray-200 rounded-xl mx-auto mt-5 shadow-md bg-white">
+        <table className="w-full min-w-[930px] text-sm text-center ">
+          <thead>
+            <tr className="bg-linear-to-r from-blue-600 to-sky-500 text-white uppercase whitespace-nowrap outline-none rounded-t-lg text-xs tracking-wide">
+              <th className="px-4 sm:px-6 py-3 font-medium rounded-tl-xl">PART NUMBER</th>
+              <th className="px-4 sm:px-6 py-3 font-medium">COMPANY NAME</th>
+              <th className="px-4 sm:px-6 py-3 font-medium">PLANT NAME</th>
+              <th className="px-4 sm:px-6 py-3 font-medium">QUANTITY</th>
+              <th className="px-4 sm:px-6 py-3 font-medium">APPROVED</th>
+              <th className="px-4 sm:px-6 py-3 font-medium">REJECTED</th>
+              <th>DATE</th>
+              <th className="px-4 sm:px-6 py-3 font-medium rounded-tr-xl">ACTION</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            <tr className="border border-t-none text-center bg-white">
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">
+                <button className=" text-red-500 cursor-pointer hover:text-red-700"><Trash size={17} /></button>
+              </td>
+            </tr>
+            <tr className="text-center bg-white">
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">
+                <button className=" text-red-500 cursor-pointer hover:text-red-700"><Trash size={17} /></button>
+              </td>
+            </tr>
+            <tr className="text-center bg-white">
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">
+                <button className=" text-red-500 cursor-pointer hover:text-red-700"><Trash size={17} /></button>
+              </td>
+            </tr>
+            <tr className="text-center bg-white">
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">Hello</td>
+              <td className="px-4 sm:px-6 py-3">
+                <button className=" text-red-500 cursor-pointer hover:text-red-700"><Trash size={17} /></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      {/* Add Product Modal */}
+      {/* // Add Quality Check is here  */}
+
       {isAddOpen && (
         <form onSubmit={handleSubmit} className="fixed inset-0 z-50 flex justify-end">
           <div className="absolute inset-0 bg-black/30" onClick={() => { setIsAddOpen(false); handleReset(); }} aria-hidden="true" />
@@ -285,166 +289,97 @@ export default function PlcProducts() {
                 <h2 className="text-lg font-semibold text-gray-900">Add Quality Check</h2>
                 <p className="text-xs text-gray-500 mt-0.5">Enter product and machine details</p>
               </div>
-              <button type="button" onClick={() => { setIsAddOpen(false); handleReset(); }} className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"><X size={18} /></button>
+              <button type="button" onClick={() => { setIsAddOpen(false); handleReset(); }} className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100">
+                <X size={18} />
+              </button>
             </div>
+
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Part No :</label>
-                <input name="part_no" value={values.part_no} onChange={handleChange} onBlur={handleBlur} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter part number..." />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Material Description</label>
-                <SearchableSelect
-                  options={getdata?.data || []}
-                  value={values.material_description}
-                  name="material_description"
-                  // disabled={isView}
-                  getOptionLabel={(p) => p.product}
-                  getOptionValue={(p) => p.product}
-                  onChange={(e) => setFieldValue("material_description", e)}
+              <div className="flex flex-col">
+                <label className="block text-[15px] font-medium text-gray-700 mb-1">
+                  Enter Part No. / Material Code
+                </label>
+                <input
+                  name="part_no"
+                  value={values.part_no}
+                  onChange={handleChange}
                   onBlur={handleBlur}
-                // error={
-                //   formik.touched.Employee_plant && formik.errors.Employee_plant
-                // }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="Enter part number or material code..."
+                />
+                <button
+                  className="bg-blue-600 hover:bg-blue-700 mt-5 py-2 px-4 text-white border rounded border-gray-300 cursor-pointer w-[45%] self-end"
+                  onClick={fetchProductDetails}
+                  type="button"
+                >
+                  Get Product Details
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Production Count
+                </label>
+                <input
+                  className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600 outline-none"
+                  type="number"
+                  name="production_count"
+                  readOnly
+                  value={values.production_count}
+                  placeholder="Waiting..."
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Material Code</label>
-                  <SearchableSelect
-                    options={getdata?.data || []}
-                    value={values.material_code}
+                  <label className="block text-xs font-medium text-gray-700 mb-1">Company Name</label>
+                  <input
+                    type="text"
                     name="material_code"
-                    // disabled={isView}
-                    getOptionLabel={(p) => p.companyname}
-                    getOptionValue={(p) => p.companyname}
-                    onChange={(e) => setFieldValue("material_code", e)}
-                  />
+                    value={values.material_code}
+                    readOnly
+                    className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600 focus:outline-none" placeholder="Waiting..." />
                 </div>
+
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 mb-1">Model Code</label>
-                  <SearchableSelect
-                    options={getdata?.data || []}
-                    value={values.model_code}
-                    name="model_code"
-                    // disabled={isView}
-                    getOptionLabel={(p) => p.plantname}
-                    getOptionValue={(p) => p.plantname}
-                    onChange={(e) => setFieldValue("model_code", e)}
-                  />
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Plant Name
+                  </label>
+                  <input type="text" className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600  focus:outline-none" name="model_code" value={values.model_code} readOnly placeholder="Waiting..." />
                 </div>
               </div>
+
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Machine Name</label>
-                <SearchableSelect
-                  options={getdata?.data || []}
-                  value={values.machine_name}
-                  name="machine_name"
-                  // disabled={isView}
-                  getOptionLabel={(p) => p.device_id}
-                  getOptionValue={(p) => p.device_id}
-                  onChange={(e) => setFieldValue("machine_name", e)}
-                />
+                <label className="block text-xs font-medium text-gray-700 mb-1">
+                  Machine Name
+                </label>
+                <input type="text" className="w-full rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm text-gray-600  focus:outline-none" name="machine_name" value={values.machine_name} readOnly placeholder="Waiting..." />
               </div>
             </div>
+
             <div className="border-t border-gray-200 px-6 py-3 flex justify-end gap-3">
-              <button type="button" onClick={() => { setIsAddOpen(false); handleReset(); }} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-              <button type="submit" disabled={createPlcProduct.isPending} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2">
-                {createPlcProduct.isPending && <Loader2 size={16} className="animate-spin" />}
+              <button
+                type="button"
+                onClick={() => { setIsAddOpen(false); handleReset(); }}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                disabled={createPlcProduct.isPending}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+                onClick={() => setIsAddOpen(false)}
+              >
+                {createPlcProduct.isPending && (
+                  <Loader2 size={16} className="animate-spin" />
+                )}
                 Save Product
               </button>
             </div>
           </div>
         </form>
-      )}
-
-      {/* View Modal */}
-      {isViewOpen && selectedProduct && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-black/30" onClick={() => { setIsViewOpen(false); setSelectedProduct(null); }} aria-hidden="true" />
-          <div className="relative h-full w-full max-w-md bg-white shadow-2xl flex flex-col">
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-              <div><h2 className="text-lg font-semibold text-gray-900">View Product</h2><p className="text-xs text-gray-500 mt-0.5">Product details</p></div>
-              <button type="button" onClick={() => { setIsViewOpen(false); setSelectedProduct(null); }} className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"><X size={18} /></button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-              <div><label className="block text-xs font-medium text-gray-500 mb-1">Material Code</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.material_code || "—"}</div></div>
-              <div><label className="block text-xs font-medium text-gray-500 mb-1">Material Description</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2 min-h-[60px]">{selectedProduct.material_description || "—"}</div></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Part No.</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.part_no || "—"}</div></div>
-                <div><label className="block text-xs font-medium text-gray-500 mb-1">Model Code</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.model_code || "—"}</div></div>
-              </div>
-              <div><label className="block text-xs font-medium text-gray-500 mb-1">Machine Name</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{selectedProduct.machine_name || "—"}</div></div>
-              <div><label className="block text-xs font-medium text-gray-500 mb-1">Created On</label><div className="text-sm text-gray-900 bg-gray-50 rounded-lg px-3 py-2">{formatDate(selectedProduct.created_at)}</div></div>
-            </div>
-            <div className="border-t border-gray-200 px-6 py-3 flex justify-end">
-              <button type="button" onClick={() => { setIsViewOpen(false); setSelectedProduct(null); }} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">Close</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Modal - same fields as Add */}
-      {isEditOpen && selectedProduct && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          <div className="absolute inset-0 bg-black/30" onClick={() => { setIsEditOpen(false); setSelectedProduct(null); handleReset(); }} aria-hidden="true" />
-          <div className="relative h-full w-full max-w-md bg-white shadow-2xl flex flex-col">
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-              <div><h2 className="text-lg font-semibold text-gray-900">Edit Product</h2><p className="text-xs text-gray-500 mt-0.5">Update product and machine details</p></div>
-              <button type="button" onClick={() => { setIsEditOpen(false); setSelectedProduct(null); handleReset(); }} className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"><X size={18} /></button>
-            </div>
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-              <div><label className="block text-xs font-medium text-gray-700 mb-1">Material Code</label><input name="part_number" value={values.part_number} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter material code" /></div>
-              <div><label className="block text-xs font-medium text-gray-700 mb-1">Material Description</label><textarea name="product_name" value={values.product_name} onChange={handleChange} rows={2} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 resize-none" placeholder="Enter material description" /></div>
-              <div className="grid grid-cols-2 gap-4">
-                <div><label className="block text-xs font-medium text-gray-700 mb-1">Part No.</label><input name="company_name" value={values.company_name} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter part number" /></div>
-                <div><label className="block text-xs font-medium text-gray-700 mb-1">Model Code</label><input name="plant_name" value={values.plant_name} onChange={handleChange} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Enter model no./code" /></div>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">Machine Name</label>
-                <select name="machine_name" value={values.machine_name} onChange={handleChange} disabled={getAllPlcData.isLoading} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-800 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-gray-50 disabled:cursor-not-allowed">
-                  <option value="">{getAllPlcData.isLoading ? "Loading machines..." : "Select machine"}</option>
-                  {machineOptions.map((m) => <option key={m} value={m}>{m}</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="border-t border-gray-200 px-6 py-3 flex justify-end gap-3">
-              <button type="button" onClick={() => { setIsEditOpen(false); setSelectedProduct(null); handleReset(); }} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-              <button type="button" disabled={updatePlcProduct.isPending} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2" onClick={handleUpdate}>
-                {updatePlcProduct.isPending && <Loader2 size={16} className="animate-spin" />}
-                Update Product
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {isDeleteOpen && selectedProduct && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/30" onClick={() => { setIsDeleteOpen(false); setSelectedProduct(null); }} aria-hidden="true" />
-          <div className="relative bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
-            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-              <div><h2 className="text-lg font-semibold text-gray-900">Delete Product</h2><p className="text-xs text-gray-500 mt-0.5">Are you sure you want to delete this product?</p></div>
-              <button type="button" onClick={() => { setIsDeleteOpen(false); setSelectedProduct(null); }} className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"><X size={18} /></button>
-            </div>
-            <div className="px-6 py-4">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-sm text-red-800 font-medium mb-2">This action cannot be undone.</p>
-                <p className="text-xs text-red-700"><span className="font-medium">Material Code:</span> {selectedProduct.part_number || "—"}</p>
-                <p className="text-xs text-red-700"><span className="font-medium">Machine Name:</span> {selectedProduct.machine_name || "—"}</p>
-              </div>
-            </div>
-            <div className="border-t border-gray-200 px-6 py-3 flex justify-end gap-3">
-              <button type="button" onClick={() => { setIsDeleteOpen(false); setSelectedProduct(null); }} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</button>
-              <button type="button" disabled={deletePlcProduct.isPending} onClick={handleDelete} className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 flex items-center gap-2">
-                {deletePlcProduct.isPending && <Loader2 size={16} className="animate-spin" />}
-                Delete Product
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );
