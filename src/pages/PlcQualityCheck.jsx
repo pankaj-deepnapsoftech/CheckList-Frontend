@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Eye,
   Pencil,
@@ -19,6 +19,8 @@ import { useFormik } from "formik";
 import { useQualityCheck } from "../hooks/useQualityCheck";
 import Refresh from "../components/Refresh/Refresh";
 import axios from "axios";
+import Pagination from "../Components/Pagination/Pagination";
+
 
 export default function PlcProducts() {
   const [showRefresh, setShowRefresh] = useState(false);
@@ -30,6 +32,8 @@ export default function PlcProducts() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [page, setPage] = useState(1)
+  const [isSpinning, setIsSpinning] = useState(false)
 
   const { getAllQualityChecks, createQualityCheck, deleteQualityCheck } = useQualityCheck({
     search,
@@ -102,10 +106,15 @@ export default function PlcProducts() {
   const getTableData = getAllPlcProducts?.data;
 
   const handleRefresh = async () => {
+    setIsSpinning(true)
+    setPage(1)
     setShowRefresh(true);
     getAllPlcData.refetch();
     getAllPlcProducts.refetch();
     getAllQualityChecks.refetch();
+    setTimeout(() => {
+      setIsSpinning(false)
+    }, 1000)
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
     await Promise.all([
       getAllPlcProducts.refetch(),
@@ -196,7 +205,6 @@ export default function PlcProducts() {
 
   const visibleRows = qcList.slice(0, pageSize);
 
-
   return (
     <div className="min-h-full bg-gray-50 my-4 mt-9">
       <div className="w-[930px]  flex justify-between mx-auto">
@@ -230,14 +238,11 @@ export default function PlcProducts() {
             onClick={handleRefresh}
             className="px-2 py-1  rounded-lg cursor-pointer border border-gray-300 hover:bg-gray-100 transition text-gray-500"
           >
-            <RefreshCcw className="h-4 w-5" />
+            <RefreshCcw className={`h-4 w-5 transition-transform ${isSpinning ? 'animate-spin' : ''}`} />
           </button>
-          {/* <button className="px-2 py-1  rounded-lg cursor-pointer border border-gray-300 hover:bg-gray-100 transition text-gray-500">
-            <Download className="h-4 w-5" />
-          </button> */}
         </div>
       </div>
-      <div className="w-[930px] border border-gray-200 rounded-xl mx-auto mt-5 shadow-md bg-white">
+      <div className="w-[930px]  border border-gray-200 rounded-xl mx-auto mt-5 shadow-md bg-white">
         <table className="w-full min-w-[930px] text-sm text-center ">
           <thead>
             <tr className="bg-linear-to-r from-blue-600 to-sky-500 text-white uppercase whitespace-nowrap outline-none rounded-t-lg text-xs tracking-wide">
@@ -255,7 +260,7 @@ export default function PlcProducts() {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y  divide-gray-200">
             {isLoadingQC && (
               <tr>
                 <td colSpan={8} className="px-6 py-10 text-center">
@@ -278,10 +283,11 @@ export default function PlcProducts() {
               </tr>
             )}
             {getTableData?.length === 0 && (
-              <tr>
+              <tr className="relative">
                 <td
                   colSpan={8}
-                  className="px-6 py-10 text-center text-sm text-gray-500"
+                  className="mt-10 pt-30 align-middle text-center text-lg
+                  text-gray-500"
                 >
                   No quality checks found
                 </td>
@@ -320,7 +326,15 @@ export default function PlcProducts() {
               ))}
           </tbody>
         </table>
+
+        
+          
       </div>
+
+      <Pagination 
+        page={page}
+        setPage={setPage}
+      />
 
       {/* // Add Quality Check is here  */}
 
