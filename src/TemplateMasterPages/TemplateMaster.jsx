@@ -1566,9 +1566,9 @@ export default function TemplateMaster() {
                                   <td className="px-3 py-2 text-sm text-gray-700">
                                     {f.is_mandatory ? "Yes" : "No"}
                                   </td>
-                                  <td className="px-3 py-2 text-sm text-gray-700">
+                                  <td className="px-3 whitespace-nowrap py-2 text-sm text-gray-700">
                                     {f.type === "Approval" ? (
-                                      <p>{f?.groupDetail?.group_name}</p>
+                                      <p> Group name: ({f?.groupDetail?.group_name})</p>
                                     ) : (
                                       f?.type
                                     )}
