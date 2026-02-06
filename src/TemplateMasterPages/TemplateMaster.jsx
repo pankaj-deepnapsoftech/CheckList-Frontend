@@ -1,5 +1,13 @@
 import React, { useMemo, useState } from "react";
-import { Edit2, Eye, Plus, Trash2, X, WorkflowIcon, GripVertical } from "lucide-react";
+import {
+  Edit2,
+  Eye,
+  Plus,
+  Trash2,
+  X,
+  WorkflowIcon,
+  GripVertical,
+} from "lucide-react";
 import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useWorkflow } from "../hooks/useWorkflow";
@@ -7,6 +15,8 @@ import SearchableDropdown from "../Components/SearchableDropDown/SearchableDropd
 import MultiSelectDropdown from "../Components/SearchableDropDown/MultiSelectDropdown";
 import AssignWorkflowModal from "../Components/modal/addModal/AssignWorkflowModal";
 import Select from "react-select";
+import { useReleaseGroup } from "../hooks/Template Hooks/useReleaseGroup";
+import Pagination from "../Components/Pagination/Pagination";
 
 const FIELD_TYPES = [
   { label: "Text Input", value: "TEXT" },
@@ -16,24 +26,24 @@ const FIELD_TYPES = [
   { label: "Date", value: "DATE" },
   { label: "Text Area", value: "TEXTAREA" },
   { label: "Attach File", value: "IMAGE" },
-  { label: "Radio Buttons", value: "RADIO" }
+  { label: "Radio Buttons", value: "RADIO" },
 ];
 
 const TEMPLATE_TYPES = [
   { label: "New", value: "NEW" },
   { label: "Amendment", value: "AMENDMENT" },
-];  
-
-
+];
 
 export default function TemplateMaster() {
+  const { getAllReleaseGroup } = useReleaseGroup();
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
-  const [selectedTemplateForAssign, setSelectedTemplateForAssign] = useState(null);
+  const [selectedTemplateForAssign, setSelectedTemplateForAssign] =
+    useState(null);
   const [viewingTemplateId, setViewingTemplateId] = useState("");
   const [editingTemplateId, setEditingTemplateId] = useState("");
   const [editTemplateName, setEditTemplateName] = useState("");
@@ -50,35 +60,52 @@ export default function TemplateMaster() {
   const [draftFields, setDraftFields] = useState([]);
   const [draftPreviewValues, setDraftPreviewValues] = useState({});
   const [dragOverIndex, setDragOverIndex] = useState(null);
-
+  const [newTypefiled, setNewTypeField] = useState();
+  const [approval_id, setApprovalId] = useState(null);
   // Edit modal field states
+  const [editTypefiled, setEditTypeField] = useState();
   const [editFieldName, setEditFieldName] = useState("");
   const [editFieldType, setEditFieldType] = useState("TEXT");
   const [editIsMandatory, setEditIsMandatory] = useState(false);
   const [editDropdownOptions, setEditDropdownOptions] = useState("");
   const [editingFieldId, setEditingFieldId] = useState("");
 
-const getDropdownOptions = (options = []) =>
-  options.map((opt) => ({
-    label: opt,
-    value: opt,
-  }));
+  // pagination
+  const [page, setPgae] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const getDropdownOptions = (options = []) =>
+    options.map((opt) => ({
+      label: opt,
+      value: opt,
+    }));
 
+  const {
+    templatesQuery,
+    templateQuery,
+    createTemplate,
+    addField,
+    updateField,
+    deleteField,
+    updateTemplate,
+    deleteTemplate,
+    assignWorkflow,
+  } = useTemplateMaster(selectedTemplateId,"","","", {
+    pageData: page,
+    limitData: limit,
+  });
 
-  const { templatesQuery, templateQuery, createTemplate, addField, updateField, deleteField, updateTemplate, deleteTemplate, assignWorkflow } =
-    useTemplateMaster(selectedTemplateId);
+  const { WithoutHodEmpData } = RegisterEmployee();
 
-    const { WithoutHodEmpData } = RegisterEmployee();
-
-  // const { AllEmpData } = RegisterEmployee();
   const { listQuery: workflowsQuery } = useWorkflow("", 1, 1000);
 
   const templates = templatesQuery.data || [];
   const selectedTemplate = templateQuery.data;
   const fields = useMemo(() => {
     const f = selectedTemplate?.fields || [];
+    
     return [...f].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   }, [selectedTemplate]);
+  console.log(">>>>>", selectedTemplate);
   const [previewValues, setPreviewValues] = useState({});
 
   const setPreviewValue = (key, value) => {
@@ -112,42 +139,36 @@ const getDropdownOptions = (options = []) =>
             {f.field_name}
           </label>
         );
-     case "DROPDOWN": {
-  let opts = [];
-  try {
-    opts = f?.dropdown_options
-      ? JSON.parse(f.dropdown_options)
-      : [];
-  } catch {
-    opts = [];
-  }
+      case "DROPDOWN": {
+        let opts = [];
+        try {
+          opts = f?.dropdown_options ? JSON.parse(f.dropdown_options) : [];
+        } catch {
+          opts = [];
+        }
 
-  const options = opts.map((o) => ({
-    label: o,
-    value: o,
-  }));
+        const options = opts.map((o) => ({
+          label: o,
+          value: o,
+        }));
 
-  return (
-    <Select
-      options={options}
-      placeholder="Select"
-      isSearchable
-      value={
-        options.find(
-          (opt) => opt.value === draftPreviewValues[key]
-        ) || null
+        return (
+          <Select
+            options={options}
+            placeholder="Select"
+            isSearchable
+            value={
+              options.find((opt) => opt.value === draftPreviewValues[key]) ||
+              null
+            }
+            onChange={(selected) =>
+              setDraftPreviewValue(key, selected ? selected.value : "")
+            }
+            className="mt-1 text-sm"
+            classNamePrefix="react-select"
+          />
+        );
       }
-      onChange={(selected) =>
-        setDraftPreviewValue(
-          key,
-          selected ? selected.value : ""
-        )
-      }
-      className="mt-1 text-sm"
-      classNamePrefix="react-select"
-    />
-  );
-}
 
       case "RADIO": {
         let opts = [];
@@ -416,11 +437,24 @@ const getDropdownOptions = (options = []) =>
     // assigned_users: [{ user_id, status }] – extract user_ids for multiselect
     if (template.assigned_users && Array.isArray(template.assigned_users)) {
       const ids = template.assigned_users
-        .map((a) => (a && typeof a === "object" && a.user_id != null ? a.user_id : typeof a === "string" ? a : null))
+        .map((a) =>
+          a && typeof a === "object" && a.user_id != null
+            ? a.user_id
+            : typeof a === "string"
+              ? a
+              : null,
+        )
         .filter(Boolean);
       setEditAssignedUser(ids);
-    } else if (template.assignedUser?._id || template.assigned_user?._id || template.assigned_user) {
-      const userId = template.assignedUser?._id || template.assigned_user?._id || template.assigned_user;
+    } else if (
+      template.assignedUser?._id ||
+      template.assigned_user?._id ||
+      template.assigned_user
+    ) {
+      const userId =
+        template.assignedUser?._id ||
+        template.assigned_user?._id ||
+        template.assigned_user;
       setEditAssignedUser([userId]);
     } else {
       setEditAssignedUser([]);
@@ -446,10 +480,14 @@ const getDropdownOptions = (options = []) =>
   const startEditField = (field) => {
     setEditingFieldId(field._id);
     setEditFieldName(field.field_name);
+    setEditTypeField(field.newTypefiled);
     setEditFieldType(field.field_type);
     setEditIsMandatory(field.is_mandatory);
     let opts = "";
-    if ((field.field_type === "DROPDOWN" || field.field_type === "RADIO") && field.dropdown_options) {
+    if (
+      (field.field_type === "DROPDOWN" || field.field_type === "RADIO") &&
+      field.dropdown_options
+    ) {
       try {
         const parsed = JSON.parse(field.dropdown_options);
         opts = Array.isArray(parsed) ? parsed.join(", ") : "";
@@ -463,6 +501,7 @@ const getDropdownOptions = (options = []) =>
   const cancelEditField = () => {
     setEditingFieldId("");
     setEditFieldName("");
+    setEditTypeField("");
     setEditFieldType("TEXT");
     setEditIsMandatory(false);
     setEditDropdownOptions("");
@@ -487,14 +526,20 @@ const getDropdownOptions = (options = []) =>
       templateId: editingTemplateId,
       payload: {
         field_name: name,
+        type: newTypefiled,
+        group_id: newTypefiled === "Approval" ? approval_id : null,
         field_type: newFieldType,
         is_mandatory: Boolean(newIsMandatory),
         sort_order: fields.length,
-        dropdown_options: (newFieldType === "DROPDOWN" || newFieldType === "RADIO") ? dropdownOpts : undefined,
+        dropdown_options:
+          newFieldType === "DROPDOWN" || newFieldType === "RADIO"
+            ? dropdownOpts
+            : undefined,
       },
     });
 
     // Reset form fields after adding
+    setApprovalId(null);
     setNewFieldName("");
     setNewFieldType("TEXT");
     setNewIsMandatory(false);
@@ -520,12 +565,17 @@ const getDropdownOptions = (options = []) =>
       fieldId: editingFieldId,
       payload: {
         field_name: name,
+        type: newTypefiled,
+        group_id: newTypefiled === "Approval" ? approval_id : null,
         field_type: editFieldType,
         is_mandatory: Boolean(editIsMandatory),
-        dropdown_options: (editFieldType === "DROPDOWN" || editFieldType === "RADIO") ? dropdownOpts : undefined,
+        dropdown_options:
+          editFieldType === "DROPDOWN" || editFieldType === "RADIO"
+            ? dropdownOpts
+            : undefined,
       },
     });
-
+    setApprovalId(null);
     cancelEditField();
   };
 
@@ -536,7 +586,10 @@ const getDropdownOptions = (options = []) =>
       payload: {
         template_name: editTemplateName,
         template_type: editTemplateType || null,
-        assigned_users: Array.isArray(editAssignedUser) && editAssignedUser.length > 0 ? editAssignedUser : null,
+        assigned_users:
+          Array.isArray(editAssignedUser) && editAssignedUser.length > 0
+            ? editAssignedUser
+            : null,
       },
     });
     closeEdit();
@@ -559,14 +612,17 @@ const getDropdownOptions = (options = []) =>
     setDraftFields((prev) => [
       ...prev,
       {
-        _tmpId: crypto?.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`,
+        _tmpId: crypto?.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random()}`,
         field_name: name,
+        type: newTypefiled,
         field_type: newFieldType,
         is_mandatory: Boolean(newIsMandatory),
         dropdown_options: dropdownOpts,
       },
     ]);
-
+    setNewTypeField("");
     setNewFieldName("");
     setNewFieldType("TEXT");
     setNewIsMandatory(false);
@@ -599,7 +655,10 @@ const getDropdownOptions = (options = []) =>
     const res = await createTemplate.mutateAsync({
       template_name: newTemplateName,
       template_type: newTemplateType || null,
-      assigned_users: Array.isArray(assignedUser) && assignedUser.length > 0 ? assignedUser : null,
+      assigned_users:
+        Array.isArray(assignedUser) && assignedUser.length > 0
+          ? assignedUser
+          : null,
     });
 
     const createdId = res?.data?._id;
@@ -611,11 +670,17 @@ const getDropdownOptions = (options = []) =>
       const payload = {
         field_name: f.field_name,
         field_type: f.field_type,
+        type: f.type,
+        group_id: f.type === "Approval" ? approval_id : null,
         is_mandatory: f.is_mandatory,
         sort_order: i,
       };
       // Only include dropdown_options for DROPDOWN and RADIO fields
-      if ((f.field_type === "DROPDOWN" || f.field_type === "RADIO") && f.dropdown_options && f.dropdown_options.length > 0) {
+      if (
+        (f.field_type === "DROPDOWN" || f.field_type === "RADIO") &&
+        f.dropdown_options &&
+        f.dropdown_options.length > 0
+      ) {
         payload.dropdown_options = f.dropdown_options;
       }
       // eslint-disable-next-line no-await-in-loop
@@ -624,10 +689,14 @@ const getDropdownOptions = (options = []) =>
         payload,
       });
     }
-
+    setApprovalId(null);
     setSelectedTemplateId(createdId);
     closeCreate();
   };
+
+
+
+   console.log(fields);
 
   return (
     <div className="min-h-full bg-gray-50 ">
@@ -724,31 +793,7 @@ const getDropdownOptions = (options = []) =>
                         >
                           <WorkflowIcon size={18} />
                         </button>
-                        {/* <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (
-                              window.confirm(
-                                `Are you sure you want to delete "${t.template_name}"? This will also delete all its fields.`,
-                              )
-                            ) {
-                              deleteTemplate.mutate(
-                                { templateId: t._id },
-                                {
-                                  onSuccess: () => {
-                                    if (selectedTemplateId === t._id) {
-                                      setSelectedTemplateId("");
-                                    }
-                                  },
-                                },
-                              );
-                            }
-                          }}
-                          className="rounded p-1 hover:bg-rose-100 text-rose-600"
-                          title="Delete Template"
-                        >
-                          <Trash2 size={18} />
-                        </button> */}
+                        
                       </div>
                     </div>
                   ))
@@ -757,158 +802,13 @@ const getDropdownOptions = (options = []) =>
             </div>
           </div>
 
-          {/* MIDDLE: Field Builder */}
-          {/* <div className="lg:col-span-1">
-            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-semibold text-gray-800">Dynamic Field Builder</h2>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Select a template and click “Add Field”.
-                  </p>
-                </div>
-                {templateQuery.isFetching && selectedTemplateId && (
-                  <span className="text-xs text-gray-400">Loading...</span>
-                )}
-              </div>
-
-              {!selectedTemplateId ? (
-                <div className="mt-4 rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-500">
-                  Select a template from the left to start adding fields.
-                </div>
-              ) : (
-                <>
-                  <div className="mt-4 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2">
-                    <div className="text-xs text-gray-500">Selected Template</div>
-                    <div className="text-sm font-semibold text-gray-800">
-                      {selectedTemplate?.template_name || "—"}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 px-3 py-2 text-xs text-blue-700">
-                    For new templates, use <b>Create New Template</b>. Here you can maintain fields of an existing template.
-                  </div>
-
-                  <div className="mt-5 overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200 text-sm">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
-                            Field Name
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
-                            Type
-                          </th>
-                          <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
-                            Mandatory
-                          </th>
-                          <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500">
-                            Action
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100 bg-white">
-                        {fields.length === 0 ? (
-                          <tr>
-                            <td className="px-3 py-3 text-sm text-gray-500" colSpan={4}>
-                              No fields added yet.
-                            </td>
-                          </tr>
-                        ) : (
-                          fields.map((f) => (
-                            <tr key={f._id} className="hover:bg-gray-50">
-                              <td className="px-3 py-2 text-sm text-gray-800 font-semibold">
-                                {f.field_name}
-                              </td>
-                              <td className="px-3 py-2 text-sm text-gray-700">{f.field_type}</td>
-                              <td className="px-3 py-2 text-sm text-gray-700">
-                                {f.is_mandatory ? "Yes" : "No"}
-                              </td>
-                              <td className="px-3 py-2 text-right">
-                                <button
-                                  onClick={() =>
-                                    deleteField.mutate({ fieldId: f._id })
-                                  }
-                                  className="inline-flex items-center gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-600 hover:bg-rose-100"
-                                >
-                                  <Trash2 size={14} />
-                                  Delete
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </>
-              )}
-            </div>
-          </div> */}
-
-          {/* RIGHT: Form Preview */}
-          {/* <div className="lg:col-span-1">
-            <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-sm font-semibold text-gray-800">Form Preview</h2>
-                  <p className="mt-1 text-xs text-gray-500">
-                    Ye preview user ko form fill karte time dikhega.
-                  </p>
-                </div>
-              </div>
-
-              {!selectedTemplateId ? (
-                <div className="mt-4 rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-500">
-                  Select a template to see form preview.
-                </div>
-              ) : fields.length === 0 ? (
-                <div className="mt-4 rounded-lg border border-dashed border-gray-200 p-6 text-sm text-gray-500">
-                  No fields in this template yet.
-                </div>
-              ) : (
-                <div className="mt-4 space-y-4">
-                  <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                    <div className="text-xs font-semibold text-gray-700">Template Name</div>
-                    <div className="mt-1 text-sm font-semibold text-gray-900">
-                      {selectedTemplate?.template_name || "—"}
-                    </div>
-                    {selectedTemplate?.template_type && (
-                      <>
-                        <div className="mt-2 text-xs font-semibold text-gray-700">Template Type</div>
-                        <div className="mt-1 text-sm text-gray-800">
-                          {selectedTemplate.template_type}
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  {fields.map((f) => (
-                    <div key={f._id}>
-                      {f.field_type !== "CHECKBOX" && (
-                        <label className="block text-xs font-medium text-gray-600 mb-1">
-                          {f.field_name}
-                          {f.is_mandatory && <span className="text-red-500"> *</span>}
-                        </label>
-                      )}
-                      {renderPreviewInput(f)}
-                    </div>
-                  ))}
-
-                  <div className="pt-2 flex justify-end">
-                    <button
-                      type="button"
-                      className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white opacity-60 cursor-not-allowed"
-                      title="Preview only (submission will be part of execution module)"
-                    >
-                      Submit (Preview)
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div> */}
+          
         </div>
+        <Pagination
+          page={page}
+          setPage={setPgae}
+          hasNextpage={templates?.length === 10} 
+        />
       </div>
 
       {/* RIGHT DRAWER: Create New Template */}
@@ -998,7 +898,10 @@ const getDropdownOptions = (options = []) =>
                               onDragLeave={() => setDragOverIndex(null)}
                               onDrop={(e) => {
                                 e.preventDefault();
-                                const fromIndex = parseInt(e.dataTransfer.getData("text/plain"), 10);
+                                const fromIndex = parseInt(
+                                  e.dataTransfer.getData("text/plain"),
+                                  10,
+                                );
                                 if (Number.isNaN(fromIndex)) return;
                                 reorderDraftFields(fromIndex, index);
                                 setDragOverIndex(null);
@@ -1007,7 +910,10 @@ const getDropdownOptions = (options = []) =>
                               <div
                                 draggable
                                 onDragStart={(e) => {
-                                  e.dataTransfer.setData("text/plain", String(index));
+                                  e.dataTransfer.setData(
+                                    "text/plain",
+                                    String(index),
+                                  );
                                   e.dataTransfer.effectAllowed = "move";
                                 }}
                                 onDragEnd={() => setDragOverIndex(null)}
@@ -1079,7 +985,6 @@ const getDropdownOptions = (options = []) =>
                       </div>
                     </div>
 
-                    {/* Add Field Section */}
                     <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-semibold text-gray-800">
@@ -1141,6 +1046,51 @@ const getDropdownOptions = (options = []) =>
                             </p>
                           </div>
                         )}
+
+                        <div className="w-full max-w-sm space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Type
+                            </label>
+
+                            <select
+                              value={newTypefiled}
+                              onChange={(e) => setNewTypeField(e.target.value)}
+                              className="block w-full rounded-md border border-gray-300 bg-white
+        px-3 py-2 text-sm text-gray-700 shadow-sm
+        focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            >
+                              <option value="">Select type</option>
+                              <option value="User">User</option>
+                              <option value="Approval">Approval</option>
+                              <option value="HOD">HOD</option>
+                            </select>
+                          </div>
+
+                          {newTypefiled === "Approval" && (
+                            <div className="transition-all duration-200 ease-in-out">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Approval Group
+                              </label>
+
+                              <select
+                                value={approval_id}
+                                onChange={(e) => setApprovalId(e.target.value)}
+                                className="block w-full rounded-md border border-gray-300 bg-white
+          px-3 py-2 text-sm text-gray-700 shadow-sm
+          focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              >
+                                <option value="">Select group</option>
+                                {getAllReleaseGroup?.data?.map((w) => (
+                                  <option key={w?._id} value={w?._id}>
+                                    {w?.group_name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
+                        </div>
+
                         <div className="sm:col-span-1 flex items-end justify-between gap-3">
                           <label className="flex items-center gap-2 text-sm text-gray-700">
                             <input
@@ -1288,7 +1238,6 @@ const getDropdownOptions = (options = []) =>
                         </h3>
                       </div>
                     </div>
-
 
                     <div className="mt-4">
                       {/* Template Name & Type */}
@@ -1484,6 +1433,55 @@ const getDropdownOptions = (options = []) =>
                           )}
                         </div>
 
+                        <div className="w-full max-w-sm space-y-4">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Type
+                            </label>
+
+                            <select
+                              value={
+                                editingFieldId ? editTypefiled : newTypefiled
+                              }
+                              onChange={(e) =>
+                                editingFieldId
+                                  ? setEditTypeField(e.target.value)
+                                  : setNewTypeField(e.target.value)
+                              }
+                              className="block w-full rounded-md border border-gray-300 bg-white
+        px-3 py-2 text-sm text-gray-700 shadow-sm
+        focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            >
+                              <option value="">Select type</option>
+                              <option value="User">User</option>
+                              <option value="Approval">Approval</option>
+                              <option value="HOD">HOD</option>
+                            </select>
+                          </div>
+
+                          {(editingFieldId ? editTypefiled : newTypefiled) ===
+                            "Approval" && (
+                            <div className="transition-all duration-200 ease-in-out">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Approval Group
+                              </label>
+
+                              <select
+                                className="block w-full rounded-md border border-gray-300 bg-white
+          px-3 py-2 text-sm text-gray-700 shadow-sm
+          focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                              >
+                                <option value="">Select group</option>
+                                {getAllReleaseGroup?.data?.map((w) => (
+                                  <option key={w?._id} value={w?._id}>
+                                    {w?.group_name}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
+                        </div>
+
                         {((editingFieldId ? editFieldType : newFieldType) ===
                           "DROPDOWN" ||
                           (editingFieldId ? editFieldType : newFieldType) ===
@@ -1640,7 +1638,7 @@ const getDropdownOptions = (options = []) =>
             <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
-                  View Template
+                  View Template  
                 </h2>
               </div>
               <button
@@ -1660,41 +1658,7 @@ const getDropdownOptions = (options = []) =>
                 </div>
               ) : selectedTemplate ? (
                 <div className="space-y-4">
-                  {/* Template Info */}
-                  {/* <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                    <div className="text-xs font-semibold text-gray-700">
-                      Template Name
-                    </div>
-                    <div className="mt-1 text-md font-semibold text-gray-900">
-                      {selectedTemplate.template_name || "—"}
-                    </div>
-                    {selectedTemplate.template_type && (
-                      <>
-                        <div className="mt-3 text-xs font-semibold text-gray-700">
-                          Template Type
-                        </div>
-                        <div className="mt-1 text-sm text-gray-800">
-                          {selectedTemplate.template_type}
-                        </div>
-                      </>
-                    )}
-                    {selectedTemplate.assignedUser && (
-                      <>
-                        <div className="mt-3 text-xs font-semibold text-gray-700">
-                          Assigned User
-                        </div>
-                        <div className="mt-1 text-sm text-gray-800">
-                          {selectedTemplate.assignedUser?.full_name || selectedTemplate.assignedUser?.name || "—"}
-                          {selectedTemplate.assignedUser?.user_id && (
-                            <span className="text-gray-500 ml-1">
-                              ({selectedTemplate.assignedUser.user_id})
-                            </span>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div> */}
-
+                
                   {/* Fields List */}
                   <div className="rounded-xl border border-gray-100 bg-white p-4">
                     <div className="flex items-center justify-between">
@@ -1908,4 +1872,4 @@ const getDropdownOptions = (options = []) =>
       />
     </div>
   );
-};
+}
