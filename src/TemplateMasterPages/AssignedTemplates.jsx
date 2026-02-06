@@ -7,7 +7,8 @@ import { useTemplateMaster } from "../hooks/Template Hooks/useTemplateMaster";
 import { useTemplateSubmission } from "../hooks/Template Hooks/useTemplateSubmission";
 import { useLogin } from "../hooks/useLogin";
 import Select from "react-select";
-
+import Pagination from "../Components/Pagination/Pagination";
+import SearchableSelect from "../Components/SearchableDropDown/SearchableDropdown";
 
 const FIELD_TYPES = {
   TEXT: "Text Input",
@@ -22,18 +23,28 @@ const FIELD_TYPES = {
 
 export default function AssignedTemplates() {
   const { logedinUser } = useLogin();
+  const [page, setPage] = useState(1);
   const navigate = useNavigate();
-  const { assignedTemplatesQuery } = useAssignedTemplates();
+  const { assignedTemplatesQuery } = useAssignedTemplates(page);
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [viewingTemplateId, setViewingTemplateId] = useState("");
   const [currentSubmissionId, setCurrentSubmissionId] = useState(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [viewingSubmission, setViewingSubmission] = useState(null);
-
   const { templateQuery } = useTemplateMaster(viewingTemplateId);
+  const [assigned_user_id, setAssignedUser_id] = useState(null);
+  const [User_plant_id,selectUser_Plant_id] = useState(null)
   // Fetch all submissions for the user (not filtered by template_id initially)
-  const { getUserSubmissions, createSubmission, updateSubmission, submitSubmission } = useTemplateSubmission(null);
+  const {
+    getUserSubmissions,
+    createSubmission,
+    updateSubmission,
+    submitSubmission,
+  } = useTemplateSubmission(null, User_plant_id);
+
+
+ 
 
   // Redirect admin users
   useEffect(() => {
@@ -51,7 +62,12 @@ export default function AssignedTemplates() {
       data: assignedTemplatesQuery.data,
       status: assignedTemplatesQuery.status,
     });
-  }, [assignedTemplatesQuery.isLoading, assignedTemplatesQuery.isError, assignedTemplatesQuery.data, assignedTemplatesQuery.status]);
+  }, [
+    assignedTemplatesQuery.isLoading,
+    assignedTemplatesQuery.isError,
+    assignedTemplatesQuery.data,
+    assignedTemplatesQuery.status,
+  ]);
 
   const templates = assignedTemplatesQuery.data || [];
   const selectedTemplate = templateQuery.data;
@@ -65,11 +81,20 @@ export default function AssignedTemplates() {
   const getInitialFormValues = () => {
     if (viewingTemplateId && existingSubmissions.length > 0) {
       // First check for DRAFT, then SUBMITTED
-      const draftSubmission = existingSubmissions.find(sub => sub.template_id === viewingTemplateId && sub.status === "DRAFT");
-      const submittedSubmission = existingSubmissions.find(sub => sub.template_id === viewingTemplateId && sub.status === "SUBMITTED");
+      const draftSubmission = existingSubmissions.find(
+        (sub) =>
+          sub.template_id === viewingTemplateId && sub.status === "DRAFT",
+      );
+      const submittedSubmission = existingSubmissions.find(
+        (sub) =>
+          sub.template_id === viewingTemplateId && sub.status === "SUBMITTED",
+      );
       const submission = draftSubmission || submittedSubmission;
       if (submission?.form_data) {
-        return submission.form_data;
+        return {
+          ...submission.form_data,
+          plant_id: submission.plant_id || submission.form_data?.plant_id || "",
+        };
       }
     }
     // Initialize with empty values for each field
@@ -84,6 +109,7 @@ export default function AssignedTemplates() {
         }
       });
     }
+    initialValues.plant_id = "";
     return initialValues;
   };
 
@@ -91,24 +117,30 @@ export default function AssignedTemplates() {
     initialValues: getInitialFormValues(),
     enableReinitialize: true,
     onSubmit: async (values) => {
+      const { plant_id, ...formData } = values;
       if (currentSubmissionId) {
         await updateSubmission.mutateAsync({
           id: currentSubmissionId,
           payload: {
-            form_data: values,
-            status: "DRAFT",
+            form_data: formData,
+            status: "SUBMITTED",
+            user_id: assigned_user_id,
+            plant_id: plant_id || null,
           },
         });
       } else {
         const result = await createSubmission.mutateAsync({
           template_id: viewingTemplateId,
-          form_data: values,
-          status: "DRAFT",
+          form_data: formData,
+          status: "SUBMITTED",
+          user_id: assigned_user_id,
+          plant_id: plant_id || null,
         });
         if (result?.data?._id) {
           setCurrentSubmissionId(result.data._id);
         }
       }
+      setAssignedUser_id(null);
     },
   });
 
@@ -122,18 +154,32 @@ export default function AssignedTemplates() {
 
   // Update form when submissions are loaded
   useEffect(() => {
-    if (viewingTemplateId && existingSubmissions.length > 0 && fields.length > 0) {
+    if (
+      viewingTemplateId &&
+      existingSubmissions.length > 0 &&
+      fields.length > 0
+    ) {
       // First check for DRAFT, then SUBMITTED
-      const draftSubmission = existingSubmissions.find(sub => sub.template_id === viewingTemplateId && sub.status === "DRAFT");
-      const submittedSubmission = existingSubmissions.find(sub => sub.template_id === viewingTemplateId && sub.status === "SUBMITTED");
+      const draftSubmission = existingSubmissions.find(
+        (sub) =>
+          sub.template_id === viewingTemplateId && sub.status === "DRAFT",
+      );
+      const submittedSubmission = existingSubmissions.find(
+        (sub) =>
+          sub.template_id === viewingTemplateId && sub.status === "SUBMITTED",
+      );
       const submission = draftSubmission || submittedSubmission;
-      
+
       if (submission) {
         setCurrentSubmissionId(submission._id);
         setViewingSubmission(submission);
         // Set form values from existing submission
         if (submission.form_data) {
-          formik.setValues(submission.form_data);
+          formik.setValues({
+            ...submission.form_data,
+            plant_id:
+              submission.plant_id || submission.form_data?.plant_id || "",
+          });
         }
         // Set edit mode based on submission status
         setIsEditMode(submission.status === "DRAFT");
@@ -151,9 +197,14 @@ export default function AssignedTemplates() {
             initialValues[key] = "";
           }
         });
+        initialValues.plant_id = "";
         formik.setValues(initialValues);
       }
-    } else if (viewingTemplateId && fields.length > 0 && existingSubmissions.length === 0) {
+    } else if (
+      viewingTemplateId &&
+      fields.length > 0 &&
+      existingSubmissions.length === 0
+    ) {
       setCurrentSubmissionId(null);
       setViewingSubmission(null);
       setIsEditMode(false);
@@ -167,6 +218,7 @@ export default function AssignedTemplates() {
           initialValues[key] = "";
         }
       });
+      initialValues.plant_id = "";
       formik.setValues(initialValues);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -178,9 +230,13 @@ export default function AssignedTemplates() {
   };
 
   const openView = (template) => {
+    console.log(template);
+    console.log(template?.assignedUser?._id);
     setViewingTemplateId(template._id);
     setIsViewOpen(true);
     setIsEditMode(false);
+   
+    setAssignedUser_id(template?.assigned_users?.user_id);
   };
 
   const closeView = () => {
@@ -194,17 +250,20 @@ export default function AssignedTemplates() {
 
   const handleEdit = async () => {
     setIsEditMode(true);
-    // If there's a submitted submission, update it to DRAFT status
-    if (viewingSubmission && viewingSubmission.status === "SUBMITTED" && currentSubmissionId) {
+    if (
+      viewingSubmission &&
+      viewingSubmission.status === "SUBMITTED" &&
+      currentSubmissionId
+    ) {
       try {
         await updateSubmission.mutateAsync({
           id: currentSubmissionId,
           payload: {
             form_data: viewingSubmission.form_data,
-            status: "DRAFT",
+            status: "SUBMITTED",
           },
         });
-        // Refetch submissions to get updated status
+
         getUserSubmissions.refetch();
       } catch (error) {
         console.error("Error updating submission:", error);
@@ -214,15 +273,17 @@ export default function AssignedTemplates() {
 
   const handleSubmit = async () => {
     // Validate mandatory fields
-    const mandatoryFields = fields.filter(f => f.is_mandatory);
-    const missingFields = mandatoryFields.filter(field => {
+    const mandatoryFields = fields.filter((f) => f.is_mandatory);
+    const missingFields = mandatoryFields.filter((field) => {
       const key = field._id || field.field_name;
       const value = formik.values[key];
       return !value || (typeof value === "string" && value.trim() === "");
     });
 
     if (missingFields.length > 0) {
-      alert(`Please fill all mandatory fields: ${missingFields.map(f => f.field_name).join(", ")}`);
+      alert(
+        `Please fill all mandatory fields: ${missingFields.map((f) => f.field_name).join(", ")}`,
+      );
       return;
     }
 
@@ -231,10 +292,13 @@ export default function AssignedTemplates() {
 
       // Save first if not saved
       if (!submissionId) {
+        const { plant_id, ...formData } = formik.values;
         const result = await createSubmission.mutateAsync({
           template_id: viewingTemplateId,
-          form_data: formik.values,
-          status: "DRAFT",
+          form_data: formData,
+          status: "SUBMITTED",
+          user_id: assigned_user_id,
+          plant_id: plant_id || null,
         });
         submissionId = result?.data?._id;
         if (submissionId) {
@@ -242,11 +306,14 @@ export default function AssignedTemplates() {
         }
       } else {
         // Update existing draft before submitting
+        const { plant_id, ...formData } = formik.values;
         await updateSubmission.mutateAsync({
           id: submissionId,
           payload: {
-            form_data: formik.values,
-            status: "DRAFT",
+            form_data: formData,
+            status: "SUBMITTED",
+            user_id: assigned_user_id,
+            plant_id: plant_id || null,
           },
         });
       }
@@ -258,6 +325,7 @@ export default function AssignedTemplates() {
         await getUserSubmissions.refetch();
         closeView();
       }
+      setAssignedUser_id(null);
     } catch (error) {
       console.error("Error submitting template:", error);
     }
@@ -265,8 +333,7 @@ export default function AssignedTemplates() {
 
   const renderPreviewInput = (f, readOnly = false) => {
     const key = f?._id || f?.field_name;
-    const commonClass =
-      `mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`;
+    const commonClass = `mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none ${readOnly ? "bg-gray-100 cursor-not-allowed" : ""}`;
 
     switch (f.field_type) {
       case "NUMBER":
@@ -470,7 +537,10 @@ export default function AssignedTemplates() {
           ) : assignedTemplatesQuery.isError ? (
             <div className="rounded-xl border border-red-200 bg-red-50 p-8 text-center">
               <p className="text-red-600">
-                Error loading templates: {assignedTemplatesQuery.error?.response?.data?.message || assignedTemplatesQuery.error?.message || "Unknown error"}
+                Error loading templates:{" "}
+                {assignedTemplatesQuery.error?.response?.data?.message ||
+                  assignedTemplatesQuery.error?.message ||
+                  "Unknown error"}
               </p>
               <button
                 onClick={handleRefresh}
@@ -502,7 +572,7 @@ export default function AssignedTemplates() {
                       )}
                       {template.fields && (
                         <p className="mt-1 text-xs text-gray-400">
-                         Total Field: {template.fields.length}
+                          Total Field: {template.fields.length}
                         </p>
                       )}
                     </div>
@@ -527,13 +597,15 @@ export default function AssignedTemplates() {
               <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
                 <div className="flex items-center gap-3">
                   <h2 className="text-xl font-semibold text-gray-900">
-                    {selectedTemplate.template_name}
+                    {selectedTemplate?.template_name}
                   </h2>
-                  {viewingSubmission && viewingSubmission.status === "SUBMITTED" && !isEditMode && (
-                    <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
-                      Submitted
-                    </span>
-                  )}
+                  {viewingSubmission &&
+                    viewingSubmission.status === "SUBMITTED" &&
+                    !isEditMode && (
+                      <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-800">
+                        Submitted
+                      </span>
+                    )}
                   {/* {viewingSubmission && viewingSubmission.status === "DRAFT" && (
                     <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-medium text-yellow-800">
                       Draft
@@ -541,15 +613,17 @@ export default function AssignedTemplates() {
                   )} */}
                 </div>
                 <div className="flex items-center gap-2">
-                  {viewingSubmission && viewingSubmission.status === "SUBMITTED" && !isEditMode && (
-                    <button
-                      onClick={handleEdit}
-                      className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                    >
-                      <Edit size={18} />
-                      Edit
-                    </button>
-                  )}
+                  {viewingSubmission &&
+                    viewingSubmission.status === "SUBMITTED" &&
+                    !isEditMode && (
+                      <button
+                        onClick={handleEdit}
+                        className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                      >
+                        <Edit size={18} />
+                        Edit
+                      </button>
+                    )}
                   <button
                     onClick={closeView}
                     className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
@@ -599,28 +673,57 @@ export default function AssignedTemplates() {
                     <h3 className="mb-4 text-lg font-semibold text-gray-900">
                       Template Fields
                     </h3>
-                    {fields.length === 0 ? (
-                      <p className="text-sm text-gray-500">No fields added yet.</p>
+                    {fields?.length === 0 ? (
+                      <p className="text-sm text-gray-500">
+                        No fields added yet.
+                      </p>
                     ) : (
                       <div className="space-y-4">
+                        <div>
+                          <SearchableSelect
+                            placeholder="Search Company"
+                            options={selectedTemplate?.plant_option || []}
+                            value={formik.values.employee_company}
+                            onChange={(val) => {
+                              formik.setFieldValue("plant_id", val);
+                             selectUser_Plant_id(val)
+                            }}
+                            getOptionLabel={(c) => c?.plant_name}
+                            getOptionValue={(c) => c?._id}
+                          />
+                        </div>
+
                         {fields.map((field) => {
                           const key = field._id || field.field_name;
                           return (
-                            <div key={field._id} className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                            <div
+                              key={field._id}
+                              className="rounded-lg border border-gray-200 bg-gray-50 p-4"
+                            >
                               <div className="mb-2 flex items-center gap-2">
                                 <label className="text-sm font-medium text-gray-700">
                                   {field.field_name}
                                 </label>
                                 {field.is_mandatory && (
-                                  <span className="text-xs text-red-500">*</span>
+                                  <span className="text-xs text-red-500">
+                                    *
+                                  </span>
                                 )}
                                 <span className="ml-auto text-xs text-gray-500">
-                                  {FIELD_TYPES[field.field_type] || field.field_type}
+                                  {FIELD_TYPES[field.field_type] ||
+                                    field.field_type}
                                 </span>
                               </div>
-                              {renderPreviewInput(field, !isEditMode && viewingSubmission?.status === "SUBMITTED")}
+
+                              {renderPreviewInput(
+                                field,
+                                !isEditMode &&
+                                  viewingSubmission?.status === "SUBMITTED",
+                              )}
                               {formik.touched[key] && formik.errors[key] && (
-                                <p className="text-red-500 text-xs mt-1">{formik.errors[key]}</p>
+                                <p className="text-red-500 text-xs mt-1">
+                                  {formik.errors[key]}
+                                </p>
                               )}
                             </div>
                           );
@@ -629,16 +732,24 @@ export default function AssignedTemplates() {
                     )}
                   </div>
 
-                  {isEditMode || !viewingSubmission || viewingSubmission.status === "DRAFT" ? (
+                  {isEditMode ||
+                  !viewingSubmission ||
+                  viewingSubmission.status === "DRAFT" ? (
                     <div className="mt-6 flex justify-end gap-3 border-t border-gray-200 pt-4">
                       <button
                         type="button"
                         onClick={handleSubmit}
-                        disabled={createSubmission.isPending || updateSubmission.isPending || submitSubmission.isPending}
+                        disabled={
+                          createSubmission.isPending ||
+                          updateSubmission.isPending ||
+                          submitSubmission.isPending
+                        }
                         className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
                       >
                         <Send size={18} />
-                        {submitSubmission.isPending ? "Submitting..." : "Submit"}
+                        {submitSubmission.isPending
+                          ? "Submitting..."
+                          : "Submit"}
                       </button>
                     </div>
                   ) : null}
@@ -648,6 +759,11 @@ export default function AssignedTemplates() {
           </div>
         )}
       </div>
+      <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={templates?.length === 10}
+      />
     </div>
   );
 }

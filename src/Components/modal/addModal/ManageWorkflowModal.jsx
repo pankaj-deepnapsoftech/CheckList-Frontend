@@ -15,8 +15,8 @@ const ManageWorkflowModal = ({
   const { create, update } = useWorkflow();
   
   // Fetch all release groups for dropdown
-  const { getReleaseGroup } = useReleaseGroup("", 1, 1000);
-  const releaseGroupsData = getReleaseGroup?.data || [];
+  const {  getAllReleaseGroup } = useReleaseGroup("", 1, 1000);
+  const releaseGroupsData = getAllReleaseGroup?.data || [];
   
   // Map release groups to dropdown options
   const releaseGroupOptions = releaseGroupsData.map((group) => {
@@ -164,7 +164,7 @@ const ManageWorkflowModal = ({
             className="cursor-pointer"
             onClick={() => {
               setOpenModal(false);
-              formik.resetForm();   
+              formik.resetForm();
             }}
           >
             <X size={22} className="text-gray-500 hover:text-black" />
@@ -189,9 +189,7 @@ const ManageWorkflowModal = ({
             />
 
             {formik.touched.name && formik.errors.name && (
-              <p className="text-red-500 text-sm mt-1">
-                {formik.errors.name}
-              </p>
+              <p className="text-red-500 text-sm mt-1">{formik.errors.name}</p>
             )}
           </div>
 
@@ -199,21 +197,23 @@ const ManageWorkflowModal = ({
             <label className="text-sm text-gray-700 font-medium">
               Workflow Management <span className="text-red-500">*</span>
             </label>
-            
+
             {/* Dropdown to add groups */}
             {!isView && (
               <select
                 id="workflow-group-select"
                 className="w-full border border-gray-200 rounded-lg px-3 py-2 mt-1 mb-2"
                 onChange={(e) => handleGroupSelect(e.target.value)}
-                disabled={getReleaseGroup.isLoading || availableOptions.length === 0}
+                disabled={
+                  getAllReleaseGroup.isLoading || availableOptions.length === 0
+                }
               >
                 <option value="">
-                  {getReleaseGroup.isLoading
+                  {getAllReleaseGroup.isLoading
                     ? "Loading release groups..."
                     : availableOptions.length === 0
-                    ? "All groups selected"
-                    : "Select a group to add"}
+                      ? "All groups selected"
+                      : "Select a group to add"}
                 </option>
                 {availableOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -259,7 +259,7 @@ const ManageWorkflowModal = ({
               )}
             </div>
 
-            {getReleaseGroup.isError && (
+            {getAllReleaseGroup.isError && (
               <p className="text-red-500 text-sm mt-1">
                 Error loading release groups. Please refresh the page.
               </p>
@@ -283,8 +283,8 @@ const ManageWorkflowModal = ({
               {create.isPending || update.isPending
                 ? "Saving..."
                 : editTable
-                ? "Update Workflow"
-                : "Add Workflow"}
+                  ? "Update Workflow"
+                  : "Add Workflow"}
             </button>
           )}
         </form>
