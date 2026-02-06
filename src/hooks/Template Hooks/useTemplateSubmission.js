@@ -2,21 +2,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import axiosHandler from "../../config/axiosconfig";
 
-export const useTemplateSubmission = (templateId = null, plant_id=null) => {
+export const useTemplateSubmission = (
+  templateId = null,
+  User_plant_id = null,
+) => {
   const qc = useQueryClient();
 
   const getUserSubmissions = useQuery({
-    queryKey: ["template-submissions", templateId,plant_id],
+    queryKey: ["template-submissions", templateId, User_plant_id],
     queryFn: async () => {
-       console.log(User_plant_id);
       const params = templateId ? { template_id: templateId } : {};
       const res = await axiosHandler.get(
-        `/template-submission?plant_id=${plant_id}`,
+        `/template-submission?plant_id=${User_plant_id}`,
         { params },
       );
       return res?.data?.data || [];
     },
-    enabled: true,
+    enabled: !!User_plant_id,
     refetchOnWindowFocus: false,
   });
 
