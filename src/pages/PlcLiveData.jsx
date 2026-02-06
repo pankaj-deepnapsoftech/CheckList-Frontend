@@ -9,10 +9,12 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import DowntimeCharts from "./PlcDoughnutCharts";
 import { ArrowUp, ArrowDown, Loader2, History } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
 import { useNavigate } from "react-router-dom";
+import DonutChart from "../Components/DonutChart/donutChart";
 
 function SummaryCard({ card }) {
   const isUpTrend = card.trend === "up";
@@ -165,19 +167,31 @@ function PlcMachineCard({ machine, products = [] }) {
       )}
 
       <div className="grid grid-cols-2 gap-2 text-xs mt-1">
+        {/* Model, Material Code, Part No - upar (parameters se alag) */}
+        <div className="space-y-1">
+          <p className="text-gray-500">Model</p>
+          <p className="font-medium text-gray-800">
+            {(typeof machine.product === "object" ? machine.product?.model : null) || machine?.parameters?.model || machine?.machine?.model || "—"}
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-gray-500">Material Code</p>
+          <p className="font-medium text-gray-800">
+            {(typeof machine.product === "object" ? machine.product?.material_code : null) || machine?.parameters?.material_code || "—"}
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-gray-500">Part No.</p>
+          <p className="font-medium text-gray-800">
+            {(typeof machine.product === "object" ? machine.product?.part_no : null) || machine?.parameters?.part_no || "—"}
+          </p>
+        </div>
         <div className="space-y-1">
           <p className="text-gray-500">Last Updated</p>
           <p className="font-medium text-gray-800">
             {formatDate(machine.timestamp || machine.created_at)}
           </p>
         </div>
-        {/* <div className="space-y-1">
-          <p className="text-gray-500">Production Count</p>
-          <p className="font-semibold text-gray-900">
-            {machine.production_count || 0}
-          </p>
-        </div> */}
-
         <div className="space-y-1">
           <p className="text-gray-500">Start Time</p>
           <p className="font-medium text-gray-800">
@@ -249,15 +263,15 @@ function PlcMachineCard({ machine, products = [] }) {
             </p>
           </div>
         )} */}
-        {/* Product */}
-        {machine.product && (
+        {/* Product - string (object wale upar Model/Material/Part No me dikh rahe) */}
+        {machine.product && typeof machine.product !== "object" && (
           <div className="space-y-1">
             <p className="text-gray-500">Product</p>
             <p className="font-semibold text-gray-800">{machine.product}</p>
           </div>
         )}
 
-        {/* Production Count - product ke neeche */}
+        {/* Production Count */}
         {machine.production_count !== null &&
           machine.production_count !== undefined && (
             <div className="space-y-1">
@@ -277,19 +291,21 @@ function PlcMachineCard({ machine, products = [] }) {
             <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-xs">
               {machine?.parameters &&
                 Object.keys(machine.parameters).length > 0 &&
-                Object.entries(machine.parameters).map(([key, value]) => (
-                  <div key={key} className="space-y-0.5 min-w-0">
-                    <p
-                      className="text-gray-500 break-words"
-                      title={key.replaceAll("_", " ")}
-                    >
-                      {key.replaceAll("_", " ")}
-                    </p>
-                    <p className="font-semibold text-gray-800 break-words">
-                      {value}
-                    </p>
-                  </div>
-                ))}
+                Object.entries(machine.parameters)
+                  .filter(([key]) => !["model", "material_code", "part_no", "MODEL", "MATERIAL_CODE", "PART_NO"].includes(key))
+                  .map(([key, value]) => (
+                    <div key={key} className="space-y-0.5 min-w-0">
+                      <p
+                        className="text-gray-500 break-words"
+                        title={key.replaceAll("_", " ")}
+                      >
+                        {key.replaceAll("_", " ")}
+                      </p>
+                      <p className="font-semibold text-gray-800 break-words">
+                        {typeof value === "object" && value !== null ? JSON.stringify(value) : value}
+                      </p>
+                    </div>
+                  ))}
             </div>
           </div>
         </div>
@@ -835,7 +851,9 @@ const filters = useMemo(() => {
             >
               <option value="">All Companies</option>
               {companyOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -852,7 +870,9 @@ const filters = useMemo(() => {
             >
               <option value="">All Plants</option>
               {plantOptions.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
               ))}
             </select>
           </div>
@@ -965,7 +985,7 @@ const filters = useMemo(() => {
           ))}
         </div>
 
-        
+        <DowntimeCharts />
 
         {/* Charts */}
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
@@ -1111,6 +1131,13 @@ const filters = useMemo(() => {
             </div>
           </div>
         </div>
+
+
+
+              <DonutChart/>
+
+
+
 
         {/* Stoppages Data */}
         <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">

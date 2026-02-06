@@ -5,7 +5,7 @@ import { usePlcProduct } from "../hooks/usePlcProduct";
 import { toast } from "react-toastify";
 import SearchableSelect from "../Components/SearchableDropDown/SearchableDropdown";
 import { useFormik } from "formik";
-// import useQualityCheck from "../hooks/useQualityCheck";
+import {useQualityCheck} from "../hooks/useQualityCheck";
 import Refresh from "../components/Refresh/Refresh";
 
 export default function PlcProducts() {
