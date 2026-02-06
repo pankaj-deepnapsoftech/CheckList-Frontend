@@ -28,7 +28,6 @@ import ReleaseGroups from "../TemplateMasterPages/ReleaseGroups";
 import ManageWorkflow from "../TemplateMasterPages/ManageWorkflow";
 import PlcLiveData from "../pages/PlcLiveData";
 import PlcStoppage from "../pages/PlcStoppage";
-import PlcProducts from "../pages/PlcProducts";
 import ManageDocument from "../TemplateMasterPages/ManageDocument";
 import AssignedTemplates from "../TemplateMasterPages/AssignedTemplates";
 import TemplateStatus from "../TemplateMasterPages/TemplateStatus";
@@ -36,6 +35,7 @@ import TemplateApproveReject from "../TemplateMasterPages/TemplateApproveReject"
 import TemplateModuleHistory from "../TemplateMasterPages/TemplateModuleHistory";
 import PlcDashboard from "../pages/PlcDashboard";
 import PlcHistory from "../pages/PlcHistory";
+import PlcQualityCheck from "../pages/PlcQualityCheck"
 
 
 export const AppRoute = () => {
@@ -91,13 +91,13 @@ export const AppRoute = () => {
       path: "/plc/history",
       element: withProtection(PlcHistory),
     },
-    {
-      path: "/plc-data/products",
-      element: withProtection(PlcProducts),
-    },
+    // {
+    //   path: "/plc-data/products",
+    //   element: withProtection(),
+    // },
     {
       path: "/plc-data/qc-check",
-      element: withProtection(PlcProducts),
+      element: withProtection(PlcQualityCheck),
     },
     {
       path: "/plc-data/stoppage",
