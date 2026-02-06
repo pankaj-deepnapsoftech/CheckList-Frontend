@@ -115,7 +115,7 @@ function DowntimeByCase() {
 
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(15, 23, 42, 0.96)",
+                backgroundColor: "rgba(184, 245, 236, 0.96)",
                 border: "none",
                 borderRadius: "10px",
                 color: "#f1f5f9",
@@ -197,7 +197,7 @@ function DowntimeByMachine() {
 
             <Tooltip
               contentStyle={{
-                backgroundColor: "rgba(15, 23, 42, 0.96)",
+                backgroundColor: "rgba(184, 245, 236, 0.96)",
                 border: "none",
                 borderRadius: "10px",
                 color: "#f1f5f9",

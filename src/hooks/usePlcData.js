@@ -10,7 +10,7 @@ export const usePlcData = (filters = {}, options = {},page,limit) => {
   console.log("limit",limit)
 
   const getAllPlcData = useQuery({
-    queryKey: ["plc-data", { device_id, model, status, startDate, endDate, timestampStart, timestampEnd },page,limit],
+    queryKey: ["plc-data", { device_id, model, status, startDate, endDate, timestampStart, timestampEnd, company_name, plant_name },page,limit],
     queryFn: async () => {
       const params = {};
       if (device_id) params.device_id = device_id;
