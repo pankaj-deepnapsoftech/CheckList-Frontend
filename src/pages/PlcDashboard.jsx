@@ -164,12 +164,12 @@ function PlcMachineCard({ machine, products = [] }) {
          {machine?.Stop_time === null ? "": (
         <div className="space-y-1">
           <p className="text-gray-500">Stop Time</p>
-          {machine?.stop_time === null ? (
+          {machine?.Stop_time === null ? (
             <p className="text-green-600">Running</p>
           ) : (
             <p className="font-medium text-gray-800">
               {machine.Stop_time
-                ? formatDate(machine.stop_time)
+                ? formatDate(machine.Stop_time)
                 : machine.Stop_time
                   ? formatDate(machine.Stop_time)
                   : "—"}
