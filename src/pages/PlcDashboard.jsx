@@ -160,20 +160,22 @@ function PlcMachineCard({ machine, products = [] }) {
             {formatDate(machine.start_time || machine.Start_time)}
           </p>
         </div>
+
+         {machine?.Stop_time === null ? "": (
         <div className="space-y-1">
           <p className="text-gray-500">Stop Time</p>
           {machine?.stop_time === null ? (
             <p className="text-green-600">Running</p>
           ) : (
             <p className="font-medium text-gray-800">
-              {machine.stop_time
+              {machine.Stop_time
                 ? formatDate(machine.stop_time)
                 : machine.Stop_time
                   ? formatDate(machine.Stop_time)
                   : "—"}
             </p>
           )}
-        </div>
+        </div>)}
         {/* {machine.latch_force === null ? (
           ""
         ) : (

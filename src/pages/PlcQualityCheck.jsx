@@ -98,7 +98,6 @@ export default function PlcProducts() {
     machine_name: machineFilter || undefined,
   });
 
-  console.log("this the QC data =====>>>>", getAllPlcProducts.data)
 
   const getTableData = getAllPlcProducts?.data;
 
@@ -197,7 +196,6 @@ export default function PlcProducts() {
 
   const visibleRows = qcList.slice(0, pageSize);
 
-  console.log("this is me ", visibleRows)
 
   return (
     <div className="min-h-full bg-gray-50 my-4 mt-9">
