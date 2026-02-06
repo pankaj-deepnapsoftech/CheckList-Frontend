@@ -1,113 +1,168 @@
-import React from 'react'
-
-import { Timer, TimerReset, TimerOff, LeafyGreen } from 'lucide-react'
-import { PieChart, Pie, Cell, Tooltip } from "recharts";
-
+import React from "react";
+import { Timer, TimerReset, TimerOff } from "lucide-react";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
 const DonutChart = () => {
-
-
   const data = [
-    { name: "Run Time", value: 513 },
-    { name: "Idle Time", value: 36 },
-    { name: "Off Time", value: 66 },
+    { name: "Run Time", value: 513, color: "#5fad57" },
+    { name: "Idle Time", value: 36, color: "#e6c245" },
+    { name: "Off Time", value: 66, color: "#db4d3d" },
   ];
 
-  const COLORS = ["#0abf34", "#f5b42a", "#c62828"];
+  const totalMinutes = data.reduce((sum, item) => sum + item.value, 0);
+
+
 
   return (
-    <>
+    <div className="w-full bg-gradient-to-br from-slate-50 mt-5 to-white rounded-2xl border border-slate-200 shadow-sm p-6">
+      <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 lg:gap-8">
+        {/* Left - Status Cards */}
+        <div className="w-full lg:w-auto space-y-6 min-w-[380px]">
+          {data.map((item, index) => (
+            <div
+              key={item.name}
+              className="bg-white rounded-xl border border-slate-100 shadow-sm p-4 flex items-center gap-4 transition-all hover:shadow-md hover:scale-[1.01]"
+            >
+              <div
+                className="rounded-full p-3"
+                style={{ backgroundColor: `${item.color}15` }}
+              >
+                {index === 0 && (
+                  <Timer size={32} strokeWidth={2.5} color={item.color} />
+                )}
+                {index === 1 && (
+                  <TimerReset size={32} strokeWidth={2.5} color={item.color} />
+                )}
+                {index === 2 && (
+                  <TimerOff size={32} strokeWidth={2.5} color={item.color} />
+                )}
+              </div>
 
-      <div className='flex w-full mt-5 gap-x-5 justify-between '>
-        <div className='mx-auto items-center  justify-between  '>
-          <div className='flex-col space-y-3 '>
-            <div className='bg-white  flex items-center gap-x-4 p-2 rounded-lg'>
-              <div><Timer size={48} strokeWidth={3} color="#0abf34" /></div>
-              <div className='flex-col text-sm text-gray-500'>
-                <div className='font-semibold'>Run</div>
-                <div className='font-semibold'>Time</div>
+              <div className="flex-1">
+                <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                  {item.name}
+                </div>
+                <div
+                  className="text-2xl font-bold mt-0.5"
+                  style={{ color: item.color }}
+                >
+                  {item.value} min
+                </div>
               </div>
-              <div className='text-[#0abf34] font-bold text-3xl'>513 minutes</div>
-            </div>
-            <div className='bg-white flex items-center gap-x-4 p-2 rounded-lg'>
-              <div><TimerReset size={48} strokeWidth={3} color="#F9A825" /></div>
-              <div className='flex-col text-sm text-gray-500'>
-                <div className='font-semibold'>Idle</div>
-                <div className='font-semibold'>Time</div>
+
+              <div className="text-right">
+                <div className="text-xs text-slate-400">
+                  {((item.value / totalMinutes) * 100).toFixed(0)}%
+                </div>
               </div>
-              <div className='text-[#F9A825] font-bold text-3xl'>66 minutes</div>
             </div>
-            <div className='bg-white flex items-center gap-x-4 p-2 rounded-lg'>
-              <div><TimerOff size={48} strokeWidth={3} color="#e0282f" /></div>
-              <div className='flex-col text-sm text-gray-500'>
-                <div className='font-semibold'>Off</div>
-                <div className='font-semibold'>Time</div>
-              </div>
-              <div className='text-[#e0282f] font-bold text-3xl'>66 minutes</div>
-            </div>
-          </div>
+          ))}
         </div>
-        <div className='mx-auto'>
-          <div className='bg-white flex-col text-center px-20'>
-            <div><PieChart width={250} height={250}>
+
+        {/* Center - Donut Chart */}
+        <div className="w-full max-w-[360px] aspect-square relative">
+          <ResponsiveContainer width="100%" height="80%">
+            <PieChart>
               <Pie
                 data={data}
                 cx="50%"
                 cy="50%"
-                innerRadius={70}
-                outerRadius={90}
+                innerRadius="75%"
+                outerRadius="92%"
+                paddingAngle={4}
+                cornerRadius={8}
                 dataKey="value"
                 startAngle={90}
                 endAngle={-270}
-                cornerRadius={10}  
-                paddingAngle={3}
               >
-                <text x="50%" y="45%" textAnchor="middle" fontSize={14} fill='gray'>
-                  Total
-                </text>
-                <text x="50%" y="55%" textAnchor="middle" fontSize={24} fontWeight="bold">
-                  615
-                </text>
-                {data.map((_, index) => (
-                  <Cell key={index} fill={COLORS[index]} />
+                {data.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.color}
+                    stroke="#fff"
+                    strokeWidth={2}
+                  />
                 ))}
               </Pie>
-            </PieChart></div>
 
-            <div>
-              <div className='flex gap-x-3'>
-                <div className='flex-col text-center'>
-                  <div className='flex items-center'>
-                    <p className='w-2 h-2 mx-2 bg-[#0abf34] rounded-full'></p>
-                    <p className='text-xs text-gray-500'>Run Time</p>
+              {/* Center content */}
+              <text
+                x="50%"
+                y="45%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                className="text-xs font-medium fill-slate-500"
+              >
+                Total Time
+              </text>
+              <text
+                x="50%"
+                y="55%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                className="text-2xl font-bold fill-slate-800"
+              >
+                {totalMinutes}
+              </text>
+              <text
+                x="50%"
+                y="62%"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                className="text-sm font-medium fill-slate-500"
+              >
+                minutes
+              </text>
+            </PieChart>
+          </ResponsiveContainer>
+
+          {/* Floating legend below chart */}
+          <div className="absolute mt-2 left-0 right-0 flex justify-center gap-6">
+            {data.map((item) => (
+              <div key={item.name} className="flex items-center gap-2">
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-xs font-medium text-slate-600">
+                  {item.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right - Percentage breakdown (optional elegant style) */}
+        {/* <div className="w-full lg:w-auto hidden lg:block">
+          <div className="space-y-5">
+            {data.map((item) => (
+              <div key={item.name} className="flex items-center gap-4">
+                <div
+                  className="w-4 h-4 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: item.color }}
+                />
+                <div className="flex-1">
+                  <div className="text-sm font-medium text-slate-700">
+                    {item.name}
                   </div>
-                  <div className='font-semibold'>33</div>
+                  <div className="text-xs text-slate-500">
+                    {item.value} min •{" "}
+                    {((item.value / totalMinutes) * 100).toFixed(1)}%
+                  </div>
                 </div>
-                <div className='flex-col text-center'>
-                  <div className='flex items-center'>
-                    <p className='w-2 h-2 mx-2 bg-[#f5b42a] rounded-full'></p>
-                    <p className='text-xs text-gray-500'>Run Time</p>
-                  </div>
-                  <div className='font-semibold'>33</div>
-                </div>
-                <div className='flex-col text-center'>
-                  <div className='flex items-center'>
-                    <p className='w-2 h-2 mx-2 bg-[#c62828] rounded-full'></p>
-                  <p className='text-xs text-gray-500'>Off Time</p>
-                  </div>
-                  <div className='font-semibold'>33</div>
+                <div
+                  className="text-right text-sm font-semibold"
+                  style={{ color: item.color }}
+                >
+                  {((item.value / totalMinutes) * 100).toFixed(0)}%
                 </div>
               </div>
-            </div>
-
-
+            ))}
           </div>
-
-        </div>
+        </div> */}
       </div>
+    </div>
+  );
+};
 
-    </>
-  )
-}
-
-export default DonutChart
+export default DonutChart;
