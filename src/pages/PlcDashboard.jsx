@@ -55,24 +55,7 @@ function PlcMachineCard({ machine, products = [] }) {
           <h3 className="text-lg font-semibold text-gray-800">
             {machine.device_id || "N/A"}
           </h3>
-          {/* {console.log("this ois my machine======>>>>>", machine.machine.model)} */}
-          <p className="text-xs text-gray-500 mt-0.5">
-            Company: {machine.companyname || "N/A"}
-          </p>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Plant: <div>{machine.plantname || "N/A"}</div>
-          </p>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Model: {machine.machine.model || "N/A"}
-          </p>
-          <p className="text-xs text-gray-500 mt-0.5">
-            Assembly Line: <div>{machine.linenumber || "N/A"}</div>
-          </p>
-          {machine.alarm && (
-            <p className="text-xs text-rose-600 mt-1 font-semibold">
-              Alarm: {machine.alarm}
-            </p>
-          )}
+          
         </div>
         <span
           onClick={() =>
@@ -95,6 +78,26 @@ function PlcMachineCard({ machine, products = [] }) {
           )}
           {statusVal}
         </span>
+      </div>
+      <div className="space-y-1 flex-col">
+        {/* {console.log("this ois my machine======>>>>>", machine.machine.model)} */}
+          <div className="text-xs text-gray-500 mt-0.5">
+            Company: {machine.companyname || "N/A"}
+          </div>
+          <div className="text-xs text-gray-500 mt-0.5">
+            Plant: {machine.plantname || "N/A"}
+          </div>
+          <div className="text-xs text-gray-500 mt-0.5">
+            Model: {machine.machine.model || "N/A"}
+          </div>
+          <div className="text-xs text-gray-500 mt-0.5">
+            Assembly Line: {machine.linenumber || "N/A"}
+          </div>
+          {machine.alarm && (
+            <p className="text-xs text-rose-600 mt-1 font-semibold">
+              Alarm: {machine.alarm}
+            </p>
+          )}
       </div>
 
       {/* Product fields (MATERIAL_CODE, PART_NO, MODEL_CODE) for this machine */}

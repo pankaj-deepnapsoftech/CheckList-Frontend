@@ -10,7 +10,8 @@ const SearchableSelect = ({
   disabled = false,
   error,
   getOptionLabel,
-  getOptionValue
+  getOptionValue,
+  name
 }) => {
   const [searchText, setSearchText] = useState("");
   const [open, setOpen] = useState(false);
@@ -55,7 +56,7 @@ const SearchableSelect = ({
     <div className="relative w-full" ref={wrapperRef}>
      
       <div
-        className={`flex items-center w-full px-4 py-3 border rounded-lg cursor-pointer ${
+        className={`flex items-center w-full px-2.5 py-1.5 border rounded-lg cursor-pointer ${
           disabled
             ? "bg-gray-100 cursor-not-allowed"
             : "bg-white hover:border-blue-400"
@@ -65,6 +66,7 @@ const SearchableSelect = ({
         <input
           type="text"
           placeholder={placeholder}
+          name={name}
           value={searchText}
           disabled={disabled}
           onChange={(e) => {
