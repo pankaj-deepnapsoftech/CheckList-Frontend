@@ -295,9 +295,10 @@ export default function PlcStoppage() {
                       <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
                         {formatDurationHoursMinutes(s.stoppedGapMinutes)}
                       </td>
-                      <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
+                      {console.log("hello buddy", s)}
+                      {/* <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
                         {s.reason}
-                      </td>
+                      </td> */}
                       <td className="whitespace-nowrap px-4 py-2 text-xs">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${

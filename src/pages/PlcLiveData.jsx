@@ -351,6 +351,8 @@ function formatDurationHoursMinutes(totalMinutes) {
   return `${hours}h ${mins} min`;
 }
 
+
+
 export default function PlcLiveData() {
   const navigate = useNavigate();
   const [selectedDevice, setSelectedDevice] = useState("");
@@ -524,38 +526,78 @@ const filters = useMemo(() => {
     };
   }, [plcDataList]);
 
-  const stoppages = useMemo(() => {
-     
-      return plcDataList
-        .filter((row) => row.Start_time || row.Stop_time)
-        .map((row) => {
-          const start = row.Start_time || row.timestamp || row.Start_time;
-          
-          const stop =row.Stop_time ?? null;
-          const isRunning = !stop && start;
-          const mins = isRunning ? null : durationMinutes(start, stop);
-          return {
-            id: row._id,
-            machine: row.model || row.device_id || "—",
-            company:row.companyname,
-            code: row.device_id || "—",
-            startTime: formatDateTime(start),
-            stopTime: isRunning ? "—" : formatDateTime(stop),
-            durationMinutes: mins,
-            reason: row.reason || "—",
-            status: isRunning ? "Running" : "Recorded"
-          };
-        })
-        .sort((a, b) => {
-          const da = plcDataList.find((r) => r._id === a.id);
-          const db = plcDataList.find((r) => r._id === b.id);
-          const tA = (da?.start_time || da?.timestamp || "").toString();
-          const tB = (db?.start_time || db?.timestamp || "").toString();
-          return tB.localeCompare(tA);
-        });
-    }, [plcDataList]);
+const stoppages = useMemo(() => {
+  // 1. Prepare valid records with raw timestamps
+  const validRecords = plcDataList
+    .filter((row) => row.Start_time || row.Stop_time)
+    .map((row) => {
+      const startStr = row.Start_time || row.timestamp;
+      const stopStr = row.Stop_time;
 
-    const SlicedStoppages = stoppages.slice(0,4)
+      return {
+        ...row,
+        _rawStart: startStr ? new Date(startStr).getTime() : 0,
+        _rawStop: stopStr ? new Date(stopStr).getTime() : null,
+      };
+    });
+
+  // 2. Group by device
+  const groupedByDevice = {};
+  validRecords.forEach((record) => {
+    const devId = record.device_id || "unknown";
+    if (!groupedByDevice[devId]) groupedByDevice[devId] = [];
+    groupedByDevice[devId].push(record);
+  });
+
+  const processed = [];
+
+  // 3. Process each device group
+  Object.values(groupedByDevice).forEach((group) => {
+    // Sort by start time (ascending)
+    group.sort((a, b) => a._rawStart - b._rawStart);
+
+    group.forEach((row, index) => {
+      // 4. Calculate stopped gap minutes
+      let stoppedGapMinutes = null;
+
+      if (index > 0) {
+        const prev = group[index - 1];
+        if (prev._rawStop && row._rawStart) {
+          const diff = row._rawStart - prev._rawStop;
+          if (diff > 0) {
+            stoppedGapMinutes = Math.round(diff / 60000);
+          }
+        }
+      }
+
+      const start = row.Start_time || row.timestamp;
+      const stop = row.Stop_time ?? null;
+      const isRunning = !stop && start;
+      const mins = isRunning ? null : durationMinutes(start, stop);
+
+      processed.push({
+        id: row._id,
+        machine: row.model || row.device_id || "—",
+        company: row.companyname,
+        code: row.device_id || "—",
+        startTime: formatDateTime(start),
+        stopTime: isRunning ? "—" : formatDateTime(stop),
+        durationMinutes: mins,
+        stoppedGapMinutes, // ✅ NEW FIELD
+        reason: row.reason || "—",
+        status: isRunning ? "Running" : "Recorded",
+        _sortTime: row._rawStart,
+      });
+    });
+  });
+
+  // 5. Sort latest first (dashboard-friendly)
+  return processed.sort((a, b) => b._sortTime - a._sortTime);
+}, [plcDataList]);
+
+// Dashboard slice
+const SlicedStoppages = stoppages.slice(0, 4);
+
 
   // Get latest record per device
   const latestPerDevice = useMemo(() => {
@@ -1139,7 +1181,7 @@ const filters = useMemo(() => {
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
             <div>
               <h2 className="text-sm font-semibold text-gray-800">
-                Stoppage Details (Today)
+                Stoppage Details (Latest)
               </h2>
               <p className="text-xs text-gray-500">
                 Machine name, start / stop time and stoppage duration.
@@ -1170,8 +1212,11 @@ const filters = useMemo(() => {
                     Duration
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Reason
+                    Stopped Duration
                   </th>
+                  {/* <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                    Reason
+                  </th> */}
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
                     Status
                   </th>
@@ -1193,9 +1238,13 @@ const filters = useMemo(() => {
                     <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
                       {formatDurationHoursMinutes(s.durationMinutes)}
                     </td>
-                    <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
-                      {s.reason}
+                    <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
+                      {formatDurationHoursMinutes(s.stoppedGapMinutes)}
                     </td>
+                    {console.log("this is my s", s)}
+                    {/* <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
+                      {s.reason}
+                    </td> */}
                     <td className="whitespace-nowrap px-4 py-2 text-xs">
                       <span
                         className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
