@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircle2, XCircle, Eye, Search, X, Pencil, UserPlus } from "lucide-react";
+import {
+  CheckCircle2,
+  XCircle,
+  Eye,
+  Search,
+  X,
+  Pencil,
+  UserPlus,
+} from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { RegisterEmployee } from "../hooks/useRegisterEmployee";
 import { useTemplateSubmission } from "../hooks/Template Hooks/useTemplateSubmission";
@@ -33,6 +41,8 @@ export default function TemplateApproveReject() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editTemplate, setEditTemplate] = useState(null);
   const [editFormData, setEditFormData] = useState({});
+  const [openFillModal, setOpenFillModal] = useState(false);
+  console.log(approvalTemplate);
   const assignedTemplates =
     getAllAssignedTemp?.data?.flatMap(
       (user) =>
@@ -49,10 +59,8 @@ export default function TemplateApproveReject() {
 
   // Backend already returns only templates where current approver is logged-in user (handles reassign).
   const filteredTemplates = assignedTemplates.filter((t) =>
-    t?.template_name?.toLowerCase().includes(searchText.toLowerCase())
+    t?.template_name?.toLowerCase().includes(searchText.toLowerCase()),
   );
-
-
 
   const formik = useFormik({
     initialValues: {
@@ -82,7 +90,10 @@ export default function TemplateApproveReject() {
   useEffect(() => {
     if (approvalTemplate) {
       formik.setValues({
-        current_stage: approvalTemplate?.current_approver_stage ?? approvalTemplate?.approvals?.length ?? 0,
+        current_stage:
+          approvalTemplate?.current_approver_stage ??
+          approvalTemplate?.approvals?.length ??
+          0,
         reassign_stage: null,
         workflow_id: approvalTemplate?.workflow?.workflow_id || "",
         status: "approved",
@@ -97,7 +108,10 @@ export default function TemplateApproveReject() {
   useEffect(() => {
     if (rejectionTemplate) {
       formik.setValues({
-        current_stage: rejectionTemplate?.current_approver_stage ?? rejectionTemplate?.approvals?.length ?? 0,
+        current_stage:
+          rejectionTemplate?.current_approver_stage ??
+          rejectionTemplate?.approvals?.length ??
+          0,
         reassign_stage: null,
         workflow_id: rejectionTemplate?.workflow?.workflow_id || "",
         status: "rejected",
@@ -112,7 +126,10 @@ export default function TemplateApproveReject() {
   useEffect(() => {
     if (reassignTemplate) {
       formik.setValues({
-        current_stage: reassignTemplate?.current_approver_stage ?? reassignTemplate?.approvals?.length ?? 0,
+        current_stage:
+          reassignTemplate?.current_approver_stage ??
+          reassignTemplate?.approvals?.length ??
+          0,
         reassign_stage: null,
         workflow_id: reassignTemplate?.workflow?.workflow_id || "",
         status: "reassigned",
@@ -208,13 +225,59 @@ export default function TemplateApproveReject() {
                       form_data: editFormData,
                     },
                   }
-                : null
+                : null,
             );
           }
         },
-      }
+      },
     );
   };
+
+  const fields =
+    approvalTemplate?.workflow?.workflow.flatMap(
+      (item) => item?.fields || [],
+    ) || [];
+
+  console.log(fields);
+  const initialValues = fields?.reduce((acc, field) => {
+    acc[field._id] = field.field_name;
+    return acc;
+  }, {});
+
+  const formikForForm = useFormik({
+    initialValues,
+    onSubmit: (values) => {
+     
+      const previousFormData = approvalTemplate?.submission?.prev || {};
+
+    
+      const newFormData = {};
+      Object.keys(values).forEach((fieldId) => {
+        const field = fields.find((f) => f._id === fieldId);
+        if (field) {
+          newFormData[field._id] = values[fieldId];
+        }
+      });
+
+   
+      const payload = {
+        ...previousFormData,
+        ...newFormData,
+      };
+
+      
+
+      updateSubmission.mutate({
+        id: approvalTemplate?.submission?.submission_id,
+        payload: payload,
+      },{
+        onSuccess:()=>{
+         setOpenFillModal(false);
+         formikForForm.resetForm()
+        }
+      });
+    },
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
@@ -252,9 +315,22 @@ export default function TemplateApproveReject() {
               className="group rounded-2xl border border-gray-100 bg-white p-6 shadow-sm
                        transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
-              <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition">
-                {template?.template_name}
-              </h3>
+              <div className="flex justify-between">
+                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition">
+                  {template?.template_name}
+                </h3>
+                <button
+                  onClick={() => {
+                    setOpenFillModal(true);
+                    setApprovalTemplate(template);
+                  }}
+                  className="  rounded-xl border bg-amber-400  cursor-pointer
+                           text-white py-2.5 px-2 text-sm font-medium 
+                           hover:bg-amber-300"
+                >
+                  Fill Form
+                </button>
+              </div>
 
               <div className="mt-2 mb-3 space-y-1">
                 <p className="text-sm text-gray-700">
@@ -438,12 +514,24 @@ export default function TemplateApproveReject() {
                       <table className="min-w-full text-sm">
                         <thead className="bg-gray-50 border-b border-gray-200">
                           <tr>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Date</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Stage</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Action</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">By</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Reassign Status</th>
-                            <th className="px-4 py-3 text-left font-semibold text-gray-700">Remarks</th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                              Date
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                              Stage
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                              Action
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                              By
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                              Reassign Status
+                            </th>
+                            <th className="px-4 py-3 text-left font-semibold text-gray-700">
+                              Remarks
+                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -452,10 +540,11 @@ export default function TemplateApproveReject() {
                               (a.status || "").toLowerCase() === "reassigned"
                                 ? `Reassigned to ${a.reassign_to_name || a.reassign_user_id || "—"}`
                                 : (a.status || "").toLowerCase() === "rejected"
-                                ? "Rejected"
-                                : (a.status || "").toLowerCase() === "approved"
-                                ? "Approved"
-                                : a.status || "—";
+                                  ? "Rejected"
+                                  : (a.status || "").toLowerCase() ===
+                                      "approved"
+                                    ? "Approved"
+                                    : a.status || "—";
                             const reassignStatusLabel =
                               a.status === "reassigned"
                                 ? a.reassign_status
@@ -463,31 +552,43 @@ export default function TemplateApproveReject() {
                                   : "Pending"
                                 : "—";
                             return (
-                              <tr key={a.approval_id || idx} className="hover:bg-gray-50/50">
+                              <tr
+                                key={a.approval_id || idx}
+                                className="hover:bg-gray-50/50"
+                              >
                                 <td className="px-4 py-2 text-gray-700">
                                   {a.approved_at
                                     ? new Date(a.approved_at).toLocaleString()
                                     : "—"}
                                 </td>
-                                <td className="px-4 py-2 text-gray-700">{a.current_stage ?? "—"}</td>
+                                <td className="px-4 py-2 text-gray-700">
+                                  {a.current_stage ?? "—"}
+                                </td>
                                 <td className="px-4 py-2">
                                   <span
                                     className={
                                       a.status === "approved"
                                         ? "text-green-600 font-medium"
                                         : a.status === "rejected"
-                                        ? "text-red-600 font-medium"
-                                        : a.status === "reassigned"
-                                        ? "text-violet-600 font-medium"
-                                        : "text-gray-700"
+                                          ? "text-red-600 font-medium"
+                                          : a.status === "reassigned"
+                                            ? "text-violet-600 font-medium"
+                                            : "text-gray-700"
                                     }
                                   >
                                     {actionLabel}
                                   </span>
                                 </td>
-                                <td className="px-4 py-2 text-gray-700">{a.approved_by_name || "—"}</td>
-                                <td className="px-4 py-2 text-gray-600">{reassignStatusLabel}</td>
-                                <td className="px-4 py-2 text-gray-600 max-w-[200px] truncate" title={a.remarks}>
+                                <td className="px-4 py-2 text-gray-700">
+                                  {a.approved_by_name || "—"}
+                                </td>
+                                <td className="px-4 py-2 text-gray-600">
+                                  {reassignStatusLabel}
+                                </td>
+                                <td
+                                  className="px-4 py-2 text-gray-600 max-w-[200px] truncate"
+                                  title={a.remarks}
+                                >
                                   {a.remarks || "—"}
                                 </td>
                               </tr>
@@ -497,7 +598,9 @@ export default function TemplateApproveReject() {
                       </table>
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500 italic">No approval history yet.</p>
+                    <p className="text-sm text-gray-500 italic">
+                      No approval history yet.
+                    </p>
                   )}
                 </div>
 
@@ -592,6 +695,75 @@ export default function TemplateApproveReject() {
                   <button
                     type="submit"
                     className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                  >
+                    Submit
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+        {openFillModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
+              <h2 className="text-xl font-semibold text-green-600 mb-4">
+                Approval Remarks
+              </h2>
+
+              <form onSubmit={formikForForm.handleSubmit}>
+                {fields.map((field) => (
+                  <div className="mb-6" key={field._id}>
+                    <label className="block text-sm font-medium text-gray-600 mb-2">
+                      {field.field_name}
+                      {field.is_mandatory && (
+                        <span className="text-red-500"> *</span>
+                      )}
+                    </label>
+
+                    {field.field_type === "NUMBER" && (
+                      <input
+                        type="number"
+                        name={field._id}
+                        value={formikForForm.values[field._id]}
+                        onChange={formikForForm.handleChange}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                      />
+                    )}
+
+                    {field.field_type === "TEXT" && (
+                      <input
+                        type="text"
+                        name={field._id}
+                        value={formikForForm.values[field._id]}
+                        onChange={formikForForm.handleChange}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                      />
+                    )}
+
+                    {field.field_type === "TEXTAREA" && (
+                      <textarea
+                        name={field._id}
+                        value={formikForForm.values[field._id]}
+                        onChange={formikForForm.handleChange}
+                        rows={4}
+                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                      />
+                    )}
+                  </div>
+                ))}
+
+                <div className="flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setOpenFillModal(false)}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white"
                   >
                     Submit
                   </button>
@@ -726,7 +898,9 @@ export default function TemplateApproveReject() {
               </div>
               <div className="space-y-4">
                 {Object.keys(editFormData).length === 0 ? (
-                  <p className="text-sm text-gray-500">No form fields to edit.</p>
+                  <p className="text-sm text-gray-500">
+                    No form fields to edit.
+                  </p>
                 ) : (
                   Object.entries(editFormData).map(([key, value]) => (
                     <div key={key} className="space-y-1">
@@ -736,7 +910,9 @@ export default function TemplateApproveReject() {
                       <input
                         type="text"
                         value={value ?? ""}
-                        onChange={(e) => handleEditFieldChange(key, e.target.value)}
+                        onChange={(e) =>
+                          handleEditFieldChange(key, e.target.value)
+                        }
                         className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                       />
                     </div>

@@ -114,6 +114,7 @@ export default function PlcStoppage() {
         result.push({
           id: row._id,
           machine: row.model || row.device_id || "—",
+          company:row.companyname,
           code: row.device_id || "—",
           startTime: formatDateTime(start),
           stopTime: isRunning ? "—" : formatDateTime(stop),
@@ -218,6 +219,7 @@ export default function PlcStoppage() {
     // Sort descending by start time for display
     return result.sort((a, b) => b._sortTime - a._sortTime);
   }, [plcList]);
+  
 
   const totalStoppages = stoppages.length;
   const completedStoppages = useMemo(
@@ -388,7 +390,7 @@ export default function PlcStoppage() {
                   {stoppages.map((s) => (
                     <tr key={s.id} className="hover:bg-gray-50">
                       <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
-                        <div className="font-semibold">{s.machine}</div>
+                        <div className="font-semibold">{s.company}</div>
                         <div className="text-[11px] text-gray-500">{s.code}</div>
                       </td>
                       <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
@@ -408,7 +410,7 @@ export default function PlcStoppage() {
                       </td>
                       <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
                         {s.reason}
-                      </td>
+                      </td> 
                       <td className="whitespace-nowrap px-4 py-2 text-xs">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${

@@ -1,14 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosHandler from "../../config/axiosconfig";
 
-export const useAssignedTemplates = () => {
+export const useAssignedTemplates = (page) => {
   const assignedTemplatesQuery = useQuery({
-    queryKey: ["assigned-templates"],
+    queryKey: ["assigned-templates",page],
     queryFn: async () => {
       try {
-        console.log("Fetching assigned templates...");
-        const res = await axiosHandler.get("/template-master/assigned-templates");
-        console.log("Assigned templates response:", res?.data);
+      
+        const res = await axiosHandler.get("/template-master/assigned-templates",{
+          params:{
+            page:page,
+            limit:10
+          }
+        });
+       
         return res?.data?.data || [];
       } catch (error) {
         console.error("Error fetching assigned templates:", error);

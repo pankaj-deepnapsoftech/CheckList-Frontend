@@ -32,7 +32,6 @@ export default function UserDashboard() {
   const user = logedinUser?.data;
   const permissions = user?.userRole?.permissions || [];
 
-  // Assembly‑related permissions (all assembly modules from sidebar)
   const assemblyPaths = [
     "/assembly-line",
     "/assigned-assembly-lines",
@@ -41,28 +40,10 @@ export default function UserDashboard() {
     "/assembly-line/error",
   ];
 
-  // Only if user has at least one assembly module permission, we show assembly data
   const canSeeAssembly = permissions.some((p) => assemblyPaths.includes(p));
-
-  if (!canSeeAssembly) {
-    return (
-      <div className="min-h-screen bg-gray-50 p-6 space-y-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-800">
-            User Dashboard
-          </h1>
-          <p className="text-sm text-gray-500">No data Found.</p>
-        </div>
-      </div>
-    );
-  }
-  // Cards data (scoped to this user by backend)
-  const { data: cardData, isLoading: cardsLoading } = useDashboardCards();
-
-  // Monthly inspection trend (user assemblies only)
   const { data: monthlyTrendData = [], isLoading: trendLoading } =
     useMonthlyInspectionTrend();
-
+  const { data: inspectionOverview } = useInspectionOverview();
   // Assembly status list (today, user assemblies)
   const inspectionStatus = useAssemblyStatus();
   const inspectionData = inspectionStatus?.data || [];
@@ -71,8 +52,16 @@ export default function UserDashboard() {
   const { getAssemblyCardsData } = useCheckItemHistory();
   const statusSummary = getAssemblyCardsData?.data || {};
 
+  if (!canSeeAssembly) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-6 space-y-6">
+        <h1 className="text-2xl font-semibold text-gray-800">User Dashboard</h1>
+        <p className="text-sm text-gray-500">No data found.</p>
+      </div>
+    );
+  }
+
   // Inspection overview (error assemblies, resolved/open)
-  const { data: inspectionOverview } = useInspectionOverview();
 
   const openErrors =
     inspectionOverview?.summary?.stillErrorAssemblies ||
@@ -83,7 +72,7 @@ export default function UserDashboard() {
     statusSummary.total_resolved ||
     0;
   // KPI cards for user
-  console.log(statusSummary)
+  console.log(statusSummary);
 
   const stats = [
     {
@@ -118,30 +107,46 @@ export default function UserDashboard() {
 
   // Trend chart uses monthlyTrendData (month name + checked/error)
   // Ensure we always have data - if monthlyTrendData is empty/undefined, create default 12 months
-  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const MONTHS = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
   const currentMonthIndex = new Date().getMonth(); // 0-11
-  
-  const safeMonthlyData = Array.isArray(monthlyTrendData) && monthlyTrendData.length > 0
-    ? monthlyTrendData
-    : MONTHS.map((month) => ({
-        month,
-        checked: 0,
-        unchecked: 0,
-        error: 0,
-      }));
+
+  const safeMonthlyData =
+    Array.isArray(monthlyTrendData) && monthlyTrendData.length > 0
+      ? monthlyTrendData
+      : MONTHS.map((month) => ({
+          month,
+          checked: 0,
+          unchecked: 0,
+          error: 0,
+        }));
 
   // Merge current month's data from statusSummary (more up-to-date than monthly trend)
   const trendData = safeMonthlyData.map((m, index) => {
     const isCurrentMonth = index === currentMonthIndex;
-    
+
     return {
       month: m.month || "",
-      checked: isCurrentMonth && statusSummary?.total_checked !== undefined
-        ? statusSummary.total_checked
-        : (m.checked || 0),
-      error: isCurrentMonth && statusSummary?.total_errors !== undefined
-        ? statusSummary.total_errors
-        : (m.error || 0),
+      checked:
+        isCurrentMonth && statusSummary?.total_checked !== undefined
+          ? statusSummary.total_checked
+          : m.checked || 0,
+      error:
+        isCurrentMonth && statusSummary?.total_errors !== undefined
+          ? statusSummary.total_errors
+          : m.error || 0,
     };
   });
 
@@ -161,7 +166,7 @@ export default function UserDashboard() {
       assembly_name: a.assembly_name || a.assembly_name || "-",
       method: a.part?.part_name || "N/A",
       time: new Date(
-        a.updatedAt || a.createdAt || new Date()
+        a.updatedAt || a.createdAt || new Date(),
       ).toLocaleTimeString(),
       status,
     };
@@ -216,19 +221,42 @@ export default function UserDashboard() {
             <ResponsiveContainer width="100%" height={300}>
               <AreaChart data={trendData}>
                 <defs>
-                  <linearGradient id="checkedGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="checkedGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop offset="0%" stopColor="#22c55e" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="#22c55e" stopOpacity={0.05} />
+                    <stop
+                      offset="100%"
+                      stopColor="#22c55e"
+                      stopOpacity={0.05}
+                    />
                   </linearGradient>
 
-                  <linearGradient id="errorGradient" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient
+                    id="errorGradient"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
                     <stop offset="0%" stopColor="#ef4444" stopOpacity={0.35} />
-                    <stop offset="100%" stopColor="#ef4444" stopOpacity={0.05} />
+                    <stop
+                      offset="100%"
+                      stopColor="#ef4444"
+                      stopOpacity={0.05}
+                    />
                   </linearGradient>
                 </defs>
 
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                <XAxis dataKey="month" tick={{ fill: "#6b7280", fontSize: 12 }} />
+                <XAxis
+                  dataKey="month"
+                  tick={{ fill: "#6b7280", fontSize: 12 }}
+                />
                 <YAxis tick={{ fill: "#6b7280", fontSize: 12 }} />
                 <Tooltip
                   contentStyle={{
@@ -328,8 +356,8 @@ export default function UserDashboard() {
                           item.status === "Checked"
                             ? "bg-green-100 text-green-700"
                             : item.status === "Unchecked"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-red-100 text-red-700"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-red-100 text-red-700"
                         }`}
                     >
                       {item.status}

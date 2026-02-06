@@ -6,15 +6,22 @@ export const useTemplateMaster = (
   selectedTemplateId,
   workflowStatusTemplateId,
   workflowStatusAssignedUserId,
-  statusListParams = {}
+  statusListParams = {},
+  paginatio = {}
 ) => {
   const qc = useQueryClient();
   const { page = 1, search = "", status = "" } = statusListParams;
-
+  const { pageData, limitData } = paginatio;
   const templatesQuery = useQuery({
-    queryKey: ["template-master", "templates"],
+    queryKey: ["template-master", "templates", pageData, limitData],
     queryFn: async () => {
-      const res = await axiosHandler.get("/template-master/templates");
+    
+      const res = await axiosHandler.get("/template-master/templates", {
+        params: {
+          page: pageData,
+          limit: limitData,
+        },
+      });
       return res?.data?.data || [];
     },
   });
@@ -27,7 +34,9 @@ export const useTemplateMaster = (
       params.set("limit", "10");
       if (search) params.set("search", search);
       if (status) params.set("status", status);
-      const res = await axiosHandler.get(`/template-master/template-status?${params.toString()}`);
+      const res = await axiosHandler.get(
+        `/template-master/template-status?${params.toString()}`,
+      );
       return res?.data?.data || { data: [], pagination: {} };
     },
   });
@@ -36,7 +45,9 @@ export const useTemplateMaster = (
     queryKey: ["template-master", "template", selectedTemplateId],
     enabled: Boolean(selectedTemplateId),
     queryFn: async () => {
-      const res = await axiosHandler.get(`/template-master/templates/${selectedTemplateId}`);
+      const res = await axiosHandler.get(
+        `/template-master/templates/${selectedTemplateId}`,
+      );
       return res?.data?.data;
     },
   });
@@ -51,7 +62,8 @@ export const useTemplateMaster = (
     enabled: Boolean(workflowStatusTemplateId),
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (workflowStatusAssignedUserId) params.set("assigned_user_id", workflowStatusAssignedUserId);
+      if (workflowStatusAssignedUserId)
+        params.set("assigned_user_id", workflowStatusAssignedUserId);
       const qs = params.toString();
       const url = `/template-master/templates/${workflowStatusTemplateId}/workflow-status${qs ? `?${qs}` : ""}`;
       const res = await axiosHandler.get(url);
@@ -61,7 +73,10 @@ export const useTemplateMaster = (
 
   const createTemplate = useMutation({
     mutationFn: async (payload) => {
-      const res = await axiosHandler.post("/template-master/templates", payload);
+      const res = await axiosHandler.post(
+        "/template-master/templates",
+        payload,
+      );
       return res?.data;
     },
     onSuccess: (data) => {
@@ -69,21 +84,30 @@ export const useTemplateMaster = (
       qc.invalidateQueries({ queryKey: ["template-master", "templates"] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to create template");
+      toast.error(
+        error?.response?.data?.message || "Failed to create template",
+      );
     },
   });
 
   const addField = useMutation({
     mutationFn: async ({ templateId, payload }) => {
-      const res = await axiosHandler.post(`/template-master/templates/${templateId}/fields`, payload);
+      const res = await axiosHandler.post(
+        `/template-master/templates/${templateId}/fields`,
+        payload,
+      );
       return res?.data;
     },
     onSuccess: (data, variables) => {
-     
-      qc.invalidateQueries({ queryKey: ["template-master", "template", variables.templateId] });
+      qc.invalidateQueries({
+        queryKey: ["template-master", "template", variables.templateId],
+      });
     },
     onError: (error) => {
-      const errorMessage = error?.response?.data?.message || error?.message || "Failed to add field";
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to add field";
       console.error("Add Field Error:", error?.response?.data || error);
       toast.error(errorMessage);
     },
@@ -91,12 +115,17 @@ export const useTemplateMaster = (
 
   const updateField = useMutation({
     mutationFn: async ({ fieldId, payload }) => {
-      const res = await axiosHandler.put(`/template-master/fields/${fieldId}`, payload);
+      const res = await axiosHandler.put(
+        `/template-master/fields/${fieldId}`,
+        payload,
+      );
       return res?.data;
     },
     onSuccess: (data, variables) => {
       toast.success(data?.message || "Field updated");
-      qc.invalidateQueries({ queryKey: ["template-master", "template", selectedTemplateId] });
+      qc.invalidateQueries({
+        queryKey: ["template-master", "template", selectedTemplateId],
+      });
       qc.invalidateQueries({ queryKey: ["template-master", "templates"] });
     },
     onError: (error) => {
@@ -106,12 +135,16 @@ export const useTemplateMaster = (
 
   const deleteField = useMutation({
     mutationFn: async ({ fieldId }) => {
-      const res = await axiosHandler.delete(`/template-master/fields/${fieldId}`);
+      const res = await axiosHandler.delete(
+        `/template-master/fields/${fieldId}`,
+      );
       return res?.data;
     },
     onSuccess: (data, variables) => {
       toast.success(data?.message || "Field deleted");
-      qc.invalidateQueries({ queryKey: ["template-master", "template", selectedTemplateId] });
+      qc.invalidateQueries({
+        queryKey: ["template-master", "template", selectedTemplateId],
+      });
       qc.invalidateQueries({ queryKey: ["template-master", "templates"] });
     },
     onError: (error) => {
@@ -121,22 +154,31 @@ export const useTemplateMaster = (
 
   const updateTemplate = useMutation({
     mutationFn: async ({ templateId, payload }) => {
-      const res = await axiosHandler.put(`/template-master/templates/${templateId}`, payload);
+      const res = await axiosHandler.put(
+        `/template-master/templates/${templateId}`,
+        payload,
+      );
       return res?.data;
     },
     onSuccess: (data, variables) => {
       toast.success(data?.message || "Template updated");
       qc.invalidateQueries({ queryKey: ["template-master", "templates"] });
-      qc.invalidateQueries({ queryKey: ["template-master", "template", variables.templateId] });
+      qc.invalidateQueries({
+        queryKey: ["template-master", "template", variables.templateId],
+      });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to update template");
+      toast.error(
+        error?.response?.data?.message || "Failed to update template",
+      );
     },
   });
 
   const deleteTemplate = useMutation({
     mutationFn: async ({ templateId }) => {
-      const res = await axiosHandler.delete(`/template-master/templates/${templateId}`);
+      const res = await axiosHandler.delete(
+        `/template-master/templates/${templateId}`,
+      );
       return res?.data;
     },
     onSuccess: (data) => {
@@ -145,15 +187,20 @@ export const useTemplateMaster = (
       qc.invalidateQueries({ queryKey: ["template-master", "template"] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to delete template");
+      toast.error(
+        error?.response?.data?.message || "Failed to delete template",
+      );
     },
   });
 
   const assignWorkflow = useMutation({
     mutationFn: async ({ templateId, workflowId }) => {
-      const res = await axiosHandler.post(`/template-master/templates/${templateId}/assign-workflow`, {
-        workflowId,
-      });
+      const res = await axiosHandler.post(
+        `/template-master/templates/${templateId}/assign-workflow`,
+        {
+          workflowId,
+        },
+      );
       return res?.data;
     },
     onSuccess: (data) => {
@@ -162,11 +209,11 @@ export const useTemplateMaster = (
       qc.invalidateQueries({ queryKey: ["template-master", "template"] });
     },
     onError: (error) => {
-      toast.error(error?.response?.data?.message || "Failed to assign workflow");
+      toast.error(
+        error?.response?.data?.message || "Failed to assign workflow",
+      );
     },
   });
-
-
 
   const getTemplateStatusData = templateStatusListQuery;
 
