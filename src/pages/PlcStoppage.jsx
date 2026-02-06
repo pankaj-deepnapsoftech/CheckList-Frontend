@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
+import { useState } from "react";
+import Pagination from "../Components/Pagination/Pagination";
 
 function formatDateTime(isoStr) {
   if (!isoStr) return "—";
@@ -40,18 +42,34 @@ function formatDurationHoursMinutes(totalMinutes) {
 }
 
 export default function PlcStoppage() {
-  const { getAllPlcData } = usePlcData({});
+  const [selectedDevice, setSelectedDevice] = useState("");
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(10)
+  const filters = useMemo(() => {
+    const f = {};
+    if (selectedDevice && selectedDevice !== "All"){
+      f.device_id = selectedDevice;
+    }
+    return f;
+  }, [selectedDevice]);
+  
+  // console.log("filters",filters)
+  const { getAllPlcData } = usePlcData(filters,"",page,limit);
   const plcList = getAllPlcData.data || [];
+  console.log(plcList)
   const isLoading = getAllPlcData.isLoading;
   const isError = getAllPlcData.isError;
   const refetch = getAllPlcData.refetch;
+  
 
   const stoppages = useMemo(() => {
+   
     return plcList
-      .filter((row) => row.start_time || row.stop_time)
+      .filter((row) => row.Start_time || row.Stop_time)
       .map((row) => {
-        const start = row.start_time || row.timestamp;
-        const stop = row.stop_time ?? null;
+        const start = row.Start_time || row.timestamp || row.Start_time;
+        
+        const stop =row.Stop_time ?? null;
         const isRunning = !stop && start;
         const mins = isRunning ? null : durationMinutes(start, stop);
         return {
@@ -62,7 +80,7 @@ export default function PlcStoppage() {
           stopTime: isRunning ? "—" : formatDateTime(stop),
           durationMinutes: mins,
           reason: row.reason || "—",
-          status: isRunning ? "Running" : "Recorded",
+          status: isRunning ? "Running" : "Recorded"
         };
       })
       .sort((a, b) => {
@@ -72,6 +90,7 @@ export default function PlcStoppage() {
         const tB = (db?.start_time || db?.timestamp || "").toString();
         return tB.localeCompare(tA);
       });
+      
   }, [plcList]);
 
   const totalStoppages = stoppages.length;
@@ -84,168 +103,194 @@ export default function PlcStoppage() {
     [stoppages]
   );
   const runningMachines = useMemo(() => {
-    return (plcList || []).filter((r) => r.start_time && !r.stop_time).length;
+    return (plcList || []).filter((r) => r.Start_time && !r.Stop_time).length;
   }, [plcList]);
 
+    const uniqueDevices = [...new Set(plcList.map((item) => item.device_id).filter(Boolean))];
+
+
   return (
-    <div className="min-h-full bg-gray-50">
-      <div className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-900">
-              Machine Stoppage Summary
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              Start / stop times from PLC Data API — machine, duration and status.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => refetch()}
-            disabled={isLoading}
-            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
-          >
-            <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-            Refresh
-          </button>
-        </div>
-
-        {isLoading && (
-          <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-gray-100 bg-white py-8 text-gray-500">
-            <Loader2 size={24} className="animate-spin" />
-            <span>Loading stoppage data…</span>
-          </div>
-        )}
-        {isError && (
-          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {getAllPlcData.error?.response?.data?.message || getAllPlcData.error?.message || "Failed to load stoppage data."}
-          </div>
-        )}
-        {!isLoading && !isError && (
-        <>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3 shadow-sm">
-            <p className="text-xs font-medium text-gray-600">Running Machines</p>
-            <p className="mt-1 text-2xl font-semibold text-emerald-600">
-              {runningMachines}
-            </p>
-            <p className="mt-1 text-[11px] text-emerald-700">Currently running</p>
-          </div>
-
-          <div className="rounded-xl border border-blue-100 bg-white px-4 py-3 shadow-sm">
-            <p className="text-xs font-medium text-gray-500">Total Stoppages</p>
-            
-            <p className="mt-1 text-2xl font-semibold text-blue-600">
-              {totalStoppages}
-            </p>
-            <p className="mt-1 text-[11px] text-emerald-700">Currently Stoppages</p>
-          </div>
-          <div className="rounded-xl border border-amber-100 bg-white px-4 py-3 shadow-sm">
-            <p className="text-xs font-medium text-gray-500">
-              Total Stoppage Time
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-amber-600">
-              {formatDurationHoursMinutes(totalMinutes)}
-            </p>
-            {/* <p className="mt-1 text-[11px] text-emerald-700">Total Time Stoppage</p> */}
-          </div>
-          <div className="rounded-xl border border-emerald-100 bg-white px-4 py-3 shadow-sm">
-            <p className="text-xs font-medium text-gray-500">
-              Average Duration
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-emerald-600">
-              {completedStoppages ? formatDurationHoursMinutes(Math.round(totalMinutes / completedStoppages)) : "—"}
-            </p>
-             {/* <p className="mt-1 text-[11px] text-emerald-700">Total Average Duration</p> */}
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+      <div className="min-h-full bg-gray-50">
+        <div className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="text-sm font-semibold text-gray-800">
-                Stoppage Details (Today)
-              </h2>
-              <p className="text-xs text-gray-500">
-                Machine name, start / stop time and stoppage duration.
+              <h1 className="text-2xl font-semibold text-gray-900">
+                Machine Stoppage Summary
+              </h1>
+              <p className="mt-1 text-sm text-gray-500">
+                Start / stop times from PLC Data API — machine, duration and status.
               </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              disabled={isLoading}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+            >
+              <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+              Refresh
+            </button>
+          </div>
+
+          {isLoading && (
+            <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-gray-100 bg-white py-8 text-gray-500">
+              <Loader2 size={24} className="animate-spin" />
+              <span>Loading stoppage data…</span>
+            </div>
+          )}
+          {isError && (
+            <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {getAllPlcData.error?.response?.data?.message || getAllPlcData.error?.message || "Failed to load stoppage data."}
+            </div>
+          )}
+          {!isLoading && !isError && (
+          <>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3 shadow-sm">
+              <p className="text-xs font-medium text-gray-600">Running Machines</p>
+              <p className="mt-1 text-2xl font-semibold text-emerald-600">
+                {runningMachines}
+              </p>
+              <p className="mt-1 text-[11px] text-emerald-700">Currently running</p>
+            </div>
+
+            <div className="rounded-xl border border-blue-100  px-4 py-3 shadow-sm bg-blue-50/60">
+              <p className="text-xs font-medium text-gray-500">Total Recorded Count</p>
+              
+              <p className="mt-1 text-2xl font-semibold text-blue-600">
+                {totalStoppages}
+              </p>
+              <p className="mt-1 text-[11px] text-blue-700">Currently Stoppages</p>
+            </div>
+            <div className="rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3 shadow-sm">
+              <p className="text-xs font-medium text-gray-500">
+                Total Recorded Time
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-amber-600">
+                {formatDurationHoursMinutes(totalMinutes)}
+              </p>
+              {/* <p className="mt-1 text-[11px] text-emerald-700">Total Time Stoppage</p> */}
+            </div>
+            <div className="rounded-xl border border-emerald-100 bg-white px-4 py-3 shadow-sm">
+              <p className="text-xs font-medium text-gray-500">
+                Average Duration
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-emerald-600">
+                {completedStoppages ? formatDurationHoursMinutes(Math.round(totalMinutes / completedStoppages)) : "—"}
+              </p>
+              {/* <p className="mt-1 text-[11px] text-emerald-700">Total Average Duration</p> */}
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Machine
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Start Time
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Stopped Time
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Duration
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Reason
-                  </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {stoppages.map((s) => (
-                  <tr key={s.id} className="hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
-                      <div className="font-semibold">{s.machine}</div>
-                      <div className="text-[11px] text-gray-500">{s.code}</div>
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
-                      {s.startTime}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
-                      {s.stopTime}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
-                      {formatDurationHoursMinutes(s.durationMinutes)}
-                    </td>
-                    <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
-                      {s.reason}
-                    </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-xs">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
-                          s.status === "Running"
-                            ? "bg-emerald-50 text-emerald-600"
-                            : s.status === "Stopped"
-                            ? "bg-rose-50 text-rose-600"
-                            : s.status === "Resolved"
-                            ? "bg-emerald-50 text-emerald-600"
-                            : s.status === "Recorded"
-                            ? "bg-blue-50 text-blue-600"
-                            : "bg-amber-50 text-amber-600"
-                        }`}
-                      >
-                        {s.status}
-                      </span>
-                    </td>
+          <div className="flex flex-col gap-1 mt-3">
+                <label className="text-xs font-medium text-gray-500">
+                  Machine ID
+                </label>
+                <select
+                  value={selectedDevice}
+                  onChange={(e) => setSelectedDevice(e.target.value)}
+                  className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="">All Machines</option>
+                  {uniqueDevices.map((device) => (
+                    <option key={device} value={device}>
+                      {device}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+          <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+              <div>
+                <h2 className="text-sm font-semibold text-gray-800">
+                  Stoppage Details (Today)
+                </h2>
+                <p className="text-xs text-gray-500">
+                  Machine name, start / stop time and stoppage duration.
+                </p>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200 text-sm">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Machine
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Start Time
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Stopped Time
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Duration
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Reason
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Status
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white" value={limit}>
+                  {stoppages.map((s) => (
+                    <tr key={s.id} className="hover:bg-gray-50">
+                      <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
+                        <div className="font-semibold">{s.machine}</div>
+                        <div className="text-[11px] text-gray-500">{s.code}</div>
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
+                        {s.startTime}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
+                        {s.stopTime}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
+                        {formatDurationHoursMinutes(s.durationMinutes)}
+                      </td>
+                      <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
+                        {s.reason}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-xs">
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
+                            s.status === "Running"
+                              ? "bg-emerald-50 text-emerald-600"
+                              : s.status === "Stopped"
+                              ? "bg-rose-50 text-rose-600"
+                              : s.status === "Resolved"
+                              ? "bg-emerald-50 text-emerald-600"
+                              : s.status === "Recorded"
+                              ? "bg-blue-50 text-blue-600"
+                              : "bg-amber-50 text-amber-600"
+                          }`}
+                        >
+                          {s.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
+          {stoppages.length === 0 && (
+            <div className="mt-6 rounded-xl border border-gray-100 bg-white py-10 text-center text-sm text-gray-500">
+              No stoppage records yet. PLC data with start/stop time will appear here.
+            </div>
+          )}
+          <Pagination
+        page={page}
+        setPage={setPage}
+        hasNextpage={stoppages?.length === limit}
+      />
+          </>
+          )}
         </div>
-        {stoppages.length === 0 && (
-          <div className="mt-6 rounded-xl border border-gray-100 bg-white py-10 text-center text-sm text-gray-500">
-            No stoppage records yet. PLC data with start/stop time will appear here.
-          </div>
-        )}
-        </>
-        )}
       </div>
-    </div>
   );
 }

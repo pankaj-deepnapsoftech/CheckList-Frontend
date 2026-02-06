@@ -34,6 +34,8 @@ import AssignedTemplates from "../TemplateMasterPages/AssignedTemplates";
 import TemplateStatus from "../TemplateMasterPages/TemplateStatus";
 import TemplateApproveReject from "../TemplateMasterPages/TemplateApproveReject";
 import TemplateModuleHistory from "../TemplateMasterPages/TemplateModuleHistory";
+import PlcDashboard from "../pages/PlcDashboard";
+import PlcHistory from "../pages/PlcHistory";
 
 
 export const AppRoute = () => {
@@ -66,13 +68,16 @@ export const AppRoute = () => {
     { path: "/company", element: withProtection(Company) },
     { path: "/assembly-line", element: withProtection(AssemblyLine) },
     { path: "/release-group", element: withProtection(ReleaseGroups) },
-    { path: "/template-master", element:withProtection(TemplateMaster) },
+    { path: "/template-master", element: withProtection(TemplateMaster) },
     { path: "/template-status", element: withProtection(TemplateStatus) },
-    { path: "/template-approve-reject", element:withProtection(TemplateApproveReject) },
+    {
+      path: "/template-approve-reject",
+      element: withProtection(TemplateApproveReject),
+    },
     // { path: "/template-module-history", element:withProtection(TemplateModuleHistory) },
-    { path: "/workflow", element:withProtection(ManageWorkflow) },
-    { path: "/document-management", element:withProtection(ManageDocument) },
-    
+    { path: "/workflow", element: withProtection(ManageWorkflow) },
+    { path: "/document-management", element: withProtection(ManageDocument) },
+
     {
       path: "/assembly-line-status",
       element: withProtection(AssemblyLineStatus),
@@ -81,20 +86,35 @@ export const AppRoute = () => {
       path: "/plc-data/live",
       element: withProtection(PlcLiveData),
     },
+    
+    {
+      path: "/plc/history",
+      element: withProtection(PlcHistory),
+    },
     {
       path: "/plc-data/products",
+      element: withProtection(PlcProducts),
+    },
+    {
+      path: "/plc-data/qc-check",
       element: withProtection(PlcProducts),
     },
     {
       path: "/plc-data/stoppage",
       element: withProtection(PlcStoppage),
     },
+    {
+      path:"/plc-data/dashboard",
+      element: withProtection(PlcDashboard)
+    },
     user?.is_admin === false && {
       path: "/assembly-line/error",
       element: withProtection(AssemblyError),
     },
-
-    {path: "/assembly-line-admin/error", element: withProtection(ErrorforAdmin)},
+    {
+      path: "/assembly-line-admin/error",
+      element: withProtection(ErrorforAdmin),
+    },
 
     { path: "/checkitem", element: withProtection(CheckItem) },
     { path: "/checkitem-data", element: withProtection(CheckItemsData) },
@@ -104,15 +124,19 @@ export const AppRoute = () => {
     },
     {
       path: "/assigned-assembly-lines",
-      element: withProtection(!user?.is_admin ? AssignedAssemblyLines : PageNotFound)
+      element: withProtection(
+        !user?.is_admin ? AssignedAssemblyLines : PageNotFound,
+      ),
     },
     {
       path: "/daily-assembly-check",
-      element: withProtection(!user?.is_admin ? DailyCheckAssembly : PageNotFound)
+      element: withProtection(
+        !user?.is_admin ? DailyCheckAssembly : PageNotFound,
+      ),
     },
     {
       path: "/assigned-templates",
-      element: withProtection(AssignedTemplates)
+      element: withProtection(AssignedTemplates),
     },
     { path: "/*", element: <PageNotFound /> },
   ]);
