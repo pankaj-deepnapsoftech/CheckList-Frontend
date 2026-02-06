@@ -105,7 +105,6 @@ export default function TemplateMaster() {
     
     return [...f].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
   }, [selectedTemplate]);
-  console.log(">>>>>", selectedTemplate);
   const [previewValues, setPreviewValues] = useState({});
 
   const setPreviewValue = (key, value) => {
@@ -537,7 +536,7 @@ export default function TemplateMaster() {
             : undefined,
       },
     });
-
+  
     // Reset form fields after adding
     setApprovalId(null);
     setNewFieldName("");
@@ -793,7 +792,6 @@ export default function TemplateMaster() {
                         >
                           <WorkflowIcon size={18} />
                         </button>
-                        
                       </div>
                     </div>
                   ))
@@ -801,13 +799,11 @@ export default function TemplateMaster() {
               </div>
             </div>
           </div>
-
-          
         </div>
         <Pagination
           page={page}
           setPage={setPgae}
-          hasNextpage={templates?.length === 10} 
+          hasNextpage={templates?.length === 10}
         />
       </div>
 
@@ -1124,6 +1120,9 @@ export default function TemplateMaster() {
                               </th>
                               <th className="px-3 py-2 text-left text-xs font-semibold text-gray-500">
                                 Mandatory
+                              </th>
+                              <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500">
+                                Action
                               </th>
                               <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500">
                                 Action
@@ -1467,6 +1466,8 @@ export default function TemplateMaster() {
                               </label>
 
                               <select
+                                value={approval_id}
+                                onChange={(e) => setApprovalId(e.target.value)}
                                 className="block w-full rounded-md border border-gray-300 bg-white
           px-3 py-2 text-sm text-gray-700 shadow-sm
           focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
@@ -1531,6 +1532,9 @@ export default function TemplateMaster() {
                                 Mandatory
                               </th>
                               <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500">
+                                Fill From
+                              </th>
+                              <th className="px-3 py-2 text-right text-xs font-semibold text-gray-500">
                                 Action
                               </th>
                             </tr>
@@ -1561,6 +1565,13 @@ export default function TemplateMaster() {
                                   </td>
                                   <td className="px-3 py-2 text-sm text-gray-700">
                                     {f.is_mandatory ? "Yes" : "No"}
+                                  </td>
+                                  <td className="px-3 py-2 text-sm text-gray-700">
+                                    {f.type === "Approval" ? (
+                                      <p>{f?.groupDetail?.group_name}</p>
+                                    ) : (
+                                      f?.type
+                                    )}
                                   </td>
                                   <td className="px-3 py-2 text-right">
                                     <div className="flex items-center justify-end gap-2">
@@ -1638,7 +1649,7 @@ export default function TemplateMaster() {
             <div className="flex items-center justify-between border-b border-gray-200 px-5 py-4">
               <div>
                 <h2 className="text-lg font-semibold text-gray-900">
-                  View Template  
+                  View Template
                 </h2>
               </div>
               <button
@@ -1658,7 +1669,6 @@ export default function TemplateMaster() {
                 </div>
               ) : selectedTemplate ? (
                 <div className="space-y-4">
-                
                   {/* Fields List */}
                   <div className="rounded-xl border border-gray-100 bg-white p-4">
                     <div className="flex items-center justify-between">
