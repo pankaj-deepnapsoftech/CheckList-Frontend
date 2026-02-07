@@ -726,4 +726,5 @@ export default function PlcLiveData() {
       </div>
     </div>
   );
+  
 }
