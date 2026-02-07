@@ -64,7 +64,7 @@ function PlcMachineCard({ machine, products = [] }) {
               `/plc/history?device_id=${encodeURIComponent(machine.device_id || "")}`,
             )
           }
-          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-80 ${statusStyles}`}
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px]  font-semibold uppercase tracking-wide cursor-pointer hover:opacity-80 ${statusStyles}`}
         >
           <History size={14} />
           History

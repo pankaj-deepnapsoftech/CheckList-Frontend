@@ -1086,7 +1086,7 @@ const SlicedStoppages = stoppages.slice(0, 4);
                 setSelectedDevice("");
                 setSelectedStatus("");
               }}
-              className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
+              className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95 hover:cursor-pointer"
             >
               Reset Filters
             </button>
@@ -1262,7 +1262,7 @@ const SlicedStoppages = stoppages.slice(0, 4);
             </div>
             <button
               onClick={() => navigate("/plc-data/stoppage")}
-              className="px-5 py-[7px] rounded-[10px] bg-blue-500 text-white font-semibold active:scale-95 hover:cursor-pointer"
+              className="h-8 rounded-xl bg-blue-600 px-4 hover:cursor-pointer text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
             >
               View All
             </button>
@@ -1287,9 +1287,7 @@ const SlicedStoppages = stoppages.slice(0, 4);
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
                     Stopped Duration
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Idle Duration
-                  </th>
+                  
                   {/* <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
                     Reason
                   </th> */}
@@ -1317,9 +1315,7 @@ const SlicedStoppages = stoppages.slice(0, 4);
                     <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
                       {formatDurationHoursMinutes(s.stoppedGapMinutes)}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-purple-600">
-                      {s.type === 'idle' ? formatDurationHoursMinutes(s.durationMinutes) : "—"}
-                    </td>
+                    
                     {/* <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
                       {s.reason}
                     </td> */}
