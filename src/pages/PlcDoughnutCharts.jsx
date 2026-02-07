@@ -11,16 +11,17 @@ import {
 
 // ── Professional color palette ──
 const COLORS = [
-  "#0f4c81", // deep industrial blue (primary)
-  "#1f77b4", // standard dashboard blue
-  "#17becf", // teal / cyan accent
-  "#6baed6", // soft blue
-  "#9ecae1", // light blue
-  "#4b5563", // cool gray-700
-  "#9ca3af", // gray-400
-  "#d1d5db", // gray-300
-  "#374151", // gray-800
+  "#c299e0",
+  "#3B82F6",
+  "#14B8A6", // teal-green
+  "#60A5FA",
+  "#7bb9e3", // indigo tint
+  "#6B7280",
+  "#9CA3AF",
+  "#CBD5E1",
+  "#4B5563",
 ];
+
 
 
 // ── Downtime by Case - Data (Double Doughnut) ──
@@ -68,7 +69,7 @@ function DowntimeByCase() {
         Downtime Distribution by Case
       </h3>
 
-      <div className="h-[380px] md:h-[420px]">
+      <div className="h-[380px] md:h-[380px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             {/* Inner ring - Main categories */}
@@ -146,7 +147,7 @@ function DowntimeByMachine() {
         Downtime Hours by Machine
       </h3>
 
-      <div className="h-[380px] md:h-[420px]">
+      <div className="h-[380px] md:h-[380px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -176,7 +177,7 @@ function DowntimeByMachine() {
               <Label
                 value="Total Downtime"
                 position="center"
-                dy={100}
+                dy={80}
                 style={{
                   fontSize: "14px",
                   fontWeight: 600,
@@ -186,7 +187,7 @@ function DowntimeByMachine() {
               <Label
                 value="183 h"
                 position="center"
-                dy={120}
+                dy={100}
                 style={{
                   fontSize: "20px",
                   fontWeight: "bold",

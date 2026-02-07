@@ -44,7 +44,7 @@ function formatDurationHoursMinutes(totalMinutes) {
 export default function PlcStoppage() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(10)
+  const [limit, setLimit] = useState(1000)
   const filters = useMemo(() => {
     const f = {};
     if (selectedDevice && selectedDevice !== "All"){
@@ -63,35 +63,164 @@ export default function PlcStoppage() {
   
 
   const stoppages = useMemo(() => {
-   
-    return plcList
-      .filter((row) => row.Start_time || row.Stop_time)
-      .map((row) => {
-        const start = row.Start_time || row.timestamp || row.Start_time;
-        
-        const stop =row.Stop_time ?? null;
+    // 1. Prepare all records with a unified timestamp
+    const allRecords = plcList.map((row) => {
+      const ts = row.timestamp || row.created_at || row.Start_time;
+      return {
+        ...row,
+        _ts: ts ? new Date(ts).getTime() : 0,
+        _start: row.Start_time ? new Date(row.Start_time).getTime() : null,
+        _stop: row.Stop_time ? new Date(row.Stop_time).getTime() : null,
+      };
+    });
+
+    // 2. Group by device
+    const grouped = {};
+    allRecords.forEach((r) => {
+      const dId = r.device_id || "unknown";
+      if (!grouped[dId]) grouped[dId] = [];
+      grouped[dId].push(r);
+    });
+
+    const result = [];
+
+    // 3. Process each device
+    Object.keys(grouped).forEach((deviceId) => {
+      const records = grouped[deviceId].sort((a, b) => a._ts - b._ts);
+      
+      // -- A) Extract Sessions (Original Logic) --
+      // We still want to show the main "Start/Stop" cycles as rows
+      const sessions = records.filter((r) => r.Start_time || r.Stop_time);
+      
+      // Calculate gaps between sessions (Stopped Duration)
+      sessions.forEach((row, index) => {
+        let stoppedGapMinutes = null;
+        if (index > 0) {
+          const prev = sessions[index - 1];
+          // If previous had a stop time, and current has start time
+          if (prev._stop && row._start) {
+            const diff = row._start - prev._stop;
+            if (diff > 0) {
+              stoppedGapMinutes = Math.round(diff / 60000);
+            }
+          }
+        }
+
+        const start = row.Start_time || row.timestamp;
+        const stop = row.Stop_time ?? null;
         const isRunning = !stop && start;
         const mins = isRunning ? null : durationMinutes(start, stop);
-        return {
+
+        result.push({
           id: row._id,
           machine: row.model || row.device_id || "—",
+          company:row.companyname,
           code: row.device_id || "—",
           startTime: formatDateTime(start),
           stopTime: isRunning ? "—" : formatDateTime(stop),
           durationMinutes: mins,
+          stoppedGapMinutes: stoppedGapMinutes,
           reason: row.reason || "—",
-          status: isRunning ? "Running" : "Recorded"
-        };
-      })
-      .sort((a, b) => {
-        const da = plcList.find((r) => r._id === a.id);
-        const db = plcList.find((r) => r._id === b.id);
-        const tA = (da?.start_time || da?.timestamp || "").toString();
-        const tB = (db?.start_time || db?.timestamp || "").toString();
-        return tB.localeCompare(tA);
+          status: isRunning ? "Running" : "Recorded",
+          _sortTime: row._ts,
+          type: "session"
+        });
+      });
+
+      // -- B) Detect Idle Intervals --
+      // "jb machine start hogyi h start time aagya hai too uske 30 second tk agar koi production count nhi increase hoti..."
+      
+      let lastProdCount = -1;
+      let lastProdChangeTime = 0;
+      let isIdling = false;
+      let idleStartTs = 0;
+      
+      // We iterate through ALL records to track production count changes
+      records.forEach((r) => {
+        const currentTs = r._ts;
+        const currentProd = r.production_count;
+
+        // Skip records without valid timestamp or production count
+        if (!currentTs || currentProd === undefined || currentProd === null) return;
+
+        // Initialize tracking on first valid record
+        if (lastProdCount === -1) {
+          lastProdCount = currentProd;
+          lastProdChangeTime = currentTs;
+          return;
+        }
+
+        if (currentProd !== lastProdCount) {
+          // Production increased/changed
+          if (isIdling) {
+            // End of Idle period
+            const durationMins = Math.round((currentTs - idleStartTs) / 60000);
+             if (durationMins > 0) { // Only record significant idle times?
+              result.push({
+                id: `idle-${r._id}-${idleStartTs}`,
+                machine: r.model || r.device_id || "—",
+                code: r.device_id || "—",
+                startTime: formatDateTime(new Date(idleStartTs).toISOString()),
+                stopTime: formatDateTime(new Date(currentTs).toISOString()),
+                durationMinutes: durationMins,
+                stoppedGapMinutes: null,
+                reason: "No Production",
+                status: "Idle",
+                _sortTime: idleStartTs,
+                type: "idle"
+              });
+            }
+            isIdling = false;
+          }
+          
+          // Reset tracking
+          lastProdCount = currentProd;
+          lastProdChangeTime = currentTs;
+        } else {
+          // Production count is same
+          const diffMs = currentTs - lastProdChangeTime;
+          
+          // Check if we exceeded 30 seconds threshold
+          if (!isIdling && diffMs > 30000) {
+            // Start Idling
+            isIdling = true;
+            idleStartTs = lastProdChangeTime + 30000; // Idle starts 30s after last change
+          }
+        }
       });
       
+      // If still idling at the end of records?
+      // Typically we don't close it until we see a change or we can mark it as "Current Idle"
+      // But for now let's leave it open or close at last record? 
+      // User said "jb tk production incease na ho". If it never increases in the dataset, it's idle till end.
+      if (isIdling && records.length > 0) {
+          const lastRecord = records[records.length-1];
+          const endTs = lastRecord._ts;
+          if (endTs > idleStartTs) {
+             const durationMins = Math.round((endTs - idleStartTs) / 60000);
+             result.push({
+                id: `idle-open-${deviceId}`,
+                
+                machine: lastRecord.model || lastRecord.device_id || "—",
+                code: lastRecord.device_id || "—",
+                startTime: formatDateTime(new Date(idleStartTs).toISOString()),
+                stopTime: "—", // Ongoing
+                durationMinutes: durationMins,
+                stoppedGapMinutes: null,
+                reason: "No Production (Current)",
+                status: "Idle",
+                _sortTime: idleStartTs,
+                type: "idle"
+              });
+          }
+      }
+
+    });
+
+    // Sort descending by start time for display
+    return result.sort((a, b) => b._sortTime - a._sortTime);
   }, [plcList]);
+  
 
   const totalStoppages = stoppages.length;
   const completedStoppages = useMemo(
@@ -102,6 +231,12 @@ export default function PlcStoppage() {
     () => stoppages.reduce((sum, s) => sum + (s.durationMinutes ?? 0), 0),
     [stoppages]
   );
+
+  const totalIdleMinutes = useMemo(
+    () => stoppages.filter(s => s.type === 'idle').reduce((sum, s) => sum + (s.durationMinutes ?? 0), 0),
+    [stoppages]
+  );
+
   const runningMachines = useMemo(() => {
     return (plcList || []).filter((r) => r.Start_time && !r.Stop_time).length;
   }, [plcList]);
@@ -145,7 +280,7 @@ export default function PlcStoppage() {
           )}
           {!isLoading && !isError && (
           <>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3 shadow-sm">
               <p className="text-xs font-medium text-gray-600">Running Machines</p>
               <p className="mt-1 text-2xl font-semibold text-emerald-600">
@@ -179,6 +314,16 @@ export default function PlcStoppage() {
                 {completedStoppages ? formatDurationHoursMinutes(Math.round(totalMinutes / completedStoppages)) : "—"}
               </p>
               {/* <p className="mt-1 text-[11px] text-emerald-700">Total Average Duration</p> */}
+            </div>
+
+            <div className="rounded-xl border border-purple-100 bg-purple-50/60 px-4 py-3 shadow-sm">
+              <p className="text-xs font-medium text-gray-500">
+                Total Idle Time
+              </p>
+              <p className="mt-1 text-2xl font-semibold text-purple-600">
+                {formatDurationHoursMinutes(totalIdleMinutes)}
+              </p>
+              <p className="mt-1 text-[11px] text-purple-700">No Production</p>
             </div>
           </div>
 
@@ -229,6 +374,12 @@ export default function PlcStoppage() {
                       Duration
                     </th>
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Stopped Duration
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                      Idle Duration
+                    </th>
+                    <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
                       Reason
                     </th>
                     <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
@@ -240,7 +391,7 @@ export default function PlcStoppage() {
                   {stoppages.map((s) => (
                     <tr key={s.id} className="hover:bg-gray-50">
                       <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
-                        <div className="font-semibold">{s.machine}</div>
+                        <div className="font-semibold">{s.company}</div>
                         <div className="text-[11px] text-gray-500">{s.code}</div>
                       </td>
                       <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
@@ -250,11 +401,17 @@ export default function PlcStoppage() {
                         {s.stopTime}
                       </td>
                       <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
-                        {formatDurationHoursMinutes(s.durationMinutes)}
+                        {s.type === 'idle' ? "—" : formatDurationHoursMinutes(s.durationMinutes)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
+                        {formatDurationHoursMinutes(s.stoppedGapMinutes)}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-purple-600">
+                        {s.type === 'idle' ? formatDurationHoursMinutes(s.durationMinutes) : "—"}
                       </td>
                       <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
                         {s.reason}
-                      </td>
+                      </td> 
                       <td className="whitespace-nowrap px-4 py-2 text-xs">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
@@ -262,6 +419,8 @@ export default function PlcStoppage() {
                               ? "bg-emerald-50 text-emerald-600"
                               : s.status === "Stopped"
                               ? "bg-rose-50 text-rose-600"
+                              : s.status === "Idle"
+                              ? "bg-purple-50 text-purple-600"
                               : s.status === "Resolved"
                               ? "bg-emerald-50 text-emerald-600"
                               : s.status === "Recorded"

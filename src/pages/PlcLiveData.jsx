@@ -296,7 +296,7 @@ function PlcMachineCard({ machine, products = [] }) {
                   .map(([key, value]) => (
                     <div key={key} className="space-y-0.5 min-w-0">
                       <p
-                        className="text-gray-500 break-words"
+                        className="text-gray-500 "
                         title={key.replaceAll("_", " ")}
                       >
                         {key.replaceAll("_", " ")}
@@ -350,6 +350,8 @@ function formatDurationHoursMinutes(totalMinutes) {
   if (mins === 0) return `${hours}h`;
   return `${hours}h ${mins} min`;
 }
+
+
 
 export default function PlcLiveData() {
   const navigate = useNavigate();
@@ -524,37 +526,151 @@ const filters = useMemo(() => {
     };
   }, [plcDataList]);
 
-  const stoppages = useMemo(() => {
-     
-      return plcDataList
-        .filter((row) => row.Start_time || row.Stop_time)
-        .map((row) => {
-          const start = row.Start_time || row.timestamp || row.Start_time;
-          
-          const stop =row.Stop_time ?? null;
-          const isRunning = !stop && start;
-          const mins = isRunning ? null : durationMinutes(start, stop);
-          return {
-            id: row._id,
-            machine: row.model || row.device_id || "—",
-            code: row.device_id || "—",
-            startTime: formatDateTime(start),
-            stopTime: isRunning ? "—" : formatDateTime(stop),
-            durationMinutes: mins,
-            reason: row.reason || "—",
-            status: isRunning ? "Running" : "Recorded"
-          };
-        })
-        .sort((a, b) => {
-          const da = plcDataList.find((r) => r._id === a.id);
-          const db = plcDataList.find((r) => r._id === b.id);
-          const tA = (da?.start_time || da?.timestamp || "").toString();
-          const tB = (db?.start_time || db?.timestamp || "").toString();
-          return tB.localeCompare(tA);
-        });
-    }, [plcDataList]);
+const stoppages = useMemo(() => {
+  // 1. Prepare valid records with raw timestamps
+  const validRecords = plcDataList
+    .filter((row) => row.Start_time || row.Stop_time)
+    .map((row) => {
+      const startStr = row.Start_time || row.timestamp;
+      const stopStr = row.Stop_time;
 
-    const SlicedStoppages = stoppages.slice(0,4)
+      return {
+        ...row,
+        _rawStart: startStr ? new Date(startStr).getTime() : 0,
+        _rawStop: stopStr ? new Date(stopStr).getTime() : null,
+        _ts: startStr ? new Date(startStr).getTime() : 0,
+      };
+    });
+
+  // 2. Group by device
+  const groupedByDevice = {};
+  validRecords.forEach((record) => {
+    const devId = record.device_id || "unknown";
+    if (!groupedByDevice[devId]) groupedByDevice[devId] = [];
+    groupedByDevice[devId].push(record);
+  });
+
+  const processed = [];
+
+  // 3. Process each device group
+  Object.values(groupedByDevice).forEach((group) => {
+    // Sort by start time (ascending)
+    group.sort((a, b) => a._rawStart - b._rawStart);
+
+    group.forEach((row, index) => {
+      // 4. Calculate stopped gap minutes
+      let stoppedGapMinutes = null;
+
+      if (index > 0) {
+        const prev = group[index - 1];
+        if (prev._rawStop && row._rawStart) {
+          const diff = row._rawStart - prev._rawStop;
+          if (diff > 0) {
+            stoppedGapMinutes = Math.round(diff / 60000);
+          }
+        }
+      }
+
+      const start = row.Start_time || row.timestamp;
+      const stop = row.Stop_time ?? null;
+      const isRunning = !stop && start;
+      const mins = isRunning ? null : durationMinutes(start, stop);
+
+      processed.push({
+        id: row._id,
+        machine: row.model || row.device_id || "—",
+        company: row.companyname,
+        code: row.device_id || "—",
+        startTime: formatDateTime(start),
+        stopTime: isRunning ? "—" : formatDateTime(stop),
+        durationMinutes: mins,
+        stoppedGapMinutes, // ✅ NEW FIELD
+        reason: row.reason || "—",
+        status: isRunning ? "Running" : "Recorded",
+        _sortTime: row._rawStart,
+        type: "session",
+      });
+    });
+
+    // Idle detection based on production_count stability (30s threshold)
+    let lastProdCount = -1;
+    let lastProdChangeTime = 0;
+    let isIdling = false;
+    let idleStartTs = 0;
+
+    group.forEach((r) => {
+      const currentTs = r._ts;
+      const currentProd = r.production_count;
+      if (!currentTs || currentProd === undefined || currentProd === null) return;
+
+      if (lastProdCount === -1) {
+        lastProdCount = currentProd;
+        lastProdChangeTime = currentTs;
+        return;
+      }
+
+      if (currentProd !== lastProdCount) {
+        if (isIdling) {
+          const durationMins = Math.round((currentTs - idleStartTs) / 60000);
+          if (durationMins > 0) {
+            processed.push({
+              id: `idle-${r._id}-${idleStartTs}`,
+              machine: r.model || r.device_id || "—",
+              company: r.companyname,
+              code: r.device_id || "—",
+              startTime: formatDateTime(new Date(idleStartTs).toISOString()),
+              stopTime: formatDateTime(new Date(currentTs).toISOString()),
+              durationMinutes: durationMins,
+              stoppedGapMinutes: null,
+              reason: "No Production",
+              status: "Idle",
+              _sortTime: idleStartTs,
+              type: "idle",
+            });
+          }
+          isIdling = false;
+        }
+        lastProdCount = currentProd;
+        lastProdChangeTime = currentTs;
+      } else {
+        const diffMs = currentTs - lastProdChangeTime;
+        if (!isIdling && diffMs > 30000) {
+          isIdling = true;
+          idleStartTs = lastProdChangeTime + 30000;
+        }
+      }
+    });
+
+    if (isIdling && group.length > 0) {
+      const lastRecord = group[group.length - 1];
+      const endTs = lastRecord._ts;
+      if (endTs > idleStartTs) {
+        const durationMins = Math.round((endTs - idleStartTs) / 60000);
+        processed.push({
+          id: `idle-open-${lastRecord.device_id}`,
+          machine: lastRecord.model || lastRecord.device_id || "—",
+          company: lastRecord.companyname,
+          code: lastRecord.device_id || "—",
+          startTime: formatDateTime(new Date(idleStartTs).toISOString()),
+          stopTime: "—",
+          durationMinutes: durationMins,
+          stoppedGapMinutes: null,
+          reason: "No Production (Current)",
+          status: "Idle",
+          _sortTime: idleStartTs,
+          type: "idle",
+        });
+      }
+    }
+  });
+
+  // 5. Sort latest first (dashboard-friendly)
+  return processed.sort((a, b) => b._sortTime - a._sortTime);
+}, [plcDataList]);
+
+// Dashboard slice
+const SlicedStoppages = stoppages.slice(0, 4);
+
 
   // Get latest record per device
   const latestPerDevice = useMemo(() => {
@@ -836,7 +952,6 @@ const filters = useMemo(() => {
           </div>
         </div>
 
-
         {/* Filters */}
         <section className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur mt-2">
           {/* Company - dynamic from API */}
@@ -971,7 +1086,7 @@ const filters = useMemo(() => {
                 setSelectedDevice("");
                 setSelectedStatus("");
               }}
-              className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
+              className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95 hover:cursor-pointer"
             >
               Reset Filters
             </button>
@@ -986,6 +1101,8 @@ const filters = useMemo(() => {
         </div>
 
         <DowntimeCharts />
+
+        <DonutChart />
 
         {/* Charts */}
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
@@ -1132,19 +1249,12 @@ const filters = useMemo(() => {
           </div>
         </div>
 
-
-
-              <DonutChart/>
-
-
-
-
         {/* Stoppages Data */}
         <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
             <div>
               <h2 className="text-sm font-semibold text-gray-800">
-                Stoppage Details (Today)
+                Stoppage Details (Latest)
               </h2>
               <p className="text-xs text-gray-500">
                 Machine name, start / stop time and stoppage duration.
@@ -1152,7 +1262,7 @@ const filters = useMemo(() => {
             </div>
             <button
               onClick={() => navigate("/plc-data/stoppage")}
-              className="px-5 py-[7px] rounded-[10px] bg-blue-500 text-white font-semibold active:scale-95 hover:cursor-pointer"
+              className="h-8 rounded-xl bg-blue-600 px-4 hover:cursor-pointer text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
             >
               View All
             </button>
@@ -1175,8 +1285,12 @@ const filters = useMemo(() => {
                     Duration
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Reason
+                    Stopped Duration
                   </th>
+                  
+                  {/* <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
+                    Reason
+                  </th> */}
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
                     Status
                   </th>
@@ -1186,7 +1300,7 @@ const filters = useMemo(() => {
                 {SlicedStoppages.map((s) => (
                   <tr key={s.id} className="hover:bg-gray-50">
                     <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
-                      <div className="font-semibold">{s.machine}</div>
+                      <div className="font-semibold">{s.company}</div>
                       <div className="text-[11px] text-gray-500">{s.code}</div>
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
@@ -1196,25 +1310,29 @@ const filters = useMemo(() => {
                       {s.stopTime}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
-                      {formatDurationHoursMinutes(s.durationMinutes)}
+                      {s.type === 'idle' ? "—" : formatDurationHoursMinutes(s.durationMinutes)}
                     </td>
-                    <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
+                    <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
+                      {formatDurationHoursMinutes(s.stoppedGapMinutes)}
+                    </td>
+                    
+                    {/* <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
                       {s.reason}
-                    </td>
+                    </td> */}
                     <td className="whitespace-nowrap px-4 py-2 text-xs">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
-                          s.status === "Running"
-                            ? "bg-emerald-50 text-emerald-600"
-                            : s.status === "Stopped"
-                              ? "bg-rose-50 text-rose-600"
+                      <span className={`inline-flex rounded-full px-2.5 py-0.5 font-semibold text-[11px] ${
+                        s.status === "Running"
+                          ? "bg-emerald-50 text-emerald-600"
+                          : s.status === "Stopped"
+                            ? "bg-rose-50 text-rose-600"
+                            : s.status === "Idle"
+                              ? "bg-purple-50 text-purple-600"
                               : s.status === "Resolved"
                                 ? "bg-emerald-50 text-emerald-600"
                                 : s.status === "Recorded"
                                   ? "bg-blue-50 text-blue-600"
                                   : "bg-amber-50 text-amber-600"
-                        }`}
-                      >
+                      }`}>
                         {s.status}
                       </span>
                     </td>

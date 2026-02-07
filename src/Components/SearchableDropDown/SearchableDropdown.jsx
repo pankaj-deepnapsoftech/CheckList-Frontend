@@ -42,14 +42,15 @@ const SearchableSelect = ({
   }
   }, [value, options]);
 
-
+console.log(searchText)
   const filteredOptions =
-    searchText.trim() === ""
+
+    searchText === ""
       ? options
-      : options.filter((opt) =>
+      : options?.filter((opt) =>
           getOptionLabel(opt)
-            .toLowerCase()
-            .startsWith(searchText.toLowerCase())
+            ?.toLowerCase()
+            ?.startsWith(searchText?.toLowerCase())
         );
 
   return (
