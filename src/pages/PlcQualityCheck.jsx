@@ -304,13 +304,8 @@ export default function PlcProducts() {
                 </td>
               </tr>
             )}
-<<<<<<< HEAD
-            {getTableData?.length === 0 && (
-              <tr className="relative">
-=======
             {!isLoadingQC && getTableData?.length === 0 && (
               <tr>
->>>>>>> cea0336fc7a053db65936bd22a2b3102d2bb8e0d
                 <td
                   colSpan={8}
                   className="mt-10 pt-30 align-middle text-center text-lg
