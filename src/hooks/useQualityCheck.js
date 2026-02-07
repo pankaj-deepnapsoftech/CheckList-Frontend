@@ -4,13 +4,18 @@ import { toast } from "react-toastify";
 
 export const useQualityCheck = (filters = {}) => {
   const qc = useQueryClient();
-  const { machine_name, product_name, status, company_name, plant_name, search } = filters;
+  const { machine_name, product_name, status, company_name, plant_name, search, page, limit } = filters;
 
   const getAllQualityChecks = useQuery({
     queryKey: ["quality-check", filters],
     queryFn: async () => {
       const res = await axiosHandler.get("/quality-check", { params: filters });
-      return res?.data?.data || [];
+      return {
+        data: res?.data?.data || [],
+        total: res?.data?.total ?? 0,
+        page: res?.data?.page ?? 1,
+        limit: res?.data?.limit ?? 10,
+      };
     },
   });
 
