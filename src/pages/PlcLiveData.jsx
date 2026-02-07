@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import {
   Bar,
   BarChart,
@@ -10,7 +10,9 @@ import {
   YAxis,
 } from "recharts";
 import DowntimeCharts from "./PlcDoughnutCharts";
-import { ArrowUp, ArrowDown, Loader2, History } from "lucide-react";
+import { ArrowUp, ArrowDown, Loader2, History, Download } from "lucide-react";
+import html2canvas from "html2canvas-pro";
+import { jsPDF } from "jspdf";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
 import { useNavigate } from "react-router-dom";
@@ -355,6 +357,8 @@ function formatDurationHoursMinutes(totalMinutes) {
 
 export default function PlcLiveData() {
   const navigate = useNavigate();
+  const pdfRef = useRef(null);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -426,7 +430,8 @@ const filters = useMemo(() => {
   endDate,
 ]);
 
-  const { getAllPlcData } = usePlcData(filters);
+  const { getAllPlcData, getPlcTimeDistribution } = usePlcData(filters);
+  const { data: timeDistribution = { runTime: 0, stopTime: 0, idleTime: 0 } } = getPlcTimeDistribution || {};
   const { getAllPlcData: getAllForOptions } = usePlcData({}, { live: true });
   const { getAllPlcProducts } = usePlcProduct({});
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
@@ -922,9 +927,134 @@ const SlicedStoppages = stoppages.slice(0, 4);
     return date.toLocaleTimeString("en-GB");
   }, [plcDataList]);
 
+  const loadLogoAsDataUrl = (url) =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        try {
+          resolve(canvas.toDataURL("image/png"));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+
+  const handleDownloadPdf = async () => {
+    if (!pdfRef.current || isDownloadingPdf) return;
+    setIsDownloadingPdf(true);
+    try {
+      let logoDataUrl = null;
+      const logoUrl = `${window.location.origin}/logo.svg`;
+      try {
+        logoDataUrl = await loadLogoAsDataUrl(logoUrl);
+      } catch {
+        try {
+          logoDataUrl = await loadLogoAsDataUrl(
+            "https://jpmgroup.co.in/assets/svg/logo-color.svg",
+          );
+        } catch {
+          logoDataUrl = null;
+        }
+      }
+
+      const sections = pdfRef.current.querySelectorAll("[data-pdf-page]");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210;
+      const margin = 10;
+      const logoHeight = 10;
+      const logoGap = 4;
+      const chartTop = margin + (logoDataUrl ? logoHeight + logoGap : 0);
+      const contentWidth = imgWidth - margin * 2;
+      let isFirstPage = true;
+
+      const addLogo = () => {
+        if (logoDataUrl) {
+          const logoW = 45;
+          pdf.addImage(logoDataUrl, "PNG", margin, 5, logoW, logoHeight);
+        }
+      };
+
+      const opts = {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#f9fafb",
+        onclone: (clonedDoc) => {
+          const btn = clonedDoc.querySelector("[data-pdf-exclude]");
+          if (btn) btn.style.display = "none";
+        },
+      };
+
+      const pageHeight = 297;
+      const contentHeight = pageHeight - chartTop - margin;
+      const gap = 4;
+      // First page: 3 charts; rest: 2 charts each
+      const getChartHeight = (i) => {
+        if (i < 3) return (contentHeight - 2 * gap) / 3;
+        if (i < 5) return (contentHeight - gap) / 2;
+        return contentHeight; // last page: 1 chart, full height
+      };
+      const getSlot = (i) => {
+        if (i < 3) return { page: 0, slot: i };
+        if (i < 5) return { page: 1, slot: i - 3 };
+        return { page: 2, slot: 0 };
+      };
+
+      let lastPage = -1;
+
+      for (let i = 0; i < sections.length; i++) {
+        const section = sections[i];
+        const canvas = await html2canvas(section, opts);
+        const imgData = canvas.toDataURL("image/png");
+        const imgHeightMm = (canvas.height * contentWidth) / canvas.width;
+
+        const chartHeight = getChartHeight(i);
+        const { page, slot } = getSlot(i);
+
+        if (page > lastPage && lastPage >= 0) {
+          pdf.addPage();
+          addLogo();
+        }
+        lastPage = page;
+        if (i === 0) {
+          addLogo();
+          isFirstPage = false;
+        }
+
+        let finalWidth, finalHeight;
+        if (imgHeightMm > chartHeight) {
+          finalHeight = chartHeight;
+          finalWidth = contentWidth * (chartHeight / imgHeightMm);
+        } else {
+          finalHeight = imgHeightMm;
+          finalWidth = contentWidth;
+        }
+        const x = (imgWidth - finalWidth) / 2;
+        const y = chartTop + slot * (chartHeight + gap);
+
+        pdf.addImage(imgData, "PNG", x, y, finalWidth, finalHeight);
+      }
+
+      const fileName = `PLC-Live-Data-Dashboard-${new Date().toISOString().slice(0, 10)}.pdf`;
+      pdf.save(fileName);
+    } catch (err) {
+      console.error("PDF download failed:", err);
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
   return (
     <div className="min-h-full bg-gray-50">
-      <div className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
+      <div ref={pdfRef} className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -945,6 +1075,20 @@ const SlicedStoppages = stoppages.slice(0, 4);
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              data-pdf-exclude
+              onClick={handleDownloadPdf}
+              disabled={isDownloadingPdf}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+            >
+              {isDownloadingPdf ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <Download size={18} />
+              )}
+              Download PDF
+            </button>
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
             <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
               LIVE
@@ -1086,7 +1230,7 @@ const SlicedStoppages = stoppages.slice(0, 4);
                 setSelectedDevice("");
                 setSelectedStatus("");
               }}
-              className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
+              className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95 hover:cursor-pointer"
             >
               Reset Filters
             </button>
@@ -1094,19 +1238,27 @@ const SlicedStoppages = stoppages.slice(0, 4);
         </section>
 
         {/* Summary cards */}
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div data-pdf-page className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {summaryCards.map((card) => (
             <SummaryCard key={card.label} card={card} />
           ))}
         </div>
 
-        <DowntimeCharts />
+        <div data-pdf-page>
+          <DowntimeCharts />
+        </div>
 
-        <DonutChart />
+        <div data-pdf-page>
+          <DonutChart 
+            runTime={timeDistribution.runTime}
+            stopTime={timeDistribution.stopTime}
+            idleTime={timeDistribution.idleTime}
+          />
+        </div>
 
         {/* Charts */}
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <div data-pdf-page className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-800">
                 Parameters (Latest per Device)
@@ -1181,7 +1333,7 @@ const SlicedStoppages = stoppages.slice(0, 4);
             </div>
           </div>
 
-          <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+          <div data-pdf-page className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-sm font-semibold text-gray-800">
                 Parameters & Production Count
@@ -1250,7 +1402,7 @@ const SlicedStoppages = stoppages.slice(0, 4);
         </div>
 
         {/* Stoppages Data */}
-        <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
+        <div data-pdf-page className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
             <div>
               <h2 className="text-sm font-semibold text-gray-800">
@@ -1262,7 +1414,7 @@ const SlicedStoppages = stoppages.slice(0, 4);
             </div>
             <button
               onClick={() => navigate("/plc-data/stoppage")}
-              className="px-5 py-[7px] rounded-[10px] bg-blue-500 text-white font-semibold active:scale-95 hover:cursor-pointer"
+              className="h-8 rounded-xl bg-blue-600 px-4 hover:cursor-pointer text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
             >
               View All
             </button>
@@ -1287,9 +1439,7 @@ const SlicedStoppages = stoppages.slice(0, 4);
                   <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
                     Stopped Duration
                   </th>
-                  <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
-                    Idle Duration
-                  </th>
+                  
                   {/* <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">
                     Reason
                   </th> */}
@@ -1317,9 +1467,7 @@ const SlicedStoppages = stoppages.slice(0, 4);
                     <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
                       {formatDurationHoursMinutes(s.stoppedGapMinutes)}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-purple-600">
-                      {s.type === 'idle' ? formatDurationHoursMinutes(s.durationMinutes) : "—"}
-                    </td>
+                    
                     {/* <td className="px-4 py-2 text-xs text-gray-700 max-w-xs">
                       {s.reason}
                     </td> */}

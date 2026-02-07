@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   PieChart,
   Pie,
@@ -8,221 +8,213 @@ import {
   ResponsiveContainer,
   Label,
 } from "recharts";
+import { usePlcData } from "../hooks/usePlcData";
 
 // ── Professional color palette ──
 const COLORS = [
-  "#c299e0",
-  "#3B82F6",
-  "#14B8A6", // teal-green
-  "#60A5FA",
-  "#7bb9e3", // indigo tint
-  "#6B7280",
-  "#9CA3AF",
-  "#CBD5E1",
-  "#4B5563",
-];
-
-
-
-// ── Downtime by Case - Data (Double Doughnut) ──
-const caseMainData = [
-  { name: "Mechanical", value: 38 },
-  { name: "Electrical", value: 22 },
-  { name: "Material", value: 16 },
-  { name: "Human", value: 11 },
-  { name: "Tooling", value: 8 },
-  { name: "Setup", value: 5 },
-];
-
-const caseDetailData = [
-  { name: "Bearing Failure", value: 14 },
-  { name: "Gear Wear", value: 11 },
-  { name: "Motor Fault", value: 9 },
-  { name: "Sensor Issue", value: 7 },
-  { name: "Power Supply", value: 6 },
-  { name: "Cable Damage", value: 5 },
-  { name: "Shortage", value: 10 },
-  { name: "Quality Issue", value: 6 },
-  { name: "Operator Absent", value: 7 },
-  { name: "Training Gap", value: 4 },
-  { name: "Die Change", value: 5 },
-  { name: "Calibration", value: 3 },
-];
-
-// ── Downtime by Machine - Data (Half Doughnut) ──
-const machineData = [
-  { name: "CJ2M_01", value: 42 },
-  { name: "CJ2M_02", value: 31 },
-  { name: "CJ2M_03", value: 28 },
-  { name: "CJ2M_04", value: 19 },
-  { name: "CJ2M_05", value: 15 },
-  { name: "Press_01", value: 12 },
-  { name: "Press_02", value: 9 },
-  { name: "CJ2M_06", value: 6 },
+  "#1f77b4", // standard dashboard blue
+  "#17becf", // teal / cyan accent
+  "#6baed6", // soft blue
+  "#9ecae1", // light blue
+  "#4b5563", // cool gray-700
+  "#9ca3af", // gray-400
+  "#d1d5db", // gray-300
+  "#374151", // gray-800
+  // "#0f4c81", // deep industrial blue (primary)
 ];
 
 // ── Double Doughnut Chart ──
-function DowntimeByCase() {
+function DowntimeByCase({ data }) {
+  const hasData = data && data.length > 0;
+  
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm pb-20 pt-5 pl-5 pr-5">
+    <div
+      className="relative bg-white/90 backdrop-blur rounded-2xl 
+border border-slate-200/60 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.15)] 
+p-6 overflow-hidden"
+    >
       <h3 className="text-lg font-semibold text-slate-800 mb-4">
-        Downtime Distribution by Case
+        Downtime Distribution by Case {hasData ? <span className="ml-2 text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+            LIVE
+          </span> : ""}
       </h3>
 
-      <div className="h-[380px] md:h-[380px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            {/* Inner ring - Main categories */}
-            <Pie
-              data={caseMainData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              innerRadius="48%"
-              outerRadius="68%"
-              paddingAngle={3}
-              label={({ name, percent }) =>
-                `${name} ${(percent * 100).toFixed(0)}%`
-              }
-              labelLine={false}
-            >
-              {caseMainData.map((entry, index) => (
-                <Cell
-                  key={`cell-inner-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
+      <div className="h-[360px] md:h-[360px]">
+        {hasData ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              {/* Outer ring - Detailed breakdown or Main Data if dynamic */}
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius="70%"
+                outerRadius="92%"
+                paddingAngle={2}
+                label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={`cell-outer-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                    opacity={0.9}
+                  />
+                ))}
+              </Pie>
 
-            {/* Outer ring - Detailed breakdown */}
-            <Pie
-              data={caseDetailData}
-              dataKey="value"
-              cx="50%"
-              cy="50%"
-              innerRadius="72%"
-              outerRadius="92%"
-              paddingAngle={2}
-            >
-              {caseDetailData.map((entry, index) => (
-                <Cell
-                  key={`cell-outer-${index}`}
-                  fill={COLORS[(index + 2) % COLORS.length]}
-                  opacity={0.9}
-                />
-              ))}
-            </Pie>
+              <Tooltip
+                contentStyle={{
+                  background: "rgba(15, 23, 42, 0.95)", // slate-900
+                  borderRadius: "12px",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  color: "#E5E7EB",
+                  padding: "12px 16px",
+                  fontSize: "13px",
+                  boxShadow: "0 20px 40px rgba(0,0,0,0.35)",
+                }}
+                itemStyle={{ color: "#E5E7EB" }}
+                labelStyle={{ fontWeight: 600 }}
+              />
 
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(184, 245, 236, 0.96)",
-                border: "none",
-                borderRadius: "10px",
-                color: "#f1f5f9",
-                padding: "12px 16px",
-                fontSize: "13px",
-                boxShadow: "0 10px 25px -5px rgba(0,0,0,0.3)",
-              }}
-            />
-            <Legend
-              verticalAlign="bottom"
-              height={50}
-              iconType="circle"
-              iconSize={10}
-              wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+              <Legend
+                verticalAlign="bottom"
+                iconType="circle"
+                iconSize={8}
+                wrapperStyle={{
+                  fontSize: "12px",
+                  color: "#475569",
+                  paddingTop: "12px",
+                }}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-slate-500 font-medium">No Data Found</p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
+// ── Helper to format hours into "Xh Ym" ──
+const formatDuration = (totalHours) => {
+  if (!totalHours) return "0h 0m";
+  const hours = Math.floor(totalHours);
+  const minutes = Math.round((totalHours - hours) * 60);
+  return `${hours}h ${minutes}m`;
+};
+
 // ── Half Doughnut (Semi-circle) ──
-function DowntimeByMachine() {
+function DowntimeByMachine({ data }) {
+  const hasData = data && data.length > 0;
+  const totalDowntime = hasData ? data.reduce((acc, curr) => acc + curr.value, 0) : 0;
+
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-      <h3 className="text-lg font-semibold text-slate-800 mb-4">
-        Downtime Hours by Machine
+    <div
+      className="relative bg-white/90 backdrop-blur rounded-2xl 
+border border-slate-200/60 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.15)] 
+p-6 overflow-hidden"
+    >
+      <h3 className="text-[15px] font-semibold text-slate-700 tracking-wide uppercase">
+        Downtime Distribution by Case
+        {hasData && (
+          <span className="ml-2 text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+            LIVE
+          </span>
+        )}
       </h3>
 
       <div className="h-[380px] md:h-[380px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={machineData}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="85%"
-              innerRadius="65%"
-              outerRadius="90%"
-              startAngle={180}
-              endAngle={0}
-              paddingAngle={2}
-              label={({ name, percent }) =>
-                `${name} ${(percent * 100).toFixed(0)}%`
-              }
-              labelLine={false}
-            >
-              {machineData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
+        {hasData ? (
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="85%"
+                innerRadius="65%"
+                outerRadius="90%"
+                startAngle={180}
+                endAngle={0}
+                paddingAngle={2}
+                label={({ percent }) => `${(percent * 100).toFixed(0)}%`}
+                labelLine={false}
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+
+                {/* Center total label */}
+                <Label
+                  value="TOTAL DOWNTIME"
+                  position="center"
+                  dy={70}
+                  style={{
+                    fontSize: "11px",
+                    letterSpacing: "0.08em",
+                    fill: "#64748B",
+                    fontWeight: 600,
+                  }}
                 />
-              ))}
+                <Label
+                  value={formatDuration(totalDowntime)}
+                  position="center"
+                  dy={92}
+                  style={{
+                    fontSize: "24px",
+                    fontWeight: 700,
+                    fill: "#0F172A",
+                  }}
+                />
+              </Pie>
 
-              {/* Center total label */}
-              <Label
-                value="Total Downtime"
-                position="center"
-                dy={80}
-                style={{
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  fill: "#1e293b",
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "rgba(184, 245, 236, 0.96)",
+                  border: "none",
+                  borderRadius: "10px",
+                  color: "#1e293b",
+                  padding: "10px 14px",
+                  fontSize: "13px",
+                  boxShadow: "0 10px 25px -5px rgba(0,0,0,0.3)",
                 }}
+                itemStyle={{ color: "#1e293b" }}
+                formatter={(value) => [formatDuration(value), "Downtime"]}
               />
-              <Label
-                value="183 h"
-                position="center"
-                dy={100}
-                style={{
-                  fontSize: "20px",
-                  fontWeight: "bold",
-                  fill: "#1e293b",
-                }}
+              <Legend
+                verticalAlign="bottom"
+                height={50}
+                iconType="circle"
+                iconSize={10}
+                wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
               />
-            </Pie>
-
-            <Tooltip
-              contentStyle={{
-                backgroundColor: "rgba(184, 245, 236, 0.96)",
-                border: "none",
-                borderRadius: "10px",
-                color: "#f1f5f9",
-                padding: "10px 14px",
-                fontSize: "13px",
-                boxShadow: "0 10px 25px -5px rgba(0,0,0,0.3)",
-              }}
-            />
-            <Legend
-              verticalAlign="bottom"
-              height={50}
-              iconType="circle"
-              iconSize={10}
-              wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-slate-500 font-medium">No Data Found</p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
 // ── Main Export Component ──
-export default function DowntimeCharts() {
+export default function DowntimeCharts({ filters = {} }) {
+  const { getPlcErrorDistribution, getPlcDowntimeByMachine } = usePlcData(filters, { live: true });
+  const errorData = getPlcErrorDistribution.data || [];
+  const machineDowntimeData = getPlcDowntimeByMachine.data || [];
+
   return (
     <div className=" bg-slate-50/70 mt-5">
       <div className="max-w-7xl mx-auto">
@@ -238,10 +230,9 @@ export default function DowntimeCharts() {
 
         {/* Charts grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 xl:gap-8">
-          <DowntimeByCase />
-          <DowntimeByMachine />
+          <DowntimeByCase data={errorData} />
+          <DowntimeByMachine data={machineDowntimeData} />
         </div>
-
       
       </div>
     </div>
