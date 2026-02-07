@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Eye,
   Pencil,
@@ -19,6 +19,8 @@ import { useFormik } from "formik";
 import { useQualityCheck } from "../hooks/useQualityCheck";
 import Refresh from "../components/Refresh/Refresh";
 import axios from "axios";
+import Pagination from "../Components/Pagination/Pagination";
+
 
 export default function PlcProducts() {
   const [showRefresh, setShowRefresh] = useState(false);
@@ -30,6 +32,8 @@ export default function PlcProducts() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [page, setPage] = useState(1)
+  const [isSpinning, setIsSpinning] = useState(false)
 
   const { getAllQualityChecks, createQualityCheck, updateQualityCheck, deleteQualityCheck } = useQualityCheck({
     search,
@@ -116,10 +120,15 @@ export default function PlcProducts() {
   const getTableData = qcList;
 
   const handleRefresh = async () => {
+    setIsSpinning(true)
+    setPage(1)
     setShowRefresh(true);
     getAllPlcData.refetch();
     getAllPlcProducts.refetch();
     getAllQualityChecks.refetch();
+    setTimeout(() => {
+      setIsSpinning(false)
+    }, 1000)
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
     await Promise.all([
       getAllPlcProducts.refetch(),
@@ -133,6 +142,23 @@ export default function PlcProducts() {
   const productsList = getAllPlcProducts.data || [];
   const isLoadingProducts = getAllPlcProducts.isLoading;
   const isErrorProducts = getAllPlcProducts.isError;
+
+  const handleApprovedQtyChange = async (e) => {
+    const approvedValue = Number(e.target.value)
+    const totalProductionCount = Number(values.production_count)
+
+    setFieldValue("approve_quantity", approvedValue)
+
+    if (totalProductionCount >= approvedValue) {
+      const rejectedValue = totalProductionCount - approvedValue
+      setFieldValue("reject_quantity", rejectedValue)
+    }
+    else {
+      setFieldValue("reject_quantity", 0)
+      toast.warn("Approved Quantity can not exceed total count")
+    }
+  }
+
 
   const machineOptions = useMemo(() => {
     const machines = new Set();
@@ -218,13 +244,12 @@ export default function PlcProducts() {
 
   const visibleRows = qcList.slice(0, pageSize);
 
-
   return (
     <div className="min-h-full bg-gray-50 my-4 mt-9">
-      <div className="w-[930px]  flex justify-between mx-auto">
+      <div className="sm:w-[930px] sm:flex sm:justify-between mx-auto flex justify-between w-[375px]">
         <h1 className="text-xl sm:text-2xl font-semibold">Quality Check</h1>
         <button
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 px-4 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 px-4 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white w-[150px]"
           onClick={() => {
             handleReset();
             setIsAddOpen(true);
@@ -233,7 +258,7 @@ export default function PlcProducts() {
           Add Quality Check
         </button>
       </div>
-      <div className="w-[930px] h-[38px] mx-auto flex justify-between mt-10">
+      <div className="sm:w-[930px] h-[38px] mx-auto flex justify-between w-[375px] mt-10">
         <div className="flex relative w-full max-w-md">
           <Search
             strokeWidth={1.5}
@@ -247,20 +272,17 @@ export default function PlcProducts() {
             type="text"
           />
         </div>
-        <div className="flex gap-4">
+        {/* <div className="flex gap-4"> */}
           <button
             onClick={handleRefresh}
             className="px-2 py-1  rounded-lg cursor-pointer border border-gray-300 hover:bg-gray-100 transition text-gray-500"
           >
-            <RefreshCcw className="h-4 w-5" />
+            <RefreshCcw className={`h-4 w-5 transition-transform ${isSpinning ? 'animate-spin' : ''}`} />
           </button>
-          {/* <button className="px-2 py-1  rounded-lg cursor-pointer border border-gray-300 hover:bg-gray-100 transition text-gray-500">
-            <Download className="h-4 w-5" />
-          </button> */}
-        </div>
+        {/* </div> */}
       </div>
-      <div className="w-[930px] border border-gray-200 rounded-xl mx-auto mt-5 shadow-md bg-white">
-        <table className="w-full min-w-[930px] text-sm text-center ">
+      <div className="sm:w-[930px] w-[375px] overflow-x-scroll border border-gray-200 rounded-xl mx-auto mt-5 shadow-md bg-white">
+        <table className="w-full text-sm text-center ">
           <thead>
             <tr className="bg-linear-to-r from-blue-600 to-sky-500 text-white uppercase whitespace-nowrap outline-none rounded-t-lg text-xs tracking-wide">
               <th className="px-4 sm:px-6 py-3 font-medium rounded-tl-xl">
@@ -277,7 +299,7 @@ export default function PlcProducts() {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y  divide-gray-200">
             {isLoadingQC && (
               <tr>
                 <td colSpan={8} className="px-6 py-10 text-center">
@@ -303,7 +325,8 @@ export default function PlcProducts() {
               <tr>
                 <td
                   colSpan={8}
-                  className="px-6 py-10 text-center text-sm text-gray-500"
+                  className="mt-10 pt-30 align-middle text-center text-lg
+                  text-gray-500"
                 >
                   No quality checks found
                 </td>
@@ -340,7 +363,7 @@ export default function PlcProducts() {
                     >
                       <Pencil size={17} />
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => {
                         setSelectedProduct(row);
                         setIsDeleteOpen(true);
@@ -348,13 +371,21 @@ export default function PlcProducts() {
                       className="text-red-500 cursor-pointer hover:text-red-700"
                     >
                       <Trash size={17} />
-                    </button>
+                    </button> */}
                   </td>
                 </tr>
               ))}
           </tbody>
         </table>
+
+        
+          
       </div>
+
+      <Pagination 
+        page={page}
+        setPage={setPage}
+      />
 
       {/* // Add Quality Check is here  */}
 
@@ -483,7 +514,7 @@ export default function PlcProducts() {
                     min="0"
                     name="approve_quantity"
                     value={values.approve_quantity}
-                    onChange={handleChange}
+                    onChange={handleApprovedQtyChange}
                     onBlur={handleBlur}
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     placeholder="Enter approve quantity"
@@ -501,6 +532,7 @@ export default function PlcProducts() {
                     value={values.reject_quantity}
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    readOnly
                     className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     placeholder="Enter reject quantity"
                   />
