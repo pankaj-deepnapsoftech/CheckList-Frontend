@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, History } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
+import DowntimeCharts from "./PlcDoughnutCharts";
 
 function PlcMachineCard({ machine, products = [] }) {
   const formatDate = (dateString) => {
@@ -692,6 +693,9 @@ export default function PlcLiveData() {
             </button>
           </div>
         </section>
+
+        {/* Downtime Charts */}
+        <DowntimeCharts filters={filters} />
 
         {/* PLC Machine Data */}
         <div className="mt-8">

@@ -30,7 +30,43 @@ export const usePlcData = (filters = {}, options = {},page,limit) => {
       return res?.data?.data || [];
     },
     refetchInterval: live ? 5000 : false, // Auto-refresh for live data only
-    staleTime: live ? 0 : 60000, // 1 min stale for history
+    staleTime: live ? 0 : 60000, 
+  });
+
+  // 5. Get PLC Error Distribution
+  const getPlcErrorDistribution = useQuery({
+    queryKey: ["plc-error-distribution", { startDate, endDate, company_name, plant_name, device_id, model }],
+    queryFn: async () => {
+      const params = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      if (company_name) params.companyName = company_name;
+      if (plant_name) params.plantName = plant_name;
+      if (device_id) params.deviceId = device_id;
+      if (model) params.model = model;
+
+      const res = await axiosHandler.get("/plc-data/analytics/error-distribution", { params });
+      return res?.data?.data || [];
+    },
+    refetchInterval: live ? 10000 : false,
+  });
+
+  // 6. Get PLC Downtime by Machine
+  const getPlcDowntimeByMachine = useQuery({
+    queryKey: ["plc-downtime-by-machine", { startDate, endDate, company_name, plant_name, device_id, model }],
+    queryFn: async () => {
+      const params = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      if (company_name) params.companyName = company_name;
+      if (plant_name) params.plantName = plant_name;
+      if (device_id) params.deviceId = device_id;
+      if (model) params.model = model;
+
+      const res = await axiosHandler.get("/plc-data/analytics/downtime-by-machine", { params });
+      return res?.data?.data || [];
+    },
+    refetchInterval: live ? 10000 : false,
   });
 
   const createPlcData = useMutation({
@@ -77,6 +113,8 @@ export const usePlcData = (filters = {}, options = {},page,limit) => {
 
   return {
     getAllPlcData,
+    getPlcErrorDistribution,
+    getPlcDowntimeByMachine,
     createPlcData,
     updatePlcData,
     deletePlcData,
