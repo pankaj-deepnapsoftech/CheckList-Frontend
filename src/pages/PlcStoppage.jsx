@@ -1,7 +1,8 @@
-import { useMemo } from "react";
-import { Loader2, RefreshCw } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Loader2, RefreshCw, Download } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
-import { useState } from "react";
+import html2canvas from "html2canvas-pro";
+import { jsPDF } from "jspdf";
 import Pagination from "../Components/Pagination/Pagination";
 
 function formatDateTime(isoStr) {
@@ -42,9 +43,106 @@ function formatDurationHoursMinutes(totalMinutes) {
 }
 
 export default function PlcStoppage() {
+  const pdfRef = useRef(null);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState("");
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(1000)
+  const [limit, setLimit] = useState(10)
+  const [showRefresh, setShowRefresh] = useState(false);
+
+  const loadLogoAsDataUrl = (url) =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+        try {
+          resolve(canvas.toDataURL("image/png"));
+        } catch (e) {
+          reject(e);
+        }
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+
+  const handleDownloadPdf = async () => {
+    if (!pdfRef.current || isDownloadingPdf) return;
+    setIsDownloadingPdf(true);
+    try {
+      let logoDataUrl = null;
+      const logoUrl = `${window.location.origin}/logo.svg`;
+      try {
+        logoDataUrl = await loadLogoAsDataUrl(logoUrl);
+      } catch {
+        try {
+          logoDataUrl = await loadLogoAsDataUrl("https://jpmgroup.co.in/assets/svg/logo-color.svg");
+        } catch {
+          logoDataUrl = null;
+        }
+      }
+
+      const sections = pdfRef.current.querySelectorAll("[data-pdf-page]");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgWidth = 210;
+      const margin = 10;
+      const logoHeight = 10;
+      const logoGap = 4;
+      const chartTop = margin + (logoDataUrl ? logoHeight + logoGap : 0);
+      const contentWidth = imgWidth - margin * 2;
+      const pageHeight = 297;
+      const contentHeight = pageHeight - chartTop - margin;
+
+      const addLogo = () => {
+        if (logoDataUrl) {
+          pdf.addImage(logoDataUrl, "PNG", margin, 5, 45, logoHeight);
+        }
+      };
+
+      const opts = {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#f9fafb",
+        onclone: (clonedDoc) => {
+          const btn = clonedDoc.querySelector("[data-pdf-exclude]");
+          if (btn) btn.style.display = "none";
+        },
+      };
+
+      for (let i = 0; i < sections.length; i++) {
+        const section = sections[i];
+        const canvas = await html2canvas(section, opts);
+        const imgData = canvas.toDataURL("image/png");
+        const imgHeightMm = (canvas.height * contentWidth) / canvas.width;
+        let finalWidth, finalHeight;
+        if (imgHeightMm > contentHeight) {
+          finalHeight = contentHeight;
+          finalWidth = contentWidth * (contentHeight / imgHeightMm);
+        } else {
+          finalHeight = imgHeightMm;
+          finalWidth = contentWidth;
+        }
+        const x = (imgWidth - finalWidth) / 2;
+
+        if (i > 0) pdf.addPage();
+        addLogo();
+        pdf.addImage(imgData, "PNG", x, chartTop, finalWidth, finalHeight);
+      }
+
+      const fileName = `PLC-Stoppage-Summary-${new Date().toISOString().slice(0, 10)}.pdf`;
+      pdf.save(fileName);
+    } catch (err) {
+      console.error("PDF download failed:", err);
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+  
   const filters = useMemo(() => {
     const f = {};
     if (selectedDevice && selectedDevice !== "All"){
@@ -243,10 +341,18 @@ export default function PlcStoppage() {
 
     const uniqueDevices = [...new Set(plcList.map((item) => item.device_id).filter(Boolean))];
 
+    const handleRefresh = async () => {
+    setPage(page);
+    setShowRefresh(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all([refetch(), minDelay]);
+    setShowRefresh(false); // Hide overlay
+  };
+
 
   return (
       <div className="min-h-full bg-gray-50">
-        <div className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
+        <div ref={pdfRef} className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-semibold text-gray-900">
@@ -256,16 +362,39 @@ export default function PlcStoppage() {
                 Start / stop times from PLC Data API — machine, duration and status.
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => refetch()}
-              disabled={isLoading}
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
-            >
-              <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
-              Refresh
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                data-pdf-exclude
+                onClick={handleDownloadPdf}
+                disabled={isDownloadingPdf}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+              >
+                {isDownloadingPdf ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Download size={16} />
+                )}
+                Download PDF
+              </button>
+              <button
+                type="button"
+                data-pdf-exclude
+                onClick={handleRefresh}
+                disabled={isLoading}
+                className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+              >
+                <RefreshCw size={16} className={showRefresh ? "animate-spin" : ""} />
+                Refresh
+              </button>
+            </div>
           </div>
+          {showRefresh && (
+            <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-gray-100 bg-white py-8 text-gray-500">
+              <Loader2 size={24} className="animate-spin" />
+              <span>Refreshing stoppage data…</span>
+            </div>
+          )}
 
           {isLoading && (
             <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-gray-100 bg-white py-8 text-gray-500">
@@ -280,13 +409,14 @@ export default function PlcStoppage() {
           )}
           {!isLoading && !isError && (
           <>
+          <div data-pdf-page>
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
             <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3 shadow-sm">
               <p className="text-xs font-medium text-gray-600">Running Machines</p>
               <p className="mt-1 text-2xl font-semibold text-emerald-600">
                 {runningMachines}
               </p>
-              <p className="mt-1 text-[11px] text-emerald-700">Currently running</p>
+              <p className="mt-1 text-[11px] text-emerald-700">Currently Running</p>
             </div>
 
             <div className="rounded-xl border border-blue-100  px-4 py-3 shadow-sm bg-blue-50/60">
@@ -295,7 +425,7 @@ export default function PlcStoppage() {
               <p className="mt-1 text-2xl font-semibold text-blue-600">
                 {totalStoppages}
               </p>
-              <p className="mt-1 text-[11px] text-blue-700">Currently Stoppages</p>
+              <p className="mt-1 text-[11px] text-blue-700">Currently Recorded</p>
             </div>
             <div className="rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3 shadow-sm">
               <p className="text-xs font-medium text-gray-500">
@@ -304,16 +434,16 @@ export default function PlcStoppage() {
               <p className="mt-1 text-2xl font-semibold text-amber-600">
                 {formatDurationHoursMinutes(totalMinutes)}
               </p>
-              {/* <p className="mt-1 text-[11px] text-emerald-700">Total Time Stoppage</p> */}
+              <p className="mt-1 text-[11px] text-amber-600">Recorded Time</p>
             </div>
-            <div className="rounded-xl border border-emerald-100 bg-white px-4 py-3 shadow-sm">
+            <div className="rounded-xl border border-emerald-100 bg-emerald-100/30  px-4 py-3 shadow-sm">
               <p className="text-xs font-medium text-gray-500">
-                Average Duration
+                Average Duration Time
               </p>
               <p className="mt-1 text-2xl font-semibold text-emerald-600">
                 {completedStoppages ? formatDurationHoursMinutes(Math.round(totalMinutes / completedStoppages)) : "—"}
               </p>
-              {/* <p className="mt-1 text-[11px] text-emerald-700">Total Average Duration</p> */}
+              <p className="mt-1 text-[11px] text-emerald-700">Duration Time</p>
             </div>
 
             <div className="rounded-xl border border-purple-100 bg-purple-50/60 px-4 py-3 shadow-sm">
@@ -327,14 +457,14 @@ export default function PlcStoppage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-1 mt-3">
+          <div className="flex flex-col gap-1 mt-3" data-pdf-exclude>
                 <label className="text-xs font-medium text-gray-500">
-                  Machine ID
+                  Machine Name
                 </label>
                 <select
                   value={selectedDevice}
                   onChange={(e) => setSelectedDevice(e.target.value)}
-                  className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="h-9 w-48 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">All Machines</option>
                   {uniqueDevices.map((device) => (
@@ -349,7 +479,7 @@ export default function PlcStoppage() {
             <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
               <div>
                 <h2 className="text-sm font-semibold text-gray-800">
-                  Stoppage Details (Today)
+                  Stoppage Details 
                 </h2>
                 <p className="text-xs text-gray-500">
                   Machine name, start / stop time and stoppage duration.
@@ -437,6 +567,7 @@ export default function PlcStoppage() {
               </table>
             </div>
           </div>
+          </div>
           {stoppages.length === 0 && (
             <div className="mt-6 rounded-xl border border-gray-100 bg-white py-10 text-center text-sm text-gray-500">
               No stoppage records yet. PLC data with start/stop time will appear here.
@@ -446,7 +577,7 @@ export default function PlcStoppage() {
         page={page}
         setPage={setPage}
         hasNextpage={stoppages?.length === limit}
-      />
+      /> 
           </>
           )}
         </div>

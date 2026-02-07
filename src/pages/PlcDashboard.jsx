@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { Loader2, History } from "lucide-react";
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
+import DowntimeCharts from "./PlcDoughnutCharts";
+import DonutChart from "../Components/DonutChart/donutChart";
 
 function PlcMachineCard({ machine, products = [] }) {
   const formatDate = (dateString) => {
@@ -63,7 +65,7 @@ function PlcMachineCard({ machine, products = [] }) {
               `/plc/history?device_id=${encodeURIComponent(machine.device_id || "")}`,
             )
           }
-          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wide cursor-pointer hover:opacity-80 ${statusStyles}`}
+          className={`shrink-0 inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px]  font-semibold uppercase tracking-wide cursor-pointer hover:opacity-80 ${statusStyles}`}
         >
           <History size={14} />
           History
@@ -368,8 +370,9 @@ export default function PlcLiveData() {
     endDate,
   ]);
 
-  const { getAllPlcData } = usePlcData(filters);
+  const { getAllPlcData, getPlcTimeDistribution } = usePlcData(filters, { live: true });
   const { getAllPlcData: getAllForOptions } = usePlcData({}, { live: true });
+  const { data: timeDistribution = { runTime: 0, stopTime: 0, idleTime: 0 } } = getPlcTimeDistribution || {};
   const { getAllPlcProducts } = usePlcProduct({});
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
   const allDataForOptions = getAllForOptions.data || [];
@@ -693,6 +696,16 @@ export default function PlcLiveData() {
           </div>
         </section>
 
+        {/* Run Time / Idle Time / Stop Time Cards & Doughnut Chart */}
+        <DonutChart
+          runTime={timeDistribution.runTime ?? 0}
+          stopTime={timeDistribution.stopTime ?? 0}
+          idleTime={timeDistribution.idleTime ?? 0}
+        />
+
+        {/* Downtime Charts */}
+        <DowntimeCharts filters={filters} />
+
         {/* PLC Machine Data */}
         <div className="mt-8">
           <div className="mb-3 flex items-center justify-between">
@@ -726,4 +739,5 @@ export default function PlcLiveData() {
       </div>
     </div>
   );
+  
 }
