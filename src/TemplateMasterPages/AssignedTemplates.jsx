@@ -72,6 +72,7 @@ export default function AssignedTemplates() {
   const templates = assignedTemplatesQuery.data || [];
   const selectedTemplate = templateQuery.data;
   const existingSubmissions = getUserSubmissions.data || [];
+  console.log(User_plant_id);
   const fields = useMemo(() => {
     const f = selectedTemplate?.fields || [];
     return [...f].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
@@ -241,6 +242,7 @@ export default function AssignedTemplates() {
 
   const closeView = () => {
     setIsViewOpen(false);
+    selectUser_Plant_id(null)
     setViewingTemplateId("");
     setCurrentSubmissionId(null);
     setViewingSubmission(null);
@@ -300,6 +302,7 @@ export default function AssignedTemplates() {
           user_id: assigned_user_id,
           plant_id: plant_id || null,
         });
+        setIsViewOpen(false);
         submissionId = result?.data?._id;
         if (submissionId) {
           setCurrentSubmissionId(submissionId);
@@ -324,6 +327,7 @@ export default function AssignedTemplates() {
         // Refetch submissions to get updated status
         await getUserSubmissions.refetch();
         closeView();
+         setIsViewOpen(false);
       }
       setAssignedUser_id(null);
     } catch (error) {
@@ -679,18 +683,29 @@ export default function AssignedTemplates() {
                       </p>
                     ) : (
                       <div className="space-y-4">
-                        <div>
-                          <SearchableSelect
-                            placeholder="Search Company"
-                            options={selectedTemplate?.plant_option || []}
-                            value={formik.values.employee_company}
-                            onChange={(val) => {
-                              formik.setFieldValue("plant_id", val);
-                             selectUser_Plant_id(val)
-                            }}
-                            getOptionLabel={(c) => c?.plant_name}
-                            getOptionValue={(c) => c?._id}
-                          />
+                        <div className="flex flex-col gap-1.5">
+                          <label
+                            htmlFor="plant-select"
+                            className="text-sm font-medium text-gray-700"
+                          >
+                            Select Plant
+                          </label>
+
+                          <div className="relative">
+                            <SearchableSelect
+                              id="plant-select"
+                              placeholder="Search & select plant"
+                              options={selectedTemplate?.plant_option || []}
+                              value={formik.values.plant_name}
+                              onChange={(val) => {
+                                formik.setFieldValue("plant_id", val);
+                                selectUser_Plant_id(val);
+                              }}
+                              getOptionLabel={(c) => c?.plant_name}
+                              getOptionValue={(c) => c?._id}
+                              className="w-full"
+                            />
+                          </div>
                         </div>
 
                         {fields.map((field) => {
