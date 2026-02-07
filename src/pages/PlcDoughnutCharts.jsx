@@ -11,7 +11,6 @@ import {
 import { usePlcData } from "../hooks/usePlcData";
 
 // ── Professional color palette ──
-// ── Enterprise dashboard palette ──
 const COLORS = [
   "#1f77b4", // standard dashboard blue
   "#17becf", // teal / cyan accent
@@ -22,47 +21,6 @@ const COLORS = [
   "#d1d5db", // gray-300
   "#374151", // gray-800
   // "#0f4c81", // deep industrial blue (primary)
-];
-
-
-
-
-
-// ── Downtime by Case - Data (Double Doughnut) ──
-const caseMainData = [
-  { name: "Mechanical", value: 38 },
-  { name: "Electrical", value: 22 },
-  { name: "Material", value: 16 },
-  { name: "Human", value: 11 },
-  { name: "Tooling", value: 8 },
-  { name: "Setup", value: 5 },
-];
-
-const caseDetailData = [
-  { name: "Bearing Failure", value: 14 },
-  { name: "Gear Wear", value: 11 },
-  { name: "Motor Fault", value: 9 },
-  { name: "Sensor Issue", value: 7 },
-  { name: "Power Supply", value: 6 },
-  { name: "Cable Damage", value: 5 },
-  { name: "Shortage", value: 10 },
-  { name: "Quality Issue", value: 6 },
-  { name: "Operator Absent", value: 7 },
-  { name: "Training Gap", value: 4 },
-  { name: "Die Change", value: 5 },
-  { name: "Calibration", value: 3 },
-];
-
-// ── Downtime by Machine - Data (Half Doughnut) ──
-const machineData = [
-  { name: "CJ2M_01", value: 42 },
-  { name: "CJ2M_02", value: 31 },
-  { name: "CJ2M_03", value: 28 },
-  { name: "CJ2M_04", value: 19 },
-  { name: "CJ2M_05", value: 15 },
-  { name: "Press_01", value: 12 },
-  { name: "Press_02", value: 9 },
-  { name: "CJ2M_06", value: 6 },
 ];
 
 // ── Double Doughnut Chart ──
@@ -76,10 +34,12 @@ border border-slate-200/60 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.15)]
 p-6 overflow-hidden"
     >
       <h3 className="text-lg font-semibold text-slate-800 mb-4">
-        Downtime Distribution by Case {hasData ? "(Live)" : ""}
+        Downtime Distribution by Case {hasData ? <span className="ml-2 text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+            LIVE
+          </span> : ""}
       </h3>
 
-      <div className="h-[380px] md:h-[380px]">
+      <div className="h-[360px] md:h-[360px]">
         {hasData ? (
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -90,7 +50,7 @@ p-6 overflow-hidden"
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                innerRadius="50%"
+                innerRadius="70%"
                 outerRadius="92%"
                 paddingAngle={2}
                 label={({ percent }) => `${(percent * 100).toFixed(0)}%`}

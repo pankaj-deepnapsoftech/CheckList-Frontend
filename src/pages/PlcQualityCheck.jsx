@@ -21,35 +21,42 @@ import Refresh from "../components/Refresh/Refresh";
 import axios from "axios";
 import Pagination from "../Components/Pagination/Pagination";
 
-
 export default function PlcProducts() {
   const [showRefresh, setShowRefresh] = useState(false);
   const [search, setSearch] = useState("");
   const [machineFilter, setMachineFilter] = useState("");
-  const [pageSize, setPageSize] = useState(10);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [page, setPage] = useState(1)
-  const [isSpinning, setIsSpinning] = useState(false)
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [isSpinning, setIsSpinning] = useState(false);
   
   
 
   
 
-  const { getAllQualityChecks, createQualityCheck, updateQualityCheck, deleteQualityCheck } = useQualityCheck({
+  const {
+    getAllQualityChecks,
+    createQualityCheck,
+    updateQualityCheck,
+    deleteQualityCheck,
+  } = useQualityCheck({
     search,
     machine_name: machineFilter || undefined,
+    page,
+    limit,
   });
-  const qcList = getAllQualityChecks.data || [];
+  const qcResponse = getAllQualityChecks.data || {};
+  const qcList = Array.isArray(qcResponse) ? qcResponse : (qcResponse.data || []);
+  const totalQC = qcResponse.total ?? qcList.length;
   const isLoadingQC = getAllQualityChecks.isLoading;
   const isErrorQC = getAllQualityChecks.isError;
 
   const fetchProductDetails = async () => {
     const inputVal = values.part_no;
-
 
     if (!inputVal) {
       return toast.warn("First enter Part No. or Material Code");
@@ -120,20 +127,22 @@ export default function PlcProducts() {
     machine_name: machineFilter || undefined,
   });
 
-
-
   const getTableData = qcList;
 
+  useEffect(() => {
+    setPage(1);
+  }, [search, machineFilter]);
+
   const handleRefresh = async () => {
-    setIsSpinning(true)
-    setPage(1)
+    setIsSpinning(true);
+    setPage(1);
     setShowRefresh(true);
     getAllPlcData.refetch();
     getAllPlcProducts.refetch();
     getAllQualityChecks.refetch();
     setTimeout(() => {
-      setIsSpinning(false)
-    }, 1000)
+      setIsSpinning(false);
+    }, 1000);
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
     await Promise.all([
       getAllPlcProducts.refetch(),
@@ -148,23 +157,30 @@ export default function PlcProducts() {
   const isLoadingProducts = getAllPlcProducts.isLoading;
   const isErrorProducts = getAllPlcProducts.isError;
 
+  const stats = useMemo(() => {
+    const approved = qcList.reduce((sum, q) => sum + (Number(q.approve_quantity) || 0), 0);
+    const rejected = qcList.reduce((sum, q) => sum + (Number(q.reject_quantity) || 0), 0);
+    return {
+      total: approved + rejected,
+      approved,
+      rejected,
+    };
+  }, [qcList]);
+
   const handleApprovedQtyChange = async (e) => {
-    const approvedValue = Number(e.target.value)
-    const totalProductionCount = Number(values.production_count)
+    const approvedValue = Number(e.target.value);
+    const totalProductionCount = Number(values.production_count);
 
-
-    setFieldValue("approve_quantity", approvedValue)
+    setFieldValue("approve_quantity", approvedValue);
 
     if (totalProductionCount >= approvedValue) {
-      const rejectedValue = totalProductionCount - approvedValue
-      setFieldValue("reject_quantity", rejectedValue)
+      const rejectedValue = totalProductionCount - approvedValue;
+      setFieldValue("reject_quantity", rejectedValue);
+    } else {
+      setFieldValue("reject_quantity", 0);
+      toast.warn("Approved Quantity can not exceed total count");
     }
-    else {
-      setFieldValue("reject_quantity", 0)
-      toast.warn("Approved Quantity can not exceed total count")
-    }
-  }
-
+  };
 
   const machineOptions = useMemo(() => {
     const machines = new Set();
@@ -240,7 +256,7 @@ export default function PlcProducts() {
       });
       setIsEditOpen(false);
       setSelectedProduct(null);
-    } catch (_) {}
+    } catch (_) { }
   };
 
   const handleDelete = async () => {
@@ -282,9 +298,7 @@ export default function PlcProducts() {
     }
   };
 
-  const visibleRows = qcList.slice(0, pageSize);
-
- function formatDateTime(isoStr) {
+  function formatDateTime(isoStr) {
   if (!isoStr) return "—";
   try {
     const d = new Date(isoStr);
@@ -303,154 +317,214 @@ export default function PlcProducts() {
 
 
   return (
-    <div className="min-h-full bg-gray-50 my-4 mt-9">
-      <div className="sm:w-[930px] sm:flex sm:justify-between mx-auto flex justify-between w-[375px]">
-        <h1 className="text-xl sm:text-2xl font-semibold">Quality Check</h1>
-        <button
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 px-4 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white w-[150px]"
-          onClick={() => {
-            handleReset();
-            setIsAddOpen(true);
-          }}
-        >
-          Add Quality Check
-        </button>
-      </div>
-      <div className="sm:w-[930px] h-[38px] mx-auto flex justify-between w-[375px] mt-10">
-        <div className="flex relative w-full max-w-md">
-          <Search
-            strokeWidth={1.5}
-            className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none"
-          />
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-1/2 pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-            placeholder="Search"
-            type="text"
-          />
+    <div className="min-h-full bg-gray-50">
+      <div className="mx-auto max-w-full px-4 py-5 sm:px-6 lg:px-8">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-semibold text-gray-900">
+              Quality Check
+            </h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Add and manage quality checks — part number, approved and rejected quantities.
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                handleReset();
+                setIsAddOpen(true);
+              }}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition"
+            >
+              <Plus size={16} />
+              Add Quality Check
+            </button>
+            <button
+              type="button"
+              onClick={handleRefresh}
+              disabled={isLoadingQC}
+              className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
+            >
+              <RefreshCcw size={16} className={isSpinning ? "animate-spin" : ""} />
+              Refresh
+            </button>
+          </div>
         </div>
-        {/* <div className="flex gap-4"> */}
+
+        {isSpinning && (
+          <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-gray-100 bg-white py-8 text-gray-500">
+            <Loader2 size={24} className="animate-spin" />
+            <span>Refreshing…</span>
+          </div>
+        )}
+
+        {isLoadingQC && (
+          <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-gray-100 bg-white py-8 text-gray-500">
+            <Loader2 size={24} className="animate-spin" />
+            <span>Loading quality checks…</span>
+          </div>
+        )}
+
+        {isErrorQC && (
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {getAllQualityChecks.error?.response?.data?.message ||
+              "Failed to load quality checks."}
+          </div>
+        )}
+
+        {!isLoadingQC && !isErrorQC && (
+        <>
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="rounded-xl border border-blue-100 bg-blue-50/60 px-4 py-3 shadow-sm">
+            <p className="text-xs font-medium text-gray-600">Total Quantity</p>
+            <p className="mt-1 text-2xl font-semibold text-blue-600">
+              {stats.total}
+            </p>
+            <p className="mt-1 text-[11px] text-blue-700">Approved + Rejected</p>
+          </div>
+          <div className="rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3 shadow-sm">
+            <p className="text-xs font-medium text-gray-600">Approved Quantity</p>
+            <p className="mt-1 text-2xl font-semibold text-emerald-600">
+              {stats.approved}
+            </p>
+            <p className="mt-1 text-[11px] text-emerald-700">Total Approved</p>
+          </div>
+          <div className="rounded-xl border border-rose-100 bg-rose-50/60 px-4 py-3 shadow-sm">
+            <p className="text-xs font-medium text-gray-600">Rejected Quantity</p>
+            <p className="mt-1 text-2xl font-semibold text-rose-600">
+              {stats.rejected}
+            </p>
+            <p className="mt-1 text-[11px] text-rose-700">Total Rejected</p>
+          </div>
+        </div>
+
+        <section className="flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white/80 p-4 shadow-sm backdrop-blur mt-5">
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">Search</label>
+            <div className="relative">
+              <Search
+                strokeWidth={1.5}
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-gray-400"
+              />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="h-9 w-64 pl-9 pr-3 rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Part number, company, plant…"
+                type="text"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-[11px] font-semibold text-slate-500">Machine</label>
+            <select
+              value={machineFilter}
+              onChange={(e) => setMachineFilter(e.target.value)}
+              className="h-9 w-48 rounded-lg border border-slate-200 bg-slate-50 px-3 text-xs text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">All Machines</option>
+              {machineOptions.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
+          </div>
           <button
-            onClick={handleRefresh}
-            className="px-2 py-1  rounded-lg cursor-pointer border border-gray-300 hover:bg-gray-100 transition text-gray-500"
+            onClick={() => { setSearch(""); setMachineFilter(""); setPage(1); }}
+            className="h-9 rounded-xl bg-blue-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 active:scale-95"
           >
-            <RefreshCcw className={`h-4 w-5 transition-transform ${isSpinning ? 'animate-spin' : ''}`} />
+            Reset Filters
           </button>
-        {/* </div> */}
-      </div>
-      <div className="sm:w-[930px] w-[375px] overflow-x-scroll border border-gray-200 rounded-xl mx-auto mt-5 shadow-md bg-white">
-        <table className="w-full text-sm text-center ">
-          <thead>
-            <tr className="bg-linear-to-r from-blue-600 to-sky-500 text-white uppercase whitespace-nowrap outline-none rounded-t-lg text-xs tracking-wide">
-              <th className="px-4 sm:px-6 py-3 font-medium rounded-tl-xl">
-                PART NUMBER
-              </th>
-              <th className="px-4 sm:px-6 py-3 font-medium">COMPANY NAME</th>
-              <th className="px-4 sm:px-6 py-3 font-medium">PLANT NAME</th>
-              <th className="px-4 sm:px-6 py-3 font-medium">QUANTITY</th>
-              <th className="px-4 sm:px-6 py-3 font-medium">APPROVED</th>
-              <th className="px-4 sm:px-6 py-3 font-medium">REJECTED</th>
-              <th>DATE</th>
-              <th>UPDATED AT</th>
-              <th className="px-4 sm:px-6 py-3 font-medium rounded-tr-xl">
-                ACTION
-              </th>
+        </section>
+
+        <div className="mt-6 rounded-xl border border-gray-100 bg-white shadow-sm">
+          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+            <div>
+              <h2 className="text-sm font-semibold text-gray-800">
+                Quality Check Details
+              </h2>
+              <p className="text-xs text-gray-500">
+                Part number, company, plant, approved and rejected quantities.
+              </p>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200 text-sm">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">Part Number</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">Company</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">Plant</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">Quantity</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">Approved</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">Rejected</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">Date</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">Updated At</th>
+              <th className="px-4 py-2 text-left text-xs font-semibold text-gray-500">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y  divide-gray-200">
-            {isLoadingQC && (
+          <tbody className="divide-y divide-gray-100 bg-white">
+            {getTableData?.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-6 py-10 text-center">
-                  <div className="flex items-center justify-center gap-2 text-gray-500">
-                    <Loader2 size={20} className="animate-spin" />
-                    <span>Loading quality checks...</span>
-                  </div>
-                </td>
-              </tr>
-            )}
-            {isErrorQC && (
-              <tr>
-                <td
-                  colSpan={8}
-                  className="px-6 py-10 text-center text-sm text-red-600"
-                >
-                  {getAllQualityChecks.error?.response?.data?.message ||
-                    "Failed to load quality checks"}
-                </td>
-              </tr>
-            )}
-            {!isLoadingQC && getTableData?.length === 0 && (
-              <tr>
-                <td
-                  colSpan={8}
-                  className="mt-10 pt-30 align-middle text-center text-lg
-                  text-gray-500"
-                >
+                <td colSpan={9} className="px-6 py-10 text-center text-gray-500">
                   No quality checks found
                 </td>
               </tr>
             )}
-            {!isLoadingQC &&
-              getTableData?.map((row) => (
-                <tr
-                  key={row._id}
-                  className="text-center bg-white hover:bg-gray-50"
-                >
-                  <td className="px-4 sm:px-6 py-3">{row.part_number || "—"}</td>
-                  <td className="px-4 sm:px-6 py-3">
-                    {row.company_name || "—"}
-                  </td>
-                  <td className="px-4 sm:px-6 py-3">{row.plant_name || "—"}</td>
-                  <td className="px-4 sm:px-6 py-3">
-                    {((row.approve_quantity ?? 0) + (row.reject_quantity ?? 0)) || "—"}
-                  </td>
-                  <td className="px-4 sm:px-6 py-3">
-                    {row.approve_quantity ?? "—"}
-                  </td>
-                  <td className="px-4 sm:px-6 py-3">
-                    {row.reject_quantity ?? "—"}
-                  </td>
-                  <td className="px-4 sm:px-6 py-3">
-                    {formatDateTime( row.created_at || row.checked_at || row.updated_at )}
-                  </td>
-                  <td className="px-4 sm:px-6 py-3">
-                    {formatDateTime( row.updated_at || row.checked_at || row.created_at)}
-                  </td>
-                  <td className="px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => handleEdit(row)}
-                      className="text-blue-600 cursor-pointer hover:text-blue-700"
-                      title="Edit Approve/Reject Quantity"
-                    >
-                      <Pencil size={17} />
-                    </button>
-                    {/* <button
-                      onClick={() => {
-                        setSelectedProduct(row);
-                        setIsDeleteOpen(true);
-                      }}
-                      className="text-red-500 cursor-pointer hover:text-red-700"
-                    >
-                      <Trash size={17} />
-                    </button> */}
-                  </td>
-                </tr>
-              ))}
+            {getTableData?.map((row) => (
+              <tr key={row._id} className="hover:bg-gray-50">
+                <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-800">
+                  {row.part_number || "—"}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
+                  {row.company_name || "—"}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
+                  {row.plant_name || "—"}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2 text-xs font-semibold text-gray-900">
+                  {(row.approve_quantity ?? 0) + (row.reject_quantity ?? 0) || "—"}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2 text-xs text-emerald-600 font-medium">
+                  {row.approve_quantity ?? "—"}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2 text-xs text-rose-600 font-medium">
+                  {row.reject_quantity ?? "—"}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
+                  {formatDateTime(row.created_at || row.checked_at || row.updated_at)}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2 text-xs text-gray-700">
+                  {formatDateTime(row.updated_at || row.checked_at || row.created_at)}
+                </td>
+                <td className="whitespace-nowrap px-4 py-2">
+                  <button
+                    onClick={() => handleEdit(row)}
+                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 cursor-pointer"
+                    title="Edit Approve/Reject Quantity"
+                  >
+                    <Pencil size={16} />
+                    <span className="text-xs">Edit</span>
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
+          </div>
+        </div>
 
-        
-          
+        <Pagination
+          page={page}
+          setPage={setPage}
+          hasNextpage={page * limit < totalQC}
+        />
+        </>
+        )}
       </div>
 
-      <Pagination 
-        page={page}
-        setPage={setPage}
-      />
-
-      {/* // Add Quality Check is here  */}
-
+      {/* Add Quality Check modal */}
       {isAddOpen && (
         <form
           onSubmit={handleSubmit}
@@ -647,7 +721,9 @@ export default function PlcProducts() {
                   Edit Approve & Reject Quantity
                 </h2>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {selectedProduct.part_number || selectedProduct.product_name || "Quality Check"}
+                  {selectedProduct.part_number ||
+                    selectedProduct.product_name ||
+                    "Quality Check"}
                 </p>
               </div>
               <button
@@ -752,7 +828,8 @@ export default function PlcProducts() {
               Delete Quality Check?
             </h3>
             <p className="text-sm text-gray-500 mb-4">
-              Are you sure you want to delete this quality check? This action cannot be undone.
+              Are you sure you want to delete this quality check? This action
+              cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button
