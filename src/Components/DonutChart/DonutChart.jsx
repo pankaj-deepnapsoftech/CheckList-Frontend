@@ -6,7 +6,7 @@ const DonutChart = () => {
   const data = [
     { name: "Run Time", value: 513, color: "#5fad57" },
     { name: "Idle Time", value: 36, color: "#e6c245" },
-    { name: "Off Time", value: 66, color: "#db4d3d" },
+    { name: "Stop Time", value: 66, color: "#db4d3d" },
   ];
 
   const totalMinutes = data.reduce((sum, item) => sum + item.value, 0);
