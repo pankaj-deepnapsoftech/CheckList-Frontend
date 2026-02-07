@@ -22,8 +22,8 @@ export const usePlcData = (filters = {}, options = {},page,limit) => {
       if (endDate) params.endDate = endDate;
       if (timestampStart) params.timestampStart = timestampStart;
       if (timestampEnd) params.timestampEnd = timestampEnd;
- if (page) params.page = page; 
- if (limit) params.limit = limit;
+      if (page) params.page = page; 
+      if (limit) params.limit = limit;
 
 
       const res = await axiosHandler.get("/plc-data", { params });
