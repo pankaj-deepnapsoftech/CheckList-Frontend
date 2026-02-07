@@ -35,6 +35,9 @@ export default function PlcProducts() {
   const [page, setPage] = useState(1)
   const [isSpinning, setIsSpinning] = useState(false)
   
+  
+
+  
 
   const { getAllQualityChecks, createQualityCheck, updateQualityCheck, deleteQualityCheck } = useQualityCheck({
     search,
@@ -116,6 +119,7 @@ export default function PlcProducts() {
     search,
     machine_name: machineFilter || undefined,
   });
+
 
 
   const getTableData = qcList;
@@ -214,7 +218,7 @@ export default function PlcProducts() {
   const handleEdit = (product) => {
     setSelectedProduct(product);
     setEditForm({
-      total_quantity:(product.approve_quantity + product.reject_quantity) ?? 0,
+      total_quantity:(product.approve_quantity + product.reject_quantity ) ?? 0,
       approve_quantity: product.approve_quantity ?? 0,
       reject_quantity: product.reject_quantity ?? 0,
     });
@@ -231,6 +235,7 @@ export default function PlcProducts() {
           total_quantity: Number(editForm.total_quantity) || 0,
           approve_quantity: Number(editForm.approve_quantity) || 0,
           reject_quantity: Number(editForm.reject_quantity) || 0,
+
         },
       });
       setIsEditOpen(false);
@@ -278,6 +283,24 @@ export default function PlcProducts() {
   };
 
   const visibleRows = qcList.slice(0, pageSize);
+
+ function formatDateTime(isoStr) {
+  if (!isoStr) return "—";
+  try {
+    const d = new Date(isoStr);
+    if (Number.isNaN(d.getTime())) return "—";
+    // Show the time exactly as UTC (jo PLC se aa raha hai),
+    // browser ka local timezone shift ignore karne ke liye UTC getters use kiye hain.
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    const month = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const year = d.getUTCFullYear();
+    return `${day}/${month}/${year}`;
+  } catch {
+    return "—";
+  }
+}
+
+
 
   return (
     <div className="min-h-full bg-gray-50 my-4 mt-9">
@@ -329,6 +352,7 @@ export default function PlcProducts() {
               <th className="px-4 sm:px-6 py-3 font-medium">APPROVED</th>
               <th className="px-4 sm:px-6 py-3 font-medium">REJECTED</th>
               <th>DATE</th>
+              <th>UPDATED AT</th>
               <th className="px-4 sm:px-6 py-3 font-medium rounded-tr-xl">
                 ACTION
               </th>
@@ -388,7 +412,10 @@ export default function PlcProducts() {
                     {row.reject_quantity ?? "—"}
                   </td>
                   <td className="px-4 sm:px-6 py-3">
-                    {formatDate(row.checked_at || row.updated_at || row.created_at)}
+                    {formatDateTime( row.created_at || row.checked_at || row.updated_at )}
+                  </td>
+                  <td className="px-4 sm:px-6 py-3">
+                    {formatDateTime( row.updated_at || row.checked_at || row.created_at)}
                   </td>
                   <td className="px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
                     <button
@@ -756,3 +783,5 @@ export default function PlcProducts() {
     </div>
   );
 }
+
+
