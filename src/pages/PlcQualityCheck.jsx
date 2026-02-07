@@ -31,7 +31,7 @@ export default function PlcProducts() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const { getAllQualityChecks, createQualityCheck, deleteQualityCheck } = useQualityCheck({
+  const { getAllQualityChecks, createQualityCheck, updateQualityCheck, deleteQualityCheck } = useQualityCheck({
     search,
     machine_name: machineFilter || undefined,
   });
@@ -77,10 +77,24 @@ export default function PlcProducts() {
       model_code: "",
       machine_name: "",
       part_no: "",
+      approve_quantity: "",
+      reject_quantity: "",
     },
     onSubmit: (val) => {
-      createQualityCheck.mutate(val);
-      setIsAddOpen(false);
+      const payload = {
+        part_number: val.part_no || null,
+        company_name: val.material_code || null,
+        plant_name: val.model_code || null,
+        machine_name: val.machine_name || null,
+        approve_quantity: Number(val.approve_quantity) || 0,
+        reject_quantity: Number(val.reject_quantity) || 0,
+      };
+      createQualityCheck.mutate(payload, {
+        onSuccess: () => {
+          setIsAddOpen(false);
+          handleReset();
+        },
+      });
     },
   });
 
@@ -99,7 +113,7 @@ export default function PlcProducts() {
   });
 
 
-  const getTableData = getAllPlcProducts?.data;
+  const getTableData = qcList;
 
   const handleRefresh = async () => {
     setShowRefresh(true);
@@ -133,32 +147,40 @@ export default function PlcProducts() {
     return Array.from(machines).sort();
   }, [plcDataList, productsList]);
 
+  const [editForm, setEditForm] = useState({ approve_quantity: 0, reject_quantity: 0 });
+
+  const handleEditFormChange = (field, val) => {
+    setEditForm((prev) => ({ ...prev, [field]: val }));
+  };
+
   const handleEdit = (product) => {
     setSelectedProduct(product);
-    // setForm({
-    //   part_number: product.part_number || "",
-    //   product_name: product.product_name || "",
-    //   company_name: product.company_name || "",
-    //   plant_name: product.plant_name || "",
-    //   machine_name: product.machine_name || "",
-    // });
+    setEditForm({
+      approve_quantity: product.approve_quantity ?? 0,
+      reject_quantity: product.reject_quantity ?? 0,
+    });
     setIsEditOpen(true);
   };
 
   const handleUpdate = async () => {
     if (!selectedProduct) return;
-    // try {
-    //   await updatePlcProduct.mutateAsync({ id: selectedProduct._id, data: form });
-    //   setIsEditOpen(false);
-    //   setSelectedProduct(null);
-    //   handleReset();
-    // } catch (_) { }
+    try {
+      await updateQualityCheck.mutateAsync({
+        id: selectedProduct._id,
+        data: {
+          approve_quantity: Number(editForm.approve_quantity) || 0,
+          reject_quantity: Number(editForm.reject_quantity) || 0,
+        },
+      });
+      setIsEditOpen(false);
+      setSelectedProduct(null);
+    } catch (_) {}
   };
 
   const handleDelete = async () => {
     if (!selectedProduct) return;
     try {
-      await deletePlcProduct.mutateAsync(selectedProduct._id);
+      await deleteQualityCheck.mutateAsync(selectedProduct._id);
       setIsDeleteOpen(false);
       setSelectedProduct(null);
     } catch (err) {
@@ -277,7 +299,7 @@ export default function PlcProducts() {
                 </td>
               </tr>
             )}
-            {getTableData?.length === 0 && (
+            {!isLoadingQC && getTableData?.length === 0 && (
               <tr>
                 <td
                   colSpan={8}
@@ -293,25 +315,37 @@ export default function PlcProducts() {
                   key={row._id}
                   className="text-center bg-white hover:bg-gray-50"
                 >
-                  <td className="px-4 sm:px-6 py-3">{row.part_no || "—"}</td>
+                  <td className="px-4 sm:px-6 py-3">{row.part_number || "—"}</td>
                   <td className="px-4 sm:px-6 py-3">
                     {row.company_name || "—"}
                   </td>
                   <td className="px-4 sm:px-6 py-3">{row.plant_name || "—"}</td>
-                  <td className="px-4 sm:px-6 py-3">—</td>
                   <td className="px-4 sm:px-6 py-3">
-                    {row.status === "Approved" ? "Approved" : "—"}
+                    {((row.approve_quantity ?? 0) + (row.reject_quantity ?? 0)) || "—"}
                   </td>
                   <td className="px-4 sm:px-6 py-3">
-                    {row.status === "Rejected" ? "Rejected" : "—"}
+                    {row.approve_quantity ?? "—"}
                   </td>
                   <td className="px-4 sm:px-6 py-3">
-                    {formatDate(row.checked_at || row.created_at)}
+                    {row.reject_quantity ?? "—"}
                   </td>
                   <td className="px-4 sm:px-6 py-3">
+                    {formatDate(row.checked_at || row.updated_at || row.created_at)}
+                  </td>
+                  <td className="px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
                     <button
-                      onClick={() => deleteQualityCheck.mutate(row._id)}
-                      className=" text-red-500 cursor-pointer hover:text-red-700"
+                      onClick={() => handleEdit(row)}
+                      className="text-blue-600 cursor-pointer hover:text-blue-700"
+                      title="Edit Approve/Reject Quantity"
+                    >
+                      <Pencil size={17} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedProduct(row);
+                        setIsDeleteOpen(true);
+                      }}
+                      className="text-red-500 cursor-pointer hover:text-red-700"
                     >
                       <Trash size={17} />
                     </button>
@@ -438,6 +472,40 @@ export default function PlcProducts() {
                   placeholder="Waiting..."
                 />
               </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Approve Quantity
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    name="approve_quantity"
+                    value={values.approve_quantity}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Enter approve quantity"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 mb-1">
+                    Reject Quantity
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    name="reject_quantity"
+                    value={values.reject_quantity}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Enter reject quantity"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="border-t border-gray-200 px-6 py-3 flex justify-end gap-3">
@@ -456,7 +524,6 @@ export default function PlcProducts() {
                 type="submit"
                 disabled={createQualityCheck.isPending}
                 className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
-                onClick={() => setIsAddOpen(false)}
               >
                 {createQualityCheck.isPending && (
                   <Loader2 size={16} className="animate-spin" />
@@ -466,6 +533,145 @@ export default function PlcProducts() {
             </div>
           </div>
         </form>
+      )}
+
+      {/* Edit Product - Approve/Reject Quantity Modal */}
+      {isEditOpen && selectedProduct && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div
+            className="absolute inset-0 bg-black/30"
+            onClick={() => {
+              setIsEditOpen(false);
+              setSelectedProduct(null);
+            }}
+            aria-hidden="true"
+          />
+          <div className="relative h-full w-full max-w-md bg-white shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
+              <div>
+                <h2 className="text-lg font-semibold text-gray-900">
+                  Edit Approve & Reject Quantity
+                </h2>
+                <p className="text-xs text-gray-500 mt-0.5">
+                  {selectedProduct.part_number || selectedProduct.product_name || "Quality Check"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditOpen(false);
+                  setSelectedProduct(null);
+                }}
+                className="rounded-full p-1.5 text-gray-500 hover:bg-gray-100"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Approve Quantity
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={editForm.approve_quantity}
+                  onChange={(e) =>
+                    handleEditFormChange("approve_quantity", e.target.value)
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="Enter approve quantity"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Reject Quantity
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={editForm.reject_quantity}
+                  onChange={(e) =>
+                    handleEditFormChange("reject_quantity", e.target.value)
+                  }
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  placeholder="Enter reject quantity"
+                />
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 px-6 py-3 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditOpen(false);
+                  setSelectedProduct(null);
+                }}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleUpdate}
+                disabled={updateQualityCheck.isPending}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+              >
+                {updateQualityCheck.isPending && (
+                  <Loader2 size={16} className="animate-spin" />
+                )}
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Product Confirmation Modal */}
+      {isDeleteOpen && selectedProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/30"
+            onClick={() => {
+              setIsDeleteOpen(false);
+              setSelectedProduct(null);
+            }}
+            aria-hidden="true"
+          />
+          <div className="relative bg-white rounded-xl shadow-xl p-6 max-w-sm w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+              Delete Quality Check?
+            </h3>
+            <p className="text-sm text-gray-500 mb-4">
+              Are you sure you want to delete this quality check? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsDeleteOpen(false);
+                  setSelectedProduct(null);
+                }}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleteQualityCheck.isPending}
+                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50 flex items-center gap-2 cursor-pointer"
+              >
+                {deleteQualityCheck.isPending && (
+                  <Loader2 size={16} className="animate-spin" />
+                )}
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
