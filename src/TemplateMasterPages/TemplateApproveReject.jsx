@@ -74,7 +74,7 @@ export default function TemplateApproveReject() {
       template_id: "",
       reassign_user_id: "",
       submission_id: "",
-      edit_count: 1,
+      edit_count: "",
     },
     onSubmit: (values) => {
       PostHistorTem.mutate(values, {
