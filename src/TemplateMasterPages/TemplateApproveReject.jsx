@@ -74,7 +74,7 @@ export default function TemplateApproveReject() {
       template_id: "",
       reassign_user_id: "",
       submission_id: "",
-      edit_count:1
+      edit_count: 1,
     },
     onSubmit: (values) => {
       PostHistorTem.mutate(values, {
@@ -125,7 +125,7 @@ export default function TemplateApproveReject() {
         template_id: rejectionTemplate?.template_id || "",
         reassign_user_id: "",
         submission_id: approvalTemplate?.submission_id,
-         edit_count: approvalTemplate?.submission_edit_count ,
+        edit_count: approvalTemplate?.submission_edit_count,
       });
     }
   }, [rejectionTemplate]);
@@ -146,12 +146,11 @@ export default function TemplateApproveReject() {
         template_id: reassignTemplate?.template_id || "",
         reassign_user_id: "",
         submission_id: approvalTemplate?.submission_id,
-        edit_count: approvalTemplate?.submission_edit_count ,
+        edit_count: approvalTemplate?.submission_edit_count,
       });
     }
   }, [reassignTemplate]);
 
- 
   const handleReject = (id) => {
     const tpl = assignedTemplates.find((t) => t.template_id === id);
     if (tpl) {
@@ -173,7 +172,7 @@ export default function TemplateApproveReject() {
     if (tpl) {
       setReassignTemplate(tpl);
       setIsReassignOpen(true);
-       setApprovalTemplate(tpl);
+      setApprovalTemplate(tpl);
     }
   };
 
@@ -198,7 +197,7 @@ export default function TemplateApproveReject() {
   const openEditModal = (template) => {
     if (!template?.submission?.submission_id) return;
     setEditTemplate(template);
-     setApprovalTemplate(template);
+    setApprovalTemplate(template);
     // Use previous submission data (prev) for editing
     setEditFormData({
       ...(template.submission?.prev || template.submission?.form_data || {}),
@@ -255,8 +254,6 @@ export default function TemplateApproveReject() {
   const fields =
     approvalTemplate?.workflow?.workflow?.[current_stage]?.fields || [];
 
-   
-
   const selectedTemplateFields =
     selectedTemplate?.workflow?.workflow?.[0]?.fields || [];
 
@@ -273,8 +270,7 @@ export default function TemplateApproveReject() {
 
   const previousSubmissionData = approvalTemplate?.submission?.prev || {};
   const initialValues = fields?.reduce((acc, field) => {
-    acc[field._id] =
-      previousSubmissionData[field._id] || "";
+    acc[field._id] = previousSubmissionData[field._id] || "";
     return acc;
   }, {});
 
@@ -311,7 +307,6 @@ export default function TemplateApproveReject() {
       );
     },
   });
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
@@ -477,10 +472,10 @@ export default function TemplateApproveReject() {
         )}
 
         {isViewModalOpen && selectedTemplate && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-            <div className="w-full max-w-3xl rounded-2xl bg-white shadow-2xl">
-              {/* Header */}
-              <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center  bg-black/50 backdrop-blur-sm p-4">
+            <div className="w-full max-w-3xl max-h-[90vh] rounded-2xl bg-white overflow-hidden  shadow-2xl flex flex-col">
+            
+              <div className="flex justify-between items-center border-b border-gray-200 px-6 py-4 flex-shrink-0">
                 <h2 className="text-xl font-bold text-gray-900">
                   {selectedTemplate?.template_name}
                 </h2>
@@ -493,7 +488,7 @@ export default function TemplateApproveReject() {
               </div>
 
               {/* Body */}
-              <div className="p-6 space-y-6">
+              <div className="p-6 space-y-6 overflow-y-auto flex-1">
                 {/* Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <InfoItem
@@ -555,7 +550,7 @@ export default function TemplateApproveReject() {
                   </h3>
 
                   {selectedTemplate?.approvals?.length > 0 ? (
-                    <div className="overflow-x-auto rounded-xl border border-gray-200">
+                    <div className="overflow-auto  rounded-xl h-64 border border-gray-200">
                       <table className="min-w-full text-sm">
                         <thead className="bg-gray-50 border-b border-gray-200">
                           <tr>
@@ -579,66 +574,73 @@ export default function TemplateApproveReject() {
                             </th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
-                          {selectedTemplate.approvals.map((a, idx) => {
-                            const actionLabel =
-                              (a.status || "").toLowerCase() === "reassigned"
-                                ? `Reassigned to ${a.reassign_to_name || a.reassign_user_id || "—"}`
-                                : (a.status || "").toLowerCase() === "rejected"
-                                  ? "Rejected"
+                        <tbody className="divide-y divide-gray-100 whitespace-nowrap">
+                          {selectedTemplate.approvals
+                            .sort(
+                              (a, b) =>
+                                new Date(a?.approved_at) -
+                                new Date(b?.approved_at),
+                            )
+                            .map((a, idx) => {
+                              const actionLabel =
+                                (a.status || "").toLowerCase() === "reassigned"
+                                  ? `Reassigned to ${a.reassign_to_name || a.reassign_user_id || "—"}`
                                   : (a.status || "").toLowerCase() ===
-                                      "approved"
-                                    ? "Approved"
-                                    : a.status || "—";
-                            const reassignStatusLabel =
-                              a.status === "reassigned"
-                                ? a.reassign_status
-                                  ? "Approved by HOD/approver"
-                                  : "Pending"
-                                : "—";
-                            return (
-                              <tr
-                                key={a.approval_id || idx}
-                                className="hover:bg-gray-50/50"
-                              >
-                                <td className="px-4 py-2 text-gray-700">
-                                  {a.approved_at
-                                    ? new Date(a.approved_at).toLocaleString()
-                                    : "—"}
-                                </td>
-                                <td className="px-4 py-2 text-gray-700">
-                                  {a.current_stage ?? "—"}
-                                </td>
-                                <td className="px-4 py-2">
-                                  <span
-                                    className={
-                                      a.status === "approved"
-                                        ? "text-green-600 font-medium"
-                                        : a.status === "rejected"
-                                          ? "text-red-600 font-medium"
-                                          : a.status === "reassigned"
-                                            ? "text-violet-600 font-medium"
-                                            : "text-gray-700"
-                                    }
-                                  >
-                                    {actionLabel}
-                                  </span>
-                                </td>
-                                <td className="px-4 py-2 text-gray-700">
-                                  {a.approved_by_name || "—"}
-                                </td>
-                                <td className="px-4 py-2 text-gray-600">
-                                  {reassignStatusLabel}
-                                </td>
-                                <td
-                                  className="px-4 py-2 text-gray-600 max-w-[200px] truncate"
-                                  title={a.remarks}
+                                      "rejected"
+                                    ? "Rejected"
+                                    : (a.status || "").toLowerCase() ===
+                                        "approved"
+                                      ? "Approved"
+                                      : a.status || "—";
+                              const reassignStatusLabel =
+                                a.status === "reassigned"
+                                  ? a.reassign_status
+                                    ? "Approved by HOD/approver"
+                                    : "Pending"
+                                  : "—";
+                              return (
+                                <tr
+                                  key={a.approval_id || idx}
+                                  className="hover:bg-gray-50/50"
                                 >
-                                  {a.remarks || "—"}
-                                </td>
-                              </tr>
-                            );
-                          })}
+                                  <td className="px-4 py-2 text-gray-700">
+                                    {a.approved_at
+                                      ? new Date(a.approved_at).toLocaleString()
+                                      : "—"}
+                                  </td>
+                                  <td className="px-4 py-2 text-gray-700">
+                                    {a.current_stage ?? "—"}
+                                  </td>
+                                  <td className="px-4 py-2">
+                                    <span
+                                      className={
+                                        a.status === "approved"
+                                          ? "text-green-600 font-medium"
+                                          : a.status === "rejected"
+                                            ? "text-red-600 font-medium"
+                                            : a.status === "reassigned"
+                                              ? "text-violet-600 font-medium"
+                                              : "text-gray-700"
+                                      }
+                                    >
+                                      {actionLabel}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-2 text-gray-700">
+                                    {a.approved_by_name || "—"}
+                                  </td>
+                                  <td className="px-4 py-2 text-gray-600">
+                                    {reassignStatusLabel}
+                                  </td>
+                                  <td
+                                    className="px-4 py-2 text-gray-600 max-w-[200px] truncate"
+                                    title={a.remarks}
+                                  >
+                                    {a.remarks || "—"}
+                                  </td>
+                                </tr>
+                              );
+                            })}
                         </tbody>
                       </table>
                     </div>
