@@ -231,8 +231,7 @@ export default function AssignedTemplates() {
   };
 
   const openView = (template) => {
-    console.log(template);
-    console.log(template?.assignedUser?._id);
+   
     setViewingTemplateId(template._id);
     setIsViewOpen(true);
     setIsEditMode(false);
@@ -250,28 +249,30 @@ export default function AssignedTemplates() {
     formik.resetForm();
   };
 
-  const handleEdit = async () => {
-    setIsEditMode(true);
-    if (
-      viewingSubmission &&
-      viewingSubmission.status === "SUBMITTED" &&
-      currentSubmissionId
-    ) {
-      try {
-        await updateSubmission.mutateAsync({
-          id: currentSubmissionId,
-          payload: {
-            form_data: viewingSubmission.form_data,
-            status: "SUBMITTED",
-          },
-        });
+  // const handleEdit = async () => {
+   
+  //   console.log(viewingSubmission);
+  //   if (
+  //     viewingSubmission &&
+  //     viewingSubmission.status === "SUBMITTED" &&
+  //     currentSubmissionId
+  //   ) {
+  //     try {
+  //       await updateSubmission.mutateAsync({
+  //         id: currentSubmissionId,
+  //         payload: {
+  //           form_data: viewingSubmission.form_data,
+  //           status: "SUBMITTED",
+  //           edit_count: viewingSubmission?.edit_count + 1,
+  //         },
+  //       });
 
-        getUserSubmissions.refetch();
-      } catch (error) {
-        console.error("Error updating submission:", error);
-      }
-    }
-  };
+  //       getUserSubmissions.refetch();
+  //     } catch (error) {
+  //       console.error("Error updating submission:", error);
+  //     }
+  //   }
+  // };
 
   const handleSubmit = async () => {
     // Validate mandatory fields
@@ -317,10 +318,11 @@ export default function AssignedTemplates() {
             status: "SUBMITTED",
             user_id: assigned_user_id,
             plant_id: plant_id || null,
+            edit_count: viewingSubmission?.edit_count + 1,
           },
         });
       }
-
+   
       // Submit the form
       if (submissionId) {
         await submitSubmission.mutateAsync(submissionId);
@@ -621,7 +623,7 @@ export default function AssignedTemplates() {
                     viewingSubmission.status === "SUBMITTED" &&
                     !isEditMode && (
                       <button
-                        onClick={handleEdit}
+                        onClick={()=>  setIsEditMode(true)}
                         className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
                       >
                         <Edit size={18} />
@@ -675,7 +677,7 @@ export default function AssignedTemplates() {
                 <form onSubmit={formik.handleSubmit}>
                   <div className="mt-6">
                     <h3 className="mb-4 text-lg font-semibold text-gray-900">
-                      Template Fields
+                        Template Fields
                     </h3>
                     {fields?.length === 0 ? (
                       <p className="text-sm text-gray-500">

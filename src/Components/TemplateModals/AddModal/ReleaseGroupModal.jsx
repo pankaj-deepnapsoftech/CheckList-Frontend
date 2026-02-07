@@ -24,7 +24,7 @@ const AddReleaseGroupModal = ({
 
   const titleMap = {
     add: "Add Release Group",
-    edit: "Update Release Group",
+    edit: "Update Release Group", 
     view: "View Release Group",
   };
 
@@ -154,7 +154,7 @@ const AddReleaseGroupModal = ({
   }, [plantOpen]);
 
 
-console.log(values);
+
   const filteredPlantOptions = React.useMemo(() => {
     if (mode === "edit" && editData?.users?.length === 1) {
       const currentUser = values.users.find(

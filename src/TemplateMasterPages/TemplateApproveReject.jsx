@@ -73,6 +73,8 @@ export default function TemplateApproveReject() {
       user_id: "",
       template_id: "",
       reassign_user_id: "",
+      submission_id: "",
+      edit_count:1
     },
     onSubmit: (values) => {
       PostHistorTem.mutate(values, {
@@ -102,6 +104,8 @@ export default function TemplateApproveReject() {
         user_id: approvalTemplate?.user_db_id || "",
         template_id: approvalTemplate?.template_id || "",
         reassign_user_id: "",
+        submission_id: approvalTemplate?.submission_id,
+        edit_count: approvalTemplate?.submission_edit_count,
       });
     }
   }, [approvalTemplate]);
@@ -120,10 +124,13 @@ export default function TemplateApproveReject() {
         user_id: rejectionTemplate?.user_db_id || "",
         template_id: rejectionTemplate?.template_id || "",
         reassign_user_id: "",
+        submission_id: approvalTemplate?.submission_id,
+         edit_count: approvalTemplate?.submission_edit_count ,
       });
     }
   }, [rejectionTemplate]);
 
+  console.log(approvalTemplate);
   useEffect(() => {
     if (reassignTemplate) {
       formik.setValues({
@@ -138,10 +145,13 @@ export default function TemplateApproveReject() {
         user_id: reassignTemplate?.user_db_id || "",
         template_id: reassignTemplate?.template_id || "",
         reassign_user_id: "",
+        submission_id: approvalTemplate?.submission_id,
+        edit_count: approvalTemplate?.submission_edit_count ,
       });
     }
   }, [reassignTemplate]);
 
+ 
   const handleReject = (id) => {
     const tpl = assignedTemplates.find((t) => t.template_id === id);
     if (tpl) {
@@ -163,6 +173,7 @@ export default function TemplateApproveReject() {
     if (tpl) {
       setReassignTemplate(tpl);
       setIsReassignOpen(true);
+       setApprovalTemplate(tpl);
     }
   };
 
@@ -187,7 +198,11 @@ export default function TemplateApproveReject() {
   const openEditModal = (template) => {
     if (!template?.submission?.submission_id) return;
     setEditTemplate(template);
-    setEditFormData({ ...(template.submission?.form_data || {}) });
+     setApprovalTemplate(template);
+    // Use previous submission data (prev) for editing
+    setEditFormData({
+      ...(template.submission?.prev || template.submission?.form_data || {}),
+    });
     setIsEditOpen(true);
   };
 
@@ -235,16 +250,15 @@ export default function TemplateApproveReject() {
 
   const current_stage = approvalTemplate?.current_approver_stage ?? 0;
 
-  const fields =
-  approvalTemplate?.workflow?.workflow?.[current_stage]?.fields || [];
+  console.log(approvalTemplate?.current_approver_stage);
 
+  const fields =
+    approvalTemplate?.workflow?.workflow?.[current_stage]?.fields || [];
+
+   
 
   const selectedTemplateFields =
     selectedTemplate?.workflow?.workflow?.[0]?.fields || [];
-
-
-
-
 
   const fieldMap =
     selectedTemplateFields?.reduce((acc, field) => {
@@ -252,19 +266,21 @@ export default function TemplateApproveReject() {
       return acc;
     }, {}) || {};
 
-
-
   const getWorkflowFormData = (formData) => {
     if (!formData || selectedTemplateFields.length === 0) return {};
     return formData;
   };
+
+  const previousSubmissionData = approvalTemplate?.submission?.prev || {};
   const initialValues = fields?.reduce((acc, field) => {
-    acc[field._id] = field.field_name;
+    acc[field._id] =
+      previousSubmissionData[field._id] || "";
     return acc;
   }, {});
 
   const formikForForm = useFormik({
     initialValues,
+    enableReinitialize: true,
     onSubmit: (values) => {
       const previousFormData = approvalTemplate?.submission?.prev || {};
 
@@ -295,6 +311,7 @@ export default function TemplateApproveReject() {
       );
     },
   });
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-blue-50">
@@ -333,9 +350,12 @@ export default function TemplateApproveReject() {
                        transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
               <div className="flex justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 group-hover:text-indigo-600 transition">
-                  {template?.template_name}
-                </h3>
+                <div>
+                  <p className=" rounded-full bg-sky-100 px-2 py-[5px]     text-[13px] font-[600] text-sky-700">
+                    {template?.template_name}
+                  </p>
+                </div>
+
                 <button
                   onClick={() => {
                     setOpenFillModal(true);
@@ -348,18 +368,6 @@ export default function TemplateApproveReject() {
                   Fill Form
                 </button>
               </div>
-
-              <div className="mt-2 mb-3 space-y-1">
-                <p className="text-sm text-gray-700">
-                  <span className="font-medium">Employee:</span>{" "}
-                  {template?.full_name || "N/A"}
-                </p>
-                <p className="text-xs text-gray-600">
-                  <span className="font-medium">Email:</span>{" "}
-                  {template?.email || "N/A"}
-                </p>
-              </div>
-
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-700">
                   {template?.template_type}
@@ -369,11 +377,26 @@ export default function TemplateApproveReject() {
                   fields
                 </span>
               </div>
+              <div className="mt-2 mb-3 space-y-1">
+                <p className="text-xs text-gray-700">
+                  <span className="font-medium">Employee:</span>{" "}
+                  {template?.full_name || "N/A"} ({template?.user_id})
+                </p>
+                <p className="text-xs text-gray-700">
+                  <span className="font-medium">Email:</span>{" "}
+                  {template?.email || "N/A"}
+                </p>
+                <p className="text-xs  text-gray-700">
+                  <span className="font-medium ">Plant Name:</span>{" "}
+                  {template.plant_detail?.plant_name} (
+                  {template.plant_detail?.plant_code})
+                </p>
+              </div>
 
-              <div className="mt-4 space-y-1 text-sm text-gray-600">
+              <div className=" space-y-1 text-sm text-gray-600">
                 <p>
                   <span className="font-medium text-gray-800">Status:</span>{" "}
-                  <span className="capitalize">
+                  <span className="capitalize rounded-full bg-emerald-100 px-2 py-1 text-xs font-[600] text-emerald-700">
                     {template?.submission?.status}
                   </span>
                 </p>
@@ -871,7 +894,8 @@ export default function TemplateApproveReject() {
 
                   <button
                     type="submit"
-                    className="rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white"
+                    // disabled={formikForForm.values}
+                    className={`rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white `}
                   >
                     Submit
                   </button>
@@ -993,7 +1017,7 @@ export default function TemplateApproveReject() {
         {isEditOpen && editTemplate && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-2xl p-6">
-              <div className="flex justify-between items-center border-b pb-4 mb-4">
+              <div className="flex justify-between items-center  pb-4 mb-4">
                 <h2 className="text-xl font-semibold text-amber-800">
                   Edit submission — {editTemplate?.template_name}
                 </h2>
@@ -1005,29 +1029,130 @@ export default function TemplateApproveReject() {
                 </button>
               </div>
               <div className="space-y-4">
-                {Object.keys(editFormData).length === 0 ? (
+                {!editTemplate?.workflow?.workflow?.[current_stage]?.fields ||
+                editTemplate.workflow.workflow[current_stage].fields.length ===
+                  0 ? (
                   <p className="text-sm text-gray-500">
                     No form fields to edit.
                   </p>
                 ) : (
-                  Object.entries(editFormData).map(([key, value]) => (
-                    <div key={key} className="space-y-1">
-                      <label className="block text-xs font-semibold uppercase text-gray-500">
-                        {key.split("~")[0]}
-                      </label>
-                      <input
-                        type="text"
-                        value={value ?? ""}
-                        onChange={(e) =>
-                          handleEditFieldChange(key, e.target.value)
-                        }
-                        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                      />
-                    </div>
-                  ))
+                  editTemplate.workflow.workflow[current_stage].fields.map(
+                    (field) => {
+                      const fieldValue =
+                        editFormData[field._id] !== undefined
+                          ? editFormData[field._id]
+                          : "";
+                      return (
+                        <div key={field._id} className="space-y-1">
+                          <label className="block text-xs font-semibold uppercase text-gray-500">
+                            {field.field_name}
+                            {field.is_mandatory && (
+                              <span className="text-red-500"> *</span>
+                            )}
+                          </label>
+                          {field.field_type === "TEXT" && (
+                            <input
+                              type="text"
+                              value={fieldValue}
+                              onChange={(e) =>
+                                handleEditFieldChange(field._id, e.target.value)
+                              }
+                              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            />
+                          )}
+                          {field.field_type === "NUMBER" && (
+                            <input
+                              type="number"
+                              value={fieldValue}
+                              onChange={(e) =>
+                                handleEditFieldChange(field._id, e.target.value)
+                              }
+                              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            />
+                          )}
+                          {field.field_type === "TEXTAREA" && (
+                            <textarea
+                              value={fieldValue}
+                              onChange={(e) =>
+                                handleEditFieldChange(field._id, e.target.value)
+                              }
+                              rows={4}
+                              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            />
+                          )}
+                          {field.field_type === "DATE" && (
+                            <input
+                              type="date"
+                              value={fieldValue}
+                              onChange={(e) =>
+                                handleEditFieldChange(field._id, e.target.value)
+                              }
+                              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            />
+                          )}
+                          {field.field_type === "CHECKBOX" && (
+                            <input
+                              type="checkbox"
+                              checked={
+                                fieldValue === true || fieldValue === "true"
+                              }
+                              onChange={(e) =>
+                                handleEditFieldChange(
+                                  field._id,
+                                  e.target.checked,
+                                )
+                              }
+                              className="h-4 w-4 text-amber-600"
+                            />
+                          )}
+                          {field.field_type === "DROPDOWN" && (
+                            <select
+                              value={fieldValue}
+                              onChange={(e) =>
+                                handleEditFieldChange(field._id, e.target.value)
+                              }
+                              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                            >
+                              <option value="">Select an option</option>
+                              {field.options?.map((option, index) => (
+                                <option key={index} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                          {field.field_type === "RADIO" && (
+                            <div className="space-y-2">
+                              {field.options?.map((option, index) => (
+                                <label
+                                  key={index}
+                                  className="flex items-center gap-2 text-sm"
+                                >
+                                  <input
+                                    type="radio"
+                                    name={field._id}
+                                    value={option}
+                                    checked={fieldValue === option}
+                                    onChange={(e) =>
+                                      handleEditFieldChange(
+                                        field._id,
+                                        e.target.value,
+                                      )
+                                    }
+                                    className="text-amber-600"
+                                  />
+                                  {option}
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    },
+                  )
                 )}
               </div>
-              <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
+              <div className="flex justify-end gap-3 mt-6 pt-4 ">
                 <button
                   type="button"
                   onClick={closeEditModal}
