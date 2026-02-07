@@ -246,7 +246,7 @@ export default function PlcProducts() {
 
   return (
     <div className="min-h-full bg-gray-50 my-4 mt-9">
-      <div className="sm:w-[930px] sm:flex sm:justify-between mx-auto flex justify-between w-[375px]">
+      <div className="mx-auto flex justify-between w-[375px] sm:w-[930px] sm:flex sm:justify-between md:w-[560px] lg:w-[90%]  [@media(min-width:1440px)]:w-[1060px]">
         <h1 className="text-xl sm:text-2xl font-semibold">Quality Check</h1>
         <button
           className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 px-4 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white w-[150px]"
@@ -258,7 +258,7 @@ export default function PlcProducts() {
           Add Quality Check
         </button>
       </div>
-      <div className="sm:w-[930px] h-[38px] mx-auto flex justify-between w-[375px] mt-10">
+      <div className="h-[38px] mx-auto flex justify-between w-[375px] mt-10 sm:w-[930px] md:w-[560px] lg:w-[90%] [@media(min-width:1440px)]:w-[1060px]">
         <div className="flex relative w-full max-w-md">
           <Search
             strokeWidth={1.5}
@@ -281,7 +281,7 @@ export default function PlcProducts() {
           </button>
         {/* </div> */}
       </div>
-      <div className="sm:w-[930px] w-[375px] overflow-x-scroll border border-gray-200 rounded-xl mx-auto mt-5 shadow-md bg-white">
+      <div className="sm:w-[930px] w-[375px] overflow-x-scroll sm:overflow-x-hidden border border-gray-200 rounded-xl mx-auto mt-5 shadow-md bg-white md:w-[560px] md:overflow-x-scroll lg:w-[90%] lg:overflow-x-scroll scrollbar-custom [@media(min-width:1440px)]:w-[1060px]">
         <table className="w-full text-sm text-center ">
           <thead>
             <tr className="bg-linear-to-r from-blue-600 to-sky-500 text-white uppercase whitespace-nowrap outline-none rounded-t-lg text-xs tracking-wide">
