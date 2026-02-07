@@ -21,7 +21,6 @@ import Refresh from "../components/Refresh/Refresh";
 import axios from "axios";
 import Pagination from "../Components/Pagination/Pagination";
 
-
 export default function PlcProducts() {
   const [showRefresh, setShowRefresh] = useState(false);
   const [search, setSearch] = useState("");
@@ -32,10 +31,15 @@ export default function PlcProducts() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [page, setPage] = useState(1)
-  const [isSpinning, setIsSpinning] = useState(false)
+  const [page, setPage] = useState(1);
+  const [isSpinning, setIsSpinning] = useState(false);
 
-  const { getAllQualityChecks, createQualityCheck, updateQualityCheck, deleteQualityCheck } = useQualityCheck({
+  const {
+    getAllQualityChecks,
+    createQualityCheck,
+    updateQualityCheck,
+    deleteQualityCheck,
+  } = useQualityCheck({
     search,
     machine_name: machineFilter || undefined,
   });
@@ -45,7 +49,6 @@ export default function PlcProducts() {
 
   const fetchProductDetails = async () => {
     const inputVal = values.part_no;
-
 
     if (!inputVal) {
       return toast.warn("First enter Part No. or Material Code");
@@ -116,19 +119,18 @@ export default function PlcProducts() {
     machine_name: machineFilter || undefined,
   });
 
-
   const getTableData = qcList;
 
   const handleRefresh = async () => {
-    setIsSpinning(true)
-    setPage(1)
+    setIsSpinning(true);
+    setPage(1);
     setShowRefresh(true);
     getAllPlcData.refetch();
     getAllPlcProducts.refetch();
     getAllQualityChecks.refetch();
     setTimeout(() => {
-      setIsSpinning(false)
-    }, 1000)
+      setIsSpinning(false);
+    }, 1000);
     const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
     await Promise.all([
       getAllPlcProducts.refetch(),
@@ -144,21 +146,19 @@ export default function PlcProducts() {
   const isErrorProducts = getAllPlcProducts.isError;
 
   const handleApprovedQtyChange = async (e) => {
-    const approvedValue = Number(e.target.value)
-    const totalProductionCount = Number(values.production_count)
+    const approvedValue = Number(e.target.value);
+    const totalProductionCount = Number(values.production_count);
 
-    setFieldValue("approve_quantity", approvedValue)
+    setFieldValue("approve_quantity", approvedValue);
 
     if (totalProductionCount >= approvedValue) {
-      const rejectedValue = totalProductionCount - approvedValue
-      setFieldValue("reject_quantity", rejectedValue)
+      const rejectedValue = totalProductionCount - approvedValue;
+      setFieldValue("reject_quantity", rejectedValue);
+    } else {
+      setFieldValue("reject_quantity", 0);
+      toast.warn("Approved Quantity can not exceed total count");
     }
-    else {
-      setFieldValue("reject_quantity", 0)
-      toast.warn("Approved Quantity can not exceed total count")
-    }
-  }
-
+  };
 
   const machineOptions = useMemo(() => {
     const machines = new Set();
@@ -173,7 +173,10 @@ export default function PlcProducts() {
     return Array.from(machines).sort();
   }, [plcDataList, productsList]);
 
-  const [editForm, setEditForm] = useState({ approve_quantity: 0, reject_quantity: 0 });
+  const [editForm, setEditForm] = useState({
+    approve_quantity: 0,
+    reject_quantity: 0,
+  });
 
   const handleEditFormChange = (field, val) => {
     setEditForm((prev) => ({ ...prev, [field]: val }));
@@ -200,7 +203,7 @@ export default function PlcProducts() {
       });
       setIsEditOpen(false);
       setSelectedProduct(null);
-    } catch (_) {}
+    } catch (_) { }
   };
 
   const handleDelete = async () => {
@@ -244,21 +247,55 @@ export default function PlcProducts() {
 
   const visibleRows = qcList.slice(0, pageSize);
 
+  const stats = useMemo(() => {
+  if (!getTableData || getTableData.length === 0) {
+    return { total: 0, approved: 0, rejected: 0 };
+  }
+
+  return getTableData.reduce((acc, row) => {
+    const appQty = Number(row.approve_quantity) || 0;
+    const rejQty = Number(row.reject_quantity) || 0;
+    
+    return {
+      total: acc.total + (appQty + rejQty),
+      approved: acc.approved + appQty,
+      rejected: acc.rejected + rejQty
+    };
+  }, { total: 0, approved: 0, rejected: 0 });
+}, [getTableData]);
+
   return (
-    <div className="min-h-full bg-gray-50 my-4 mt-9">
-      <div className="mx-auto flex justify-between w-[375px] sm:w-[930px] sm:flex sm:justify-between md:w-[560px] lg:w-[90%]  [@media(min-width:1440px)]:w-[1060px]">
-        <h1 className="text-xl sm:text-2xl font-semibold">Quality Check</h1>
-        <button
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 px-4 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white w-[150px]"
-          onClick={() => {
-            handleReset();
-            setIsAddOpen(true);
-          }}
-        >
-          Add Quality Check
-        </button>
+    <div className="min-h-full w-full bg-gray-50 my-4 mt-9">
+      <div className="mx-auto flex justify-between w-[90%]">
+        <h1 className="text-xl sm:text-2xl font-semibold pb-1 border-b-3 border-b-gray-500">Quality Check Stats</h1>
       </div>
-      <div className="h-[38px] mx-auto flex justify-between w-[375px] mt-10 sm:w-[930px] md:w-[560px] lg:w-[90%] [@media(min-width:1440px)]:w-[1060px]">
+      <div className="w-[90%] mt-8 m-4 mx-auto grid gap-4 grid-cols-1 sm:grid-cols-3">
+        <div className="min-h-[100px] shadow-xl bg-blue-50/70 rounded-xl border border-blue-100 text-gray-500">
+          <h3 className="text-xl font-medium text-gray-600 px-4 py-3">
+            Total Quantity
+          </h3>
+          <span className="mt-1 text-2xl font-semibold text-blue-600 px-4 py-3  ">
+            {stats.total}
+          </span>
+        </div>
+        <div className="min-h-[100px] shadow-xl bg-green-50/70 border border-green-100 rounded-xl text-gray-500">
+          <h3 className="text-xl font-medium text-gray-600 px-4 py-3">
+            Approve Quantity
+          </h3>
+          <span className="mt-1 text-2xl font-semibold text-green-600 px-4 py-3">
+            {stats.approved}
+          </span>
+        </div>
+        <div className="min-h-[100px] shadow-xl bg-red-50/70 rounded-xl text-gray-500 border border-red-100">
+          <h3 className="text-xl font-medium text-gray-600 px-4 py-3">
+            Rejected Quantity
+          </h3>
+          <span className="mt-1 text-2xl font-semibold text-red-600 px-4 py-3">
+            {stats.rejected}
+          </span>
+        </div>
+      </div>
+      <div className="h-[38px] mx-auto flex justify-between w-[90%] mt-10">
         <div className="flex relative w-full max-w-md">
           <Search
             strokeWidth={1.5}
@@ -272,27 +309,38 @@ export default function PlcProducts() {
             type="text"
           />
         </div>
-        {/* <div className="flex gap-4"> */}
-          <button
-            onClick={handleRefresh}
-            className="px-2 py-1  rounded-lg cursor-pointer border border-gray-300 hover:bg-gray-100 transition text-gray-500"
-          >
-            <RefreshCcw className={`h-4 w-5 transition-transform ${isSpinning ? 'animate-spin' : ''}`} />
-          </button>
-        {/* </div> */}
+        <div className="flex gap-4">
+        <button
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive h-9 px-4 py-2 bg-blue-600 cursor-pointer hover:bg-blue-700 text-white w-[150px]"
+          onClick={() => {
+            handleReset();
+            setIsAddOpen(true);
+          }}
+        >
+          Add Quality Check
+        </button>
+        <button
+          onClick={handleRefresh}
+          className="px-2 py-1  rounded-lg cursor-pointer border border-gray-300 hover:bg-gray-100 transition text-gray-500"
+        >
+          <RefreshCcw
+            className={`h-4 w-5 transition-transform ${isSpinning ? "animate-spin" : ""}`}
+          />
+        </button>
+        </div>
       </div>
-      <div className="sm:w-[930px] w-[375px] overflow-x-scroll sm:overflow-x-hidden border border-gray-200 rounded-xl mx-auto mt-5 shadow-md bg-white md:w-[560px] md:overflow-x-scroll lg:w-[90%] lg:overflow-x-scroll scrollbar-custom [@media(min-width:1440px)]:w-[1060px]">
-        <table className="w-full text-sm text-center ">
+      <div className="w-[90%] overflow-x-scroll border border-gray-200 rounded-xl mx-auto mt-5 shadow-md bg-white scrollbar-custom">
+        <table className="w-full text-sm text-center whitespace-nowrap ">
           <thead>
             <tr className="bg-linear-to-r from-blue-600 to-sky-500 text-white uppercase whitespace-nowrap outline-none rounded-t-lg text-xs tracking-wide">
-              <th className="px-4 sm:px-6 py-3 font-medium rounded-tl-xl">
+              <th className="px-4 sm:px-5 py-3 font-medium rounded-tl-xl">
                 PART NUMBER
               </th>
-              <th className="px-4 sm:px-6 py-3 font-medium">COMPANY NAME</th>
-              <th className="px-4 sm:px-6 py-3 font-medium">PLANT NAME</th>
-              <th className="px-4 sm:px-6 py-3 font-medium">QUANTITY</th>
-              <th className="px-4 sm:px-6 py-3 font-medium">APPROVED</th>
-              <th className="px-4 sm:px-6 py-3 font-medium">REJECTED</th>
+              <th className="px-4 sm:px-5 py-3 font-medium">COMPANY NAME</th>
+              <th className="px-4 sm:px-5 py-3 font-medium">PLANT NAME</th>
+              <th className="px-4 sm:px-5 py-3 font-medium">QUANTITY</th>
+              <th className="px-4 sm:px-5 py-3 font-medium">APPROVED</th>
+              <th className="px-4 sm:px-5 py-3 font-medium">REJECTED</th>
               <th>DATE</th>
               <th className="px-4 sm:px-6 py-3 font-medium rounded-tr-xl">
                 ACTION
@@ -338,24 +386,29 @@ export default function PlcProducts() {
                   key={row._id}
                   className="text-center bg-white hover:bg-gray-50"
                 >
-                  <td className="px-4 sm:px-6 py-3">{row.part_number || "—"}</td>
+                  <td className="px-4 sm:px-5 py-3">
+                    {row.part_number || "—"}
+                  </td>
                   <td className="px-4 sm:px-6 py-3">
                     {row.company_name || "—"}
                   </td>
-                  <td className="px-4 sm:px-6 py-3">{row.plant_name || "—"}</td>
-                  <td className="px-4 sm:px-6 py-3">
-                    {((row.approve_quantity ?? 0) + (row.reject_quantity ?? 0)) || "—"}
+                  <td className="px-4 sm:px-5 py-3">{row.plant_name || "—"}</td>
+                  <td className="px-4 sm:px-5 py-3">
+                    {(row.approve_quantity ?? 0) + (row.reject_quantity ?? 0) ||
+                      "—"}
                   </td>
-                  <td className="px-4 sm:px-6 py-3">
+                  <td className="px-4 sm:px-5 py-3">
                     {row.approve_quantity ?? "—"}
                   </td>
-                  <td className="px-4 sm:px-6 py-3">
+                  <td className="px-4 sm:px-5 py-3">
                     {row.reject_quantity ?? "—"}
                   </td>
-                  <td className="px-4 sm:px-6 py-3">
-                    {formatDate(row.checked_at || row.updated_at || row.created_at)}
+                  <td className="px-4 sm:px-5 py-3">
+                    {formatDate(
+                      row.checked_at || row.updated_at || row.created_at,
+                    )}
                   </td>
-                  <td className="px-4 sm:px-6 py-3 flex items-center justify-center gap-2">
+                  <td className="px-4 sm:px-5 py-3 flex items-center justify-center gap-2">
                     <button
                       onClick={() => handleEdit(row)}
                       className="text-blue-600 cursor-pointer hover:text-blue-700"
@@ -377,15 +430,9 @@ export default function PlcProducts() {
               ))}
           </tbody>
         </table>
-
-        
-          
       </div>
 
-      <Pagination 
-        page={page}
-        setPage={setPage}
-      />
+      <Pagination page={page} setPage={setPage} />
 
       {/* // Add Quality Check is here  */}
 
@@ -585,7 +632,9 @@ export default function PlcProducts() {
                   Edit Approve & Reject Quantity
                 </h2>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {selectedProduct.part_number || selectedProduct.product_name || "Quality Check"}
+                  {selectedProduct.part_number ||
+                    selectedProduct.product_name ||
+                    "Quality Check"}
                 </p>
               </div>
               <button
@@ -677,7 +726,8 @@ export default function PlcProducts() {
               Delete Quality Check?
             </h3>
             <p className="text-sm text-gray-500 mb-4">
-              Are you sure you want to delete this quality check? This action cannot be undone.
+              Are you sure you want to delete this quality check? This action
+              cannot be undone.
             </p>
             <div className="flex justify-end gap-3">
               <button
