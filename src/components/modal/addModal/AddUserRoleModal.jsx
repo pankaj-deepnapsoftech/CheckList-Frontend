@@ -38,8 +38,10 @@ export const PERMISSION_MODULES = {
     "My Templates": "/assigned-templates",
   },
   "Plc-Data": {
-    "Live-Data": "/plc-data/live",
-    "Stoppage": "/plc-data/stoppage",
+    Dashboard: "/plc-data/dashboard",
+    "Live Data": "/plc-data/live",
+    Stoppage: "/plc-data/stoppage",
+    "QC Check": "/plc-data/qc-check",
   },
 };
 
