@@ -537,12 +537,16 @@ export default function TemplateMaster() {
       },
     });
   
-    // Reset form fields after adding
+    
     setApprovalId(null);
     setNewFieldName("");
     setNewFieldType("TEXT");
     setNewIsMandatory(false);
     setNewDropdownOptions("");
+    setNewTypeField(null)
+    setNewTypeField(null)
+    setEditTypeField(null)
+    
   };
 
   const handleUpdateField = async (e) => {
@@ -1336,7 +1340,7 @@ export default function TemplateMaster() {
                     <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
                       <div className="flex items-center justify-between">
                         <h3 className="text-sm font-semibold text-gray-800">
-                          {editingFieldId ? "Edit Field" : "Add Field"}
+                          {editingFieldId ? "Edit Field" : "Add  Field"}
                         </h3>
                         <span className="text-xs text-yellow-600">
                           Total: {fields.length}
@@ -1382,54 +1386,6 @@ export default function TemplateMaster() {
                               </option>
                             ))}
                           </select>
-                        </div>
-                        <div className="sm:col-span-1 flex items-end justify-between gap-3">
-                          <label className="flex items-center gap-1 text-sm text-gray-700">
-                            <input
-                              type="checkbox"
-                              checked={
-                                editingFieldId
-                                  ? editIsMandatory
-                                  : newIsMandatory
-                              }
-                              onChange={(e) =>
-                                editingFieldId
-                                  ? setEditIsMandatory(e.target.checked)
-                                  : setNewIsMandatory(e.target.checked)
-                              }
-                            />
-                            Mandatory
-                          </label>
-                          {editingFieldId ? (
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={cancelEditField}
-                                className="rounded-lg border border-gray-300 px-1 py-1 text-xs font-small text-gray-700 hover:bg-gray-50"
-                              >
-                                Cancel
-                              </button>
-                              <button
-                                type="button"
-                                onClick={handleUpdateField}
-                                disabled={updateField.isPending}
-                                className="rounded-lg bg-blue-600 px-2 py-2 text-xs font-small text-white hover:bg-blue-700 disabled:opacity-60"
-                              >
-                                {updateField.isPending
-                                  ? "Updating..."
-                                  : "Update"}
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={handleAddFieldInEdit}
-                              disabled={addField.isPending}
-                              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
-                            >
-                              {addField.isPending ? "Adding..." : "Add"}
-                            </button>
-                          )}
                         </div>
 
                         <div className="w-full max-w-sm space-y-4">
@@ -1480,6 +1436,55 @@ export default function TemplateMaster() {
                                 ))}
                               </select>
                             </div>
+                          )}
+                        </div>
+
+                        <div className="sm:col-span-1 flex items-end justify-between gap-3">
+                          <label className="flex items-center gap-1 text-sm text-gray-700">
+                            <input
+                              type="checkbox"
+                              checked={
+                                editingFieldId
+                                  ? editIsMandatory
+                                  : newIsMandatory
+                              }
+                              onChange={(e) =>
+                                editingFieldId
+                                  ? setEditIsMandatory(e.target.checked)
+                                  : setNewIsMandatory(e.target.checked)
+                              }
+                            />
+                            Mandatory
+                          </label>
+                          {editingFieldId ? (
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={cancelEditField}
+                                className="rounded-lg border border-gray-300 px-1 py-1 text-xs font-small text-gray-700 hover:bg-gray-50"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                onClick={handleUpdateField}
+                                disabled={updateField.isPending}
+                                className="rounded-lg bg-blue-600 px-2 py-2 text-xs font-small text-white hover:bg-blue-700 disabled:opacity-60"
+                              >
+                                {updateField.isPending
+                                  ? "Updating..."
+                                  : "Update"}
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={handleAddFieldInEdit}
+                              disabled={addField.isPending}
+                              className="rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+                            >
+                              {addField.isPending ? "Adding..." : "Add"}
+                            </button>
                           )}
                         </div>
 
@@ -1566,9 +1571,9 @@ export default function TemplateMaster() {
                                   <td className="px-3 py-2 text-sm text-gray-700">
                                     {f.is_mandatory ? "Yes" : "No"}
                                   </td>
-                                  <td className="px-3 whitespace-nowrap py-2 text-sm text-gray-700">
+                                  <td className="px-3 py-2 text-sm text-gray-700">
                                     {f.type === "Approval" ? (
-                                      <p> Group name: ({f?.groupDetail?.group_name})</p>
+                                      <p>{f?.groupDetail?.group_name}</p>
                                     ) : (
                                       f?.type
                                     )}

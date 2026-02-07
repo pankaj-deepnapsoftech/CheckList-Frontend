@@ -72,7 +72,7 @@ export default function AssignedTemplates() {
   const templates = assignedTemplatesQuery.data || [];
   const selectedTemplate = templateQuery.data;
   const existingSubmissions = getUserSubmissions.data || [];
-  console.log(User_plant_id);
+  console.log(existingSubmissions);
   const fields = useMemo(() => {
     const f = selectedTemplate?.fields || [];
     return [...f].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));

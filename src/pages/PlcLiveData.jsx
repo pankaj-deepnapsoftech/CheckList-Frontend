@@ -18,6 +18,7 @@ import { usePlcProduct } from "../hooks/usePlcProduct";
 import { useNavigate } from "react-router-dom";
 import DonutChart from "../Components/DonutChart/donutChart";
 
+
 function SummaryCard({ card }) {
   const isUpTrend = card.trend === "up";
   const trendColor = isUpTrend ? "text-emerald-600" : "text-rose-600";
@@ -1504,6 +1505,4 @@ const SlicedStoppages = stoppages.slice(0, 4);
     </div>
   );
 };
-
-
 
