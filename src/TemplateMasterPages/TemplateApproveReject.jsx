@@ -42,12 +42,14 @@ export default function TemplateApproveReject() {
   const [editTemplate, setEditTemplate] = useState(null);
   const [editFormData, setEditFormData] = useState({});
   const [openFillModal, setOpenFillModal] = useState(false);
-  console.log(approvalTemplate);
+
   const assignedTemplates =
     getAllAssignedTemp?.data?.flatMap(
       (user) =>
-        user?.assigned_templates?.map((t) => ({
-          ...t,
+        user?.submissions?.map((submission) => ({
+          ...submission,
+          ...submission?.template,
+          submission: submission,
           user_id: user?.user_id,
           user_db_id: user?._id,
           full_name: user?.full_name,
@@ -57,7 +59,6 @@ export default function TemplateApproveReject() {
         })) || [],
     ) || [];
 
-  // Backend already returns only templates where current approver is logged-in user (handles reassign).
   const filteredTemplates = assignedTemplates.filter((t) =>
     t?.template_name?.toLowerCase().includes(searchText.toLowerCase()),
   );
@@ -165,7 +166,6 @@ export default function TemplateApproveReject() {
     }
   };
 
-  // Backend sends only previous approvers (who have already approved) as allowed reassign targets. HOD cannot reassign.
   const getReassignOptions = (template) => {
     const users = template?.allowed_reassign_users || [];
     return users.map((u) => ({
@@ -233,12 +233,31 @@ export default function TemplateApproveReject() {
     );
   };
 
-  const fields =
-    approvalTemplate?.workflow?.workflow.flatMap(
-      (item) => item?.fields || [],
-    ) || [];
+  const current_stage = approvalTemplate?.current_approver_stage ?? 0;
 
-  console.log(fields);
+  const fields =
+  approvalTemplate?.workflow?.workflow?.[current_stage]?.fields || [];
+
+
+  const selectedTemplateFields =
+    selectedTemplate?.workflow?.workflow?.[0]?.fields || [];
+
+
+
+
+
+  const fieldMap =
+    selectedTemplateFields?.reduce((acc, field) => {
+      acc[field._id] = field.field_name;
+      return acc;
+    }, {}) || {};
+
+
+
+  const getWorkflowFormData = (formData) => {
+    if (!formData || selectedTemplateFields.length === 0) return {};
+    return formData;
+  };
   const initialValues = fields?.reduce((acc, field) => {
     acc[field._id] = field.field_name;
     return acc;
@@ -247,10 +266,8 @@ export default function TemplateApproveReject() {
   const formikForForm = useFormik({
     initialValues,
     onSubmit: (values) => {
-     
       const previousFormData = approvalTemplate?.submission?.prev || {};
 
-    
       const newFormData = {};
       Object.keys(values).forEach((fieldId) => {
         const field = fields.find((f) => f._id === fieldId);
@@ -259,23 +276,23 @@ export default function TemplateApproveReject() {
         }
       });
 
-   
       const payload = {
-        ...previousFormData,
-        ...newFormData,
+        form_data: { ...previousFormData, ...newFormData },
+        status: "SUBMITTED",
       };
 
-      
-
-      updateSubmission.mutate({
-        id: approvalTemplate?.submission?.submission_id,
-        payload: payload,
-      },{
-        onSuccess:()=>{
-         setOpenFillModal(false);
-         formikForForm.resetForm()
-        }
-      });
+      updateSubmission.mutate(
+        {
+          id: approvalTemplate?.submission?.submission_id,
+          payload: payload,
+        },
+        {
+          onSuccess: () => {
+            setOpenFillModal(false);
+            formikForForm.resetForm();
+          },
+        },
+      );
     },
   });
 
@@ -484,20 +501,27 @@ export default function TemplateApproveReject() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {Object.entries(
-                      selectedTemplate?.submission?.form_data || {},
-                    ).map(([key, value]) => (
-                      <div
-                        key={key}
-                        className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4"
-                      >
-                        <p className="text-xs font-semibold uppercase text-indigo-600 mb-1">
-                          {key}
-                        </p>
-                        <p className="text-sm font-medium text-gray-900">
-                          {String(value)}
-                        </p>
-                      </div>
-                    ))}
+                      getWorkflowFormData(
+                        selectedTemplate?.submission?.form_data,
+                      ),
+                    ).map(([key, value]) => {
+                      const fieldName = fieldMap[key] || key;
+                      const keys = fieldName.split("~");
+
+                      return (
+                        <div
+                          key={key}
+                          className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4"
+                        >
+                          <p className="text-xs font-semibold  text-indigo-600 mb-1">
+                            {keys[0]} :
+                            <span className="text-sm pl-2 font-medium text-gray-900">
+                              {String(value)}
+                            </span>{" "}
+                          </p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -506,9 +530,7 @@ export default function TemplateApproveReject() {
                   <h3 className="text-lg font-semibold mb-4 text-gray-900">
                     Template Status History
                   </h3>
-                  <p className="text-sm text-gray-500 mb-3">
-                    Kisne kab approve, reject ya reassign kiya
-                  </p>
+
                   {selectedTemplate?.approvals?.length > 0 ? (
                     <div className="overflow-x-auto rounded-xl border border-gray-200">
                       <table className="min-w-full text-sm">
@@ -706,52 +728,138 @@ export default function TemplateApproveReject() {
         {openFillModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl p-6">
-              <h2 className="text-xl font-semibold text-green-600 mb-4">
-                Approval Remarks
+              <h2 className="text-xl font-semibold text-[#ffb900] mb-4">
+                Fill Out the Form
               </h2>
 
               <form onSubmit={formikForForm.handleSubmit}>
-                {fields.map((field) => (
-                  <div className="mb-6" key={field._id}>
-                    <label className="block text-sm font-medium text-gray-600 mb-2">
-                      {field.field_name}
-                      {field.is_mandatory && (
-                        <span className="text-red-500"> *</span>
-                      )}
-                    </label>
+                {fields?.length === 0 ? (
+                  <div className="flex h-full min-h-[300px] items-center justify-center bg-gray-50">
+                    <div className="flex flex-col items-center rounded-xl bg-white px-8 py-10 shadow-md">
+                      <h2 className="mb-2 text-xl font-semibold text-gray-800">
+                        No Data Found
+                      </h2>
 
-                    {field.field_type === "NUMBER" && (
-                      <input
-                        type="number"
-                        name={field._id}
-                        value={formikForForm.values[field._id]}
-                        onChange={formikForForm.handleChange}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                      />
-                    )}
-
-                    {field.field_type === "TEXT" && (
-                      <input
-                        type="text"
-                        name={field._id}
-                        value={formikForForm.values[field._id]}
-                        onChange={formikForForm.handleChange}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                      />
-                    )}
-
-                    {field.field_type === "TEXTAREA" && (
-                      <textarea
-                        name={field._id}
-                        value={formikForForm.values[field._id]}
-                        onChange={formikForForm.handleChange}
-                        rows={4}
-                        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
-                      />
-                    )}
+                      <p className="mb-6 text-center text-sm text-gray-500">
+                        We couldn’t find any records to display.
+                      </p>
+                    </div>
                   </div>
-                ))}
+                ) : (
+                  fields?.map((field) => (
+                    <div className="mb-6" key={field?._id}>
+                      <label className="block text-sm font-medium text-gray-600 mb-2">
+                        {field.field_name}
+                        {field.is_mandatory && (
+                          <span className="text-red-500"> *</span>
+                        )}
+                      </label>
 
+                      {field.field_type === "TEXT" && (
+                        <input
+                          type="text"
+                          name={field._id}
+                          value={formikForForm.values[field?._id]}
+                          onChange={formikForForm.handleChange}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                        />
+                      )}
+
+                      {field.field_type === "NUMBER" && (
+                        <input
+                          type="number"
+                          name={field._id}
+                          value={formikForForm.values[field._id]}
+                          onChange={formikForForm.handleChange}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                        />
+                      )}
+
+                      {field.field_type === "TEXTAREA" && (
+                        <textarea
+                          name={field._id}
+                          value={formikForForm.values[field._id]}
+                          onChange={formikForForm.handleChange}
+                          rows={4}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                        />
+                      )}
+
+                      {field.field_type === "DATE" && (
+                        <input
+                          type="date"
+                          name={field._id}
+                          value={formikForForm.values[field._id]}
+                          onChange={formikForForm.handleChange}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                        />
+                      )}
+
+                      {field.field_type === "CHECKBOX" && (
+                        <input
+                          type="checkbox"
+                          name={field._id}
+                          checked={formikForForm.values[field._id]}
+                          onChange={formikForForm.handleChange}
+                          className="h-4 w-4 text-blue-600"
+                        />
+                      )}
+
+                      {field.field_type === "DROPDOWN" && (
+                        <select
+                          name={field._id}
+                          value={formikForForm.values[field._id]}
+                          onChange={formikForForm.handleChange}
+                          className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">Select an option</option>
+                          {field.options?.map((option, index) => (
+                            <option key={index} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+
+                      {field.field_type === "RADIO" && (
+                        <div className="space-y-2">
+                          {field.options?.map((option, index) => (
+                            <label
+                              key={index}
+                              className="flex items-center gap-2 text-sm"
+                            >
+                              <input
+                                type="radio"
+                                name={field._id}
+                                value={option}
+                                checked={
+                                  formikForForm.values[field._id] === option
+                                }
+                                onChange={formikForForm.handleChange}
+                                className="text-blue-600"
+                              />
+                              {option}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+
+                      {field.field_type === "IMAGE" && (
+                        <input
+                          type="file"
+                          name={field._id}
+                          onChange={(event) =>
+                            formikForForm.setFieldValue(
+                              field._id,
+                              event.currentTarget.files[0],
+                            )
+                          }
+                          className="w-full text-sm text-gray-600"
+                        />
+                      )}
+                    </div>
+                  ))
+                )}
                 <div className="flex justify-end gap-3">
                   <button
                     type="button"
@@ -905,7 +1013,7 @@ export default function TemplateApproveReject() {
                   Object.entries(editFormData).map(([key, value]) => (
                     <div key={key} className="space-y-1">
                       <label className="block text-xs font-semibold uppercase text-gray-500">
-                        {key}
+                        {key.split("~")[0]}
                       </label>
                       <input
                         type="text"
