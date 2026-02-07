@@ -14,7 +14,7 @@ import {
 import { usePlcData } from "../hooks/usePlcData";
 import { usePlcProduct } from "../hooks/usePlcProduct";
 import { toast } from "react-toastify";
-import SearchableSelect from "../Components/SearchableDropDown/SearchableDropdown";
+// import SearchableSelect from "../Components/SearchableDropDown/SearchableDropdown";
 import { useFormik } from "formik";
 import { useQualityCheck } from "../hooks/useQualityCheck";
 import Refresh from "../components/Refresh/Refresh";
@@ -34,6 +34,7 @@ export default function PlcProducts() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [page, setPage] = useState(1)
   const [isSpinning, setIsSpinning] = useState(false)
+  
 
   const { getAllQualityChecks, createQualityCheck, updateQualityCheck, deleteQualityCheck } = useQualityCheck({
     search,
@@ -147,6 +148,7 @@ export default function PlcProducts() {
     const approvedValue = Number(e.target.value)
     const totalProductionCount = Number(values.production_count)
 
+
     setFieldValue("approve_quantity", approvedValue)
 
     if (totalProductionCount >= approvedValue) {
@@ -173,15 +175,46 @@ export default function PlcProducts() {
     return Array.from(machines).sort();
   }, [plcDataList, productsList]);
 
-  const [editForm, setEditForm] = useState({ approve_quantity: 0, reject_quantity: 0 });
+  const [editForm, setEditForm] = useState({ total_quantity:0, approve_quantity: 0, reject_quantity: 0 });
 
   const handleEditFormChange = (field, val) => {
+    const numericVal = Number(val);
+
+  if (field === "approve_quantity") {
+    const totalQuantity = Number(editForm.total_quantity) || 0;
+
+    setEditForm((prev) => ({
+      ...prev,
+      approve_quantity: numericVal,
+      reject_quantity: totalQuantity >= numericVal ? totalQuantity - numericVal : 0,
+    }));
+
+    if (numericVal > Number(editForm.total_quantity)) {
+      toast.warn("Approved Quantity cannot exceed Total Quantity");
+    }
+  } 
+  else if (field === "reject_quantity") {
+    const totalQuantity = Number(editForm.total_quantity) || 0;
+
+    setEditForm((prev) => ({
+      ...prev,
+      approve_quantity: totalQuantity >= numericVal ? totalQuantity - numericVal : 0,
+      reject_quantity: numericVal,
+    }));
+
+    if (numericVal > Number(editForm.total_quantity)) {
+      toast.warn("Reject Quantity cannot exceed Total Quantity");
+    }
+  }
+  else {
     setEditForm((prev) => ({ ...prev, [field]: val }));
+  }
   };
 
   const handleEdit = (product) => {
     setSelectedProduct(product);
     setEditForm({
+      total_quantity:(product.approve_quantity + product.reject_quantity) ?? 0,
       approve_quantity: product.approve_quantity ?? 0,
       reject_quantity: product.reject_quantity ?? 0,
     });
@@ -194,6 +227,8 @@ export default function PlcProducts() {
       await updateQualityCheck.mutateAsync({
         id: selectedProduct._id,
         data: {
+
+          total_quantity: Number(editForm.total_quantity) || 0,
           approve_quantity: Number(editForm.approve_quantity) || 0,
           reject_quantity: Number(editForm.reject_quantity) || 0,
         },
@@ -601,6 +636,19 @@ export default function PlcProducts() {
             </div>
 
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Total Quantity
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  disabled
+                  value={editForm.total_quantity}
+                  className="w-full rounded-lg border  border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 "
+                  placeholder="Enter approve quantity"
+                />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Approve Quantity
