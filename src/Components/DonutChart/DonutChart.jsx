@@ -2,16 +2,23 @@ import React from "react";
 import { Timer, TimerReset, TimerOff } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 
-const DonutChart = () => {
+const DonutChart = ({ runTime = 0, stopTime = 0, idleTime = 0 }) => {
   const data = [
-    { name: "Run Time", value: 513, color: "#5fad57" },
-    { name: "Idle Time", value: 36, color: "#e6c245" },
-    { name: "Stop Time", value: 66, color: "#db4d3d" },
+    { name: "Run Time", value: runTime, color: "#5fad57" },
+    { name: "Idle Time", value: idleTime, color: "#e6c245" },
+    { name: "Stop Time", value: stopTime, color: "#db4d3d" },
   ];
 
   const totalMinutes = data.reduce((sum, item) => sum + item.value, 0);
 
-
+  const formatDuration = (totalMins) => {
+    const hours = Math.floor(totalMins / 60);
+    const minutes = totalMins % 60;
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes} min`;
+  };
 
   return (
     <div className="w-full bg-gradient-to-br from-slate-50 mt-5 to-white rounded-2xl border border-slate-200 shadow-sm p-6">
@@ -46,13 +53,13 @@ const DonutChart = () => {
                   className="text-2xl font-bold mt-0.5"
                   style={{ color: item.color }}
                 >
-                  {item.value} min
+                  {formatDuration(item.value)}
                 </div>
               </div>
 
               <div className="text-right">
                 <div className="text-xs text-slate-400">
-                  {((item.value / totalMinutes) * 100).toFixed(0)}%
+                  {totalMinutes > 0 ? ((item.value / totalMinutes) * 100).toFixed(0) : 0}%
                 </div>
               </div>
             </div>
@@ -102,16 +109,7 @@ const DonutChart = () => {
                 dominantBaseline="middle"
                 className="text-2xl font-bold fill-slate-800"
               >
-                {totalMinutes}
-              </text>
-              <text
-                x="50%"
-                y="62%"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                className="text-sm font-medium fill-slate-500"
-              >
-                minutes
+                {formatDuration(totalMinutes)}
               </text>
             </PieChart>
           </ResponsiveContainer>

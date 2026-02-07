@@ -426,7 +426,8 @@ const filters = useMemo(() => {
   endDate,
 ]);
 
-  const { getAllPlcData } = usePlcData(filters);
+  const { getAllPlcData, getPlcTimeDistribution } = usePlcData(filters);
+  const { data: timeDistribution = { runTime: 0, stopTime: 0, idleTime: 0 } } = getPlcTimeDistribution || {};
   const { getAllPlcData: getAllForOptions } = usePlcData({}, { live: true });
   const { getAllPlcProducts } = usePlcProduct({});
   const { data: plcDataList = [], isLoading, isFetching } = getAllPlcData;
@@ -1102,7 +1103,11 @@ const SlicedStoppages = stoppages.slice(0, 4);
 
         <DowntimeCharts />
 
-        <DonutChart />
+        <DonutChart 
+          runTime={timeDistribution.runTime}
+          stopTime={timeDistribution.stopTime}
+          idleTime={timeDistribution.idleTime}
+        />
 
         {/* Charts */}
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
