@@ -596,7 +596,7 @@ export default function PlcLiveData() {
           </div>
 
           {/* Date Range */}
-          <div className="flex  flex-col gap-1">
+          {/* <div className="flex  flex-col gap-1">
             <label className="text-[11px] font-semibold text-slate-500">
               Date Range
             </label>
@@ -604,7 +604,7 @@ export default function PlcLiveData() {
               value={dateRangePreset}
               onChange={(e) => {
                 setDateRangePreset(e.target.value);
-                // Optional: clear custom dates when preset changes
+               
                 if (e.target.value !== "Custom") {
                   setStartDate("");
                   setEndDate("");
@@ -619,7 +619,6 @@ export default function PlcLiveData() {
               <option value="Custom">Custom Range</option>
             </select>
 
-            {/* Show date inputs only when Custom is selected */}
             {dateRangePreset === "Custom" && (
               <div className="mt-1 flex gap-2">
                 <div className="flex-1">
@@ -640,7 +639,7 @@ export default function PlcLiveData() {
                 </div>
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* Machine Name */}
           <div className="flex  flex-col gap-1">
@@ -697,14 +696,14 @@ export default function PlcLiveData() {
         </section>
 
         {/* Run Time / Idle Time / Stop Time Cards & Doughnut Chart */}
-        <DonutChart
+        {/* <DonutChart
           runTime={timeDistribution.runTime ?? 0}
           stopTime={timeDistribution.stopTime ?? 0}
           idleTime={timeDistribution.idleTime ?? 0}
-        />
+        /> */}
 
         {/* Downtime Charts */}
-        <DowntimeCharts filters={filters} />
+        {/* <DowntimeCharts filters={filters} /> */}
 
         {/* PLC Machine Data */}
         <div className="mt-8">
