@@ -170,10 +170,10 @@ function PlcMachineCard({ machine, products = [] }) {
             <p className="text-green-600">Running</p>
           ) : (
             <p className="font-medium text-gray-800">
-              {machine.Stop_time
-                ? formatDate(machine.Stop_time)
-                : machine.Stop_time
-                  ? formatDate(machine.Stop_time)
+              {machine?.Stop_time
+                ? formatDate(machine?.Stop_time)
+                : machine?.Stop_time
+                  ? formatDate(machine?.Stop_time)
                   : "—"}
             </p>
           )}
