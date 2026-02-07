@@ -69,6 +69,25 @@ export const usePlcData = (filters = {}, options = {},page,limit) => {
     refetchInterval: live ? 10000 : false,
   });
 
+  // 7. Get PLC Time Distribution
+  const getPlcTimeDistribution = useQuery({
+    queryKey: ["plc-time-distribution", { startDate, endDate, company_name, plant_name, device_id, model, status }],
+    queryFn: async () => {
+      const params = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      if (company_name) params.companyName = company_name;
+      if (plant_name) params.plantName = plant_name;
+      if (device_id) params.deviceId = device_id;
+      if (model) params.model = model;
+      if (status) params.status = status;
+
+      const res = await axiosHandler.get("/plc-data/analytics/time-distribution", { params });
+      return res?.data?.data || { runTime: 0, stopTime: 0, idleTime: 0 };
+    },
+    refetchInterval: live ? 10000 : false,
+  });
+
   const createPlcData = useMutation({
     mutationFn: async (data) => {
       const res = await axiosHandler.post("/plc-data", data);
@@ -115,6 +134,7 @@ export const usePlcData = (filters = {}, options = {},page,limit) => {
     getAllPlcData,
     getPlcErrorDistribution,
     getPlcDowntimeByMachine,
+    getPlcTimeDistribution,
     createPlcData,
     updatePlcData,
     deletePlcData,
