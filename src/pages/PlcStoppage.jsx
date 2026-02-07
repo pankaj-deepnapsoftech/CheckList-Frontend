@@ -325,15 +325,17 @@ export default function PlcStoppage() {
     () => stoppages.filter((s) => s.durationMinutes != null).length,
     [stoppages]
   );
+  const totalIdleMinutes = useMemo(
+    () => stoppages.filter(s => s.type === 'idle').reduce((sum, s) => sum + (s.durationMinutes ?? 0), 0),
+    [stoppages]
+  );
   const totalMinutes = useMemo(
     () => stoppages.reduce((sum, s) => sum + (s.durationMinutes ?? 0), 0),
     [stoppages]
   );
 
-  const totalIdleMinutes = useMemo(
-    () => stoppages.filter(s => s.type === 'idle').reduce((sum, s) => sum + (s.durationMinutes ?? 0), 0),
-    [stoppages]
-  );
+  const totalFinalMinutes = totalMinutes-totalIdleMinutes
+
 
   const runningMachines = useMemo(() => {
     return (plcList || []).filter((r) => r.Start_time && !r.Stop_time).length;
@@ -348,6 +350,7 @@ export default function PlcStoppage() {
     await Promise.all([refetch(), minDelay]);
     setShowRefresh(false); // Hide overlay
   };
+  
 
 
   return (
@@ -432,7 +435,7 @@ export default function PlcStoppage() {
                 Total Recorded Time
               </p>
               <p className="mt-1 text-2xl font-semibold text-amber-600">
-                {formatDurationHoursMinutes(totalMinutes)}
+                {(formatDurationHoursMinutes(totalFinalMinutes))}
               </p>
               <p className="mt-1 text-[11px] text-amber-600">Recorded Time</p>
             </div>
