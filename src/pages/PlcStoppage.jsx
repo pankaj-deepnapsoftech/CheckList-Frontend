@@ -44,7 +44,9 @@ function formatDurationHoursMinutes(totalMinutes) {
 export default function PlcStoppage() {
   const [selectedDevice, setSelectedDevice] = useState("");
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(1000)
+  const [limit, setLimit] = useState(10)
+  const [showRefresh, setShowRefresh] = useState(false);
+  
   const filters = useMemo(() => {
     const f = {};
     if (selectedDevice && selectedDevice !== "All"){
@@ -243,6 +245,14 @@ export default function PlcStoppage() {
 
     const uniqueDevices = [...new Set(plcList.map((item) => item.device_id).filter(Boolean))];
 
+    const handleRefresh = async () => {
+    setPage(page);
+    setShowRefresh(true);
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 1000));
+    await Promise.all([refetch(), minDelay]);
+    setShowRefresh(false); // Hide overlay
+  };
+
 
   return (
       <div className="min-h-full bg-gray-50">
@@ -258,14 +268,20 @@ export default function PlcStoppage() {
             </div>
             <button
               type="button"
-              onClick={() => refetch()}
+              onClick={handleRefresh}
               disabled={isLoading}
               className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 disabled:opacity-50"
             >
-              <RefreshCw size={16} className={isLoading ? "animate-spin" : ""} />
+              <RefreshCw size={16} className={showRefresh ? "animate-spin" : ""} />
               Refresh
             </button>
           </div>
+          {showRefresh && (
+            <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-gray-100 bg-white py-8 text-gray-500">
+              <Loader2 size={24} className="animate-spin" />
+              <span>Refreshing stoppage data…</span>
+            </div>
+          )}
 
           {isLoading && (
             <div className="mt-4 flex items-center justify-center gap-2 rounded-xl border border-gray-100 bg-white py-8 text-gray-500">
@@ -286,7 +302,7 @@ export default function PlcStoppage() {
               <p className="mt-1 text-2xl font-semibold text-emerald-600">
                 {runningMachines}
               </p>
-              <p className="mt-1 text-[11px] text-emerald-700">Currently running</p>
+              <p className="mt-1 text-[11px] text-emerald-700">Currently Running</p>
             </div>
 
             <div className="rounded-xl border border-blue-100  px-4 py-3 shadow-sm bg-blue-50/60">
@@ -295,7 +311,7 @@ export default function PlcStoppage() {
               <p className="mt-1 text-2xl font-semibold text-blue-600">
                 {totalStoppages}
               </p>
-              <p className="mt-1 text-[11px] text-blue-700">Currently Stoppages</p>
+              <p className="mt-1 text-[11px] text-blue-700">Currently Recorded</p>
             </div>
             <div className="rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3 shadow-sm">
               <p className="text-xs font-medium text-gray-500">
@@ -304,16 +320,16 @@ export default function PlcStoppage() {
               <p className="mt-1 text-2xl font-semibold text-amber-600">
                 {formatDurationHoursMinutes(totalMinutes)}
               </p>
-              {/* <p className="mt-1 text-[11px] text-emerald-700">Total Time Stoppage</p> */}
+              <p className="mt-1 text-[11px] text-amber-600">Recorded Time</p>
             </div>
-            <div className="rounded-xl border border-emerald-100 bg-white px-4 py-3 shadow-sm">
+            <div className="rounded-xl border border-emerald-100 bg-emerald-100/30  px-4 py-3 shadow-sm">
               <p className="text-xs font-medium text-gray-500">
-                Average Duration
+                Average Duration Time
               </p>
               <p className="mt-1 text-2xl font-semibold text-emerald-600">
                 {completedStoppages ? formatDurationHoursMinutes(Math.round(totalMinutes / completedStoppages)) : "—"}
               </p>
-              {/* <p className="mt-1 text-[11px] text-emerald-700">Total Average Duration</p> */}
+              <p className="mt-1 text-[11px] text-emerald-700">Duration Time</p>
             </div>
 
             <div className="rounded-xl border border-purple-100 bg-purple-50/60 px-4 py-3 shadow-sm">
@@ -329,12 +345,12 @@ export default function PlcStoppage() {
 
           <div className="flex flex-col gap-1 mt-3">
                 <label className="text-xs font-medium text-gray-500">
-                  Machine ID
+                  Machine Name
                 </label>
                 <select
                   value={selectedDevice}
                   onChange={(e) => setSelectedDevice(e.target.value)}
-                  className="h-9 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="h-9 w-48 rounded-lg border border-gray-200 bg-gray-50 px-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">All Machines</option>
                   {uniqueDevices.map((device) => (
@@ -349,7 +365,7 @@ export default function PlcStoppage() {
             <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
               <div>
                 <h2 className="text-sm font-semibold text-gray-800">
-                  Stoppage Details (Today)
+                  Stoppage Details 
                 </h2>
                 <p className="text-xs text-gray-500">
                   Machine name, start / stop time and stoppage duration.
@@ -446,7 +462,7 @@ export default function PlcStoppage() {
         page={page}
         setPage={setPage}
         hasNextpage={stoppages?.length === limit}
-      />
+      /> 
           </>
           )}
         </div>
